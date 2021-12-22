@@ -15,6 +15,11 @@ namespace revive
 		{
 			bool result = Application::Initialize();
 
+			if (result)
+			{
+				LOG_INFO("Welcome to Test App");
+			}
+
 			return result;
 		}
 

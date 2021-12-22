@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <typeinfo>
 
 namespace client_fw
 {
@@ -21,5 +22,5 @@ namespace client_fw
 	}
 
 	template<typename T>
-	using WPtr = std::weak_ptr<T>;
+	using WPtr = std::weak_ptr<T>;	
 }

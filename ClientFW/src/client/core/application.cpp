@@ -15,13 +15,11 @@ namespace client_fw
 
 	bool Application::Initialize()
 	{
-		std::cout << "Hello World" << std::endl;
 		return true;
 	}
 
 	void Application::Shutdown()
 	{
-		std::cout << "Good Bye" << std::endl;
 	}
 
 	void Application::Run()

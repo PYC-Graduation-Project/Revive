@@ -1,0 +1,3 @@
+[submodule "ClientFW/vendor/spdlog"]
+	path = ClientFW/vendor/spdlog
+	url = https://github.com/gabime/spdlog

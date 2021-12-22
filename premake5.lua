@@ -8,7 +8,7 @@ workspace "Revive"
 		"Release"
 	}
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}-%{cfg.architecture}"
 
 IncludeDir = {}
 

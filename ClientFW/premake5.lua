@@ -20,6 +20,7 @@ project "ClientFW"
 	includedirs
 	{
 		"src",
+		"vendor/spdlog/include",
 	}
 
 	links
@@ -35,4 +36,4 @@ project "ClientFW"
 
 	filter "configurations:Release"
 		defines "ClientFW_RELEASE"
-		symbols "On"
+		optimize "On"

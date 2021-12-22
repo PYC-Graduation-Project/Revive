@@ -16,7 +16,8 @@ project "Revive"
 	includedirs
 	{
 		"%{wks.location}/ClientFW/src",
-		"%{wks.location}/Revive/src"
+		"%{wks.location}/ClientFW/vendor/spdlog/include",
+		"%{wks.location}/Revive/src",
 	}
 	
 	links
@@ -33,4 +34,4 @@ project "Revive"
 
 	filter "configurations:Release"
 		defines "Revive_RELEASE"
-		symbols "On"
+		optimize "On"
