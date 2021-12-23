@@ -6,7 +6,7 @@ namespace revive
 	class TestApp : public client_fw::Application
 	{
 	public:
-		TestApp() : Application("Test App")
+		TestApp() : Application(L"Test App")
 		{
 
 		}
@@ -21,6 +21,11 @@ namespace revive
 			}
 
 			return result;
+		}
+
+		void Shutdown() override
+		{
+			LOG_INFO("Good Bye");
 		}
 
 		virtual ~TestApp()
