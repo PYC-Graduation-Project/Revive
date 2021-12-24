@@ -5,8 +5,11 @@
 
 #include <memory>
 
+#define SPDLOG_WCHAR_TO_UTF8_SUPPORT
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+
 
 namespace client_fw
 {

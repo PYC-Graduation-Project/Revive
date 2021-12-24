@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/core/application.h"
 #include "client/core/timer.h"
+#include "client/renderer/core/renderer.h"
 
 namespace client_fw
 {
@@ -15,6 +16,7 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
+		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
 	Application::~Application()
@@ -39,12 +41,27 @@ namespace client_fw
 		}
 		m_timer->OnFpsChanged([this](UINT fps) {ShowFpsToWindowTitle(fps); });
 
+		result = m_renderer->Initialize();
+		if (result == false)
+		{
+			LOG_ERROR("Could not initialize renderer");
+			return false;
+		}
+
 		return true;
 	}
 
 	void Application::Shutdown()
 	{
-		
+		m_renderer->Shutdown();
+		m_renderer = nullptr;
+
+#if defined(_DEBUG)
+		IDXGIDebug1* giDebug = nullptr;
+		DXGIGetDebugInterface1(0, IID_PPV_ARGS(&giDebug));
+		HRESULT result = giDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_DETAIL);
+		giDebug->Release();
+#endif
 	}
 
 	void Application::Run()
@@ -76,11 +93,15 @@ namespace client_fw
 
 	void Application::Update(float delta_time)
 	{
-		
 	}
 
 	void Application::Render()
 	{
+		if (m_renderer->Render() == false)
+		{
+			LOG_ERROR("Rendering Error");
+			SetAppState(eAppState::kDead);
+		}
 	}
 
 	void Application::ChangeWindowSize(UINT width, UINT height)

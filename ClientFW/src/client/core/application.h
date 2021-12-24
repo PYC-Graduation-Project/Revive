@@ -26,6 +26,7 @@ namespace client_fw
 	};
 
 	class Timer;
+	class Renderer;
 
 	class Application
 	{
@@ -60,6 +61,7 @@ namespace client_fw
 
 		SPtr<Window> m_window;
 		UPtr<Timer> m_timer;
+		UPtr<Renderer> m_renderer;
 
 	public:
 		inline static Application* GetApplication() { return s_instance; }

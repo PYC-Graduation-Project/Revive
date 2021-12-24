@@ -6,7 +6,6 @@ namespace client_fw
 	{
 	public:
 		Timer() = default;
-		~Timer() = default;
 
 		Timer(const Timer&) = delete;
 		Timer& operator=(const Timer&) = delete;

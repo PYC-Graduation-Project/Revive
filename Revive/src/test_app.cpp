@@ -25,6 +25,8 @@ namespace revive
 
 		void Shutdown() override
 		{
+			Application::Shutdown();
+
 			LOG_INFO("Good Bye");
 		}
 
