@@ -1,6 +1,6 @@
 workspace "Revive"
 	architecture "x64"
-	startproject "Revive"
+	startproject "ClientTest"
 
 	configurations
 	{
@@ -16,4 +16,5 @@ group "Dependencies"
 group ""
 
 include "ClientFW"
+include "ClientTest"
 include "Revive"
