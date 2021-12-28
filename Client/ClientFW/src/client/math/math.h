@@ -9,11 +9,12 @@ using namespace DirectX::PackedVector;
 #include "client/math/ivec2.h"
 
 #include "client/math/vec3.h"
-
 #include "client/math/vec4.h"
 
 #include "client/math/mat3.h"
 #include "client/math/mat4.h"
+
+#include "client/math/quaternion.h"
 
 namespace client_fw
 {
@@ -165,17 +166,28 @@ namespace client_fw
 
 		inline Vec3 TransformNormal(const Vec3& vec, const Mat4& mat)
 		{
-			return Vec3();
+			Vec3 ret;
+			XMStoreFloat3(&ret, XMVector3TransformNormal(XMLoadFloat3(&vec), XMLoadFloat4x4(&mat)));
+			return ret;
 		}
 
 		inline Vec3 TransformCoord(const Vec3& vec, const Mat4& mat)
 		{
-			return Vec3();
+			Vec3 ret;
+			XMStoreFloat3(&ret, XMVector3TransformCoord(XMLoadFloat3(&vec), XMLoadFloat4x4(&mat)));
+			return ret;
 		}
 	}
 
 	namespace mat3
 	{
+		inline float GetDeterminant(const Mat3& mat)
+		{
+			float ret;
+			XMStoreFloat(&ret, XMMatrixDeterminant(XMLoadFloat3x3(&mat)));
+			return ret;
+		}
+
 		inline Mat3 CreateScale(float x, float y)
 		{
 			Mat3 ret;
@@ -219,6 +231,13 @@ namespace client_fw
 
 	namespace mat4
 	{
+		inline float GetDeterminant(const Mat4& mat)
+		{
+			float ret;
+			XMStoreFloat(&ret, XMMatrixDeterminant(XMLoadFloat4x4(&mat)));
+			return ret;
+		}
+
 		inline Mat4 CreateScale(float x, float y, float z)
 		{
 			Mat4 ret;
@@ -259,7 +278,12 @@ namespace client_fw
 			return ret;
 		}
 
-		//inline Mat4 CreateRotationFromQuaternion(const Quaternion& q);
+		inline Mat4 CreateRotationFromQuaternion(const Quaternion& q)
+		{
+			Mat4 ret;
+			XMStoreFloat4x4(&ret, XMMatrixRotationQuaternion(XMLoadFloat4(&q)));
+			return ret;
+		}
 
 		inline Mat4 CreateTranslation(float x, float y, float z)
 		{
@@ -313,6 +337,70 @@ namespace client_fw
 		inline Mat4 InverseTranspose(const Mat4& mat)
 		{
 			return Transpose(Inverse(mat));
+		}
+	}
+
+	namespace quat
+	{
+		inline Quaternion CreateQuaternionFromAxis(const Vec3& v, float radian)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionRotationAxis(XMLoadFloat3(&v), radian));
+			return ret;
+		}
+
+		inline Quaternion CreateQuaternionFromNormal(const Vec3& v, float radian)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionRotationNormal(XMLoadFloat3(&v), radian));
+			return ret;
+		}
+
+		inline Quaternion CreateQuaternionFromRollPitchYaw(float pitch, float yaw, float roll)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
+			return ret;
+		}
+
+		inline Quaternion Conjugate(const Quaternion& q)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionConjugate(XMLoadFloat4(&q)));
+			return ret;
+		}
+
+		inline float Length(const Quaternion& q)
+		{
+			float ret;
+			XMStoreFloat(&ret, XMQuaternionLength(XMLoadFloat4(&q)));
+			return ret;
+		}
+
+		inline Quaternion Normalize(const Quaternion& q)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionNormalize(XMLoadFloat4(&q)));
+			return ret;
+		}
+
+		inline float Dot(const Quaternion& q1, const Quaternion& q2)
+		{
+			float ret;
+			XMStoreFloat(&ret, XMQuaternionDot(XMLoadFloat4(&q1), XMLoadFloat4(&q2)));
+			return ret;
+		}
+
+		inline Quaternion Slerp(const Quaternion& q1, const Quaternion& q2, float t)
+		{
+			Quaternion ret;
+			XMStoreFloat4(&ret, XMQuaternionSlerp(XMLoadFloat4(&q1), XMLoadFloat4(&q2), t));
+			return ret;
+		}
+
+		inline void GetAxisRadianFromQuaternion(Vec3& axis, float& radian, const Quaternion& q)
+		{
+			XMQuaternionToAxisAngle(&XMLoadFloat3(&axis), &radian, XMLoadFloat4(&q));
 		}
 	}
 }
