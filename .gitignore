@@ -397,9 +397,9 @@ MigrationBackup/
 # End of https://www.toptal.com/developers/gitignore/api/c++,visualstudio
 
 # Binaries
-**/bin/
-!vendor/premake/bin/
-bin-int/
+**Client/bin/
+!Client/vendor/premake/bin/
+Client/bin-int/
 
 # PYC files
 *.log
