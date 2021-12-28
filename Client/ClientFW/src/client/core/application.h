@@ -26,6 +26,7 @@ namespace client_fw
 	};
 
 	class Timer;
+	class InputManager;
 	class Renderer;
 
 	class Application
@@ -61,6 +62,7 @@ namespace client_fw
 
 		SPtr<Window> m_window;
 		UPtr<Timer> m_timer;
+		UPtr<InputManager> m_input_manager;
 		UPtr<Renderer> m_renderer;
 
 	public:

@@ -45,7 +45,9 @@ using Microsoft::WRL::ComPtr;
 #include <unordered_map>
 #include <limits>
 #include <filesystem>
+#include <bitset>
 
 #include "client/core/core.h"
 #include "client/core/log.h"
+#include "client/input/input.h"
 #include "client/math/math.h"

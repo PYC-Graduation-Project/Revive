@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/core/application.h"
 #include "client/core/timer.h"
+#include "client/input/input_manager.h"
 #include "client/renderer/core/renderer.h"
 
 namespace client_fw
@@ -16,6 +17,7 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
+		m_input_manager = CreateUPtr<InputManager>(m_window->hWnd);
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -79,6 +81,7 @@ namespace client_fw
 			}
 			else if (GetAppState() == eAppState::kActive)
 			{
+				m_input_manager->Update();
 				ProcessInput();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
@@ -165,6 +168,7 @@ namespace client_fw
 		LRESULT result = NULL;
 
 		const auto& app = Application::GetApplication();
+		const auto& input_manager = app->m_input_manager;
 
 		switch (message)
 		{
@@ -183,6 +187,7 @@ namespace client_fw
 		case WM_KEYUP:
 		case WM_SYSKEYDOWN:
 		case WM_SYSKEYUP:
+			input_manager->ChangeKeyState(message, wParam, lParam);
 			break;
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
@@ -191,6 +196,7 @@ namespace client_fw
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
 		case WM_MOUSEMOVE:
+			input_manager->ChangeMouseState(message, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			break;
 		case WM_DESTROY:
 		case WM_CLOSE:
