@@ -22,4 +22,10 @@ namespace client_fw
 
 	template<typename T>
 	using WPtr = std::weak_ptr<T>;	
+
+	template<typename Enum>
+	constexpr typename std::underlying_type<Enum>::type ToUnderlying(Enum e) noexcept
+	{
+		return static_cast<typename std::underlying_type<Enum>::type>(e);
+	}
 }

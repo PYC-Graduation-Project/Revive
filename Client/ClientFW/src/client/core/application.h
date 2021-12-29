@@ -13,18 +13,7 @@ namespace client_fw
 		kDead
 	};
 
-	struct Window
-	{
-		UINT width, height;
-		HWND hWnd;
-		HINSTANCE hInstance;
-
-		Window(UINT width = GetSystemMetrics(SM_CXSCREEN), UINT height = GetSystemMetrics(SM_CYSCREEN))
-			: width(width), height(height)
-			, hWnd(nullptr), hInstance(nullptr)
-		{}
-	};
-
+	struct Window;
 	class Timer;
 	class InputManager;
 	class Renderer;
@@ -42,13 +31,15 @@ namespace client_fw
 		virtual void Shutdown();
 		void Run();
 
+	protected:
+		virtual void ProcessInput();
+		virtual void Update(float delta_time);
+
 	private:
-		void ProcessInput();
-		void Update(float delta_time);
 		void Render();
 
 	public:
-		void ChangeWindowSize(UINT width, UINT height);
+		void UpdateWindowSize();
 
 	private:
 		virtual bool InitializeWindow();
@@ -61,6 +52,8 @@ namespace client_fw
 		std::wstring m_app_name;
 
 		SPtr<Window> m_window;
+
+	private:
 		UPtr<Timer> m_timer;
 		UPtr<InputManager> m_input_manager;
 		UPtr<Renderer> m_renderer;

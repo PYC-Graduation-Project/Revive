@@ -1,6 +1,8 @@
 #include <client_fw.h>
 #include <client/core/entry_point.h>
 
+using namespace client_fw;
+
 namespace revive
 {
 	class ClientTestApp : public client_fw::Application
@@ -8,7 +10,6 @@ namespace revive
 	public:
 		ClientTestApp() : Application(L"Client Test App")
 		{
-
 		}
 
 		bool Initialize() override
@@ -30,9 +31,23 @@ namespace revive
 			LOG_INFO("Good Bye");
 		}
 
+		void ProcessInput() override
+		{
+			Application::ProcessInput();
+
+			if (Input::IsKeyPressed(INPUT_KEY_F2))
+				Input::SetHideCursor(!Input::IsHideCursor());
+			if (Input::IsKeyPressed(INPUT_KEY_F3))
+				Input::SetClipCursor(!Input::IsClipCursor());
+		}
+
+		void Update(float delta_time) override
+		{
+			Application::Update(delta_time);
+		}
+
 		virtual ~ClientTestApp()
 		{
-
 		}
 	};
 }

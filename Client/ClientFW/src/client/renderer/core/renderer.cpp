@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/core/renderer.h"
-#include "client/core/application.h"
+#include "client/core/window.h"
 #include "client/util/d3d_util.h"
 
 namespace client_fw

@@ -4,3 +4,4 @@
 #include "client/core/log.h"
 
 #include "client/math/math.h"	
+#include "client/input/input.h"

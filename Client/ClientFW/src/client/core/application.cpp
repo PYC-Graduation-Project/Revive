@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/core/application.h"
+#include "client/core/window.h"
 #include "client/core/timer.h"
 #include "client/input/input_manager.h"
 #include "client/renderer/core/renderer.h"
@@ -17,7 +18,7 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
-		m_input_manager = CreateUPtr<InputManager>(m_window->hWnd);
+		m_input_manager = CreateUPtr<InputManager>(m_window);
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -81,10 +82,10 @@ namespace client_fw
 			}
 			else if (GetAppState() == eAppState::kActive)
 			{
-				m_input_manager->Update();
 				ProcessInput();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
+				m_input_manager->Update();
 				Render();
 			}
 		}
@@ -107,10 +108,13 @@ namespace client_fw
 		}
 	}
 
-	void Application::ChangeWindowSize(UINT width, UINT height)
+	void Application::UpdateWindowSize()
 	{
-		m_window->width = width;
-		m_window->height = height;
+		GetWindowRect(m_window->hWnd, &m_window->rect);
+		m_window->width = m_window->rect.right - m_window->rect.left;
+		m_window->height = m_window->rect.bottom - m_window->rect.top;
+		m_window->mid_pos.x = m_window->width / 2;
+		m_window->mid_pos.y = m_window->height / 2;
 	}
 
 	bool Application::InitializeWindow()
@@ -144,6 +148,7 @@ namespace client_fw
 		if (m_window->hWnd == nullptr)
 			return false;
 		
+		//SetWindowLong(m_window->hWnd, GWL_STYLE, 0);
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);
 		SetFocus(m_window->hWnd);
@@ -180,7 +185,7 @@ namespace client_fw
 			else if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
 			{
 				app->SetAppState(client_fw::eAppState::kActive);
-				app->ChangeWindowSize(LOWORD(lParam), HIWORD(lParam));
+				app->UpdateWindowSize();
 			}
 			break;
 		case WM_KEYDOWN:

@@ -1,22 +1,25 @@
 #pragma once
 
-#include "stdafx.h"
-
 namespace client_fw
 {
+	class IVec2;
 	class InputManager;
 
 	class Input final
 	{
 	public:
-		inline static bool IsKeyHoldDown(UINT key);
-		inline static bool IsKeyPressed(UINT key);
-		inline static bool IsKeyReleased(UINT key);
-		inline static bool IsNotKeyHoldDown(UINT key);
-		//inline static const Pos2
+		static bool IsKeyHoldDown(UINT key);
+		static bool IsKeyPressed(UINT key);
+		static bool IsKeyReleased(UINT key);
+		static bool IsNotKeyHoldDown(UINT key);
+		static const IVec2& GetMousePosition();
+		static const IVec2 GetRelativeMousePosition();
 
-		inline static void SetHideCursor(bool hide);
-		inline static bool IsHideCursor();
+		static void SetHideCursor(bool hide);
+		static bool IsHideCursor();
+
+		static void SetClipCursor(bool clip);
+		static bool IsClipCursor();
 
 	private:
 		friend InputManager;

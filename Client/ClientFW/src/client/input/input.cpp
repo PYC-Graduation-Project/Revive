@@ -3,34 +3,55 @@
 
 namespace client_fw
 {
-	inline bool Input::IsKeyHoldDown(UINT key)
+	bool Input::IsKeyHoldDown(UINT key)
 	{
 		return s_input_manager->IsKeyHoldDown(key);
 	}
 
-	inline bool Input::IsKeyPressed(UINT key)
+	bool Input::IsKeyPressed(UINT key)
 	{
 		return s_input_manager->IsKeyPressed(key);
 	}
 
-	inline bool Input::IsKeyReleased(UINT key)
+	bool Input::IsKeyReleased(UINT key)
 	{
 		return s_input_manager->IsKeyReleased(key);
 	}
 
-	inline bool Input::IsNotKeyHoldDown(UINT key)
+	bool Input::IsNotKeyHoldDown(UINT key)
 	{
 		return s_input_manager->IsNotKeyHoldDown(key);
 	}
 
-	inline void Input::SetHideCursor(bool hide)
+	const IVec2& Input::GetMousePosition()
+	{
+		return s_input_manager->GetMousePosition();
+	}
+
+	const IVec2 Input::GetRelativeMousePosition()
+	{
+		return s_input_manager->GetRelativeMoustPosition();
+	}
+
+	void Input::SetHideCursor(bool hide)
 	{
 		if (hide != IsHideCursor())
 			s_input_manager->SetHideCursor(hide);
 	}
 
-	inline bool Input::IsHideCursor()
+	bool Input::IsHideCursor()
 	{
 		return s_input_manager->IsHideCursor();
+	}
+
+	void Input::SetClipCursor(bool clip)
+	{
+		if (clip != IsClipCursor())
+			s_input_manager->SetClipCursor(clip);
+	}
+
+	bool Input::IsClipCursor()
+	{
+		return s_input_manager->IsClipCursor();
 	}
 }
