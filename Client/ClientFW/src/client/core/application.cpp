@@ -3,6 +3,7 @@
 #include "client/core/window.h"
 #include "client/core/timer.h"
 #include "client/input/input_manager.h"
+#include "client/input/input_event_manager.h"
 #include "client/renderer/core/renderer.h"
 
 namespace client_fw
@@ -19,6 +20,7 @@ namespace client_fw
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
 		m_input_manager = CreateUPtr<InputManager>(m_window);
+		m_input_event_manager = CreateUPtr<InputEventManager>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -93,6 +95,7 @@ namespace client_fw
 
 	void Application::ProcessInput()
 	{
+		m_input_event_manager->ProcessInput();
 	}
 
 	void Application::Update(float delta_time)
@@ -115,6 +118,12 @@ namespace client_fw
 		m_window->height = m_window->rect.bottom - m_window->rect.top;
 		m_window->mid_pos.x = m_window->width / 2;
 		m_window->mid_pos.y = m_window->height / 2;
+	}
+
+	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
+		const std::function<void()>& func, bool consumption)
+	{
+		m_input_event_manager->RegisterPressedEvent(name, std::move(keys), func, consumption);
 	}
 
 	bool Application::InitializeWindow()

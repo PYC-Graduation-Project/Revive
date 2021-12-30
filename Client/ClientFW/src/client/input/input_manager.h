@@ -14,7 +14,7 @@ namespace client_fw
 
 		enum class EKeyState
 		{
-			kCur, kBefore,
+			kCur, kBefore, kConsumption
 		};
 
 		enum class EMousePosState
@@ -40,6 +40,9 @@ namespace client_fw
 		const IVec2& GetMousePosition() const;
 		const IVec2 GetRelativeMoustPosition() const;
 
+		void ConsumeKey(UINT key);
+		bool IsConsumedKey(UINT key) const;
+
 		void SetHideCursor(bool hide);
 		bool IsHideCursor() const { return m_is_hide_cursor; }
 
@@ -52,7 +55,7 @@ namespace client_fw
 
 	private:
 		WPtr<Window> m_window;
-		std::array<std::bitset<MAX_KEYS>, 2> m_key_states;
+		std::array<std::bitset<MAX_KEYS>, 3> m_key_states;
 		std::array<IVec2, 3> m_mouse_position; // For the index, refer to EMousePosState
 
 		bool m_is_hide_cursor = false;

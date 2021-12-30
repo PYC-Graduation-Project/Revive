@@ -33,6 +33,16 @@ namespace client_fw
 		return s_input_manager->GetRelativeMoustPosition();
 	}
 
+	void Input::ConsumeKey(UINT key)
+	{
+		s_input_manager->ConsumeKey(key);
+	}
+
+	bool Input::IsConsumedKey(UINT key)
+	{
+		return s_input_manager->IsConsumedKey(key);
+	}
+
 	void Input::SetHideCursor(bool hide)
 	{
 		if (hide != IsHideCursor())

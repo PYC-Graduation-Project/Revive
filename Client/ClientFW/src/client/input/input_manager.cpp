@@ -21,6 +21,8 @@ namespace client_fw
         m_key_states[ToUnderlying(EKeyState::kBefore)] = 
             m_key_states[ToUnderlying(EKeyState::kCur)];
 
+        m_key_states[ToUnderlying(EKeyState::kConsumption)].reset();
+
         m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_XMOVE] =
             m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_YMOVE] = false;
 
@@ -72,6 +74,16 @@ namespace client_fw
     {
         return m_mouse_position[ToUnderlying(EMousePosState::kCur)] -
             m_mouse_position[ToUnderlying(EMousePosState::kBefore)];
+    }
+
+    void InputManager::ConsumeKey(UINT key)
+    {
+        m_key_states[ToUnderlying(EKeyState::kConsumption)][key] = true;
+    }
+
+    bool InputManager::IsConsumedKey(UINT key) const
+    {
+        return  m_key_states[ToUnderlying(EKeyState::kConsumption)][key];
     }
 
     void InputManager::SetHideCursor(bool hide)

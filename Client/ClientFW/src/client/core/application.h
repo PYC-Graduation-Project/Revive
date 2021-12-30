@@ -2,6 +2,9 @@
 
 #include <Windows.h>
 #include <string>
+#include <vector>
+#include <functional>
+
 #include "client/core/core.h"
 
 namespace client_fw
@@ -17,6 +20,9 @@ namespace client_fw
 	class Timer;
 	class InputManager;
 	class Renderer;
+
+	struct EventKeyInfo;
+	class InputEventManager;
 
 	class Application
 	{
@@ -38,13 +44,15 @@ namespace client_fw
 	private:
 		void Render();
 
-	public:
-		void UpdateWindowSize();
-
 	private:
 		virtual bool InitializeWindow();
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
+		void UpdateWindowSize();
+
+	protected:
+		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<void()>& func, bool consumption = true);
 
 	protected:
 		static Application* s_instance;
@@ -55,6 +63,7 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
+		UPtr<InputEventManager> m_input_event_manager;
 		UPtr<InputManager> m_input_manager;
 		UPtr<Renderer> m_renderer;
 

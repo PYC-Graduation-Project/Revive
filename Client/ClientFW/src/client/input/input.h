@@ -4,6 +4,27 @@ namespace client_fw
 {
 	class IVec2;
 	class InputManager;
+	class InputEventManager;
+
+	enum class EAdditionalKey
+	{
+		kNone = 0x00,
+		kShift = 0x10,
+		kCtrl = 0x11,
+		kAlt = 0x12,
+	};
+
+	struct EventKeyInfo
+	{
+		UINT key;
+		EAdditionalKey additional_key = EAdditionalKey::kNone;
+	}; 
+
+	struct AxisEventKeyInfo
+	{
+		UINT key;
+		float scale;
+	};
 
 	class Input final
 	{
@@ -14,6 +35,9 @@ namespace client_fw
 		static bool IsNotKeyHoldDown(UINT key);
 		static const IVec2& GetMousePosition();
 		static const IVec2 GetRelativeMousePosition();
+
+		static void ConsumeKey(UINT key);
+		static bool IsConsumedKey(UINT key);
 
 		static void SetHideCursor(bool hide);
 		static bool IsHideCursor();

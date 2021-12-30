@@ -21,6 +21,11 @@ namespace revive
 				LOG_INFO("Welcome to Client Test App");
 			}
 
+			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{INPUT_KEY_F3, EAdditionalKey::kCtrl} },
+				[]() {Input::SetClipCursor(!Input::IsClipCursor()); });
+			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{INPUT_KEY_F2, EAdditionalKey::kCtrl} },
+				[]() {Input::SetHideCursor(!Input::IsHideCursor()); });
+
 			return result;
 		}
 
@@ -34,11 +39,6 @@ namespace revive
 		void ProcessInput() override
 		{
 			Application::ProcessInput();
-
-			if (Input::IsKeyPressed(INPUT_KEY_F2))
-				Input::SetHideCursor(!Input::IsHideCursor());
-			if (Input::IsKeyPressed(INPUT_KEY_F3))
-				Input::SetClipCursor(!Input::IsClipCursor());
 		}
 
 		void Update(float delta_time) override
