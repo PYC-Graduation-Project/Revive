@@ -16,8 +16,8 @@ namespace client_fw
 				if (Input::IsKeyPressed(event_key.key) &&
 					(
 						event_key.additional_key == EAdditionalKey::kNone ||
-						Input::IsKeyHoldDown(ToUnderlying(event_key.additional_key))
-						)
+						Input::IsKeyHoldDown(event_key.additional_key)
+					)
 					&& Input::IsConsumedKey(event_key.key) == false)
 				{
 					event.event_func();

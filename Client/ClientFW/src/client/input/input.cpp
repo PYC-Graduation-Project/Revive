@@ -3,24 +3,29 @@
 
 namespace client_fw
 {
-	bool Input::IsKeyHoldDown(UINT key)
+	bool Input::IsKeyHoldDown(EKey key)
 	{
-		return s_input_manager->IsKeyHoldDown(key);
+		return s_input_manager->IsKeyHoldDown(ToUnderlying(key));
 	}
 
-	bool Input::IsKeyPressed(UINT key)
+	bool Input::IsKeyHoldDown(EAdditionalKey key)
 	{
-		return s_input_manager->IsKeyPressed(key);
+		return s_input_manager->IsKeyHoldDown(ToUnderlying(key));
 	}
 
-	bool Input::IsKeyReleased(UINT key)
+	bool Input::IsKeyPressed(EKey key)
 	{
-		return s_input_manager->IsKeyReleased(key);
+		return s_input_manager->IsKeyPressed(ToUnderlying(key));
 	}
 
-	bool Input::IsNotKeyHoldDown(UINT key)
+	bool Input::IsKeyReleased(EKey key)
 	{
-		return s_input_manager->IsNotKeyHoldDown(key);
+		return s_input_manager->IsKeyReleased(ToUnderlying(key));
+	}
+
+	bool Input::IsNotKeyHoldDown(EKey key)
+	{
+		return s_input_manager->IsNotKeyHoldDown(ToUnderlying(key));
 	}
 
 	const IVec2& Input::GetMousePosition()
@@ -33,14 +38,14 @@ namespace client_fw
 		return s_input_manager->GetRelativeMoustPosition();
 	}
 
-	void Input::ConsumeKey(UINT key)
+	void Input::ConsumeKey(EKey key)
 	{
-		s_input_manager->ConsumeKey(key);
+		s_input_manager->ConsumeKey(ToUnderlying(key));
 	}
 
-	bool Input::IsConsumedKey(UINT key)
+	bool Input::IsConsumedKey(EKey key)
 	{
-		return s_input_manager->IsConsumedKey(key);
+		return s_input_manager->IsConsumedKey(ToUnderlying(key));
 	}
 
 	void Input::SetHideCursor(bool hide)

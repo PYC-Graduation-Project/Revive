@@ -21,9 +21,9 @@ namespace revive
 				LOG_INFO("Welcome to Client Test App");
 			}
 
-			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{INPUT_KEY_F3, EAdditionalKey::kCtrl} },
+			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{EKey::kF3, EAdditionalKey::kControl} },
 				[]() {Input::SetClipCursor(!Input::IsClipCursor()); });
-			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{INPUT_KEY_F2, EAdditionalKey::kCtrl} },
+			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{EKey::kF2, EAdditionalKey::kControl} },
 				[]() {Input::SetHideCursor(!Input::IsHideCursor()); });
 
 			return result;
