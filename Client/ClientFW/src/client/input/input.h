@@ -4,6 +4,7 @@ namespace client_fw
 {
 	class IVec2;
 	class InputManager;
+	class InputEventInfo;
 	class InputEventManager;
 
 	enum class EKey
@@ -121,7 +122,6 @@ namespace client_fw
 
 	enum class EAdditionalKey
 	{
-		kNone = 0x00,
 		kShift = 0x10,
 		kControl = 0x11,
 		kAlt = 0x12,
@@ -130,7 +130,7 @@ namespace client_fw
 	struct EventKeyInfo
 	{
 		EKey key;
-		EAdditionalKey additional_key = EAdditionalKey::kNone;
+		std::vector<EAdditionalKey> additional_keys;
 	}; 
 
 	struct AxisEventKeyInfo
@@ -138,6 +138,17 @@ namespace client_fw
 		EKey key;
 		float scale;
 	};
+
+	enum class EInputMode
+	{
+		kUIOnly, kUIAndGame, kGameOnly,
+	};
+
+	enum class EInputOwnerType
+	{
+		kApplication, kLevel, kActor, kPawn,
+	};
+
 
 	class Input final
 	{
@@ -159,8 +170,12 @@ namespace client_fw
 		static void SetClipCursor(bool clip);
 		static bool IsClipCursor();
 
+		static void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
+
 	private:
 		friend InputManager;
+		friend InputEventManager;
 		static InputManager* s_input_manager;
+		static InputEventManager* s_input_event_manager;
 	};
 }

@@ -1,5 +1,7 @@
 #include "stdafx.h"
+#include "client/input/input.h"
 #include "client/input/input_manager.h"
+#include "client/input/input_event_manager.h"
 
 namespace client_fw
 {
@@ -68,5 +70,10 @@ namespace client_fw
 	bool Input::IsClipCursor()
 	{
 		return s_input_manager->IsClipCursor();
+	}
+
+	void Input::RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type)
+	{
+		s_input_event_manager->RegisterEvent(std::move(event_info), type);
 	}
 }

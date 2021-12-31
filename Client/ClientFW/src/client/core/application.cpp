@@ -2,6 +2,7 @@
 #include "client/core/application.h"
 #include "client/core/window.h"
 #include "client/core/timer.h"
+#include "client/input/input.h"
 #include "client/input/input_manager.h"
 #include "client/input/input_event_manager.h"
 #include "client/renderer/core/renderer.h"
@@ -87,7 +88,6 @@ namespace client_fw
 				ProcessInput();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
-				m_input_manager->Update();
 				Render();
 			}
 		}
@@ -95,7 +95,8 @@ namespace client_fw
 
 	void Application::ProcessInput()
 	{
-		m_input_event_manager->ProcessInput();
+		m_input_event_manager->ExecuteEvent();
+		m_input_manager->Update();
 	}
 
 	void Application::Update(float delta_time)
@@ -113,17 +114,23 @@ namespace client_fw
 
 	void Application::UpdateWindowSize()
 	{
-		GetWindowRect(m_window->hWnd, &m_window->rect);
+		UpdateWindowRect();
 		m_window->width = m_window->rect.right - m_window->rect.left;
 		m_window->height = m_window->rect.bottom - m_window->rect.top;
 		m_window->mid_pos.x = m_window->width / 2;
 		m_window->mid_pos.y = m_window->height / 2;
 	}
 
+	void Application::UpdateWindowRect()
+	{
+		GetWindowRect(m_window->hWnd, &m_window->rect);
+	}
+
 	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
 		const std::function<void()>& func, bool consumption)
 	{
-		m_input_event_manager->RegisterPressedEvent(name, std::move(keys), func, consumption);
+		m_input_event_manager->RegisterEvent(std::move(CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func)),
+			EInputOwnerType::kApplication);
 	}
 
 	bool Application::InitializeWindow()
@@ -158,6 +165,10 @@ namespace client_fw
 			return false;
 		
 		//SetWindowLong(m_window->hWnd, GWL_STYLE, 0);
+
+#ifndef _DEBUG
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);
 		SetFocus(m_window->hWnd);
@@ -196,6 +207,9 @@ namespace client_fw
 				app->SetAppState(client_fw::eAppState::kActive);
 				app->UpdateWindowSize();
 			}
+			break;
+		case WM_MOVE:
+			app->UpdateWindowRect();
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:

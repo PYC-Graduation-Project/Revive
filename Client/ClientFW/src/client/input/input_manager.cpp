@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/input/input.h"
 #include "client/input/input_manager.h"
 #include "client/core/window.h"
 

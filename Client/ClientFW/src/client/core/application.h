@@ -38,10 +38,10 @@ namespace client_fw
 		void Run();
 
 	protected:
-		virtual void ProcessInput();
 		virtual void Update(float delta_time);
 
 	private:
+		void ProcessInput();
 		void Render();
 
 	private:
@@ -49,6 +49,7 @@ namespace client_fw
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
 		void UpdateWindowSize();
+		void UpdateWindowRect();
 
 	protected:
 		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,

@@ -1,4 +1,7 @@
 #include <client_fw.h>
+//#include <client/core/application.h>
+//#include <client/core/log.h>
+//#include <client/input/input.h>
 #include <client/core/entry_point.h>
 
 using namespace client_fw;
@@ -21,9 +24,9 @@ namespace revive
 				LOG_INFO("Welcome to Client Test App");
 			}
 
-			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{EKey::kF3, EAdditionalKey::kControl} },
+			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{EKey::kF3, {EAdditionalKey::kControl}} },
 				[]() {Input::SetClipCursor(!Input::IsClipCursor()); });
-			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{EKey::kF2, EAdditionalKey::kControl} },
+			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{EKey::kF2, {EAdditionalKey::kControl}} },
 				[]() {Input::SetHideCursor(!Input::IsHideCursor()); });
 
 			return result;
@@ -34,11 +37,6 @@ namespace revive
 			Application::Shutdown();
 
 			LOG_INFO("Good Bye");
-		}
-
-		void ProcessInput() override
-		{
-			Application::ProcessInput();
 		}
 
 		void Update(float delta_time) override

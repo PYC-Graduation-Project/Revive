@@ -1,55 +1,91 @@
 #pragma once
+#include "client/event/event_manager.h"
 
 namespace client_fw
 {
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
 
-	struct InputEventInfo
+	class InputEventInfo : public EventInfo
 	{
-		std::string_view event_name;
-		std::vector<EventKeyInfo> event_keys;
-		bool comsume_input;
-		std::function<void()> event_func;
-	};
-	
-	struct AxisInputEventInfo
-	{
-		std::string_view event_name;
-		std::vector<AxisEventKeyInfo> event_keys;
-		bool comsume_input;
-		std::function<void(float)> event_func;
+	public:
+		InputEventInfo(std::string_view event_name, bool is_comsume);
+		virtual ~InputEventInfo() = default;
+
+	protected:
+		std::string_view m_event_name;
+		bool m_is_comsume_input;
+
+	public:
+		std::string_view GetEventName() const { return m_event_name; }
 	};
 
-	class InputEventManager final
+	class ActionEventInfo : public InputEventInfo
 	{
-	private:
+	public:
+		ActionEventInfo(std::string_view event_name, bool is_comsume,
+			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
+		virtual ~ActionEventInfo() = default;
+
+	protected:
+		std::vector<EventKeyInfo> m_event_keys;
+		std::function<void()> m_event_func;
+	};
+
+	class PressedEventInfo final : public ActionEventInfo
+	{
+	public:
+		PressedEventInfo(std::string_view event_name, bool is_comsume, 
+			std::vector<EventKeyInfo>&& event_keys,	const std::function<void()>& event_func);
+		virtual ~PressedEventInfo() = default;
 		
-		enum class EInputEventType
-		{
-			kPressed, kReleased, kAxis
-		};
+		virtual void ExecuteEvent() const override;
+	};
 
+	class ReleasedEventInfo final : public ActionEventInfo
+	{
+	public:
+		ReleasedEventInfo(std::string_view event_name, bool is_comsume,
+			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
+		virtual ~ReleasedEventInfo() = default;
+
+		virtual void ExecuteEvent() const override;
+	};
+
+	class AxisEventInfo final : public InputEventInfo
+	{
+	public:
+		AxisEventInfo(std::string_view event_name, bool is_comsume,
+			std::vector<AxisEventKeyInfo>&& event_keys,	const std::function<void(float)>& event_func);
+		virtual ~AxisEventInfo() = default;
+
+		virtual void ExecuteEvent() const override;
+
+	protected:
+		std::vector<AxisEventKeyInfo> m_event_keys;
+		std::function<void(float)> m_event_func;
+	};
+
+	class InputEventManager final : public EventManager
+	{
 	public:
 		InputEventManager();
 
-		void ProcessInput();
+		InputEventManager(const InputEventManager&) = delete;
+		InputEventManager& operator=(const InputEventManager&) = delete;
 
-		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption);
-		/*void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption = true);
-		void RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption = true);
+		virtual void ExecuteEvent() override;
 
-		void ChangeInputEventKey(std::string_view name, std::vector<EventKeyInfo>&& keys);
-		void ChangeAxisInputEventKey(std::string_view name, std::vector<AxisEventKeyInfo>&& keys);*/
+	public:
+		void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
 
 	private:
-		std::map<std::string, EInputEventType> m_event_names;
+		static InputEventManager* s_instance;
 
-		std::vector<InputEventInfo> m_pressed_events;
-		std::vector<InputEventInfo> m_released_events;
-		std::vector<AxisInputEventInfo> m_axis_events;
+		std::set<std::string_view> m_event_names;
+		std::vector<UPtr<InputEventInfo>> m_application_events;
+
+	public:
+		inline static InputEventManager& GetInputEventManager() { return *s_instance; }
 	};
 }

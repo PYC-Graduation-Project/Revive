@@ -27,9 +27,19 @@ namespace client_fw
 }
 
 //log macros
-#define LOG_TRACE(...)				client_fw::Log::GetDefaultLogger()->trace(__VA_ARGS__)
-#define LOG_INFO(...)				client_fw::Log::GetDefaultLogger()->info(__VA_ARGS__)
-#define LOG_WARN(...)				SPDLOG_LOGGER_WARN(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
-#define LOG_ERROR(...)				SPDLOG_LOGGER_ERROR(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
-#define LOG_CRITICAL(...)			SPDLOG_LOGGER_CRITICAL(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
+#ifdef _DEBUG
+	#define LOG_TRACE(...)				client_fw::Log::GetDefaultLogger()->trace(__VA_ARGS__)
+	#define LOG_INFO(...)				client_fw::Log::GetDefaultLogger()->info(__VA_ARGS__)
+	#define LOG_WARN(...)				SPDLOG_LOGGER_WARN(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
+	#define LOG_ERROR(...)				SPDLOG_LOGGER_ERROR(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
+	#define LOG_CRITICAL(...)			SPDLOG_LOGGER_CRITICAL(client_fw::Log::GetTrackingLogger(), __VA_ARGS__)
+#else
+	#define LOG_TRACE(...)
+	#define LOG_INFO(...)
+	#define LOG_WARN(...)
+	#define LOG_ERROR(...)
+	#define LOG_CRITICAL(...)
+#endif
+
+
 
