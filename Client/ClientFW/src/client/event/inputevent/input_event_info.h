@@ -1,5 +1,5 @@
 #pragma once
-#include "client/event/event_manager.h"
+#include "client/event/event_info.h"
 
 namespace client_fw
 {
@@ -35,10 +35,10 @@ namespace client_fw
 	class PressedEventInfo final : public ActionEventInfo
 	{
 	public:
-		PressedEventInfo(std::string_view event_name, bool is_comsume, 
-			std::vector<EventKeyInfo>&& event_keys,	const std::function<void()>& event_func);
+		PressedEventInfo(std::string_view event_name, bool is_comsume,
+			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
 		virtual ~PressedEventInfo() = default;
-		
+
 		virtual void ExecuteEvent() const override;
 	};
 
@@ -56,7 +56,7 @@ namespace client_fw
 	{
 	public:
 		AxisEventInfo(std::string_view event_name, bool is_comsume,
-			std::vector<AxisEventKeyInfo>&& event_keys,	const std::function<void(float)>& event_func);
+			std::vector<AxisEventKeyInfo>&& event_keys, const std::function<void(float)>& event_func);
 		virtual ~AxisEventInfo() = default;
 
 		virtual void ExecuteEvent() const override;
@@ -64,23 +64,5 @@ namespace client_fw
 	protected:
 		std::vector<AxisEventKeyInfo> m_event_keys;
 		std::function<void(float)> m_event_func;
-	};
-
-	class InputEventManager final : public EventManager
-	{
-	public:
-		InputEventManager();
-
-		InputEventManager(const InputEventManager&) = delete;
-		InputEventManager& operator=(const InputEventManager&) = delete;
-
-		virtual void ExecuteEvent() override;
-
-	public:
-		void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
-
-	private:
-		std::set<std::string_view> m_event_names;
-		std::vector<UPtr<InputEventInfo>> m_application_events;
 	};
 }

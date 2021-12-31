@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "client/core/window.h"
 #include "client/input/input.h"
-#include "client/input/input_event_system.h"
 #include "client/input/input_manager.h"
-#include "client/input/input_event_manager.h"
+#include "client/event/inputevent//input_event_system.h"
+#include "client/event/inputevent//input_event_manager.h"
 
 
 namespace client_fw

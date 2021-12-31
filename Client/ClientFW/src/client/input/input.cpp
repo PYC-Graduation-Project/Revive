@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "client/input/input.h"
-#include "client/input/input_event_system.h"
 #include "client/input/input_manager.h"
-#include "client/input/input_event_manager.h"
+#include "client/event/inputevent/input_event_info.h"
+#include "client/event/inputevent/input_event_manager.h"
+#include "client/event/inputevent/input_event_system.h"
 
 namespace client_fw
 {
@@ -76,6 +77,24 @@ namespace client_fw
 	void Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
 		const std::function<void()>& func, bool consumption, EInputOwnerType type)
 	{
-		s_input_event_system->GetInputEventManager()->RegisterEvent(CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type);
+		s_input_event_system->GetInputEventManager()->RegisterEvent(
+			CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type
+		);
+	}
+
+	void Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		const std::function<void()>& func, bool consumption, EInputOwnerType type)
+	{
+		s_input_event_system->GetInputEventManager()->RegisterEvent(
+			CreateUPtr<ReleasedEventInfo>(name, consumption, std::move(keys), func), type
+		);
+	}
+
+	void Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
+		const std::function<void(float)>& func, bool consumption, EInputOwnerType type)
+	{
+		s_input_event_system->GetInputEventManager()->RegisterEvent(
+			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type
+		);
 	}
 }

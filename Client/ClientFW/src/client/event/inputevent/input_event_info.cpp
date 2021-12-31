@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/input/input.h"
-#include "client/input/input_event_manager.h"
+#include "client/event/inputevent//input_event_info.h"
 
 namespace client_fw
 {
@@ -24,7 +24,7 @@ namespace client_fw
 
 	void PressedEventInfo::ExecuteEvent() const
 	{
-		for (const auto event_key : m_event_keys)
+		for (const auto& event_key : m_event_keys)
 		{
 			if (Input::IsKeyPressed(event_key.key) && Input::IsConsumedKey(event_key.key) == false &&
 				std::all_of(event_key.additional_keys.cbegin(), event_key.additional_keys.cend(),
@@ -49,6 +49,21 @@ namespace client_fw
 
 	void ReleasedEventInfo::ExecuteEvent() const
 	{
+		for (const auto& event_key : m_event_keys)
+		{
+			if (Input::IsKeyReleased(event_key.key) && Input::IsConsumedKey(event_key.key) == false &&
+				std::all_of(event_key.additional_keys.cbegin(), event_key.additional_keys.cend(),
+					[this](EAdditionalKey add_key)
+					{
+						return Input::IsKeyHoldDown(add_key);
+					}))
+			{
+				m_event_func();
+				if (m_is_comsume_input)
+					Input::ConsumeKey(event_key.key);
+				break;
+			}
+		}
 	}
 
 	AxisEventInfo::AxisEventInfo(std::string_view event_name, bool is_comsume,
@@ -60,46 +75,24 @@ namespace client_fw
 
 	void AxisEventInfo::ExecuteEvent() const
 	{
-	}
+		float axis = 0.0f;
+		UINT count = 0;
 
-	InputEventManager::InputEventManager()
-	{
-	}
-
-	void InputEventManager::ExecuteEvent()
-	{
-		for (const auto& event : m_application_events)
+		for (const auto& event_key : m_event_keys)
 		{
-			event->ExecuteEvent();
-		}
-		
-	}
-
-	void InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type)
-	{
-		std::string_view event_name = event_info->GetEventName();
-
-		if (m_event_names.find(event_name) == m_event_names.cend())
-		{
-			switch (type)
+			if (Input::IsKeyHoldDown(event_key.key) && Input::IsConsumedKey(event_key.key) == false)
 			{
-			case EInputOwnerType::kApplication:
-				m_application_events.emplace_back(std::move(event_info));
-				break;
-			case EInputOwnerType::kLevel:
-				break;
-			case EInputOwnerType::kActor:
-				break;
-			case EInputOwnerType::kPawn:
-				break;
-			default:
-				break;
+				axis += event_key.scale;
+				++count;
+				if (m_is_comsume_input)
+					Input::ConsumeKey(event_key.key);
 			}
-			m_event_names.emplace(event_name);
 		}
-		else
+
+		if (axis != 0.0f && count != 0)
 		{
-			LOG_WARN("Event \"{0}\" is already exist", event_name);
+			axis /= static_cast<float>(count);
+			m_event_func(axis);
 		}
 	}
 }

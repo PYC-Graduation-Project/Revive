@@ -4,9 +4,6 @@ namespace client_fw
 {
 	class IVec2;
 	class InputEventSystem;
-	class InputManager;
-	class InputEventInfo;
-	class InputEventManager;
 
 	enum class EKey
 	{
@@ -172,6 +169,10 @@ namespace client_fw
 
 		static void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
 			const std::function<void()>& func, bool consumption, EInputOwnerType type);
+		static void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<void()>& func, bool consumption, EInputOwnerType type);
+		static void RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
+			const std::function<void(float)>& func, bool consumption, EInputOwnerType type);
 
 	private:
 		friend InputEventSystem;
