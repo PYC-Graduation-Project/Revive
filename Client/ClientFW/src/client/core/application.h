@@ -18,11 +18,10 @@ namespace client_fw
 
 	struct Window;
 	class Timer;
-	class InputManager;
 	class Renderer;
 
+	class InputEventSystem;
 	struct EventKeyInfo;
-	class InputEventManager;
 
 	class Application
 	{
@@ -64,8 +63,7 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
-		UPtr<InputEventManager> m_input_event_manager;
-		UPtr<InputManager> m_input_manager;
+		UPtr<InputEventSystem> m_input_event_system;
 		UPtr<Renderer> m_renderer;
 
 	public:

@@ -3,8 +3,7 @@
 #include "client/core/window.h"
 #include "client/core/timer.h"
 #include "client/input/input.h"
-#include "client/input/input_manager.h"
-#include "client/input/input_event_manager.h"
+#include "client/input/input_event_system.h"
 #include "client/renderer/core/renderer.h"
 
 namespace client_fw
@@ -20,8 +19,7 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
-		m_input_manager = CreateUPtr<InputManager>(m_window);
-		m_input_event_manager = CreateUPtr<InputEventManager>();
+		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -95,8 +93,7 @@ namespace client_fw
 
 	void Application::ProcessInput()
 	{
-		m_input_event_manager->ExecuteEvent();
-		m_input_manager->Update();
+		m_input_event_system->ExecuteEvent();
 	}
 
 	void Application::Update(float delta_time)
@@ -129,8 +126,7 @@ namespace client_fw
 	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
 		const std::function<void()>& func, bool consumption)
 	{
-		m_input_event_manager->RegisterEvent(std::move(CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func)),
-			EInputOwnerType::kApplication);
+		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, EInputOwnerType::kApplication);
 	}
 
 	bool Application::InitializeWindow()
@@ -193,7 +189,7 @@ namespace client_fw
 		LRESULT result = NULL;
 
 		const auto& app = Application::GetApplication();
-		const auto& input_manager = app->m_input_manager;
+		const auto& input_system = app->m_input_event_system;
 
 		switch (message)
 		{
@@ -211,21 +207,6 @@ namespace client_fw
 		case WM_MOVE:
 			app->UpdateWindowRect();
 			break;
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-			input_manager->ChangeKeyState(message, wParam, lParam);
-			break;
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONUP:
-		case WM_RBUTTONDOWN:
-		case WM_RBUTTONUP:
-		case WM_MBUTTONDOWN:
-		case WM_MBUTTONUP:
-		case WM_MOUSEMOVE:
-			input_manager->ChangeMouseState(message, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-			break;
 		case WM_DESTROY:
 		case WM_CLOSE:
 			PostQuitMessage(0);
@@ -234,6 +215,8 @@ namespace client_fw
 			result = DefWindowProc(hWnd, message, wParam, lParam);
 			break;
 		}
+
+		input_system->ChangeInputState(message, wParam, lParam);
 
 		return result;
 	}

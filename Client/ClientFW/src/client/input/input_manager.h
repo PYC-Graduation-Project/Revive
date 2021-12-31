@@ -9,9 +9,6 @@ namespace client_fw
 	class InputManager final
 	{
 	private:
-		friend class Application;
-		friend class Input; 
-
 		enum class EKeyState
 		{
 			kCur, kBefore, kConsumption
@@ -29,10 +26,9 @@ namespace client_fw
 		InputManager(const InputManager&) = delete;
 		InputManager& operator=(const InputManager&) = delete;
 		
-	private:
 		void Update();
 
-	private:
+	public:
 		bool IsKeyHoldDown(UINT key) const;
 		bool IsKeyPressed(UINT key) const;
 		bool IsKeyReleased(UINT key) const;
@@ -49,7 +45,7 @@ namespace client_fw
 		void SetClipCursor(bool clip);
 		bool IsClipCursor() const { return m_is_clip_cursor; }
 
-	private:
+	public:
 		void ChangeKeyState(UINT message, WPARAM key, LPARAM flags);
 		void ChangeMouseState(int button, WPARAM wParam, int x, int y);
 

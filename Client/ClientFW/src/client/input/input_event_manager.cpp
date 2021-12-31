@@ -62,11 +62,8 @@ namespace client_fw
 	{
 	}
 
-	InputEventManager* Input::s_input_event_manager = nullptr;
-
 	InputEventManager::InputEventManager()
 	{
-		Input::s_input_event_manager = this;
 	}
 
 	void InputEventManager::ExecuteEvent()

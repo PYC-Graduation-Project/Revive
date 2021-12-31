@@ -5,12 +5,9 @@
 
 namespace client_fw
 {
-	InputManager* Input::s_input_manager = nullptr;
-
 	InputManager::InputManager(const WPtr<Window>& window)
 		: m_window(window)
 	{
-        Input::s_input_manager = this;
 	}
 
     InputManager::~InputManager()

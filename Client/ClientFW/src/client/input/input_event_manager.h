@@ -80,12 +80,7 @@ namespace client_fw
 		void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
 
 	private:
-		static InputEventManager* s_instance;
-
 		std::set<std::string_view> m_event_names;
 		std::vector<UPtr<InputEventInfo>> m_application_events;
-
-	public:
-		inline static InputEventManager& GetInputEventManager() { return *s_instance; }
 	};
 }

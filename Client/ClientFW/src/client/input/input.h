@@ -3,6 +3,7 @@
 namespace client_fw
 {
 	class IVec2;
+	class InputEventSystem;
 	class InputManager;
 	class InputEventInfo;
 	class InputEventManager;
@@ -149,7 +150,6 @@ namespace client_fw
 		kApplication, kLevel, kActor, kPawn,
 	};
 
-
 	class Input final
 	{
 	public:
@@ -170,12 +170,11 @@ namespace client_fw
 		static void SetClipCursor(bool clip);
 		static bool IsClipCursor();
 
-		static void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
+		static void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<void()>& func, bool consumption, EInputOwnerType type);
 
 	private:
-		friend InputManager;
-		friend InputEventManager;
-		static InputManager* s_input_manager;
-		static InputEventManager* s_input_event_manager;
+		friend InputEventSystem;
+		static InputEventSystem* s_input_event_system;
 	};
 }
