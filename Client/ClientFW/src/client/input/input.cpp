@@ -7,27 +7,27 @@
 
 namespace client_fw
 {
-	bool Input::IsKeyHoldDown(EKey key)
+	bool Input::IsKeyHoldDown(eKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
 	}
 
-	bool Input::IsKeyHoldDown(EAdditionalKey key)
+	bool Input::IsKeyHoldDown(eAdditionalKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
 	}
 
-	bool Input::IsKeyPressed(EKey key)
+	bool Input::IsKeyPressed(eKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsKeyPressed(ToUnderlying(key));
 	}
 
-	bool Input::IsKeyReleased(EKey key)
+	bool Input::IsKeyReleased(eKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsKeyReleased(ToUnderlying(key));
 	}
 
-	bool Input::IsNotKeyHoldDown(EKey key)
+	bool Input::IsNotKeyHoldDown(eKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsNotKeyHoldDown(ToUnderlying(key));
 	}
@@ -42,12 +42,12 @@ namespace client_fw
 		return s_input_event_system->GetInputManager()->GetRelativeMoustPosition();
 	}
 
-	void Input::ConsumeKey(EKey key)
+	void Input::ConsumeKey(eKey key)
 	{
 		s_input_event_system->GetInputManager()->ConsumeKey(ToUnderlying(key));
 	}
 
-	bool Input::IsConsumedKey(EKey key)
+	bool Input::IsConsumedKey(eKey key)
 	{
 		return s_input_event_system->GetInputManager()->IsConsumedKey(ToUnderlying(key));
 	}
@@ -75,7 +75,7 @@ namespace client_fw
 	}
 
 	void Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption, EInputOwnerType type)
+		const std::function<void()>& func, bool consumption, eInputOwnerType type)
 	{
 		s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type
@@ -83,7 +83,7 @@ namespace client_fw
 	}
 
 	void Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption, EInputOwnerType type)
+		const std::function<void()>& func, bool consumption, eInputOwnerType type)
 	{
 		s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<ReleasedEventInfo>(name, consumption, std::move(keys), func), type
@@ -91,7 +91,7 @@ namespace client_fw
 	}
 
 	void Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
-		const std::function<void(float)>& func, bool consumption, EInputOwnerType type)
+		const std::function<void(float)>& func, bool consumption, eInputOwnerType type)
 	{
 		s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type

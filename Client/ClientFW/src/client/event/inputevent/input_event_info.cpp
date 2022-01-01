@@ -28,7 +28,7 @@ namespace client_fw
 		{
 			if (Input::IsKeyPressed(event_key.key) && Input::IsConsumedKey(event_key.key) == false &&
 				std::all_of(event_key.additional_keys.cbegin(), event_key.additional_keys.cend(),
-					[this](EAdditionalKey add_key)
+					[this](eAdditionalKey add_key)
 					{
 						return Input::IsKeyHoldDown(add_key);
 					}))
@@ -53,7 +53,7 @@ namespace client_fw
 		{
 			if (Input::IsKeyReleased(event_key.key) && Input::IsConsumedKey(event_key.key) == false &&
 				std::all_of(event_key.additional_keys.cbegin(), event_key.additional_keys.cend(),
-					[this](EAdditionalKey add_key)
+					[this](eAdditionalKey add_key)
 					{
 						return Input::IsKeyHoldDown(add_key);
 					}))

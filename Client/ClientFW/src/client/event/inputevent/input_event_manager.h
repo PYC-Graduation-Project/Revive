@@ -17,7 +17,7 @@ namespace client_fw
 		virtual void ExecuteEvent() override;
 
 	public:
-		void RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type);
+		void RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type);
 
 	private:
 		std::set<std::string_view> m_event_names;

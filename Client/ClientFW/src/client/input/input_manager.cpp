@@ -21,8 +21,8 @@ namespace client_fw
 
         m_key_states[ToUnderlying(EKeyState::kConsumption)].reset();
 
-        m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(EKey::kXMove)] =
-            m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(EKey::kYMove)] = false;
+        m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kXMove)] =
+            m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kYMove)] = false;
 
         if (m_is_hide_cursor)
         {
@@ -142,50 +142,50 @@ namespace client_fw
 	{
         bool down = false;
         HWND hWnd = m_window.lock()->hWnd;  
-        EKey key;
+        eKey key;
 
         switch (button)
         {
         case WM_LBUTTONDOWN:
             SetCapture(hWnd);
-            key = EKey::kLButton;
+            key = eKey::kLButton;
             down = true;
             break;
         case WM_LBUTTONUP:
             ReleaseCapture();
-            key = EKey::kLButton;
+            key = eKey::kLButton;
             down = false;
             break;
         case WM_RBUTTONDOWN:
             SetCapture(hWnd);
-            key = EKey::kRButton;
+            key = eKey::kRButton;
             down = true;
             break;
         case WM_RBUTTONUP:
             ReleaseCapture();
-            key = EKey::kRButton;
+            key = eKey::kRButton;
             down = false;
             break;
         case WM_MBUTTONDOWN:
             SetCapture(hWnd);
-            key = EKey::kMButton;
+            key = eKey::kMButton;
             down = true;
             break;
         case WM_MBUTTONUP:
             ReleaseCapture();
-            key = EKey::kMButton;
+            key = eKey::kMButton;
             down = false;
             break;
         case WM_MOUSEMOVE:
             if (m_mouse_position[ToUnderlying(EMousePosState::kCur)].x != x)
             {
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)].x = x;
-                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(EKey::kXMove)] = true;
+                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kXMove)] = true;
             }
             if (m_mouse_position[ToUnderlying(EMousePosState::kCur)].y != y)
             {
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)].y = y;
-                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(EKey::kYMove)] = true;
+                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kYMove)] = true;
             }
             return;
         }

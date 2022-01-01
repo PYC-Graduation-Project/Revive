@@ -5,7 +5,7 @@ namespace client_fw
 	class IVec2;
 	class InputEventSystem;
 
-	enum class EKey
+	enum class eKey
 	{
 		kLButton = 0x01,
 		kRButton = 0x02,
@@ -118,7 +118,7 @@ namespace client_fw
 		kBackTick = 0xC0,
 	};
 
-	enum class EAdditionalKey
+	enum class eAdditionalKey
 	{
 		kShift = 0x10,
 		kControl = 0x11,
@@ -127,22 +127,22 @@ namespace client_fw
 
 	struct EventKeyInfo
 	{
-		EKey key;
-		std::vector<EAdditionalKey> additional_keys;
+		eKey key;
+		std::vector<eAdditionalKey> additional_keys;
 	}; 
 
 	struct AxisEventKeyInfo
 	{
-		EKey key;
+		eKey key;
 		float scale;
 	};
 
-	enum class EInputMode
+	enum class eInputMode
 	{
 		kUIOnly, kUIAndGame, kGameOnly,
 	};
 
-	enum class EInputOwnerType
+	enum class eInputOwnerType
 	{
 		kApplication, kLevel, kActor, kPawn,
 	};
@@ -150,16 +150,16 @@ namespace client_fw
 	class Input final
 	{
 	public:
-		static bool IsKeyHoldDown(EKey key);
-		static bool IsKeyHoldDown(EAdditionalKey key);
-		static bool IsKeyPressed(EKey key);
-		static bool IsKeyReleased(EKey key);
-		static bool IsNotKeyHoldDown(EKey key);
+		static bool IsKeyHoldDown(eKey key);
+		static bool IsKeyHoldDown(eAdditionalKey key);
+		static bool IsKeyPressed(eKey key);
+		static bool IsKeyReleased(eKey key);
+		static bool IsNotKeyHoldDown(eKey key);
 		static const IVec2& GetMousePosition();
 		static const IVec2 GetRelativeMousePosition();
 
-		static void ConsumeKey(EKey key);
-		static bool IsConsumedKey(EKey key);
+		static void ConsumeKey(eKey key);
+		static bool IsConsumedKey(eKey key);
 
 		static void SetHideCursor(bool hide);
 		static bool IsHideCursor();
@@ -168,11 +168,11 @@ namespace client_fw
 		static bool IsClipCursor();
 
 		static void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption, EInputOwnerType type);
+			const std::function<void()>& func, bool consumption, eInputOwnerType type);
 		static void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption, EInputOwnerType type);
+			const std::function<void()>& func, bool consumption, eInputOwnerType type);
 		static void RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
-			const std::function<void(float)>& func, bool consumption, EInputOwnerType type);
+			const std::function<void(float)>& func, bool consumption, eInputOwnerType type);
 
 	private:
 		friend InputEventSystem;

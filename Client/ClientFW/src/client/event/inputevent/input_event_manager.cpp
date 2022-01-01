@@ -22,7 +22,7 @@ namespace client_fw
 		
 	}
 
-	void InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, EInputOwnerType type)
+	void InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type)
 	{
 		std::string_view event_name = event_info->GetEventName();
 
@@ -30,14 +30,14 @@ namespace client_fw
 		{
 			switch (type)
 			{
-			case EInputOwnerType::kApplication:
+			case eInputOwnerType::kApplication:
 				m_application_events.emplace_back(std::move(event_info));
 				break;
-			case EInputOwnerType::kLevel:
+			case eInputOwnerType::kLevel:
 				break;
-			case EInputOwnerType::kActor:
+			case eInputOwnerType::kActor:
 				break;
-			case EInputOwnerType::kPawn:
+			case eInputOwnerType::kPawn:
 				break;
 			default:
 				break;
