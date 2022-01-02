@@ -2,11 +2,11 @@
 
 namespace client_fw
 {
-	class EventSystem
+	class IEventSystem
 	{
 	public:
-		EventSystem() {};
-		virtual ~EventSystem() = default;
+		IEventSystem() {};
+		virtual ~IEventSystem() = default;
 
 		virtual void ExecuteEvent() = 0;
 	};

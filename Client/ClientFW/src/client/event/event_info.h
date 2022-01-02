@@ -2,11 +2,11 @@
 
 namespace client_fw
 {
-	class EventInfo
+	class IEventInfo
 	{
 	public:
-		EventInfo() {}
-		virtual ~EventInfo() = default;
+		IEventInfo() {}
+		virtual ~IEventInfo() = default;
 
 		virtual void ExecuteEvent() const = 0;
 	};

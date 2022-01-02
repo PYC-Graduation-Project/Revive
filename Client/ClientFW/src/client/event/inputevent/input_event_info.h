@@ -6,7 +6,7 @@ namespace client_fw
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
 
-	class InputEventInfo : public EventInfo
+	class InputEventInfo : public IEventInfo
 	{
 	public:
 		InputEventInfo(std::string_view event_name, bool is_comsume);

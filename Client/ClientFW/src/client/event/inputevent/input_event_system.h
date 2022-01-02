@@ -7,7 +7,7 @@ namespace client_fw
     class InputManager;
     class InputEventManager;
 
-    class InputEventSystem final : public EventSystem
+    class InputEventSystem final : public IEventSystem
     {
     public:
         InputEventSystem(const WPtr<Window>& window);

@@ -6,7 +6,7 @@ namespace client_fw
 	class InputEventInfo;
 	enum class eInputMode;
 
-	class InputEventManager final : public EventManager
+	class InputEventManager final : public IEventManager
 	{
 	public:
 		InputEventManager();

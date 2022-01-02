@@ -2,14 +2,14 @@
 
 namespace client_fw
 {
-	class EventManager
+	class IEventManager
 	{
 	public:
-		EventManager() {}
-		virtual ~EventManager() = default;
+		IEventManager() {}
+		virtual ~IEventManager() = default;
 
-		EventManager(const EventManager&) = delete;
-		EventManager& operator=(const EventManager&) = delete;
+		IEventManager(const IEventManager&) = delete;
+		IEventManager& operator=(const IEventManager&) = delete;
 
 		virtual void ExecuteEvent() = 0;
 	};
