@@ -6,6 +6,7 @@
 namespace client_fw
 {
 	InputEventManager::InputEventManager()
+		: m_input_mode(eInputMode::kGameOnly)
 	{
 	}
 
@@ -19,7 +20,6 @@ namespace client_fw
 		{
 			event->ExecuteEvent();
 		}
-		
 	}
 
 	void InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type)

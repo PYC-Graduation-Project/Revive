@@ -174,6 +174,8 @@ namespace client_fw
 		static void RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
 			const std::function<void(float)>& func, bool consumption, eInputOwnerType type);
 
+		static void SetInputMode(eInputMode input_mode);
+
 	private:
 		friend InputEventSystem;
 		static InputEventSystem* s_input_event_system;

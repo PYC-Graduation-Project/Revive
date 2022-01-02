@@ -97,4 +97,9 @@ namespace client_fw
 			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
+
+	void Input::SetInputMode(eInputMode input_mode)
+	{
+		s_input_event_system->GetInputEventManager()->SetInputMode(input_mode);
+	}
 }

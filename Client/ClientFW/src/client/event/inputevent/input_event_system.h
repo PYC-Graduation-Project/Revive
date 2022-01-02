@@ -7,11 +7,11 @@ namespace client_fw
     class InputManager;
     class InputEventManager;
 
-    class InputEventSystem : public EventSystem
+    class InputEventSystem final : public EventSystem
     {
     public:
         InputEventSystem(const WPtr<Window>& window);
-        virtual ~InputEventSystem() = default;
+        virtual ~InputEventSystem();
 
         InputEventSystem(const InputEventSystem&) = delete;
         InputEventSystem& operator=(const InputEventSystem&) = delete;

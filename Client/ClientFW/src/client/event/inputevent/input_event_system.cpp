@@ -17,6 +17,10 @@ namespace client_fw
 		m_input_event_manager = CreateUPtr<InputEventManager>();
 	}
 
+	InputEventSystem::~InputEventSystem()
+	{
+	}
+
 	void InputEventSystem::ExecuteEvent()
 	{
 		m_input_event_manager->ExecuteEvent();
