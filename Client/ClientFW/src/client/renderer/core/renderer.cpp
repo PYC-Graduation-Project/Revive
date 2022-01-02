@@ -126,6 +126,7 @@ namespace client_fw
 			LOG_ERROR("Could not create DXGIFactory");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_factory.Get(), "renderer_factory");
 
 		ComPtr<IDXGIAdapter1> adapter;
 		for (UINT i = 0; i < DXGI_ERROR_NOT_FOUND != m_factory->EnumAdapters1(i, adapter.GetAddressOf()); ++i)
@@ -145,6 +146,7 @@ namespace client_fw
 				LOG_ERROR("Could not create D3D12Device");
 				return false;
 			}
+			D3DUtil::SetObjectName(m_device.Get(), "renderer_device");
 		}
 
 		result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
@@ -153,6 +155,7 @@ namespace client_fw
 			LOG_ERROR("Could not create fence");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_fence.Get(), "renderer_fence");
 		m_fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
 		D3DUtil::s_cbvsrvuav_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -197,6 +200,9 @@ namespace client_fw
 			LOG_ERROR("Could not create command list");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_command_queue.Get(), "renderer_command_queue");
+		D3DUtil::SetObjectName(m_command_allocator.Get(), "renderer_command_allocator");
+		D3DUtil::SetObjectName(m_command_list.Get(), "renderer_command_list");
 		m_command_list->Close();
 
 	
@@ -228,6 +234,7 @@ namespace client_fw
 
 		return (SUCCEEDED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
 			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))));
+		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
 
 		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
 	}
@@ -244,6 +251,7 @@ namespace client_fw
 			LOG_ERROR("Could not create RTV descriptor heap");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_rtv_descriptor_heap.Get(), "renderer_rtv_heap");
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_heap_handle(m_rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
 		for (UINT i = 0; i < s_swap_chain_buffer_count; ++i)
 		{
@@ -261,6 +269,7 @@ namespace client_fw
 			LOG_ERROR("Could not create DSV descriptor heap");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_dsv_descriptor_heap.Get(), "renderer_dsv_heap");
 		m_dsv_cpu_handles = m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
 
 		return true;
@@ -275,6 +284,7 @@ namespace client_fw
 				LOG_ERROR("Could not get swap chain buffer [" + std::to_string(i) + "]");
 				return false;
 			}
+			D3DUtil::SetObjectName(m_rtv_buffers[i].Get(), "renderer_rtv_buffer" + std::to_string(i));
 			m_device->CreateRenderTargetView(m_rtv_buffers[i].Get(), nullptr, m_rtv_cpu_handles[i]);
 		}
 		return true;
@@ -306,6 +316,7 @@ namespace client_fw
 			LOG_ERROR("Could not create dsv resource");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_dsv_buffers.Get(), "renderer_dsv_buffer");
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
 		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;

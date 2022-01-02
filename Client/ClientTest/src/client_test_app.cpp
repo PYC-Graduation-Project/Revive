@@ -28,6 +28,9 @@ namespace revive
 				[]() {Input::SetClipCursor(!Input::IsClipCursor()); });
 			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
 				[]() {Input::SetHideCursor(!Input::IsHideCursor()); });
+			RegisterPressedEvent("Shutdown App", std::vector{ EventKeyInfo{eKey::kF4, {eAdditionalKey::kControl, eAdditionalKey::kShift}} },
+				[this]() {SetAppState(eAppState::kDead); });
+
 
 			return result;
 		}
