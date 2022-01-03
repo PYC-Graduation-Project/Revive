@@ -17,11 +17,17 @@ public:
 	bool Init(const int);
 	bool BindListen(const int);
 
+	virtual void Disconnect(int c_id)=0;
+	virtual bool OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes) { return false; };
+	virtual bool OnAccept(int new_id, EXP_OVER* exp_over) { return false; };
+	void error_display(int err_no);
+
+	
+private:
 	//this의 워커를 람다로 join 어떻게될지 모른다 나중에 오류나면 가상함수로 수정
 	void CreateWorker();
+	void Worker();//이거는 냅두고 내부함수를 override 
 	
-	virtual void Worker() = 0;//이거는 냅두고 내부함수를 override 또는 이거를 override?
-	void error_display(int err_no);
 protected:
 	SOCKET m_s_socket;
 	HANDLE m_hiocp;

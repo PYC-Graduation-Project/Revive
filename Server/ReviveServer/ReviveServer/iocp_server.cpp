@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "iocp_server.h"
-
+using namespace std;
 IOCPServer::IOCPServer()
 {
 }
@@ -68,6 +68,52 @@ void IOCPServer::CreateWorker()
 		th.join();
 }
 
+
+void IOCPServer::Worker()
+{
+	for (;;) {
+		DWORD num_byte;
+		LONG64 iocp_key;
+		WSAOVERLAPPED* p_over;
+		BOOL ret = GetQueuedCompletionStatus(m_hiocp, &num_byte, (PULONG_PTR)&iocp_key, &p_over, INFINITE);
+		//cout << "GQCS returned.\n";
+		int client_id = static_cast<int>(iocp_key);
+		EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
+		if (FALSE == ret) {
+			int err_no = WSAGetLastError();
+			cout << "GQCS Error : ";
+			error_display(err_no);
+			cout << endl;
+			Disconnect(client_id);
+			if (exp_over->_comp_op == COMP_OP::OP_SEND)
+				delete exp_over;
+			continue;
+		}
+
+		switch (exp_over->_comp_op) {
+		case COMP_OP::OP_RECV: {
+			if (false == OnRecv(client_id, exp_over, num_byte))
+				continue;
+			break;
+		}
+		case COMP_OP::OP_SEND: {
+			if (num_byte != exp_over->_wsa_buf.len) {
+				Disconnect(client_id);
+			}
+			delete exp_over;
+			break;
+		}
+		case COMP_OP::OP_ACCEPT: {
+			cout << "Accept Completed.\n";
+			int new_id=1;//= get_new_id();
+			OnAccept(new_id, exp_over);
+			break;
+		}
+		}
+	}
+
+
+}
 
 void IOCPServer::error_display(int err_no)
 {
