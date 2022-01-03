@@ -1,12 +1,5 @@
 #pragma once
 
-#include <Windows.h>
-#include <string>
-#include <vector>
-#include <functional>
-
-#include "client/core/core.h"
-
 namespace client_fw
 {
 	enum class eAppState
@@ -22,6 +15,9 @@ namespace client_fw
 
 	class InputEventSystem;
 	struct EventKeyInfo;
+	class LevelManager;
+	class LevelLoader;
+	class Level;
 
 	class Application
 	{
@@ -36,11 +32,9 @@ namespace client_fw
 		virtual void Shutdown();
 		void Run();
 
-	protected:
-		virtual void Update(float delta_time);
-
 	private:
 		void ProcessInput();
+		void Update(float delta_time);
 		void Render();
 
 	private:
@@ -54,6 +48,10 @@ namespace client_fw
 		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
 			const std::function<void()>& func, bool consumption = true);
 
+		void OpenLevel(const SPtr<Level>& level);
+		void OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader);
+		void CloseLevel();
+
 	protected:
 		static Application* s_instance;
 		eAppState m_app_state;
@@ -64,6 +62,7 @@ namespace client_fw
 	private:
 		UPtr<Timer> m_timer;
 		UPtr<InputEventSystem> m_input_event_system;
+		UPtr<LevelManager> m_level_manager;
 		UPtr<Renderer> m_renderer;
 
 	public:

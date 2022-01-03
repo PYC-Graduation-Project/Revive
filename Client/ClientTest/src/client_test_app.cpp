@@ -3,10 +3,11 @@
 //#include <client/core/log.h>
 //#include <client/input/input.h>
 #include <client/core/entry_point.h>
+#include "object/level/client_test_level.h"
 
 using namespace client_fw;
 
-namespace revive
+namespace client_test
 {
 	class ClientTestApp : public client_fw::Application
 	{
@@ -31,6 +32,11 @@ namespace revive
 			RegisterPressedEvent("Shutdown App", std::vector{ EventKeyInfo{eKey::kF4, {eAdditionalKey::kControl, eAdditionalKey::kShift}} },
 				[this]() {SetAppState(eAppState::kDead); });
 
+			auto level = CreateSPtr<ClientTestLevel>("Test1");
+			OpenLevel(level);
+
+			level = CreateSPtr<ClientTestLevel>("Test2");
+			OpenLevel(level);
 
 			return result;
 		}
@@ -42,11 +48,6 @@ namespace revive
 			LOG_INFO("Good Bye");
 		}
 
-		void Update(float delta_time) override
-		{
-			Application::Update(delta_time);
-		}
-
 		virtual ~ClientTestApp()
 		{
 		}
@@ -55,5 +56,5 @@ namespace revive
 
 client_fw::UPtr<client_fw::Application> client_fw::CreateApplication()
 {
-	return client_fw::CreateUPtr<revive::ClientTestApp>();
+	return client_fw::CreateUPtr<client_test::ClientTestApp>();
 }

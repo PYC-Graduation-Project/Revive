@@ -4,6 +4,9 @@
 #include "client/core/timer.h"
 #include "client/input/input.h"
 #include "client/event/inputevent/input_event_system.h"
+#include "client/object/level/core/level_manager.h"
+#include "client/object/level/core/level_loader.h"
+#include "client/object/level/core/level.h"
 #include "client/renderer/core/renderer.h"
 
 namespace client_fw
@@ -20,6 +23,7 @@ namespace client_fw
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
 		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
+		m_level_manager = CreateUPtr<LevelManager>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -57,6 +61,7 @@ namespace client_fw
 
 	void Application::Shutdown()
 	{
+		m_level_manager->Shutdown();
 		m_renderer->Shutdown();
 	}
 
@@ -90,6 +95,7 @@ namespace client_fw
 
 	void Application::Update(float delta_time)
 	{
+		m_level_manager->Update(delta_time);
 	}
 
 	void Application::Render()
@@ -119,6 +125,21 @@ namespace client_fw
 		const std::function<void()>& func, bool consumption)
 	{
 		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kApplication);
+	}
+
+	void Application::OpenLevel(const SPtr<Level>& level)
+	{
+		m_level_manager->OpenLevel(level, nullptr);
+	}
+
+	void Application::OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader)
+	{
+		m_level_manager->OpenLevel(level, std::move(level_loader));
+	}
+
+	void Application::CloseLevel()
+	{
+		m_level_manager->CloseLevel();
 	}
 
 	bool Application::InitializeWindow()
