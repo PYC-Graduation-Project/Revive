@@ -12,7 +12,7 @@ namespace client_fw
 
 	Renderer::~Renderer()
 	{
-
+		WaitForGpuCompelete();
 	}
 
 	bool Renderer::Initialize()
