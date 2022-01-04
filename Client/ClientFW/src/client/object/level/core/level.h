@@ -27,9 +27,9 @@ namespace client_fw
 
 	protected:
 		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption = true);
+			const std::function<bool()>& func, bool consumption = true);
 		void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption = true);
+			const std::function<bool()>& func, bool consumption = true);
 
 	private:
 		void RegisterInputEvent(std::string_view name);

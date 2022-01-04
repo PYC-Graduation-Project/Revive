@@ -15,15 +15,15 @@ namespace client_test
 		LOG_INFO("Initialize {0}", m_name);
 
 		RegisterPressedEvent("move_forward", { EventKeyInfo{eKey::kW} },
-			[this]() {m_pos += Vec2(0.0f, 1.0f); });
+			[this]()->bool {m_pos += Vec2(0.0f, 1.0f); return true; });
 		RegisterPressedEvent("move_right_side", { EventKeyInfo{eKey::kD} },
-			[this]() {m_pos += Vec2(1.0f, 0.0f); });
+			[this]()->bool {m_pos += Vec2(1.0f, 0.0f); return true;  });
 		RegisterPressedEvent("move_left_side", { EventKeyInfo{eKey::kA} },
-			[this]() {m_pos += Vec2(-1.0f, 0.0f); });
+			[this]()->bool {m_pos += Vec2(-1.0f, 0.0f); return true;  });
 		RegisterPressedEvent("move_backward", { EventKeyInfo{eKey::kS} },
-			[this]() {m_pos += Vec2(0.0f, -1.0f); });
+			[this]()->bool {m_pos += Vec2(0.0f, -1.0f);  return true; });
 		RegisterReleasedEvent("check_pos", { EventKeyInfo{eKey::kF} },
-			[this]() {LOG_TRACE(m_pos); });
+			[this]()->bool {LOG_TRACE(m_pos); return true;  });
 	}
 
 	void ClientTestLevel::Shutdown()

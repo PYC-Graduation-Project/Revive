@@ -46,7 +46,7 @@ namespace client_fw
 
 	protected:
 		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-			const std::function<void()>& func, bool consumption = true);
+			const std::function<bool()>& func, bool consumption = true);
 
 		void OpenLevel(const SPtr<Level>& level);
 		void OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader);

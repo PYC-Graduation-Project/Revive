@@ -24,19 +24,19 @@ namespace client_fw
 	{
 	public:
 		ActionEventInfo(std::string_view event_name, bool is_comsume,
-			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
+			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~ActionEventInfo() = default;
 
 	protected:
 		std::vector<EventKeyInfo> m_event_keys;
-		std::function<void()> m_event_func;
+		std::function<bool()> m_event_func;
 	};
 
 	class PressedEventInfo final : public ActionEventInfo
 	{
 	public:
 		PressedEventInfo(std::string_view event_name, bool is_comsume,
-			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
+			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~PressedEventInfo() = default;
 
 		virtual void ExecuteEvent() const override;
@@ -46,7 +46,7 @@ namespace client_fw
 	{
 	public:
 		ReleasedEventInfo(std::string_view event_name, bool is_comsume,
-			std::vector<EventKeyInfo>&& event_keys, const std::function<void()>& event_func);
+			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~ReleasedEventInfo() = default;
 
 		virtual void ExecuteEvent() const override;
@@ -56,13 +56,13 @@ namespace client_fw
 	{
 	public:
 		AxisEventInfo(std::string_view event_name, bool is_comsume,
-			std::vector<AxisEventKeyInfo>&& event_keys, const std::function<void(float)>& event_func);
+			std::vector<AxisEventKeyInfo>&& event_keys, const std::function<bool(float)>& event_func);
 		virtual ~AxisEventInfo() = default;
 
 		virtual void ExecuteEvent() const override;
 
 	protected:
 		std::vector<AxisEventKeyInfo> m_event_keys;
-		std::function<void(float)> m_event_func;
+		std::function<bool(float)> m_event_func;
 	};
 }

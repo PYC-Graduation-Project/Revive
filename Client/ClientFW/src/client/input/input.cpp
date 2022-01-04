@@ -75,7 +75,7 @@ namespace client_fw
 	}
 
 	bool Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption, eInputOwnerType type)
+		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type
@@ -83,7 +83,7 @@ namespace client_fw
 	}
 
 	bool Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption, eInputOwnerType type)
+		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<ReleasedEventInfo>(name, consumption, std::move(keys), func), type
@@ -91,7 +91,7 @@ namespace client_fw
 	}
 
 	bool Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
-		const std::function<void(float)>& func, bool consumption, eInputOwnerType type)
+		const std::function<bool(float)>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type

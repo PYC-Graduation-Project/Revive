@@ -28,14 +28,14 @@ namespace client_fw
 	}
 
 	void Level::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption)
+		const std::function<bool()>& func, bool consumption)
 	{
 		if (Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
 			RegisterInputEvent(name);
 	}
 
 	void Level::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
-		const std::function<void()>& func, bool consumption)
+		const std::function<bool()>& func, bool consumption)
 	{
 		if(Input::RegisterReleasedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
 			RegisterInputEvent(name);

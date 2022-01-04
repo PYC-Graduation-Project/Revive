@@ -122,7 +122,7 @@ namespace client_fw
 	}
 
 	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
-		const std::function<void()>& func, bool consumption)
+		const std::function<bool()>& func, bool consumption)
 	{
 		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kApplication);
 	}

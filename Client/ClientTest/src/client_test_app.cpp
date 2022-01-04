@@ -26,21 +26,21 @@ namespace client_test
 			}
 
 			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
-				[]() {Input::SetClipCursor(!Input::IsClipCursor()); });
+				[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
 			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
-				[]() {Input::SetHideCursor(!Input::IsHideCursor()); });
+				[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
 			RegisterPressedEvent("Shutdown App", std::vector{ EventKeyInfo{eKey::kF4, {eAdditionalKey::kControl, eAdditionalKey::kShift}} },
-				[this]() {SetAppState(eAppState::kDead); });
+				[this]()->bool {SetAppState(eAppState::kDead); return true;  });
 
 			RegisterPressedEvent("Open Level", { EventKeyInfo{eKey::kZ} },
-				[this]() {
+				[this]()->bool {
 					auto level = CreateSPtr<ClientTestLevel>("open_level"); 
-					OpenLevel(level);
+					OpenLevel(level); return true;
 				});
 
 			RegisterPressedEvent("Close Level", { EventKeyInfo{eKey::kX} },
-				[this]() {
-					CloseLevel();
+				[this]()->bool {
+					CloseLevel(); return true;
 				});
 
 			return result;
