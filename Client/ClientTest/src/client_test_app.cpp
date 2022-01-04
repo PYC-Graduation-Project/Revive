@@ -32,11 +32,16 @@ namespace client_test
 			RegisterPressedEvent("Shutdown App", std::vector{ EventKeyInfo{eKey::kF4, {eAdditionalKey::kControl, eAdditionalKey::kShift}} },
 				[this]() {SetAppState(eAppState::kDead); });
 
-			auto level = CreateSPtr<ClientTestLevel>("Test1");
-			OpenLevel(level);
+			RegisterPressedEvent("Open Level", { EventKeyInfo{eKey::kZ} },
+				[this]() {
+					auto level = CreateSPtr<ClientTestLevel>("open_level"); 
+					OpenLevel(level);
+				});
 
-			level = CreateSPtr<ClientTestLevel>("Test2");
-			OpenLevel(level);
+			RegisterPressedEvent("Close Level", { EventKeyInfo{eKey::kX} },
+				[this]() {
+					CloseLevel();
+				});
 
 			return result;
 		}

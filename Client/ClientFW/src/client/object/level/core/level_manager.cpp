@@ -15,29 +15,22 @@ namespace client_fw
 
 	void LevelManager::Update(float delta_time)
 	{
+		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
+		{
+			m_cur_level->ShutdownLevel();
+			m_cur_level = nullptr;
+		}
+
 		if (m_ready_level != nullptr)
 		{
-			if (m_cur_level != nullptr)
-			{
-				m_cur_level->ShutdownLevel();
-				m_cur_level = nullptr;
-			}
-
 			m_cur_level = std::move(m_ready_level);
+			m_cur_level->InitializeLevel();
 			m_ready_level = nullptr;
 		}
 
 		if (m_cur_level != nullptr)
 		{
-			if (m_cur_level->GetLevelState() == eLevelState::kDead)
-			{
-				m_cur_level->ShutdownLevel();
-				m_cur_level = nullptr;
-			}
-			else
-			{
-				m_cur_level->UpdateLevel(delta_time);
-			}
+			m_cur_level->UpdateLevel(delta_time);
 		}
 	}
 
@@ -48,17 +41,17 @@ namespace client_fw
 			m_ready_level->ShutdownLevel();
 			m_ready_level = nullptr;
 		}
-
+		CloseLevel();
 		m_ready_level = new_level;
-		m_ready_level->InitializeLevel();
-		if (level_loader != nullptr)
+	/*	if (level_loader != nullptr)
 		{
 			level_loader->LoadLevel(m_ready_level);
-		}
+		}*/
 	}
 
 	void LevelManager::CloseLevel()
 	{
-		m_cur_level->SetLevelState(eLevelState::kDead);
+		if(m_cur_level != nullptr)
+			m_cur_level->SetLevelState(eLevelState::kDead);
 	}
 }

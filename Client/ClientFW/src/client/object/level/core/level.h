@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	struct EventKeyInfo;
+
 	enum class eLevelState
 	{
 		kInGame, kPaused, kDead
@@ -23,10 +25,21 @@ namespace client_fw
 		void UpdateLevel(float delta_time);
 		virtual void Update(float delta_time) override {}
 
+	protected:
+		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<void()>& func, bool consumption = true);
+		void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<void()>& func, bool consumption = true);
+
+	private:
+		void RegisterInputEvent(std::string_view name);
 
 	protected:
 		std::string_view m_name;
 		eLevelState m_level_state;
+
+	private:
+		std::vector<std::string_view> m_registered_input_event;
 
 	public:
 		std::string_view GetName() const { return m_name; }

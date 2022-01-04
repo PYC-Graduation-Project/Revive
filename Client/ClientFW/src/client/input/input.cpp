@@ -74,28 +74,33 @@ namespace client_fw
 		return s_input_event_system->GetInputManager()->IsClipCursor();
 	}
 
-	void Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	bool Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
 		const std::function<void()>& func, bool consumption, eInputOwnerType type)
 	{
-		s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
 
-	void Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	bool Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
 		const std::function<void()>& func, bool consumption, eInputOwnerType type)
 	{
-		s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<ReleasedEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
 
-	void Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
+	bool Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
 		const std::function<void(float)>& func, bool consumption, eInputOwnerType type)
 	{
-		s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return s_input_event_system->GetInputEventManager()->RegisterEvent(
 			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type
 		);
+	}
+
+	void Input::UnregisterInputEvent(std::string_view name)
+	{
+		s_input_event_system->GetInputEventManager()->UnregisterEvent(name);
 	}
 
 	void Input::SetInputMode(eInputMode input_mode)

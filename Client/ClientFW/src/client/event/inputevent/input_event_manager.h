@@ -17,13 +17,20 @@ namespace client_fw
 
 		virtual void ExecuteEvent() override;
 
+	private:
+		void ExecuteEvents(std::vector<UPtr<InputEventInfo>>& events, eInputMode mode);
+		void DeleteEvent(std::vector<UPtr<InputEventInfo>>& events, std::string_view name);
+
 	public:
-		void RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type);
+		bool RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type);
+		void UnregisterEvent(std::string_view name);
 		void SetInputMode(eInputMode mode) { m_input_mode = mode; }
 
 	private:
 		eInputMode m_input_mode;
-		std::set<std::string_view> m_event_names;
+		std::map<std::string_view, eInputOwnerType> m_event_names;
+
 		std::vector<UPtr<InputEventInfo>> m_application_events;
+		std::vector<UPtr<InputEventInfo>> m_level_events;
 	};
 }

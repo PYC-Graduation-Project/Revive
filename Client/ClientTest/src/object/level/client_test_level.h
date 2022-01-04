@@ -1,4 +1,5 @@
 #pragma once
+#include <client/math/math.h>
 #include "client/object/level/core/level.h"
 
 namespace client_test
@@ -15,6 +16,9 @@ namespace client_test
         virtual void Shutdown() override;
 
         virtual void Update(float delta_time) override;
+
+    private:
+        Vec2 m_pos;
     };
 }
 
