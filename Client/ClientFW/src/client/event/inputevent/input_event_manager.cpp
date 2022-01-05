@@ -16,6 +16,7 @@ namespace client_fw
 
 	void InputEventManager::ExecuteEvent()
 	{
+		ExecuteEvents(m_actor_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_level_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_application_events, eInputMode::kUIAndGame);
 	}
@@ -31,10 +32,10 @@ namespace client_fw
 
 	void InputEventManager::DeleteEvent(std::vector<UPtr<InputEventInfo>>& events, std::string_view name)
 	{
-		auto delete_event = std::find_if(m_level_events.begin(), m_level_events.end(), [name](const UPtr<InputEventInfo>& event)
+		auto delete_event = std::find_if(events.begin(), events.end(), [name](const UPtr<InputEventInfo>& event)
 			{ return name == event->GetEventName(); });
-		if (delete_event != m_level_events.cend())
-			m_level_events.erase(delete_event);
+		if (delete_event != events.cend())
+			events.erase(delete_event);
 	}
 
 	bool InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type)
@@ -52,6 +53,7 @@ namespace client_fw
 				m_level_events.emplace_back(std::move(event_info));
 				break;
 			case eInputOwnerType::kActor:
+				m_actor_events.emplace_back(std::move(event_info));
 				break;
 			case eInputOwnerType::kPawn:
 				break;
@@ -82,6 +84,7 @@ namespace client_fw
 				DeleteEvent(m_level_events, name);
 				break;
 			case eInputOwnerType::kActor:
+				DeleteEvent(m_actor_events, name);
 				break;
 			case eInputOwnerType::kPawn:
 				break;

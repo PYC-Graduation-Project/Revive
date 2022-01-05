@@ -1,11 +1,13 @@
 #include <client/core/core.h>
 #include <client/core/log.h>
+#include <client/math/math.h>
+#include <client/input/input.h>
 #include "object/level/client_test_level.h"
-#include "client/input/input.h"
+#include "object/actor/client_test_actor.h"
 
 namespace client_test
 {
-	ClientTestLevel::ClientTestLevel(std::string_view name)
+	ClientTestLevel::ClientTestLevel(const std::string& name)
 		: Level(name)
 	{
 	}
@@ -14,16 +16,26 @@ namespace client_test
 	{
 		LOG_INFO("Initialize {0}", m_name);
 
-		RegisterPressedEvent("move_forward", { EventKeyInfo{eKey::kW} },
-			[this]()->bool {m_pos += Vec2(0.0f, 1.0f); return true; });
-		RegisterPressedEvent("move_right_side", { EventKeyInfo{eKey::kD} },
-			[this]()->bool {m_pos += Vec2(1.0f, 0.0f); return true;  });
-		RegisterPressedEvent("move_left_side", { EventKeyInfo{eKey::kA} },
-			[this]()->bool {m_pos += Vec2(-1.0f, 0.0f); return true;  });
-		RegisterPressedEvent("move_backward", { EventKeyInfo{eKey::kS} },
-			[this]()->bool {m_pos += Vec2(0.0f, -1.0f);  return true; });
-		RegisterReleasedEvent("check_pos", { EventKeyInfo{eKey::kF} },
-			[this]()->bool {LOG_TRACE(m_pos); return true;  });
+		auto player = CreateSPtr<ClientTestActor>(eMobilityState::kMovable, "player actor");
+		SpawnActor(player);
+
+		RegisterPressedEvent("spawn actor", { EventKeyInfo{eKey::kJ} },
+			[this]()->bool {
+				auto actor = CreateSPtr<ClientTestActor>(eMobilityState::kStatic, "actor " + std::to_string(m_actor_count++));
+				SpawnActor(actor);
+				m_actors.push(actor);
+				return true; 
+			});
+
+		RegisterPressedEvent("kill actor", { EventKeyInfo{eKey::kK} },
+			[this]()->bool {
+				if (m_actors.empty() == false)
+				{
+					m_actors.front()->SetActorState(eActorState::kDead);
+					m_actors.pop();
+				}
+				return true;
+			});
 	}
 
 	void ClientTestLevel::Shutdown()

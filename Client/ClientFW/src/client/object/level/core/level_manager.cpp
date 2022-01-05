@@ -2,15 +2,24 @@
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level.h"
 #include "client/object/level/core/level_loader.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
+	LevelManager* LevelManager::s_instance = nullptr;
+
+	LevelManager::LevelManager()
+	{
+		s_instance = this;
+	}
+
 	void LevelManager::Shutdown()
 	{
 		if (m_ready_level != nullptr)
 			m_ready_level->ShutdownLevel();
 		if (m_cur_level != nullptr)
 			m_cur_level->ShutdownLevel();
+		s_instance = nullptr;
 	}
 
 	void LevelManager::Update(float delta_time)
@@ -53,5 +62,13 @@ namespace client_fw
 	{
 		if(m_cur_level != nullptr)
 			m_cur_level->SetLevelState(eLevelState::kDead);
+	}
+
+	void LevelManager::SpawnActor(const SPtr<Actor>& actor)
+	{
+		if (m_cur_level != nullptr)
+			m_cur_level->SpawnActor(actor);
+		else
+			LOG_WARN("Could not create \"{0}\" : current level is nullptr", actor->GetName());
 	}
 }

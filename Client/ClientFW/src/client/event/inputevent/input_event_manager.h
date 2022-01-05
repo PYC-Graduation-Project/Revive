@@ -32,5 +32,6 @@ namespace client_fw
 
 		std::vector<UPtr<InputEventInfo>> m_application_events;
 		std::vector<UPtr<InputEventInfo>> m_level_events;
+		std::vector<UPtr<InputEventInfo>> m_actor_events;
 	};
 }

@@ -177,6 +177,20 @@ namespace client_fw
 			XMStoreFloat3(&ret, XMVector3TransformCoord(XMLoadFloat3(&vec), XMLoadFloat4x4(&mat)));
 			return ret;
 		}
+
+		inline Vec3 TransformNormal(const Vec3& vec, const Quaternion& quat)
+		{
+			Vec3 ret;
+			XMStoreFloat3(&ret, XMVector3TransformNormal(XMLoadFloat3(&vec), XMMatrixRotationQuaternion(XMLoadFloat4(&quat))));
+			return ret;
+		}
+
+		inline Vec3 TransformCoord(const Vec3& vec, const Quaternion& quat)
+		{
+			Vec3 ret;
+			XMStoreFloat3(&ret, XMVector3TransformCoord(XMLoadFloat3(&vec), XMMatrixRotationQuaternion(XMLoadFloat4(&quat))));
+			return ret;
+		}
 	}
 
 	namespace mat3

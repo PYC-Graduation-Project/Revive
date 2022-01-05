@@ -64,6 +64,16 @@ namespace client_fw
 		*this = vec3::TransformCoord(*this, mat);
 	}
 
+	void Vec3::TransformNormal(const Quaternion& quat)
+	{
+		*this = vec3::TransformNormal(*this, quat);
+	}
+
+	void Vec3::TransformCoord(const Quaternion& quat)
+	{
+		*this = vec3::TransformCoord(*this, quat);
+	}
+
 	std::string Vec3::ToString() const
 	{
 		std::stringstream ret;

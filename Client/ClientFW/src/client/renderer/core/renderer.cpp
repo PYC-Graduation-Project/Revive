@@ -12,7 +12,6 @@ namespace client_fw
 
 	Renderer::~Renderer()
 	{
-		WaitForGpuCompelete();
 	}
 
 	bool Renderer::Initialize()
@@ -98,7 +97,7 @@ namespace client_fw
 
 		WaitForGpuCompelete();
 
-		m_swap_chain->Present(0, 0);
+		m_swap_chain->Present(1, 0);
 
 		MoveToNextFrame();
 
@@ -146,8 +145,8 @@ namespace client_fw
 				LOG_ERROR("Could not create D3D12Device");
 				return false;
 			}
-			D3DUtil::SetObjectName(m_device.Get(), "renderer_device");
 		}
+		D3DUtil::SetObjectName(m_device.Get(), "renderer_device");
 
 		result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
 		if (FAILED(result))
@@ -155,8 +154,10 @@ namespace client_fw
 			LOG_ERROR("Could not create fence");
 			return false;
 		}
+		for (auto& fence_value : m_fence_values)
+			fence_value = 0;
 		D3DUtil::SetObjectName(m_fence.Get(), "renderer_fence");
-		m_fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		m_fence_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 		D3DUtil::s_cbvsrvuav_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3DUtil::s_rtv_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -218,7 +219,7 @@ namespace client_fw
 		DXGI_SWAP_CHAIN_DESC sc_desc;
 		sc_desc.BufferDesc.Width = window->width;
 		sc_desc.BufferDesc.Height = window->height;
-		sc_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sc_desc.BufferDesc.Format = m_rtv_format;
 		sc_desc.BufferDesc.RefreshRate.Numerator = 60;
 		sc_desc.BufferDesc.RefreshRate.Denominator = 1;
 		sc_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -232,11 +233,14 @@ namespace client_fw
 		sc_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		sc_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		return (SUCCEEDED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
-			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))));
-		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
+		if (FAILED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
+			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))))
+			return false;
 
+		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
 		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
+
+		return true;
 	}
 
 	bool Renderer::CreateRtvDsvHeaps()

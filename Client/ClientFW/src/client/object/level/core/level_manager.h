@@ -6,10 +6,12 @@ namespace client_fw
 	class Level;
 	class LevelLoader;
 
+	class Actor;
+
 	class LevelManager final: public IBaseObjectManager
 	{
 	public:
-		LevelManager() = default;
+		LevelManager();
 		virtual ~LevelManager() = default;
 
 		LevelManager(const LevelManager&) = delete;
@@ -21,11 +23,16 @@ namespace client_fw
 		void OpenLevel(const SPtr<Level> new_level, UPtr<LevelLoader>&& level_loader);
 		void CloseLevel();
 
+		void SpawnActor(const SPtr<Actor>& actor);
+
 	private:
+		static LevelManager* s_instance;
+
 		SPtr<Level> m_ready_level;
 		SPtr<Level> m_cur_level;
 
-
+	public:
+		inline static LevelManager& GetLevelManager() { return *s_instance; }
 	};
 }
 

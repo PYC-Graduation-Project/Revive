@@ -34,7 +34,7 @@ namespace client_test
 
 			RegisterPressedEvent("Open Level", { EventKeyInfo{eKey::kZ} },
 				[this]()->bool {
-					auto level = CreateSPtr<ClientTestLevel>("open_level"); 
+					auto level = CreateSPtr<ClientTestLevel>(); 
 					OpenLevel(level); return true;
 				});
 

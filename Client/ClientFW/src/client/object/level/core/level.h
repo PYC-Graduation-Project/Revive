@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class Actor;
+	class ActorManager;
 	struct EventKeyInfo;
 
 	enum class eLevelState
@@ -13,8 +15,8 @@ namespace client_fw
 	class Level : public IBaseObject
 	{
 	public:
-		Level(std::string_view name = "level");
-		virtual ~Level() = default;
+		Level(const std::string& name = "level");
+		virtual ~Level();
 
 		void InitializeLevel();
 		virtual void Initialize() override {}
@@ -24,6 +26,8 @@ namespace client_fw
 
 		void UpdateLevel(float delta_time);
 		virtual void Update(float delta_time) override {}
+
+		void SpawnActor(const SPtr<Actor>& actor);
 
 	protected:
 		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
@@ -35,11 +39,12 @@ namespace client_fw
 		void RegisterInputEvent(std::string_view name);
 
 	protected:
-		std::string_view m_name;
+		std::string m_name;
 		eLevelState m_level_state;
 
 	private:
 		std::vector<std::string_view> m_registered_input_event;
+		UPtr<ActorManager> m_actor_manager;
 
 	public:
 		std::string_view GetName() const { return m_name; }

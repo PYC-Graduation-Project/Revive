@@ -1,6 +1,6 @@
 #pragma once
-#include <client/math/math.h>
 #include "client/object/level/core/level.h"
+#include <queue>
 
 namespace client_test
 {
@@ -9,7 +9,7 @@ namespace client_test
     class ClientTestLevel final: public Level
     {
     public:
-        ClientTestLevel(std::string_view name = "client_test_level");
+        ClientTestLevel(const std::string& name = "client_test_level");
         virtual ~ClientTestLevel() = default;
 
         virtual void Initialize() override;
@@ -18,7 +18,8 @@ namespace client_test
         virtual void Update(float delta_time) override;
 
     private:
-        Vec2 m_pos;
+        std::queue<SPtr<class Actor>> m_actors;
+        int m_actor_count = 0;
     };
 }
 

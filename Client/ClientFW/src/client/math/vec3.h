@@ -3,6 +3,7 @@
 namespace client_fw
 {
 	class Mat4;
+	class Quaternion;
 
 	class Vec3 : public XMFLOAT3
 	{
@@ -24,6 +25,8 @@ namespace client_fw
 
 		void TransformNormal(const Mat4& mat);
 		void TransformCoord(const Mat4& mat);
+		void TransformNormal(const Quaternion& quat);
+		void TransformCoord(const Quaternion& quat);
 
 		std::string ToString() const;
 	};
