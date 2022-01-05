@@ -105,7 +105,7 @@ void IOCPServer::Worker()
 		}
 		case COMP_OP::OP_ACCEPT: {
 			cout << "Accept Completed.\n";
-			int new_id=1;//= get_new_id();
+			int new_id=0;//= get_new_id();
 			OnAccept(new_id, exp_over);
 			break;
 		}
