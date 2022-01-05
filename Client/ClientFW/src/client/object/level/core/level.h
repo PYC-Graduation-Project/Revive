@@ -47,7 +47,7 @@ namespace client_fw
 		UPtr<ActorManager> m_actor_manager;
 
 	public:
-		std::string_view GetName() const { return m_name; }
+		const std::string& GetName() const { return m_name; }
 		eLevelState GetLevelState() const { return m_level_state; }
 		void SetLevelState(eLevelState level_state) { m_level_state = level_state; }
 	};

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/level/core/level_manager.h"
+#include "client/object/component/core/component_manager.h"
 #include "client/input/input.h"
 
 namespace client_fw
@@ -10,6 +11,7 @@ namespace client_fw
 		, m_mobility_state(mobility)
 		, m_position(vec3::ZERO), m_scale(Vec3(1.0f, 1.0f, 1.0f))
 	{
+		m_component_manager = CreateUPtr<ComponentManager>();
 	}
 
 	Actor::~Actor()
@@ -26,6 +28,8 @@ namespace client_fw
 		for (auto name : m_registered_input_event)
 			Input::UnregisterInputEvent(name);
 
+		m_component_manager->Shutdown();
+
 		Shutdown();
 	}
 
@@ -35,6 +39,7 @@ namespace client_fw
 
 		UpdateWorldMatrix();
 
+		m_component_manager->Update(delta_time);
 		Update(delta_time);
 
 		UpdateWorldMatrix();
@@ -56,6 +61,16 @@ namespace client_fw
 	void Actor::SpawnActor(const SPtr<Actor>& actor)
 	{
 		LevelManager::GetLevelManager().SpawnActor(actor);
+	}
+
+	void Actor::AttachComponent(const SPtr<Component> comp)
+	{
+		m_component_manager->RegisterComponent(comp);
+	}
+
+	void Actor::DetachComponent(const SPtr<Component> comp)
+	{
+		m_component_manager->UnregisterComponent(comp);
 	}
 
 	void Actor::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,

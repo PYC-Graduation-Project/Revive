@@ -1,5 +1,6 @@
 #pragma once
 #include <client/object/actor/core/actor.h>
+#include <queue>
 
 namespace client_test
 {
@@ -21,6 +22,9 @@ namespace client_test
 		void Turn(float degrees);
 		bool m_show_pos = false;
 		bool m_show_forward = false;
+		
+		std::queue<SPtr<class Component>> m_components;
+		
 	};
 }
 

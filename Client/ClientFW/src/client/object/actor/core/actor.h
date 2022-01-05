@@ -3,6 +3,9 @@
 
 namespace client_fw
 {
+	class Component;
+	class ComponentManager;
+
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
 
@@ -41,6 +44,10 @@ namespace client_fw
 
 		void SpawnActor(const SPtr<Actor>& actor);
 
+	public:
+		void AttachComponent(const SPtr<Component> comp);
+		void DetachComponent(const SPtr<Component> comp);
+
 	private:
 		void UpdateWorldMatrix();
 
@@ -53,6 +60,8 @@ namespace client_fw
 
 	private:
 		std::vector<std::string_view> m_registered_input_event;
+		UPtr<ComponentManager> m_component_manager;
+
 		Mat4 m_world_matrix;
 		Vec3 m_position;
 		Quaternion m_rotation;
@@ -61,7 +70,7 @@ namespace client_fw
 		bool m_is_updated_world_matrix = false;
 
 	public:
-		std::string_view GetName() const { return m_name; }
+		const std::string& GetName() const { return m_name; }
 		eActorState GetActorState() const { return m_actor_state; }
 		void SetActorState(eActorState actor_state) { m_actor_state = actor_state; }
 		eMobilityState GetMobilityState() const { return m_mobility_state; }

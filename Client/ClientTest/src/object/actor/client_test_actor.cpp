@@ -3,6 +3,9 @@
 #include <client/math/math.h>
 #include <client/input/input.h>
 #include "object/actor/client_test_actor.h"
+#include "object/component/client_test_component.h"
+
+#include <random>
 
 namespace client_test
 {
@@ -30,6 +33,24 @@ namespace client_test
 				[this]()->bool { m_show_pos = !m_show_pos; return true;  });
 			RegisterPressedEvent("show_forward_vector", { EventKeyInfo{ eKey::kG } },
 				[this]()->bool { m_show_forward = !m_show_forward; return true;  });
+			RegisterPressedEvent("attach component", { EventKeyInfo{eKey::kT} },
+				[this]()->bool {
+					int num = rand() % 100;
+					auto component = CreateSPtr<ClientTestComponent>("test component " + std::to_string(num), num);
+					AttachComponent(component);
+					m_components.push(component);
+					return true;  
+				});
+			RegisterPressedEvent("detach component", { EventKeyInfo{eKey::kY} },
+				[this]()->bool {
+					if (m_components.empty() == false)
+					{
+						auto component = m_components.front();
+						DetachComponent(component);
+						m_components.pop();
+					}
+					return true;
+				});
 			break;
 		}
 	}
