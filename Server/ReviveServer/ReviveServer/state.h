@@ -26,3 +26,11 @@ enum class STATE
 	ST_ACCEPT, 
 	ST_INGAME 
 };
+
+enum class OBJ_TYPE
+{
+	OT_MAPOBJ,
+	OT_PLAYER,
+	OT_NPC_SKULL,
+	OT_NPC_SKULLKING
+};

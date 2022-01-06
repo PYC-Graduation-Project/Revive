@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ingame_server.h"
+#include"packet_manager.h"
 using namespace std;
 InGameServer::InGameServer()
 {
@@ -13,34 +14,10 @@ void InGameServer::Disconnect(int c_id)
 {
 }
 
-bool InGameServer::OnAccept(int new_id, EXP_OVER* exp_over)
+bool InGameServer::OnAccept(EXP_OVER* exp_over)
 {
-	SOCKET c_socket = *(reinterpret_cast<SOCKET*>(exp_over->_net_buf));
-	
-	if (-1 == new_id) {
-		cout << "Maxmum user overflow. Accept aborted.\n";
-		return false;
-	}
-	else {//다시제작
-		//Player* cl = (Player*)clients[new_id];
-		//cl->id = new_id;
-		//cout << new_id << endl;
-		//cl->m_prev_size = 0;
-		//cl->m_recv_over._comp_op = COMP_OP::OP_RECV;
-		//cl->m_recv_over._wsa_buf.buf = reinterpret_cast<char*>(cl->m_recv_over._net_buf);
-		//cl->m_recv_over._wsa_buf.len = sizeof(cl->m_recv_over._net_buf);
-		//ZeroMemory(&cl->m_recv_over._wsa_over, sizeof(cl->m_recv_over._wsa_over));
-		//cl->m_socket = c_socket;
-		//
-		//CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), m_hiocp, new_id, 0);
-		//cl->do_recv();
-	}
-
-	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
-	c_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
-	*(reinterpret_cast<SOCKET*>(exp_over->_net_buf)) = c_socket;
-	AcceptEx(m_s_socket, c_socket, exp_over->_net_buf + 8, 0, sizeof(SOCKADDR_IN) + 16,
-		sizeof(SOCKADDR_IN) + 16, NULL, &exp_over->_wsa_over);
+	m_PacketManager->ProcessAccept(m_hiocp, m_s_socket, exp_over);
+	return true;
 }
 
 bool InGameServer::OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes)
@@ -71,4 +48,10 @@ bool InGameServer::OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes)
 
 void InGameServer::ProcessPacket(int c_id, unsigned char* p)
 {
+}
+
+void InGameServer::Run()
+{
+	m_PacketManager = std::make_unique<PacketManager>();
+	m_PacketManager->Init();
 }

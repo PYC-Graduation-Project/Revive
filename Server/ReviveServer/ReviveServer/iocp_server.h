@@ -19,8 +19,8 @@ public:
 
 	virtual void Disconnect(int c_id)=0;
 	virtual bool OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes) { return false; };
-	virtual bool OnAccept(int new_id, EXP_OVER* exp_over) { return false; };
-	void error_display(int err_no);
+	virtual bool OnAccept( EXP_OVER* exp_over) { return false; };
+	static void error_display(int err_no);
 
 	
 private:

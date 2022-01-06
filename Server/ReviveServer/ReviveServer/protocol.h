@@ -9,8 +9,8 @@ const int  WORLD_WIDTH = 10800;
 const int  MAX_NAME_SIZE = 20;
 const int  MAX_CHAT_SIZE = 100;
 
-const int  MAX_USER = 10000;
-const int  MAX_NPC =200000;
+const int  MAX_USER = 3;
+const int  MAX_NPC =100;
 
 const float MAX_SPEED=10000; //추후 수정
 
@@ -122,9 +122,7 @@ struct sc_packet_status_change {
 	unsigned char size;
 	char type;
 	int id;
-	short	level;
-	short	hp, maxhp;
-	int		exp;
+	float	hp, maxhp;
 };
 
 #pragma pack(pop)
