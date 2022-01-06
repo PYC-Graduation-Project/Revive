@@ -5,7 +5,7 @@
 
 
 #include"state.h"
-
+#include"protocol.h"
 const int BUFSIZE = 256;
 
 
