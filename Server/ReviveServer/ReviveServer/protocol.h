@@ -1,6 +1,6 @@
 #pragma once
 
-const short SERVER_PORT = 11432;
+const short SERVER_PORT = 9000;
 
 //cm기준, 타일 : 36 x 16
 const int  WORLD_HEIGHT = 4800;// 전체맵 크기는 아님

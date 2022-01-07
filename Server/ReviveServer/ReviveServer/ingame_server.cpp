@@ -4,6 +4,8 @@
 using namespace std;
 InGameServer::InGameServer()
 {
+	m_PacketManager = std::make_unique<PacketManager>();
+	m_PacketManager->Init();
 }
 
 InGameServer::~InGameServer()
@@ -33,8 +35,7 @@ void InGameServer::Disconnect(int c_id)
 
 void InGameServer::Run()
 {
-	m_PacketManager = std::make_unique<PacketManager>();
-	m_PacketManager->Init();
+	
 
 	StartServer();
 }

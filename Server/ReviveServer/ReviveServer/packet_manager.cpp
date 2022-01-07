@@ -38,6 +38,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 
 void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_over)
 {
+	cout << "¾ï¼ÁÆ®Ã³¸®¿È" << endl;
 	SOCKET c_socket = *(reinterpret_cast<SOCKET*>(exp_over->_net_buf));
 	int new_id = m_moveobj_manager->GetNewID();
 	if (-1 == new_id) {
