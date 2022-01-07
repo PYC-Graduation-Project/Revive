@@ -21,7 +21,7 @@ public:
 	virtual bool OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes) { return false; };
 	virtual bool OnAccept( EXP_OVER* exp_over) { return false; };
 	static void error_display(int err_no);
-
+	virtual bool StartServer();
 	
 private:
 	//this의 워커를 람다로 join 어떻게될지 모른다 나중에 오류나면 가상함수로 수정

@@ -48,3 +48,16 @@ void MoveObjManager::InitPlayer()
 	for (int i = 0; i < MAX_USER; ++i)
 		m_moveobj_arr[i] = new Player;
 }
+
+void MoveObjManager::DestroyObject()
+{
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		if (STATE::ST_INGAME == m_moveobj_arr[i]->GetState())
+		{
+			Disconnect(m_moveobj_arr[i]->GetID());
+			delete m_moveobj_arr[i];
+		}
+	}
+
+}

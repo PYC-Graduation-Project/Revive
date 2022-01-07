@@ -13,11 +13,12 @@ public:
     }
    virtual ~Player()=default;
    std::mutex state_lock;
+   int		m_prev_size;
 private:
     
     EXP_OVER m_recv_over;
     SOCKET  m_socket;
-    int		m_prev_size;
+    
     int		m_last_move_time;
 
 public:

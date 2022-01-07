@@ -126,3 +126,10 @@ void IOCPServer::error_display(int err_no)
 	//while (true);
 	LocalFree(lpMsgBuf);
 }
+
+bool IOCPServer::StartServer()
+{
+	CreateWorker();
+	return true;
+}
+
