@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/core/renderer.h"
+#include "client/renderer/core/render_system.h"
 #include "client/core/window.h"
 #include "client/util/d3d_util.h"
 
@@ -8,6 +9,7 @@ namespace client_fw
 	Renderer::Renderer(const WPtr<Window>& window)
 		: m_window(window)
 	{
+		m_render_system = CreateUPtr<RenderSystem>();
 	}
 
 	Renderer::~Renderer()
@@ -41,6 +43,11 @@ namespace client_fw
 			LOG_ERROR("Could not resize window");
 			return false;
 		}
+		if (m_render_system->Initialize(m_device.Get()) == false)
+		{
+			LOG_ERROR("Could not initialize render system");
+			return false;
+		}
 		
 		return true;
 	}
@@ -50,6 +57,8 @@ namespace client_fw
 		WaitForGpuCompelete();
 
 		CloseHandle(m_fence_event);
+		
+		m_render_system->Shutdown();
 	}
 
 	bool Renderer::Render()
@@ -66,6 +75,8 @@ namespace client_fw
 			return false;
 		}
 
+		m_render_system->Update(m_device.Get(), m_command_list.Get());
+
 		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
 			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -77,11 +88,7 @@ namespace client_fw
 			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		m_command_list->OMSetRenderTargets(1, &m_rtv_cpu_handles[m_cur_swapchain_buffer], true, &m_dsv_cpu_handles);
 
-		//Render
-
-
-
-		//Render End
+		m_render_system->Draw(m_command_list.Get());
 
 		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -176,6 +183,8 @@ namespace client_fw
 		}
 		m_4x_msaa_quality = ms_quality_levels.NumQualityLevels;
 		m_is_use_4x_mass = (m_4x_msaa_quality > 1) ? true : false;
+		D3DUtil::s_is_use_4x_mass = m_is_use_4x_mass;
+		D3DUtil::s_4x_msaa_quality = m_4x_msaa_quality;
 
 		return true;
 	}

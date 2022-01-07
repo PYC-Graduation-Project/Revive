@@ -4,6 +4,8 @@ namespace client_fw
 {
 	struct Window;
 
+	class RenderSystem;
+
 	class Renderer final
 	{
 	public:
@@ -16,6 +18,7 @@ namespace client_fw
 
 	private:
 		WPtr<Window> m_window;
+		UPtr<RenderSystem> m_render_system;
 
 	private:
 		bool CreateDevice();

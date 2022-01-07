@@ -61,8 +61,8 @@ namespace client_fw
 
 	void Application::Shutdown()
 	{
-		m_level_manager->Shutdown();
 		m_renderer->Shutdown();
+		m_level_manager->Shutdown();
 	}
 
 	void Application::Run()
