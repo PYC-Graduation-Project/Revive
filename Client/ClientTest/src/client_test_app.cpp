@@ -1,9 +1,13 @@
 #include <client_fw.h>
+//#include <client/core/application.h>
+//#include <client/core/log.h>
+//#include <client/input/input.h>
 #include <client/core/entry_point.h>
+#include "object/level/client_test_level.h"
 
 using namespace client_fw;
 
-namespace revive
+namespace client_test
 {
 	class ClientTestApp : public client_fw::Application
 	{
@@ -21,6 +25,24 @@ namespace revive
 				LOG_INFO("Welcome to Client Test App");
 			}
 
+			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
+				[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
+			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
+				[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
+			RegisterPressedEvent("Shutdown App", std::vector{ EventKeyInfo{eKey::kF4, {eAdditionalKey::kControl, eAdditionalKey::kShift}} },
+				[this]()->bool {SetAppState(eAppState::kDead); return true;  });
+
+			RegisterPressedEvent("Open Level", { EventKeyInfo{eKey::kZ} },
+				[this]()->bool {
+					auto level = CreateSPtr<ClientTestLevel>(); 
+					OpenLevel(level); return true;
+				});
+
+			RegisterPressedEvent("Close Level", { EventKeyInfo{eKey::kX} },
+				[this]()->bool {
+					CloseLevel(); return true;
+				});
+
 			return result;
 		}
 
@@ -31,21 +53,6 @@ namespace revive
 			LOG_INFO("Good Bye");
 		}
 
-		void ProcessInput() override
-		{
-			Application::ProcessInput();
-
-			if (Input::IsKeyPressed(INPUT_KEY_F2))
-				Input::SetHideCursor(!Input::IsHideCursor());
-			if (Input::IsKeyPressed(INPUT_KEY_F3))
-				Input::SetClipCursor(!Input::IsClipCursor());
-		}
-
-		void Update(float delta_time) override
-		{
-			Application::Update(delta_time);
-		}
-
 		virtual ~ClientTestApp()
 		{
 		}
@@ -54,5 +61,5 @@ namespace revive
 
 client_fw::UPtr<client_fw::Application> client_fw::CreateApplication()
 {
-	return client_fw::CreateUPtr<revive::ClientTestApp>();
+	return client_fw::CreateUPtr<client_test::ClientTestApp>();
 }

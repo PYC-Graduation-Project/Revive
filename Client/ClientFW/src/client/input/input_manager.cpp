@@ -1,15 +1,13 @@
 #include "stdafx.h"
+#include "client/input/input.h"
 #include "client/input/input_manager.h"
 #include "client/core/window.h"
 
 namespace client_fw
 {
-	InputManager* Input::s_input_manager = nullptr;
-
 	InputManager::InputManager(const WPtr<Window>& window)
 		: m_window(window)
 	{
-        Input::s_input_manager = this;
 	}
 
     InputManager::~InputManager()
@@ -21,8 +19,10 @@ namespace client_fw
         m_key_states[ToUnderlying(EKeyState::kBefore)] = 
             m_key_states[ToUnderlying(EKeyState::kCur)];
 
-        m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_XMOVE] =
-            m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_YMOVE] = false;
+        m_key_states[ToUnderlying(EKeyState::kConsumption)].reset();
+
+        m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kXMove)] =
+            m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kYMove)] = false;
 
         if (m_is_hide_cursor)
         {
@@ -41,7 +41,7 @@ namespace client_fw
 
     bool InputManager::IsKeyHoldDown(UINT key) const
     {
-        return m_key_states[ToUnderlying(EKeyState::kCur)][key] && 
+        return m_key_states[ToUnderlying(EKeyState::kCur)][key] &&
             m_key_states[ToUnderlying(EKeyState::kBefore)][key];
     }
 
@@ -72,6 +72,16 @@ namespace client_fw
     {
         return m_mouse_position[ToUnderlying(EMousePosState::kCur)] -
             m_mouse_position[ToUnderlying(EMousePosState::kBefore)];
+    }
+
+    void InputManager::ConsumeKey(UINT key)
+    {
+        m_key_states[ToUnderlying(EKeyState::kConsumption)][key] = true;
+    }
+
+    bool InputManager::IsConsumedKey(UINT key) const
+    {
+        return  m_key_states[ToUnderlying(EKeyState::kConsumption)][key];
     }
 
     void InputManager::SetHideCursor(bool hide)
@@ -132,53 +142,54 @@ namespace client_fw
 	{
         bool down = false;
         HWND hWnd = m_window.lock()->hWnd;  
+        eKey key;
 
         switch (button)
         {
         case WM_LBUTTONDOWN:
             SetCapture(hWnd);
-            button = INPUT_MOUSE_LBUTTON;
+            key = eKey::kLButton;
             down = true;
             break;
         case WM_LBUTTONUP:
             ReleaseCapture();
-            button = INPUT_MOUSE_LBUTTON;
+            key = eKey::kLButton;
             down = false;
             break;
         case WM_RBUTTONDOWN:
             SetCapture(hWnd);
-            button = INPUT_MOUSE_RBUTTON;
+            key = eKey::kRButton;
             down = true;
             break;
         case WM_RBUTTONUP:
             ReleaseCapture();
-            button = INPUT_MOUSE_RBUTTON;
+            key = eKey::kRButton;
             down = false;
             break;
         case WM_MBUTTONDOWN:
             SetCapture(hWnd);
-            button = INPUT_MOUSE_MBUTTON;
+            key = eKey::kMButton;
             down = true;
             break;
         case WM_MBUTTONUP:
             ReleaseCapture();
-            button = INPUT_MOUSE_MBUTTON;
+            key = eKey::kMButton;
             down = false;
             break;
         case WM_MOUSEMOVE:
             if (m_mouse_position[ToUnderlying(EMousePosState::kCur)].x != x)
             {
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)].x = x;
-                m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_XMOVE] = true;
+                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kXMove)] = true;
             }
             if (m_mouse_position[ToUnderlying(EMousePosState::kCur)].y != y)
             {
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)].y = y;
-                m_key_states[ToUnderlying(EKeyState::kCur)][INPUT_MOUSE_YMOVE] = true;
+                m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(eKey::kYMove)] = true;
             }
             return;
         }
         
-        m_key_states[ToUnderlying(EKeyState::kCur)][button] = down;
+        m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(key)] = down;
 	}
 }

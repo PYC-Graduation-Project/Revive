@@ -2,7 +2,11 @@
 #include "client/core/application.h"
 #include "client/core/window.h"
 #include "client/core/timer.h"
-#include "client/input/input_manager.h"
+#include "client/input/input.h"
+#include "client/event/inputevent/input_event_system.h"
+#include "client/object/level/core/level_manager.h"
+#include "client/object/level/core/level_loader.h"
+#include "client/object/level/core/level.h"
 #include "client/renderer/core/renderer.h"
 
 namespace client_fw
@@ -18,7 +22,8 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
-		m_input_manager = CreateUPtr<InputManager>(m_window);
+		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
+		m_level_manager = CreateUPtr<LevelManager>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 	}
 
@@ -56,15 +61,8 @@ namespace client_fw
 
 	void Application::Shutdown()
 	{
+		m_level_manager->Shutdown();
 		m_renderer->Shutdown();
-		m_renderer = nullptr;
-
-#if defined(_DEBUG)
-		IDXGIDebug1* giDebug = nullptr;
-		DXGIGetDebugInterface1(0, IID_PPV_ARGS(&giDebug));
-		HRESULT result = giDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_DETAIL);
-		giDebug->Release();
-#endif
 	}
 
 	void Application::Run()
@@ -85,7 +83,6 @@ namespace client_fw
 				ProcessInput();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
-				m_input_manager->Update();
 				Render();
 			}
 		}
@@ -93,10 +90,12 @@ namespace client_fw
 
 	void Application::ProcessInput()
 	{
+		m_input_event_system->ExecuteEvent();
 	}
 
 	void Application::Update(float delta_time)
 	{
+		m_level_manager->Update(delta_time);
 	}
 
 	void Application::Render()
@@ -110,11 +109,37 @@ namespace client_fw
 
 	void Application::UpdateWindowSize()
 	{
-		GetWindowRect(m_window->hWnd, &m_window->rect);
+		UpdateWindowRect();
 		m_window->width = m_window->rect.right - m_window->rect.left;
 		m_window->height = m_window->rect.bottom - m_window->rect.top;
 		m_window->mid_pos.x = m_window->width / 2;
 		m_window->mid_pos.y = m_window->height / 2;
+	}
+
+	void Application::UpdateWindowRect()
+	{
+		GetWindowRect(m_window->hWnd, &m_window->rect);
+	}
+
+	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
+		const std::function<bool()>& func, bool consumption)
+	{
+		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kApplication);
+	}
+
+	void Application::OpenLevel(const SPtr<Level>& level)
+	{
+		m_level_manager->OpenLevel(level, nullptr);
+	}
+
+	void Application::OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader)
+	{
+		m_level_manager->OpenLevel(level, std::move(level_loader));
+	}
+
+	void Application::CloseLevel()
+	{
+		m_level_manager->CloseLevel();
 	}
 
 	bool Application::InitializeWindow()
@@ -149,6 +174,10 @@ namespace client_fw
 			return false;
 		
 		//SetWindowLong(m_window->hWnd, GWL_STYLE, 0);
+
+#ifndef _DEBUG
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);
 		SetFocus(m_window->hWnd);
@@ -173,7 +202,7 @@ namespace client_fw
 		LRESULT result = NULL;
 
 		const auto& app = Application::GetApplication();
-		const auto& input_manager = app->m_input_manager;
+		const auto& input_system = app->m_input_event_system;
 
 		switch (message)
 		{
@@ -188,20 +217,8 @@ namespace client_fw
 				app->UpdateWindowSize();
 			}
 			break;
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-			input_manager->ChangeKeyState(message, wParam, lParam);
-			break;
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONUP:
-		case WM_RBUTTONDOWN:
-		case WM_RBUTTONUP:
-		case WM_MBUTTONDOWN:
-		case WM_MBUTTONUP:
-		case WM_MOUSEMOVE:
-			input_manager->ChangeMouseState(message, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		case WM_MOVE:
+			app->UpdateWindowRect();
 			break;
 		case WM_DESTROY:
 		case WM_CLOSE:
@@ -211,6 +228,8 @@ namespace client_fw
 			result = DefWindowProc(hWnd, message, wParam, lParam);
 			break;
 		}
+
+		input_system->ChangeInputState(message, wParam, lParam);
 
 		return result;
 	}

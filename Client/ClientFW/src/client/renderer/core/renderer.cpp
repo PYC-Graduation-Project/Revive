@@ -12,7 +12,6 @@ namespace client_fw
 
 	Renderer::~Renderer()
 	{
-
 	}
 
 	bool Renderer::Initialize()
@@ -98,7 +97,7 @@ namespace client_fw
 
 		WaitForGpuCompelete();
 
-		m_swap_chain->Present(0, 0);
+		m_swap_chain->Present(1, 0);
 
 		MoveToNextFrame();
 
@@ -126,6 +125,7 @@ namespace client_fw
 			LOG_ERROR("Could not create DXGIFactory");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_factory.Get(), "renderer_factory");
 
 		ComPtr<IDXGIAdapter1> adapter;
 		for (UINT i = 0; i < DXGI_ERROR_NOT_FOUND != m_factory->EnumAdapters1(i, adapter.GetAddressOf()); ++i)
@@ -146,6 +146,7 @@ namespace client_fw
 				return false;
 			}
 		}
+		D3DUtil::SetObjectName(m_device.Get(), "renderer_device");
 
 		result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
 		if (FAILED(result))
@@ -153,7 +154,10 @@ namespace client_fw
 			LOG_ERROR("Could not create fence");
 			return false;
 		}
-		m_fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		for (auto& fence_value : m_fence_values)
+			fence_value = 0;
+		D3DUtil::SetObjectName(m_fence.Get(), "renderer_fence");
+		m_fence_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 		D3DUtil::s_cbvsrvuav_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3DUtil::s_rtv_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -197,6 +201,9 @@ namespace client_fw
 			LOG_ERROR("Could not create command list");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_command_queue.Get(), "renderer_command_queue");
+		D3DUtil::SetObjectName(m_command_allocator.Get(), "renderer_command_allocator");
+		D3DUtil::SetObjectName(m_command_list.Get(), "renderer_command_list");
 		m_command_list->Close();
 
 	
@@ -212,7 +219,7 @@ namespace client_fw
 		DXGI_SWAP_CHAIN_DESC sc_desc;
 		sc_desc.BufferDesc.Width = window->width;
 		sc_desc.BufferDesc.Height = window->height;
-		sc_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sc_desc.BufferDesc.Format = m_rtv_format;
 		sc_desc.BufferDesc.RefreshRate.Numerator = 60;
 		sc_desc.BufferDesc.RefreshRate.Denominator = 1;
 		sc_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
@@ -226,10 +233,14 @@ namespace client_fw
 		sc_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		sc_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		return (SUCCEEDED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
-			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))));
+		if (FAILED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
+			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))))
+			return false;
 
+		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
 		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
+
+		return true;
 	}
 
 	bool Renderer::CreateRtvDsvHeaps()
@@ -244,6 +255,7 @@ namespace client_fw
 			LOG_ERROR("Could not create RTV descriptor heap");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_rtv_descriptor_heap.Get(), "renderer_rtv_heap");
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_heap_handle(m_rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
 		for (UINT i = 0; i < s_swap_chain_buffer_count; ++i)
 		{
@@ -261,6 +273,7 @@ namespace client_fw
 			LOG_ERROR("Could not create DSV descriptor heap");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_dsv_descriptor_heap.Get(), "renderer_dsv_heap");
 		m_dsv_cpu_handles = m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart();
 
 		return true;
@@ -275,6 +288,7 @@ namespace client_fw
 				LOG_ERROR("Could not get swap chain buffer [" + std::to_string(i) + "]");
 				return false;
 			}
+			D3DUtil::SetObjectName(m_rtv_buffers[i].Get(), "renderer_rtv_buffer" + std::to_string(i));
 			m_device->CreateRenderTargetView(m_rtv_buffers[i].Get(), nullptr, m_rtv_cpu_handles[i]);
 		}
 		return true;
@@ -306,6 +320,7 @@ namespace client_fw
 			LOG_ERROR("Could not create dsv resource");
 			return false;
 		}
+		D3DUtil::SetObjectName(m_dsv_buffers.Get(), "renderer_dsv_buffer");
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
 		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;

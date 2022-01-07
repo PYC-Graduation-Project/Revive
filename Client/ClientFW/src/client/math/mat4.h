@@ -29,7 +29,7 @@ namespace client_fw
 
 	namespace mat4
 	{
-		constexpr Mat4 Identity{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		constexpr Mat4 IDENTITY{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 	}
 }

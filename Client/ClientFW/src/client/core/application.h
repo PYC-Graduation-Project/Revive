@@ -1,9 +1,5 @@
 #pragma once
 
-#include <Windows.h>
-#include <string>
-#include "client/core/core.h"
-
 namespace client_fw
 {
 	enum class eAppState
@@ -15,8 +11,13 @@ namespace client_fw
 
 	struct Window;
 	class Timer;
-	class InputManager;
 	class Renderer;
+
+	class InputEventSystem;
+	struct EventKeyInfo;
+	class LevelManager;
+	class LevelLoader;
+	class Level;
 
 	class Application
 	{
@@ -31,20 +32,25 @@ namespace client_fw
 		virtual void Shutdown();
 		void Run();
 
-	protected:
-		virtual void ProcessInput();
-		virtual void Update(float delta_time);
-
 	private:
+		void ProcessInput();
+		void Update(float delta_time);
 		void Render();
-
-	public:
-		void UpdateWindowSize();
 
 	private:
 		virtual bool InitializeWindow();
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
+		void UpdateWindowSize();
+		void UpdateWindowRect();
+
+	protected:
+		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+			const std::function<bool()>& func, bool consumption = true);
+
+		void OpenLevel(const SPtr<Level>& level);
+		void OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader);
+		void CloseLevel();
 
 	protected:
 		static Application* s_instance;
@@ -55,7 +61,8 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
-		UPtr<InputManager> m_input_manager;
+		UPtr<InputEventSystem> m_input_event_system;
+		UPtr<LevelManager> m_level_manager;
 		UPtr<Renderer> m_renderer;
 
 	public:

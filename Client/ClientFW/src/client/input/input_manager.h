@@ -9,12 +9,9 @@ namespace client_fw
 	class InputManager final
 	{
 	private:
-		friend class Application;
-		friend class Input; 
-
 		enum class EKeyState
 		{
-			kCur, kBefore,
+			kCur, kBefore, kConsumption
 		};
 
 		enum class EMousePosState
@@ -29,10 +26,9 @@ namespace client_fw
 		InputManager(const InputManager&) = delete;
 		InputManager& operator=(const InputManager&) = delete;
 		
-	private:
 		void Update();
 
-	private:
+	public:
 		bool IsKeyHoldDown(UINT key) const;
 		bool IsKeyPressed(UINT key) const;
 		bool IsKeyReleased(UINT key) const;
@@ -40,19 +36,22 @@ namespace client_fw
 		const IVec2& GetMousePosition() const;
 		const IVec2 GetRelativeMoustPosition() const;
 
+		void ConsumeKey(UINT key);
+		bool IsConsumedKey(UINT key) const;
+
 		void SetHideCursor(bool hide);
 		bool IsHideCursor() const { return m_is_hide_cursor; }
 
 		void SetClipCursor(bool clip);
 		bool IsClipCursor() const { return m_is_clip_cursor; }
 
-	private:
+	public:
 		void ChangeKeyState(UINT message, WPARAM key, LPARAM flags);
 		void ChangeMouseState(int button, WPARAM wParam, int x, int y);
 
 	private:
 		WPtr<Window> m_window;
-		std::array<std::bitset<MAX_KEYS>, 2> m_key_states;
+		std::array<std::bitset<MAX_KEYS>, 3> m_key_states;
 		std::array<IVec2, 3> m_mouse_position; // For the index, refer to EMousePosState
 
 		bool m_is_hide_cursor = false;
