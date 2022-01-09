@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/level/core/level_manager.h"
+#include "client/object/component/core/component.h"
 #include "client/object/component/core/component_manager.h"
 #include "client/input/input.h"
 
@@ -65,6 +66,7 @@ namespace client_fw
 
 	void Actor::AttachComponent(const SPtr<Component> comp)
 	{
+		comp->SetOwner(weak_from_this());
 		m_component_manager->RegisterComponent(comp);
 	}
 

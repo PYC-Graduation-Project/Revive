@@ -1,4 +1,12 @@
 
+struct InstanceData
+{
+    matrix world;
+    matrix world_inverse_transpose;
+};
+
+StructuredBuffer<InstanceData> g_instance_datas : register(t0, space0);
+
 cbuffer cbDefaultPass : register(b0, space0)
 {
     matrix gViewProj;
@@ -12,16 +20,25 @@ struct VS_DIFFUSE_IN
 struct VS_DIFFUSE_OUT
 {
     float4 position : SV_Position;
+    float4 color : COLOR;
 };
 
-VS_DIFFUSE_OUT VSDiffuse(VS_DIFFUSE_IN input)
+VS_DIFFUSE_OUT VSDiffuse(VS_DIFFUSE_IN input, uint instance_id : SV_InstanceID)
 {
     VS_DIFFUSE_OUT output;
-    output.position = float4(input.position, 1.0f);
+    output.position = mul(float4(input.position, 1.0f), g_instance_datas[instance_id].world);
+    output.position.z = instance_id / 100.0f + 0.01f;
+    
+    float f = instance_id % 20.0f / 40.0f + 0.5f;
+    float r = instance_id % 3 == 0 ? f : 0.0f;
+    float g = instance_id % 3 == 1 ? f : 0.0f;
+    float b = instance_id % 3 == 2 ? f : 0.0f;
+    output.color = float4(r, g, b, 1.0f);
+    
     return output;
 }
 
 float4 PSDiffuse(VS_DIFFUSE_OUT input) : SV_TARGET
 {
-    return float4(1.0f, 1.0f, 0.0f, 0.0f);
+    return input.color;
 }

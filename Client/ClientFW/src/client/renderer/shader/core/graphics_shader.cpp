@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "client/renderer/shader/core/graphics_shader.h"
 #include "client/renderer/renderlevel/core/render_level.h"
+#include "client/renderer/core/render_item.h"
+#include "client/object/component/mesh/core/mesh_component.h"
+#include "client/asset/mesh/mesh.h"
 #include "client/util/d3d_util.h"
 
 namespace client_fw
@@ -8,6 +11,18 @@ namespace client_fw
 	GraphicsShader::GraphicsShader(const std::string& name)
 		: Shader(name)
 	{
+	}
+
+	void GraphicsShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		for (const auto& render_item : m_render_items)
+			render_item->Update(device, command_list);
+	}
+
+	void GraphicsShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list)
+	{
+		for (const auto& render_item : m_render_items)
+			render_item->Draw(command_list);
 	}
 
 	D3D12_SHADER_BYTECODE GraphicsShader::CreateShader(ID3DBlob** shader_blob)
@@ -74,7 +89,7 @@ namespace client_fw
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	}
 
-	bool GraphicsShader::CreatePipelineState(ID3D12Device* device, const SPtr<RenderLevel>& render_level, int num_of_pso)
+	bool GraphicsShader::CreatePipelineState(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level, int num_of_pso)
 	{
 		std::string render_level_name = render_level->GetName();
 		m_pipeline_states[render_level_name].resize(num_of_pso);
@@ -114,4 +129,34 @@ namespace client_fw
 		}
 		return true;
 	}
+
+	bool GraphicsShader::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	{
+		std::string path = mesh_comp->GetMesh()->GetPath();
+
+		if (m_render_items_map.find(path) != m_render_items_map.cend())
+		{
+			m_render_items_map[path]->RegisterMeshComponent(mesh_comp);
+		}
+		else
+		{
+			SPtr<RenderItem> render_item = CreateSPtr<RenderItem>(mesh_comp->GetMesh(), 1);	 //수정 필요
+			render_item->RegisterMeshComponent(mesh_comp);
+			m_render_items_map.insert({ path, render_item });
+			m_render_items.push_back(render_item);
+		}
+
+		return true;
+	}
+
+	void GraphicsShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	{
+		std::string path = mesh_comp->GetMesh()->GetPath();
+
+		if (m_render_items_map.find(path) != m_render_items_map.cend())
+		{
+			m_render_items_map[path]->UnregisterMeshComponent(mesh_comp);
+		}
+	}
+
 }

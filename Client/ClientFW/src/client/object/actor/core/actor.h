@@ -16,10 +16,10 @@ namespace client_fw
 
 	enum class eMobilityState
 	{
-		kStatic, kMovable
+		kStatic, kDestructable, kMovable
 	};
 
-	class Actor : public IBaseObject
+	class Actor : public IBaseObject, public std::enable_shared_from_this<Actor>
 	{
 	public:
 		Actor(eMobilityState mobility = eMobilityState::kStatic, const std::string& name = "Actor");

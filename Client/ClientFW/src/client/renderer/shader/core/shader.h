@@ -2,9 +2,6 @@
 
 namespace client_fw
 {
-	class RenderLevel;
-	enum class eRenderLevelType;
-
 	class Shader
 	{
 	public:
@@ -19,11 +16,8 @@ namespace client_fw
 		D3D12_SHADER_BYTECODE CompileShader(std::wstring_view file_name,
 			std::string_view entry_point, std::string_view version, ID3DBlob** shader_blob);
 
-		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<RenderLevel>& render_level) = 0;
-
 	protected:
 		void DebugPipelineState(const std::string& render_level_name, int index);
-		virtual bool CreatePipelineState(ID3D12Device* device, const SPtr<RenderLevel>& render_level, int num_of_pso) = 0;
 
 	protected:
 		std::string m_name;

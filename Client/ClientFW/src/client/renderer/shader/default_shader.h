@@ -19,7 +19,7 @@ namespace client_fw
 
 		virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int pso_index) override;
 
-		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<RenderLevel>& render_level) override;
+		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
 	};
 }
 

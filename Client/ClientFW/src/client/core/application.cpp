@@ -8,6 +8,8 @@
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
 #include "client/renderer/core/renderer.h"
+#include "client/asset/core/asset_manager.h"
+#include "client/asset/mesh/mesh_loader.h"
 
 namespace client_fw
 {
@@ -25,6 +27,7 @@ namespace client_fw
 		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
+		m_asset_manager = CreateUPtr<AssetManager>();
 	}
 
 	Application::~Application()
@@ -56,13 +59,20 @@ namespace client_fw
 			return false;
 		}
 
+		InitializeAssetManager();
+
 		return true;
+	}
+
+	void Application::InitializeAssetManager()
+	{
+		m_asset_manager->Initialize(CreateUPtr<MeshLoader>());
 	}
 
 	void Application::Shutdown()
 	{
-		m_renderer->Shutdown();
 		m_level_manager->Shutdown();
+		m_renderer->Shutdown();
 	}
 
 	void Application::Run()

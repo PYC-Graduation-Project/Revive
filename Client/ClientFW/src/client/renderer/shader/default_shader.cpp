@@ -20,10 +20,20 @@ namespace client_fw
 
 	void DefaultShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, const std::string& level_name)
 	{
+		UpdateRenderItem(device, command_list);
 	}
 
 	void DefaultShader::Draw(ID3D12GraphicsCommandList* command_list, const std::string& level_name)
 	{
+		switch (HashCode(level_name.c_str()))
+		{
+		case HashCode("default"):
+			command_list->SetPipelineState(m_pipeline_states.at(level_name)[0].Get());
+			DrawRenderItem(command_list);
+			break;
+		default:
+			break;
+		}
 	}
 
 	D3D12_SHADER_BYTECODE DefaultShader::CreateVertexShader(ID3DBlob** shader_blob, int pso_index)
@@ -50,7 +60,7 @@ namespace client_fw
 		return d3dInputLayoutDesc;
 	}
 
-	bool DefaultShader::CreatePipelineStates(ID3D12Device* device, const SPtr<RenderLevel>& render_level)
+	bool DefaultShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
 	{
 		bool result = true;
 

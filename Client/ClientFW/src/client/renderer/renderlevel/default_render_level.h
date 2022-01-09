@@ -3,7 +3,7 @@
 
 namespace client_fw
 {
-	class DefaultRenderLevel final : public RenderLevel
+	class DefaultRenderLevel final : public GraphicsRenderLevel
 	{
 	public:
 		DefaultRenderLevel(const std::string& name);

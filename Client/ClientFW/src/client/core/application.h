@@ -19,6 +19,8 @@ namespace client_fw
 	class LevelLoader;
 	class Level;
 
+	class AssetManager;
+
 	class Application
 	{
 	public:
@@ -29,6 +31,7 @@ namespace client_fw
 		Application& operator=(const Application&) = delete;
 
 		virtual bool Initialize();
+		virtual void InitializeAssetManager();
 		virtual void Shutdown();
 		void Run();
 
@@ -64,6 +67,7 @@ namespace client_fw
 		UPtr<InputEventSystem> m_input_event_system;
 		UPtr<LevelManager> m_level_manager;
 		UPtr<Renderer> m_renderer;
+		UPtr<AssetManager> m_asset_manager;
 
 	public:
 		inline static Application* GetApplication() { return s_instance; }
