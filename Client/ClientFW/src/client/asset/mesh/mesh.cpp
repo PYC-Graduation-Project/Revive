@@ -7,24 +7,16 @@ namespace client_fw
 {
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		if (m_vertices.empty())
-			return false;
 
-		m_vertex_count = static_cast<UINT>(m_vertices.size());
-		m_stride = sizeof(TextureLightVertex);
+		auto vertices = reinterpret_cast<TextureLightVertex*>(m_vertex_buffer_blob->GetBufferPointer());
+		auto vertices_size = static_cast<UINT>(m_vertex_buffer_blob->GetBufferSize());
 
-		if (m_indices.empty() == false)
-		{
-			m_is_draw_index = true;
-			m_index_count = static_cast<UINT>(m_indices.size());
-		}
-
-		m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, m_vertices.data(),
-			m_stride * m_vertex_count, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
+		m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
+			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
 
 		m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
-		m_vertex_buffer_view.SizeInBytes = m_vertex_count * m_stride;
-		m_vertex_buffer_view.StrideInBytes = m_stride;
+		m_vertex_buffer_view.SizeInBytes = vertices_size;
+		m_vertex_buffer_view.StrideInBytes = sizeof(TextureLightVertex);
 
 		if (m_vertex_buffer == nullptr)
 		{
@@ -32,14 +24,19 @@ namespace client_fw
 			return false;
 		}
 
-		if (m_is_draw_index)
+		if (m_index_buffer_blob != nullptr)
 		{
-			m_index_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, m_indices.data(),
-				sizeof(UINT) * m_index_count, D3D12_RESOURCE_STATE_INDEX_BUFFER, m_index_upload_buffer);
+			m_is_draw_index = true;
+
+			auto indices = reinterpret_cast<UINT*>(m_index_buffer_blob->GetBufferPointer());
+			auto indices_size = static_cast<UINT>(m_index_buffer_blob->GetBufferSize());
+
+			m_index_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, indices, indices_size,
+				D3D12_RESOURCE_STATE_INDEX_BUFFER, m_index_upload_buffer);
 
 			m_index_buffer_view.BufferLocation = m_index_buffer->GetGPUVirtualAddress();
 			m_index_buffer_view.Format = DXGI_FORMAT_R32_UINT;
-			m_index_buffer_view.SizeInBytes = sizeof(UINT) * m_index_count;
+			m_index_buffer_view.SizeInBytes = indices_size;
 
 			if (m_index_buffer == nullptr)
 			{
@@ -47,11 +44,6 @@ namespace client_fw
 				return false;
 			}
 		}
-		
-		m_vertices.clear();
-		m_indices.clear();
-
-		LOG_TRACE("Com");
 
 		return true;
 	}
@@ -69,17 +61,6 @@ namespace client_fw
 			command_list->DrawIndexedInstanced(count, instance_count, start_location, 0, 0);
 		else
 			command_list->DrawInstanced(count, instance_count, start_location, 0);
-	}
-
-	void StaticMesh::SetVertices(std::vector<TextureLightVertex>&& vertices)
-	{
-		m_vertices = vertices;
-	}
-
-	void StaticMesh::SetVertices(std::vector<TextureLightVertex>&& vertices, std::vector<UINT>&& indices)
-	{
-		m_vertices = vertices;
-		m_indices = indices;
 	}
 
 	void StaticMesh::AddInstanceInfo(InstanceInfo&& info)

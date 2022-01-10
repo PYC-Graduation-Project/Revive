@@ -54,6 +54,19 @@ namespace client_fw
 		UINT temp_uint = 0;
 		std::string temp_string;
 
+		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
+
+		auto UpdateMaxMin([&max_pos, &min_pos](const Vec3& pos) {
+			max_pos.x = max(max_pos.x, pos.x);
+			max_pos.y = max(max_pos.y, pos.y);
+			max_pos.z = max(max_pos.z, pos.z);
+
+			min_pos.x = min(min_pos.x, pos.x);
+			min_pos.y = min(min_pos.y, pos.y);
+			min_pos.z = min(min_pos.z, pos.z);
+			});
+
 		while (std::getline(obj_file, line))
 		{
 			ss.clear();
@@ -65,6 +78,7 @@ namespace client_fw
 			case HashCode("v"):
 				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 				temp_vec.z *= -1.0f;
+				UpdateMaxMin(temp_vec);
 				positions.emplace_back(std::move(temp_vec));
 				break;
 			case HashCode("vt"):
@@ -156,7 +170,22 @@ namespace client_fw
 			vertex_count += count;
 		}
 
-		mesh->SetVertices(std::move(vertices));
+		const UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
+		if (FAILED(D3DCreateBlob(vertices_size, &mesh->GetVertexBufferBlob())))
+		{
+			LOG_ERROR("Could not create blob for vertex");
+			return nullptr;
+		}
+		CopyMemory(mesh->GetVertexBufferBlob()->GetBufferPointer(), vertices.data(), vertices_size);
+
+		Vec3 center = max_pos + min_pos;
+		Vec3 extents = (max_pos - min_pos) * 0.5f;
+		extents.x = abs(extents.x), extents.y = abs(extents.y), extents.z = abs(extents.z);
+		BoundingOrientedBox oriented_box;
+		oriented_box.Center = center;
+		oriented_box.Extents = extents;
+
+		mesh->SetOrientBox(oriented_box);
 
 		return mesh;
 	}

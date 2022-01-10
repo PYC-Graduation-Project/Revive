@@ -22,26 +22,32 @@ namespace client_fw
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
 
 	protected:
+		ComPtr<ID3DBlob> m_vertex_buffer_blob;
 		ComPtr<ID3D12Resource> m_vertex_buffer;
 		ComPtr<ID3D12Resource> m_vertex_upload_buffer;
 
 		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 
 		UINT m_slot = 0;
-		UINT m_vertex_count = 0;
-		UINT m_stride = 0;
 		UINT m_offset = 0;
 
+		ComPtr<ID3DBlob> m_index_buffer_blob;
 		ComPtr<ID3D12Resource> m_index_buffer;
 		ComPtr<ID3D12Resource> m_index_upload_buffer;
 
 		D3D12_INDEX_BUFFER_VIEW m_index_buffer_view;
 
-		UINT m_index_count = 0;
-
 		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+		BoundingOrientedBox m_oriented_box;
+
 		bool m_is_draw_index;
+
+	public:
+		ComPtr<ID3DBlob>& GetVertexBufferBlob() { return m_vertex_buffer_blob; }
+		ComPtr<ID3DBlob>& GetIndexBufferBlob() { return m_vertex_buffer_blob; }
+		const BoundingOrientedBox& GetOrientedBox() const { return m_oriented_box; }
+		void SetOrientBox(const BoundingOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
 	};
 
 	class TextureLightVertex;
@@ -57,13 +63,9 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index);
 
 	private:
-		std::vector<TextureLightVertex> m_vertices;
-		std::vector<UINT> m_indices;
 		std::vector<InstanceInfo> m_instance_info;
 
 	public:
-		virtual void SetVertices(std::vector<TextureLightVertex>&& vertices);
-		virtual void SetVertices(std::vector<TextureLightVertex>&& vertices, std::vector<UINT>&& indices);
 		virtual void AddInstanceInfo(InstanceInfo&& info);
 	};
 }
