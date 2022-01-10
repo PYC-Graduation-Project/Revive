@@ -1,5 +1,6 @@
 #pragma once
 #include "client/object/core/base_object_manager.h"
+#include <stack>
 
 namespace client_fw
 {
@@ -20,16 +21,13 @@ namespace client_fw
 		void RegisterActor(const SPtr<Actor>& actor);
 
 	private:
-		void UpdateActors(const std::vector<SPtr<Actor>>& actors, 
-			std::vector<SPtr<Actor>>& dead_actors, float delta_time);
-
-		void UnregisterActor(std::vector<SPtr<Actor>>& actors,
-			std::vector<SPtr<Actor>>&& dead_actors);
+		void UpdateStaticActors(float delta_time);
+		void UpdateDynamicActors(float delta_time);
 
 	private:
 		std::vector<SPtr<Actor>> m_ready_actors;
 		std::vector<SPtr<Actor>> m_static_actors;
-		std::vector<SPtr<Actor>> m_movable_actors;
+		std::vector<SPtr<Actor>> m_dynamic_actors;
 
 	};
 }

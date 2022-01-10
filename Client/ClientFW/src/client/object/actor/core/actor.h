@@ -43,8 +43,6 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 		void SpawnActor(const SPtr<Actor>& actor);
-
-	public:
 		void AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 

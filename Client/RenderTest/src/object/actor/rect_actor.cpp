@@ -9,7 +9,7 @@
 namespace render_test
 {
 	RectActor::RectActor()
-		: Actor()
+		: Actor(eMobilityState::kDestructable)
 	{
 	}
 

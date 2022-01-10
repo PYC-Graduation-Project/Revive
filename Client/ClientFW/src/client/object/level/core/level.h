@@ -45,11 +45,14 @@ namespace client_fw
 	private:
 		std::vector<std::string_view> m_registered_input_event;
 		UPtr<ActorManager> m_actor_manager;
+		bool m_is_runtime_level;
 
 	public:
 		const std::string& GetName() const { return m_name; }
 		eLevelState GetLevelState() const { return m_level_state; }
 		void SetLevelState(eLevelState level_state) { m_level_state = level_state; }
+		void SetRuntime() { m_is_runtime_level = true; }
+		bool IsRuntime() const { return m_is_runtime_level; }
 	};
 }
 

@@ -32,8 +32,9 @@ namespace client_fw
 
 		if (m_ready_level != nullptr)
 		{
+			m_ready_level->InitializeLevel();
 			m_cur_level = std::move(m_ready_level);
-			m_cur_level->InitializeLevel();
+			m_cur_level->SetRuntime();
 			m_ready_level = nullptr;
 		}
 
