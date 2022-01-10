@@ -1,11 +1,11 @@
 #pragma once
-#include <client/object/actor/core/actor.h>
+#include <client/object/actor/static_mesh_actor.h>
 
 namespace render_test
 {
     using namespace client_fw;
 
-    class RectActor : public Actor
+    class RectActor : public StaticMeshActor
     {
 	public:
 		RectActor();

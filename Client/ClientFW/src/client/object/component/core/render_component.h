@@ -9,7 +9,7 @@ namespace client_fw
 
 	class RenderComponent : public Component, public std::enable_shared_from_this<RenderComponent>
 	{
-	public:
+	protected:
 		RenderComponent(const std::string& name, eRenderComponentType type, int update_order = 100);
 		virtual ~RenderComponent() = default;
 

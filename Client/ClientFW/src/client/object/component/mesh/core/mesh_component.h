@@ -7,7 +7,7 @@ namespace client_fw
 
 	class MeshComponent : public RenderComponent
 	{
-	public:
+	protected:
 		MeshComponent(const std::string& name = "mesh component");
 		virtual ~MeshComponent() = default;
 

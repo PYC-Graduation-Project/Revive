@@ -7,10 +7,11 @@ namespace client_fw
 
 	class Component : public IBaseObject
 	{
-	public:
+	protected:
 		Component(const std::string& name, int update_order = 100);
 		virtual ~Component() = default;
 
+	public:
 		void InitializeComponent();
 		virtual void Initialize() override {}
 

@@ -3,22 +3,19 @@
 #include <client/math/math.h>
 #include <client/input/input.h>
 #include <client/asset/core/asset_store.h>
-#include <client/object/component/mesh/core/mesh_component.h>
-#include "rect_actor.h"
+#include "object/actor/rect_actor.h"
 
 namespace render_test
 {
 	RectActor::RectActor()
-		: Actor(eMobilityState::kDestructable)
+		: StaticMeshActor(eMobilityState::kDestructable, "../Contents/plane.obj")
 	{
 	}
 
 	void RectActor::Initialize()
 	{
-		auto mesh_comp = CreateSPtr<MeshComponent>();
-		mesh_comp->SetMesh("../Contents/plane.obj");
-		AttachComponent(mesh_comp);
-		
+		StaticMeshActor::Initialize();
+
 		auto rot = GetRotation();
 		rot *= quat::CreateQuaternionFromNormal(GetRight(), math::ToRadian(-90.0f));
 		SetRotation(rot);
@@ -28,6 +25,7 @@ namespace render_test
 
 	void RectActor::Shutdown()
 	{
+		StaticMeshActor::Shutdown();
 	}
 
 	void RectActor::Update(float delta_time)
