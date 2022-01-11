@@ -43,6 +43,7 @@ void InGameServer::Run()
 void InGameServer::End()
 {
 	m_PacketManager->End();
+	DestroyThread();
 	CloseHandle(m_hiocp);
 	closesocket(m_s_socket);
 

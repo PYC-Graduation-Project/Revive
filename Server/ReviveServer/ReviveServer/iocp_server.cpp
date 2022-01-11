@@ -65,8 +65,7 @@ void IOCPServer::CreateWorker()
 {
 	for (int i = 0; i < m_worker_num; ++i)
 		m_worker_threads.emplace_back([this]() {Worker(); });
-	for (auto& th : m_worker_threads)
-		th.join();
+	
 }
 
 
@@ -133,5 +132,11 @@ bool IOCPServer::StartServer()
 {
 	CreateWorker();
 	return true;
+}
+
+void IOCPServer::DestroyThread()
+{
+	for (auto& th : m_worker_threads)
+		th.join();
 }
 
