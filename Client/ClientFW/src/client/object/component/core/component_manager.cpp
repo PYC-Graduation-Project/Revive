@@ -16,17 +16,27 @@ namespace client_fw
 			component->UpdateComponent(delta_time);
 	}
 
-	void ComponentManager::RegisterComponent(const SPtr<Component>& component)
+	bool ComponentManager::RegisterComponent(const SPtr<Component>& component)
 	{
-		auto iter = std::lower_bound(m_components.cbegin(), m_components.cend(), component,
-			[](const SPtr<Component>& comp1, const SPtr<Component>& comp2)
-			{ return comp1->GetUpdateOrder() < comp2->GetUpdateOrder(); });
+		if (component->InitializeComponent())
+		{
+			auto iter = std::lower_bound(m_components.cbegin(), m_components.cend(), component,
+				[](const SPtr<Component>& comp1, const SPtr<Component>& comp2)
+				{ return comp1->GetUpdateOrder() < comp2->GetUpdateOrder(); });
 
-		if (iter == m_components.cend())
-			m_components.push_back(component);
+			if (iter == m_components.cend())
+				m_components.push_back(component);
+			else
+				m_components.insert(iter, component);
+
+			return true;
+		}
 		else
-			m_components.insert(iter, component);
-		component->InitializeComponent();
+		{
+			LOG_ERROR("Could not initialize component : {0}", component->GetName());
+			component->ShutdownComponent();
+			return false;
+		}
 	}
 
 	void ComponentManager::UnregisterComponent(const SPtr<Component>& component)

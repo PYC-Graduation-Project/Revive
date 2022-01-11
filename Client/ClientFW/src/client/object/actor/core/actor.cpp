@@ -19,9 +19,9 @@ namespace client_fw
 	{
 	}
 
-	void Actor::InitializeActor()
+	bool Actor::InitializeActor()
 	{
-		Initialize();
+		return Initialize();
 	}
 
 	void Actor::ShutdownActor()
@@ -64,10 +64,10 @@ namespace client_fw
 		LevelManager::GetLevelManager().SpawnActor(actor);
 	}
 
-	void Actor::AttachComponent(const SPtr<Component> comp)
+	bool Actor::AttachComponent(const SPtr<Component> comp)
 	{
 		comp->SetOwner(weak_from_this());
-		m_component_manager->RegisterComponent(comp);
+		return m_component_manager->RegisterComponent(comp);
 	}
 
 	void Actor::DetachComponent(const SPtr<Component> comp)

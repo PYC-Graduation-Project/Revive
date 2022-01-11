@@ -43,6 +43,7 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list);
 
 		bool RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader);
+		void UnregisterGraphicsShader(const SPtr<GraphicsShader>& graphics_shader);
 
 	protected:
 		virtual void UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) {}

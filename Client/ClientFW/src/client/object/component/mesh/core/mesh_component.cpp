@@ -2,47 +2,40 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/renderer/core/render.h"
 #include "client/asset/core/asset_store.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
-	MeshComponent::MeshComponent(const std::string& name)
-		: RenderComponent(name, eRenderComponentType::kMesh)
+	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
+		: RenderComponent(name, eRenderComponentType::kMesh, draw_shader_name)
 	{
 	}
 
-	void MeshComponent::Initialize()
+	bool MeshComponent::Initialize()
 	{
+		bool result = true;
 		if (m_mesh != nullptr)
-			RegisterToRenderSystem(eShaderType::kDefault);
+			result = RegisterToRenderSystem();
+		return result;
 	}
 
 	void MeshComponent::Shutdown()
 	{
 		if (m_mesh != nullptr)
 		{
-			UnregisterFromRenderSystem(eShaderType::kDefault);
+			UnregisterFromRenderSystem();
 			m_mesh = nullptr;
 		}
 	}
 
-	void MeshComponent::RegisterToRenderSystem(const std::string& shader_name)
+	bool MeshComponent::RegisterToRenderSystem()
 	{
-		Render::RegisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), shader_name);
+		return Render::RegisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), m_draw_shader_name);
 	}
 
-	void MeshComponent::RegisterToRenderSystem(eShaderType shader_type)
+	void MeshComponent::UnregisterFromRenderSystem()
 	{
-		Render::RegisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), shader_type);
-	}
-
-	void MeshComponent::UnregisterFromRenderSystem(const std::string& shader_name)
-	{
-		Render::UnregisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), shader_name);
-	}
-
-	void MeshComponent::UnregisterFromRenderSystem(eShaderType shader_type)
-	{
-		Render::UnregisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), shader_type);
+		Render::UnregisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), m_draw_shader_name);
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)

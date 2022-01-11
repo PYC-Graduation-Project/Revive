@@ -11,9 +11,10 @@ namespace client_test
 	{
 	}
 
-	void ClientTestComponent::Initialize()
+	bool ClientTestComponent::Initialize()
 	{
 		LOG_INFO("Initialize {0}", m_name);
+		return true;
 	}
 
 	void ClientTestComponent::Shutdown()

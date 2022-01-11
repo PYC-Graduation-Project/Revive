@@ -18,16 +18,23 @@ namespace client_fw
 	{
 		for (auto& actor : m_ready_actors)
 		{
-			actor->InitializeActor();
-			switch (actor->GetMobilityState())
+			if (actor->InitializeActor())
 			{
-			case eMobilityState::kStatic:
-				m_static_actors.emplace_back(std::move(actor));
-				break;
-			case eMobilityState::kDestructable:
-			case eMobilityState::kMovable:
-				m_dynamic_actors.emplace_back(std::move(actor));
-				break;
+				switch (actor->GetMobilityState())
+				{
+				case eMobilityState::kStatic:
+					m_static_actors.emplace_back(std::move(actor));
+					break;
+				case eMobilityState::kDestructable:
+				case eMobilityState::kMovable:
+					m_dynamic_actors.emplace_back(std::move(actor));
+					break;
+				}
+			}
+			else
+			{
+				LOG_ERROR("Could not initialize actor : {0}", actor->GetName());
+				actor->ShutdownActor();
 			}
 		}
 		m_ready_actors.clear();

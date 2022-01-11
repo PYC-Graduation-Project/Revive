@@ -17,9 +17,9 @@ namespace client_fw
 	{
 	}
 
-	void Level::InitializeLevel()
+	bool Level::InitializeLevel()
 	{
-		Initialize();
+		return Initialize();
 	}
 
 	void Level::ShutdownLevel()

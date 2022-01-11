@@ -25,8 +25,8 @@ namespace client_fw
 		Actor(eMobilityState mobility = eMobilityState::kStatic, const std::string& name = "Actor");
 		virtual ~Actor();
 
-		void InitializeActor();
-		virtual void Initialize() override {}
+		bool InitializeActor();
+		virtual bool Initialize() override { return true; }
 
 		void ShutdownActor();
 		virtual void Shutdown() override {}
@@ -43,7 +43,7 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 		void SpawnActor(const SPtr<Actor>& actor);
-		void AttachComponent(const SPtr<Component> comp);
+		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 
 	private:

@@ -12,7 +12,7 @@ namespace render_test
         RenderRectLevel(const std::string& name = "render_rect_level");
         virtual ~RenderRectLevel() = default;
 
-        virtual void Initialize() override;
+        virtual bool Initialize() override;
         virtual void Shutdown() override;
 
         virtual void Update(float delta_time) override;

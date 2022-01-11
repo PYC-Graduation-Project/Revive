@@ -27,13 +27,15 @@ namespace client_fw
 
 	public:
 		template <class T>
-		bool RegisterGraphicsRenderLevel(const std::string& name)
+		bool RegisterGraphicsRenderLevel(const std::string& name, bool is_custom = false)
 		{
 			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(), name)
 				!= m_render_level_order.cend())
 			{
 				m_graphics_render_levels[name] = CreateSPtr<T>(name);
 				m_graphics_render_levels[name]->Initialize(m_device);
+				if (is_custom)
+					m_added_render_levels.insert(name);
 				return true;
 			}
 			else
@@ -42,15 +44,18 @@ namespace client_fw
 				return false;
 			}
 		}
+		void UnregisterGraphicsRenderLevel(const std::string& level_name);
 
 		template <class T>
-		bool RegisterGraphicsShader(const std::string& shader_name, const std::string& level_name)
+		bool RegisterGraphicsShader(const std::string& shader_name, const std::string& level_name, bool is_custom = false)
 		{
 			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(), level_name)
 				!= m_render_level_order.cend())
 			{
 				m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
 				m_graphics_shaders[shader_name]->Initialize(m_device);
+				if (is_custom)
+					m_added_shaders.insert(shader_name);
 				return m_graphics_render_levels[level_name]->RegisterGraphicsShader(m_device, m_graphics_shaders[shader_name]);
 			}
 			else
@@ -59,6 +64,7 @@ namespace client_fw
 				return false;
 			}
 		}
+		void UnregisterGraphicsShader(const std::string& shader_name, const std::string& level_name);
 
 		bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp,
 			eRenderComponentType comp_type, const std::string& shader_name);
@@ -74,6 +80,8 @@ namespace client_fw
 		std::map<std::string, SPtr<GraphicsShader>> m_graphics_shaders;
 
 		std::vector<std::string> m_render_level_order;
+		std::set<std::string> m_added_render_levels;
+		std::set<std::string> m_added_shaders;
 		std::unordered_set<std::string> m_initialized_assets; //Level Load Asset시스템을 사용하면, 이것도 초기화 해줘야 한다. 
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;

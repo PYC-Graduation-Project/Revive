@@ -18,8 +18,8 @@ namespace client_fw
 		Level(const std::string& name = "level");
 		virtual ~Level();
 
-		void InitializeLevel();
-		virtual void Initialize() override {}
+		bool InitializeLevel();
+		virtual bool Initialize() override { return true; }
 
 		void ShutdownLevel();
 		virtual void Shutdown() override {}

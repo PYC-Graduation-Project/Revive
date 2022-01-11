@@ -4,29 +4,20 @@
 
 namespace client_fw
 {
-	RenderComponent::RenderComponent(const std::string& name, eRenderComponentType type, int update_order)
+	RenderComponent::RenderComponent(const std::string& name, eRenderComponentType type, 
+		const std::string& draw_shader_name, int update_order)
 		: Component(name, update_order), m_render_type(type)
+		, m_draw_shader_name(draw_shader_name)
 	{
 	}
 
-	void RenderComponent::RegisterToRenderSystem(const std::string& shader_name)
+	bool RenderComponent::RegisterToRenderSystem()
 	{
-		Render::RegisterRenderComponent(shared_from_this(), shader_name);
+		return Render::RegisterRenderComponent(shared_from_this(), m_draw_shader_name);
 	}
 
-	void RenderComponent::RegisterToRenderSystem(eShaderType shader_type)
+	void RenderComponent::UnregisterFromRenderSystem()
 	{
-		Render::RegisterRenderComponent(shared_from_this(), shader_type);
+		Render::UnregisterRenderComponent(shared_from_this(), m_draw_shader_name);
 	}
-
-	void RenderComponent::UnregisterFromRenderSystem(const std::string& shader_name)
-	{
-		Render::UnregisterRenderComponent(shared_from_this(), shader_name);
-	}
-
-	void RenderComponent::UnregisterFromRenderSystem(eShaderType shader_type)
-	{
-		Render::UnregisterRenderComponent(shared_from_this(), shader_type);
-	}
-
 }

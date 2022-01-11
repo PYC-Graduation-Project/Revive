@@ -29,3 +29,8 @@ namespace client_fw
 		return static_cast<typename std::underlying_type<Enum>::type>(e);
 	}
 }
+
+constexpr unsigned int HashCode(const char* str)
+{
+	return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * HashCode(str + 1) : 8603;
+}

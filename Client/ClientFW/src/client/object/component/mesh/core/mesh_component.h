@@ -8,17 +8,15 @@ namespace client_fw
 	class MeshComponent : public RenderComponent
 	{
 	protected:
-		MeshComponent(const std::string& name = "mesh component");
+		MeshComponent(const std::string& name, const std::string& draw_shader_name);
 		virtual ~MeshComponent() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 	protected:
-		virtual void RegisterToRenderSystem(const std::string& shader_name) override;
-		virtual void RegisterToRenderSystem(eShaderType shader_type) override;
-		virtual void UnregisterFromRenderSystem(const std::string& shader_name) override;
-		virtual void UnregisterFromRenderSystem(eShaderType shader_type) override;
+		virtual bool RegisterToRenderSystem() override;
+		virtual void UnregisterFromRenderSystem() override;
 
 	protected:
 		SPtr<Mesh> m_mesh;

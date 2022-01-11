@@ -62,7 +62,32 @@ namespace client_fw
 		}
 	}
 
-	bool RenderSystem::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, 
+	void RenderSystem::UnregisterGraphicsRenderLevel(const std::string& level_name)
+	{
+		if (m_added_render_levels.find(level_name) != m_added_render_levels.cend())
+		{
+			m_added_render_levels.erase(level_name);
+			m_graphics_render_levels[level_name]->Shutdown();
+			m_graphics_render_levels.erase(level_name);
+			auto iter = find(m_render_level_order.begin(), m_render_level_order.end(), level_name);
+			m_render_level_order.erase(iter);
+		}
+	}
+
+	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, const std::string& level_name)
+	{
+		if (m_added_shaders.find(shader_name) != m_added_shaders.cend() && 
+			m_graphics_render_levels.find(level_name) != m_graphics_render_levels.cend())
+		{
+			auto& shader = m_graphics_shaders[shader_name];
+			m_added_shaders.erase(shader_name);
+			m_graphics_render_levels[level_name]->UnregisterGraphicsShader(shader);
+			shader->Shutdown();
+			m_graphics_shaders.erase(shader_name);
+		}
+	}
+
+	bool RenderSystem::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp,
 		eRenderComponentType comp_type, const std::string& shader_name)
 	{
 		return false;
@@ -81,12 +106,19 @@ namespace client_fw
 			m_ready_meshes.push_back(mesh_comp->GetMesh());
 		}
 
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
+		{
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return false;
+		}
+
 		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(mesh_comp);
 	}
 
 	void RenderSystem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
 	{
-		m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
+		if (m_graphics_shaders.find(shader_name) != m_graphics_shaders.cend())
+			m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
 	}
 
 	void RenderSystem::AddRenderLevelOrder(const std::string& name, const std::string& front_render_level_name)
@@ -97,7 +129,7 @@ namespace client_fw
 		}
 		else
 		{
-			auto iter = std::find(m_render_level_order.begin(), m_render_level_order.end(), name);
+			auto iter = std::find(m_render_level_order.begin(), m_render_level_order.end(), front_render_level_name);
 			if (iter != m_render_level_order.end())
 				m_render_level_order.insert(iter + 1, name);
 			else

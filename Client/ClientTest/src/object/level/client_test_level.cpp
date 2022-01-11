@@ -12,7 +12,7 @@ namespace client_test
 	{
 	}
 
-	void ClientTestLevel::Initialize()
+	bool ClientTestLevel::Initialize()
 	{
 		LOG_INFO("Initialize {0}", m_name);
 
@@ -36,6 +36,8 @@ namespace client_test
 				}
 				return true;
 			});
+
+		return true;
 	}
 
 	void ClientTestLevel::Shutdown()

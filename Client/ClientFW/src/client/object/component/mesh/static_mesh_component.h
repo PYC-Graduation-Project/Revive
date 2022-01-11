@@ -9,7 +9,7 @@ namespace client_fw
 		StaticMeshComponent(const std::string& name = "static mesh component");
 		virtual ~StaticMeshComponent() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 	};
 

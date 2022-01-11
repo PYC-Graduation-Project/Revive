@@ -11,7 +11,7 @@ namespace client_test
 		ClientTestComponent(const std::string& name, int update_order);
 		virtual ~ClientTestComponent() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;

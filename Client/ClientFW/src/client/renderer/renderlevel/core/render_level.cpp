@@ -59,4 +59,14 @@ namespace client_fw
 		m_graphics_shaders.push_back(graphics_shader);
 		return graphics_shader->CreatePipelineStates(device, shared_from_this());
 	}
+
+	void GraphicsRenderLevel::UnregisterGraphicsShader(const SPtr<GraphicsShader>& graphics_shader)
+	{
+		auto iter = std::find(m_graphics_shaders.begin(), m_graphics_shaders.end(), graphics_shader);
+		if (iter != m_graphics_shaders.cend())
+		{
+			std::iter_swap(iter, m_graphics_shaders.end() - 1);
+			m_graphics_shaders.pop_back();
+		}
+	}
 }

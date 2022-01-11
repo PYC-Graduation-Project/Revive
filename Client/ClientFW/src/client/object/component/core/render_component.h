@@ -10,19 +10,20 @@ namespace client_fw
 	class RenderComponent : public Component, public std::enable_shared_from_this<RenderComponent>
 	{
 	protected:
-		RenderComponent(const std::string& name, eRenderComponentType type, int update_order = 100);
+		RenderComponent(const std::string& name, eRenderComponentType type,
+			const std::string& draw_shader_name, int update_order = 100);
 		virtual ~RenderComponent() = default;
 
 	protected:
-		virtual void RegisterToRenderSystem(const std::string& shader_name);
-		virtual void RegisterToRenderSystem(eShaderType shader_type);
-		virtual void UnregisterFromRenderSystem(const std::string& shader_name);
-		virtual void UnregisterFromRenderSystem(eShaderType shader_type);
+		virtual bool RegisterToRenderSystem();
+		virtual void UnregisterFromRenderSystem();
 
 	protected:
+		std::string m_draw_shader_name;
 		eRenderComponentType m_render_type;
 
 	public:
+		void SetDrawShaderName(const std::string& shader_name){ m_draw_shader_name = shader_name; }
 		eRenderComponentType GetRenderType() const { return m_render_type; }
 	};
 }

@@ -29,41 +29,42 @@ namespace client_fw
 	{
 	public:
 		template <class T>
-		static bool RegisterRenderLevel(const std::string& name, const std::string& front_render_level_name)
+		static bool RegisterGraphicsRenderLevel(const std::string& name, const std::string& front_render_level_name)
 			//if you want to insert to the front, front_render_level_name set blank
 		{
-			s_render_system->RegisterRenderLevel(name, front_render_level_name);
+			s_render_system->AddRenderLevelOrder(name, front_render_level_name);
+			return s_render_system->RegisterGraphicsRenderLevel<T>(name, true);
 		}
 
 		template <class T>
-		static bool RegisterRenderLevel(const std::string& name, eRenderLevelType type)
+		static bool RegisterGraphicsRenderLevel(const std::string& name, eRenderLevelType type)
 		{
-			s_render_system->RegisterRenderLevel(name, ConvertRenderLevelType(type));
+			return Render::RegisterGraphicsRenderLevel<T>(name, ConvertRenderLevelType(type));
+		}
+
+		static void UnregisterGraphicsRenderLevel(const std::string& level_name);
+
+		template <class T>
+		static bool RegisterGraphicsShader(const std::string& shader_name, const std::string& level_name)
+		{
+			return s_render_system->RegisterGraphicsShader<T>(shader_name, level_name, true);
 		}
 
 		template <class T>
-		static bool RegisterShader(const std::string& shader_name, const std::string& level_name)
+		static bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType type)
 		{
-			s_render_system->RegisterShader(shader_name, level_name);
+			return RegisterGraphicsShader<T>(shader_name, ConvertRenderLevelType(type));
 		}
 
-		template <class T>
-		static bool RegisterShader(const std::string& shader_name, eRenderLevelType type)
-		{
-			s_render_system->RegisterShader(shader_name, ConvertRenderLevelType(type));
-		}
+		static void UnregisterGraphicsShader(const std::string shader_name, const std::string& level_name);
 
 		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
-		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, eShaderType& shader_type);
 		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
-		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, eShaderType& shader_type);
 
 		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
-		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, eShaderType& shader_type);
 		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
-		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, eShaderType& shader_type);
 
-	private:
+	public:
 		static std::string ConvertRenderLevelType(eRenderLevelType type);
 		static std::string ConvertShaderType(eShaderType type);
 

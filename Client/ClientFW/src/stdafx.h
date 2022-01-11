@@ -50,8 +50,3 @@ using Microsoft::WRL::ComPtr;
 #include "client/core/core.h"
 #include "client/core/log.h"
 #include "client/math/math.h"
-
-constexpr unsigned int HashCode(const char* str)
-{
-	return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * HashCode(str + 1) : 8603;
-}

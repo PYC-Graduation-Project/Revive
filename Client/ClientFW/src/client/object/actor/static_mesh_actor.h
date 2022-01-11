@@ -11,11 +11,12 @@ namespace client_fw
 		StaticMeshActor(eMobilityState mobility, const std::string& static_mesh_path);
 		virtual ~StaticMeshActor() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
+		virtual void Shutdown() override;
 
 	protected:
 		std::string m_mesh_path;
-		WPtr<StaticMeshComponent> m_static_mesh_component;
+		SPtr<StaticMeshComponent> m_static_mesh_component;
 	};
 }
 

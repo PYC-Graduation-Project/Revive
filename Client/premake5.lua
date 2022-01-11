@@ -1,6 +1,6 @@
 workspace "Revive"
 	architecture "x64"
-	startproject "ClientTest"
+	startproject "RenderTest"
 
 	configurations
 	{

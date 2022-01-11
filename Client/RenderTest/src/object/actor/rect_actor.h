@@ -11,7 +11,7 @@ namespace render_test
 		RectActor();
 		virtual ~RectActor() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;

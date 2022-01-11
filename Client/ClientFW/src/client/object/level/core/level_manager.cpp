@@ -32,10 +32,17 @@ namespace client_fw
 
 		if (m_ready_level != nullptr)
 		{
-			m_ready_level->InitializeLevel();
-			m_cur_level = std::move(m_ready_level);
-			m_cur_level->SetRuntime();
-			m_ready_level = nullptr;
+			if (m_ready_level->InitializeLevel())
+			{
+				m_cur_level = std::move(m_ready_level);
+				m_cur_level->SetRuntime();
+				m_ready_level = nullptr;
+			}
+			else
+			{
+				LOG_WARN("Could not initailize level : {0}", m_ready_level->GetName());
+				m_ready_level->ShutdownLevel();
+			}
 		}
 
 		if (m_cur_level != nullptr)
