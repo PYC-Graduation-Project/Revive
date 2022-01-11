@@ -11,6 +11,7 @@ public:
    
     virtual bool OnAccept( EXP_OVER* exp_over) override;
     virtual bool OnRecv(int c_id, EXP_OVER* exp_over,DWORD num_bytes) override;
+    virtual void OnEvent(EXP_OVER* exp_over)override;
     virtual void Disconnect(int c_id);
     void Run();
     void End();

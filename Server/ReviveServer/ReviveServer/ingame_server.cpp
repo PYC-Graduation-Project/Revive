@@ -25,6 +25,18 @@ bool InGameServer::OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes)
 	return true;
 }
 
+void InGameServer::OnEvent(EXP_OVER* exp_over)
+{
+	switch (exp_over->_comp_op)
+	{
+	case COMP_OP::OP_PLAYER_MOVE: {
+		m_PacketManager->UpdateObjMove();
+		delete exp_over;
+		break;
+	}
+	}
+}
+
 void InGameServer::Disconnect(int c_id)
 {
 	m_PacketManager->Disconnect(c_id);

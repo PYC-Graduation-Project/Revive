@@ -22,6 +22,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	}
 	case CS_PACKET_MOVE: {
 		
+		
 		break;
 	}
 	case CS_PACKET_ATTACK: {
@@ -87,6 +88,52 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 	cl->DoRecv();
 }
 
+void PacketManager::UpdateObjMove()
+{
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		for (int j = 0; j <= NPC_ID_END; ++j) {
+			//이후에 조건 추가
+			if(i!=j)
+			SendMovePacket(i, j);
+		}
+	}
+	SetTimerEvent(0, 0, EVENT_TYPE::EVENT_PLAYER_MOVE, 10);
+}
+
+void PacketManager::SendMovePacket(int c_id, int mover)
+{
+	sc_packet_move packet;
+	MoveObj* p = m_moveobj_manager->GetMoveObj(mover);
+	packet.id = mover;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_MOVE;
+
+	packet.x =p->GetPosX();
+	packet.y =p->GetPosY();
+	packet.z =p->GetPosZ();
+
+	packet.right_x = p->GetRightVec().x;
+	packet.right_y = p->GetRightVec().y;
+	packet.right_z = p->GetRightVec().z;
+
+	packet.look_x = p->GetLookVec().x;
+	packet.look_y = p->GetLookVec().y;
+	packet.look_z = p->GetLookVec().z;
+	
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds)
+{
+	timer_event t;
+	t.obj_id = obj_id;
+	t.target_id = target_id;
+	t.ev = ev;
+	t.start_time = chrono::system_clock::now() + (1ms * seconds);
+	return t;
+}
+
 void PacketManager::End()
 {
 	m_moveobj_manager->DestroyObject();
@@ -99,14 +146,39 @@ void PacketManager::Disconnect(int c_id)
 
 
 
-void PacketManager::ProcessLogin()
+void PacketManager::ProcessLogin(int c_id,unsigned char* p)
 {
 }
 
-void PacketManager::ProcessAttack()
+void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 {
 }
 
-void PacketManager::ProcessMove()
+void PacketManager::ProcessMove(int c_id,unsigned char* p)
 {
+	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
+	Player* cl = m_moveobj_manager->GetPlayer(c_id);
+	Vector3 pos{ cl->GetPosX(),cl->GetPosY(),cl->GetPosZ() };
+	Vector3 look{ cl->GetLookVec()};
+	Vector3 right{ cl->GetRightVec() };
+	switch (packet->direction)
+	{
+	case 0:
+	{
+		//pos
+		break;
+	}
+	case 1:
+	{
+		break;
+	}
+	case 2:
+	{
+		break;
+	}
+	case 3:
+	{
+		break;
+	}
+	}
 }

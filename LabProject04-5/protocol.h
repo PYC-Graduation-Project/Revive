@@ -86,7 +86,8 @@ struct sc_packet_move {
 	char type;
 	int		id;
 	float  x, y, z;
-	int		move_time;
+	float right_x, right_y, right_z;
+	float look_x, look_y, look_z;
 };
 
 

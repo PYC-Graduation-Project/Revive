@@ -114,9 +114,12 @@ void IOCPServer::Worker()
 			
 			break;
 		}
+		default:
+			OnEvent(exp_over);
+			break;
 		}
 	}
-
+	
 
 }
 
@@ -161,38 +164,14 @@ bool IOCPServer::StartServer()
 
 void IOCPServer::ProcessEvent(timer_event& ev)
 {
-	//switch (ev.ev) {
-	//case EVENT_NPC_MOVE: {
-	//
-	//	EXP_OVER* ex_over = new EXP_OVER;
-	//	ex_over->_comp_op = OP_NPC_MOVE;
-	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
-	//	break;
-	//}
-	//
-	//
-	//case EVENT_PLAYER_HILL: {
-	//
-	//	EXP_OVER* ex_over = new EXP_OVER;
-	//	ex_over->_comp_op = OP_PLAYER_HILL;
-	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
-	//	break;
-	//}
-	//case EVENT_NPC_ATTACK: {
-	//	EXP_OVER* ex_over = new EXP_OVER;
-	//	ex_over->_comp_op = OP_NPC_ATTACK;
-	//	ex_over->_target = ev.target_id;
-	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
-	//	break;
-	//}
-	//case EVENT_REGEN: {
-	//	
-	//	ex_over->_comp_op = OP_REGEN;
-	//	
-	//	break;
-	//}
-	//}
 	EXP_OVER* ex_over = new EXP_OVER;
+	switch (ev.ev) {
+	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
+		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
+		break;
+	}
+	}
+	
 	PostQueuedCompletionStatus(m_hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 }
 
