@@ -13,6 +13,9 @@ public:
 		m_origin_x = x;
 		m_origin_y = y;
 		m_origin_z = z;
+		m_right = Vector3(1.0f, 0.0f, 0.0f);
+		m_look = Vector3(0.0f, 1.0f, 0.0f);
+		m_up = Vector3(0.0f, 0.0f, 1.0f);
 	}
 
 	virtual ~MoveObj() = default;
@@ -26,6 +29,14 @@ public:
 	float GetMaxHP()const { return m_maxhp; }
 	STATE GetState()const { return m_state; }
 
+	Vector3 GetRightVec()const { return m_right; }
+	Vector3 GetLookVec()const { return m_look; }
+	Vector3 GetUpVec()const { return m_up; }
+	
+	void SetRightVec(const Vector3& val) { m_right = val; }
+	void SetLookVec(const Vector3& val) { m_look = val; }
+	void SetUpVec(const Vector3& val) { m_up = val; }
+
 	void SetDamge(float val) {  m_damage=val; }
 	void SetHP(float val)    {  m_hp=val; }
 	void SetMaxHP(float val) {  m_maxhp=val; }
@@ -36,5 +47,6 @@ private:
 	float m_damage;
 	float m_hp, m_maxhp;
 	STATE m_state;
+	Vector3 m_right, m_look, m_up;
 	float m_origin_x, m_origin_y, m_origin_z;
 };

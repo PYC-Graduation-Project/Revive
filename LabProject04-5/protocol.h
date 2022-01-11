@@ -46,7 +46,7 @@ struct cs_packet_login {
 struct cs_packet_move {
 	unsigned char size;
 	char	type;
-	char	direction;			// 0 : up,  1: down, 2:left, 3:right
+	char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 };
 

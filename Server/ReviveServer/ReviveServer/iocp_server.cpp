@@ -68,6 +68,11 @@ void IOCPServer::CreateWorker()
 	
 }
 
+void IOCPServer::CreateTimer()
+{
+	m_worker_threads.emplace_back([this]() {DoTimer(); } );
+}
+
 
 void IOCPServer::Worker()
 {
@@ -115,6 +120,26 @@ void IOCPServer::Worker()
 
 }
 
+void IOCPServer::DoTimer()
+{
+	while (true) {
+		while (true) {
+			timer_event ev;
+			if (!m_timer_queue.try_pop(ev))continue;
+			auto start_t = chrono::system_clock::now();
+			if (ev.start_time <= start_t) {
+				ProcessEvent(ev);
+			}
+			else {
+				m_timer_queue.push(ev);
+				break;
+			}
+		}
+
+		this_thread::sleep_for(10ms);
+	}
+}
+
 void IOCPServer::error_display(int err_no)
 {
 	WCHAR* lpMsgBuf;
@@ -134,9 +159,47 @@ bool IOCPServer::StartServer()
 	return true;
 }
 
+void IOCPServer::ProcessEvent(timer_event& ev)
+{
+	//switch (ev.ev) {
+	//case EVENT_NPC_MOVE: {
+	//
+	//	EXP_OVER* ex_over = new EXP_OVER;
+	//	ex_over->_comp_op = OP_NPC_MOVE;
+	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
+	//	break;
+	//}
+	//
+	//
+	//case EVENT_PLAYER_HILL: {
+	//
+	//	EXP_OVER* ex_over = new EXP_OVER;
+	//	ex_over->_comp_op = OP_PLAYER_HILL;
+	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
+	//	break;
+	//}
+	//case EVENT_NPC_ATTACK: {
+	//	EXP_OVER* ex_over = new EXP_OVER;
+	//	ex_over->_comp_op = OP_NPC_ATTACK;
+	//	ex_over->_target = ev.target_id;
+	//	PostQueuedCompletionStatus(g_h_iocp, 1, ev.obj_id, &ex_over->_wsa_over);
+	//	break;
+	//}
+	//case EVENT_REGEN: {
+	//	
+	//	ex_over->_comp_op = OP_REGEN;
+	//	
+	//	break;
+	//}
+	//}
+	EXP_OVER* ex_over = new EXP_OVER;
+	PostQueuedCompletionStatus(m_hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+}
+
 void IOCPServer::DestroyThread()
 {
 	for (auto& th : m_worker_threads)
 		th.join();
+	
 }
 

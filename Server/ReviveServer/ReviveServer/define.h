@@ -2,8 +2,7 @@
 
 #include <WS2tcpip.h>
 #include <MSWSock.h>
-
-
+#include<chrono>
 #include"state.h"
 #include"protocol.h"
 const int BUFSIZE = 256;
@@ -29,5 +28,39 @@ public:
 	EXP_OVER() { _comp_op = COMP_OP::OP_RECV; }
 	~EXP_OVER() {}
 
+
+};
+
+class Vector3
+{
+public:
+	Vector3() { x = 0; y = 0; z = 0; }
+	Vector3(float x,float y, float z):x(x),y(y),z(z){}
+	float x, y, z;
+#ifndef 오버로딩
+
+	friend Vector3 operator +(const Vector3& a, const Vector3& b)
+	{
+		return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+	}
+
+	friend Vector3  operator -(const Vector3& a, const Vector3& b)
+	{
+		return Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+	}
+	
+#endif // 오버로딩
+
+};
+
+struct timer_event {
+	int obj_id;
+	std::chrono::system_clock::time_point	start_time;
+	EVENT_TYPE ev;
+	int target_id;
+	constexpr bool operator < (const timer_event& _Left) const
+	{
+		return (start_time > _Left.start_time);
+	}
 
 };

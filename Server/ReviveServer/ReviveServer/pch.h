@@ -13,6 +13,8 @@
 #include<unordered_set>
 #include<unordered_map>
 #include<atomic>
-#include<mutex>
+#include<DirectXMath.h>
+#include <math.h>
+
 #include"define.h"
 #endif //PCH_H
