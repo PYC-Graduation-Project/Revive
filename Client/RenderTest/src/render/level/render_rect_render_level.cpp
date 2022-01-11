@@ -1,4 +1,5 @@
-#include <stdafx.h>
+#include <include/client_core.h>
+#include <include/dx12_shader_fw.h>
 #include "render/level/render_rect_render_level.h"	
 
 namespace client_fw

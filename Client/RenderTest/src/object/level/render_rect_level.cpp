@@ -1,4 +1,5 @@
-#include <stdafx.h>
+#include <include/client_core.h>
+#include <include/dx12_shader_fw.h>
 #include <client/input/input.h>
 #include <client/renderer/core/render.h>
 #include <client/renderer/core/render_system.h>
