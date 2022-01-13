@@ -48,7 +48,7 @@ namespace client_fw
 		void UpdateWindowRect();
 
 	protected:
-		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
 
 		void OpenLevel(const SPtr<Level>& level);

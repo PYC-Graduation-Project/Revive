@@ -9,21 +9,21 @@ namespace client_fw
 	class InputEventInfo : public IEventInfo
 	{
 	public:
-		InputEventInfo(std::string_view event_name, bool is_comsume);
+		InputEventInfo(const std::string& event_name, bool is_comsume);
 		virtual ~InputEventInfo() = default;
 
 	protected:
-		std::string_view m_event_name;
+		std::string m_event_name;
 		bool m_is_comsume_input;
 
 	public:
-		std::string_view GetEventName() const { return m_event_name; }
+		const std::string& GetEventName() const { return m_event_name; }
 	};
 
 	class ActionEventInfo : public InputEventInfo
 	{
 	public:
-		ActionEventInfo(std::string_view event_name, bool is_comsume,
+		ActionEventInfo(const std::string& event_name, bool is_comsume,
 			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~ActionEventInfo() = default;
 
@@ -35,7 +35,7 @@ namespace client_fw
 	class PressedEventInfo final : public ActionEventInfo
 	{
 	public:
-		PressedEventInfo(std::string_view event_name, bool is_comsume,
+		PressedEventInfo(const std::string& event_name, bool is_comsume,
 			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~PressedEventInfo() = default;
 
@@ -45,7 +45,7 @@ namespace client_fw
 	class ReleasedEventInfo final : public ActionEventInfo
 	{
 	public:
-		ReleasedEventInfo(std::string_view event_name, bool is_comsume,
+		ReleasedEventInfo(const std::string& event_name, bool is_comsume,
 			std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func);
 		virtual ~ReleasedEventInfo() = default;
 
@@ -55,7 +55,7 @@ namespace client_fw
 	class AxisEventInfo final : public InputEventInfo
 	{
 	public:
-		AxisEventInfo(std::string_view event_name, bool is_comsume,
+		AxisEventInfo(const std::string& event_name, bool is_comsume,
 			std::vector<AxisEventKeyInfo>&& event_keys, const std::function<bool(float)>& event_func);
 		virtual ~AxisEventInfo() = default;
 

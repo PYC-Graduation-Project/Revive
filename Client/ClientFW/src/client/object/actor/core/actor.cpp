@@ -75,28 +75,31 @@ namespace client_fw
 		m_component_manager->UnregisterComponent(comp);
 	}
 
-	void Actor::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	void Actor::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
-		if (Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterPressedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kActor))
+			RegisterInputEvent(event_name);
 	}
 
-	void Actor::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	void Actor::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
-		if (Input::RegisterReleasedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterReleasedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kActor))
+			RegisterInputEvent(event_name);
 	}
 
-	void Actor::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys, 
+	void Actor::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys, 
 		const std::function<bool(float)>& func, bool consumption)
 	{
-		if (Input::RegisterAxisEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterAxisEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kActor))
+			RegisterInputEvent(event_name);
 	}
 
-	void Actor::RegisterInputEvent(std::string_view name)
+	void Actor::RegisterInputEvent(const std::string& name)
 	{
 		m_registered_input_event.emplace_back(std::move(name));
 	}

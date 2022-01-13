@@ -18,6 +18,9 @@ namespace client_fw
 	{
 		for (auto& actor : m_ready_actors)
 		{
+			UINT64 index = ++m_actor_names[actor->GetName()];
+			actor->SetName(actor->GetName() + std::to_string(index));
+
 			if (actor->InitializeActor())
 			{
 				switch (actor->GetMobilityState())

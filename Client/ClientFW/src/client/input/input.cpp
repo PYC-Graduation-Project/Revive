@@ -74,7 +74,7 @@ namespace client_fw
 		return s_input_event_system->GetInputManager()->IsClipCursor();
 	}
 
-	bool Input::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	bool Input::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
@@ -82,7 +82,7 @@ namespace client_fw
 		);
 	}
 
-	bool Input::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	bool Input::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
@@ -90,7 +90,7 @@ namespace client_fw
 		);
 	}
 
-	bool Input::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
+	bool Input::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys,
 		const std::function<bool(float)>& func, bool consumption, eInputOwnerType type)
 	{
 		return s_input_event_system->GetInputEventManager()->RegisterEvent(
@@ -98,7 +98,7 @@ namespace client_fw
 		);
 	}
 
-	void Input::UnregisterInputEvent(std::string_view name)
+	void Input::UnregisterInputEvent(const std::string& name)
 	{
 		s_input_event_system->GetInputEventManager()->UnregisterEvent(name);
 	}

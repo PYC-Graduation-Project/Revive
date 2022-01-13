@@ -29,6 +29,7 @@ namespace client_fw
 		std::vector<SPtr<Actor>> m_static_actors;
 		std::vector<SPtr<Actor>> m_dynamic_actors;
 
+		std::map<std::string, UINT64> m_actor_names;
 	};
 }
 

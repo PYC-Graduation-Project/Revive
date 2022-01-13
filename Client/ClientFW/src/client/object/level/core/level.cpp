@@ -60,21 +60,21 @@ namespace client_fw
 		}
 	}
 
-	void Level::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	void Level::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
 		if (Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
 			RegisterInputEvent(name);
 	}
 
-	void Level::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	void Level::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
 		if(Input::RegisterReleasedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
 			RegisterInputEvent(name);
 	}
 
-	void Level::RegisterInputEvent(std::string_view name)
+	void Level::RegisterInputEvent(const std::string& name)
 	{
 		m_registered_input_event.emplace_back(std::move(name));
 	}

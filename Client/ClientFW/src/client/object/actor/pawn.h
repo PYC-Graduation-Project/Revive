@@ -17,11 +17,11 @@ namespace client_fw
 		friend void Controller::Possess(const SPtr<Pawn>& pawn);
 
 	protected:
-		virtual void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		virtual void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
-		virtual void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		virtual void RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
-		virtual void RegisterAxisEvent(std::string_view name, std::vector <AxisEventKeyInfo>&& keys,
+		virtual void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
 	private:

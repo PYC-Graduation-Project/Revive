@@ -4,19 +4,19 @@
 
 namespace client_fw
 {
-	InputEventInfo::InputEventInfo(std::string_view event_name, bool is_comsume)
+	InputEventInfo::InputEventInfo(const std::string& event_name, bool is_comsume)
 		: m_event_name(event_name), m_is_comsume_input(is_comsume)
 	{
 	}
 
-	ActionEventInfo::ActionEventInfo(std::string_view event_name, bool is_comsume,
+	ActionEventInfo::ActionEventInfo(const std::string& event_name, bool is_comsume,
 		std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func)
 		: InputEventInfo(event_name, is_comsume)
 		, m_event_keys(event_keys), m_event_func(event_func)
 	{
 	}
 
-	PressedEventInfo::PressedEventInfo(std::string_view event_name, bool is_comsume,
+	PressedEventInfo::PressedEventInfo(const std::string& event_name, bool is_comsume,
 		std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func)
 		: ActionEventInfo(event_name, is_comsume, std::move(event_keys), event_func)
 	{
@@ -40,7 +40,7 @@ namespace client_fw
 		}
 	}
 
-	ReleasedEventInfo::ReleasedEventInfo(std::string_view event_name, bool is_comsume,
+	ReleasedEventInfo::ReleasedEventInfo(const std::string& event_name, bool is_comsume,
 		std::vector<EventKeyInfo>&& event_keys, const std::function<bool()>& event_func)
 		: ActionEventInfo(event_name, is_comsume, std::move(event_keys), event_func)
 	{
@@ -64,7 +64,7 @@ namespace client_fw
 		}
 	}
 
-	AxisEventInfo::AxisEventInfo(std::string_view event_name, bool is_comsume,
+	AxisEventInfo::AxisEventInfo(const std::string& event_name, bool is_comsume,
 		std::vector<AxisEventKeyInfo>&& event_keys, const std::function<bool(float)>& event_func)
 		: InputEventInfo(event_name, is_comsume)
 		, m_event_keys(event_keys), m_event_func(event_func)

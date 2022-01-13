@@ -10,25 +10,28 @@ namespace client_fw
 	{
 	}
 
-	void Pawn::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
+	void Pawn::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys, 
 		const std::function<bool()>& func, bool consumption)
 	{
-		if (Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterPressedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kPawn))
+			RegisterInputEvent(event_name);
 	}
 
-	void Pawn::RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+	void Pawn::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
-		if (Input::RegisterReleasedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterReleasedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kPawn))
+			RegisterInputEvent(event_name);
 	}
 
-	void Pawn::RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys, 
+	void Pawn::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys, 
 		const std::function<bool(float)>& func, bool consumption)
 	{
-		if (Input::RegisterAxisEvent(name, std::move(keys), func, consumption, eInputOwnerType::kActor))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterAxisEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kPawn))
+			RegisterInputEvent(event_name);
 	}
 
 	void Pawn::SetController(const SPtr<Controller>& controller)

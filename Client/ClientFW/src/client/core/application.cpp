@@ -131,7 +131,7 @@ namespace client_fw
 		GetWindowRect(m_window->hWnd, &m_window->rect);
 	}
 
-	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
+	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
 		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kApplication);
