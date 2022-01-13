@@ -42,14 +42,14 @@ namespace client_fw
 		virtual void RegisterAxisEvent(std::string_view name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
+		void RegisterInputEvent(std::string_view name);
+
 		void SpawnActor(const SPtr<Actor>& actor);
 		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 
 	private:
 		void UpdateWorldMatrix();
-
-		void RegisterInputEvent(std::string_view name);
 
 	protected:
 		std::string m_name;

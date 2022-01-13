@@ -78,7 +78,7 @@ namespace client_fw
 			const auto& mesh_comp = mesh_data.mesh_comp;
 			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner->IsUpdatedWorldMatrix() || mesh_data.m_is_need_update)
+			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.m_is_need_update))
 			{
 				Mat4 world_matrix = owner->GetWorldMatrix();
 				Mat4 world_inverse_transpose = mat4::Inverse(world_matrix);

@@ -4,6 +4,7 @@
 //#include <client/input/input.h>
 #include <client/core/entry_point.h>
 #include "object/level/render_rect_level.h"
+#include "object/level/player_test_level.h"
 
 using namespace client_fw;
 
@@ -27,6 +28,8 @@ namespace render_test
 
 			RegisterPressedEvent("open render rect level", { {eKey::k1} },
 				[this]()->bool {OpenLevel(CreateSPtr<RenderRectLevel>());  return true; });
+			RegisterPressedEvent("open player test level", { {eKey::k2} },
+				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
 
 			return result;
 		}
