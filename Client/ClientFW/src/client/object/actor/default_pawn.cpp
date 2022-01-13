@@ -23,6 +23,14 @@ namespace client_fw
 			[this](float axis)->bool { AddMovementInput(GetRight(), axis); return true; });
 		RegisterAxisEvent("move up", { AxisEventKeyInfo{eKey::kE, 1.0f}, AxisEventKeyInfo{eKey::kQ, -1.0f} },
 			[this](float axis)->bool { AddMovementInput(GetUp(), axis); return true; });
+		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
+			[this](float axis)->bool { return AddControllerYawInput(axis); });
+		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
+			[this](float axis)->bool { return AddControllerPitchInput(axis); });
+
+		SetUseControllerPitch(true);
+		SetUseControllerYaw(true);
+		//SetUseControllerRoll(true);
 
 		return ret;
 	}
@@ -31,6 +39,11 @@ namespace client_fw
 	{
 		m_movement_component = nullptr;
 		Pawn::Shutdown();
+	}
+
+	void DefaultPawn::Update(float delta_time)
+	{
+		Pawn::Update(delta_time);
 	}
 
 	void DefaultPawn::AddMovementInput(const Vec3& direction, float scale)

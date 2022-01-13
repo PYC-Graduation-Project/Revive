@@ -9,6 +9,20 @@ namespace client_fw
 	{
 	}
 
+	bool Controller::Initialize()
+	{
+		return true;
+	}
+
+	void Controller::Update(float delta_time)
+	{
+		m_updated = true;
+		if (m_controlled_pawn != nullptr && m_controlled_pawn->IsNeedUpdate())
+		{
+			m_controlled_pawn->UpdateActor(delta_time);
+		}
+	}
+
 	void Controller::Possess(const SPtr<Pawn>& pawn)
 	{
 		m_controlled_pawn = pawn;

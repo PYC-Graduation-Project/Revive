@@ -14,11 +14,17 @@ namespace client_fw
 
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
+		virtual void Update(float delta_time) override;
 
 		virtual void AddMovementInput(const Vec3& direction, float scale) override;
 
 	protected:
 		SPtr<MovementComponent> m_movement_component;
+
+	private:
+		using Pawn::SetUseControllerPitch;
+		using Pawn::SetUseControllerYaw;
+		using Pawn::SetUseControllerRoll;
 	};
 }
 

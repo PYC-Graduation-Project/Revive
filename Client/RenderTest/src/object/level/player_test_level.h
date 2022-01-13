@@ -18,6 +18,7 @@ namespace render_test
 
 	private:
 		SPtr<class DefaultPawn> m_player;
+		SPtr<class PlayerController> m_player_controller;
 	};
 
 }

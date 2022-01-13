@@ -12,6 +12,9 @@ namespace client_fw
 		Pawn(const std::string& name = "pawn");
 		virtual ~Pawn() = default;
 
+		virtual void UpdateActor(float delta_time) override final;
+		virtual void Update(float delta_time) override;
+
 		virtual void AddMovementInput(const Vec3& direction, float scale) {}
 
 		friend void Controller::Possess(const SPtr<Pawn>& pawn);
@@ -24,11 +27,30 @@ namespace client_fw
 		virtual void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
-	private:
+		bool AddControllerPitchInput(float value);
+		bool AddControllerYawInput(float value);
+		bool AddControllerRollInput(float value);
+
+	protected:
 		WPtr<Controller> m_controller;
 
 	private:
+		bool m_is_need_update = false;
+		bool m_use_controller_pitch = false;
+		bool m_use_controller_yaw = false;
+		bool m_use_controller_roll = false;
+
+	private:
 		void SetController(const SPtr<Controller>& controller);
+
+	public:
+		bool IsNeedUpdate() const { return m_is_need_update; }
+		bool IsUseControllerPitch() const { return m_use_controller_pitch; }
+		bool IsUseControllerYaw() const { return m_use_controller_yaw; }
+		bool IsUseControllerRoll() const { return m_use_controller_roll; }
+		void SetUseControllerPitch(bool value) { m_use_controller_pitch = value; }
+		void SetUseControllerYaw(bool value) { m_use_controller_yaw = value; }
+		void SetUseControllerRoll(bool value) { m_use_controller_roll = value; }
 	};
 }
 
