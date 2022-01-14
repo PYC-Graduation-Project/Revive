@@ -44,6 +44,7 @@ namespace client_fw
 
 		void RegisterInputEvent(const std::string& name);
 
+	public:
 		void SpawnActor(const SPtr<Actor>& actor);
 		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);

@@ -16,6 +16,7 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
+		void UpdateWorldMatrix();
 
 		bool RegisterComponent(const SPtr<Component>& component);
 		void UnregisterComponent(const SPtr<Component>& component);

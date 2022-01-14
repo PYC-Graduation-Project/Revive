@@ -37,6 +37,16 @@ namespace client_fw
 		s_render_system->UnregisterMeshComponent(mesh_comp, shader_name);
 	}
 
+	bool Render::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
+	{
+		return s_render_system->RegisterCameraComponent(camera_comp);
+	}
+
+	void Render::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
+	{
+		s_render_system->UnregisterCameraComponent(camera_comp);
+	}
+
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)
 	{
 		switch (type)

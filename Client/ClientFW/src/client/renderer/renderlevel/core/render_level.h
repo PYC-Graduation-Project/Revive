@@ -5,6 +5,7 @@ namespace client_fw
 	class Shader;
 	class GraphicsShader;
 	class MeshComponent;
+	class CameraComponent;
 
 	class RenderLevel
 	{
@@ -15,7 +16,6 @@ namespace client_fw
 		virtual bool Initialize(ID3D12Device* device);
 		virtual void Shutdown() = 0;
 		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list) = 0;
 		
 	protected:
 		virtual bool CreateRootSignature(ID3D12Device* device) = 0;
@@ -40,7 +40,7 @@ namespace client_fw
 		virtual bool Initialize(ID3D12Device* device);
 		virtual void Shutdown();
 		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		virtual void Draw(ID3D12GraphicsCommandList* command_list);
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras);
 
 		bool RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader);
 		void UnregisterGraphicsShader(const SPtr<GraphicsShader>& graphics_shader);
@@ -48,6 +48,7 @@ namespace client_fw
 	protected:
 		virtual void UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) {}
 		virtual void SetRootCommonResource(ID3D12GraphicsCommandList* command_list) {}
+		virtual void SetRootCameraResource(ID3D12GraphicsCommandList* command_list, const SPtr<CameraComponent>& camera) {}
 
 	private:
 		std::vector<SPtr<GraphicsShader>> m_graphics_shaders;

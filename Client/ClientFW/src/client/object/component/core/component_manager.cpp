@@ -16,6 +16,12 @@ namespace client_fw
 			component->UpdateComponent(delta_time);
 	}
 
+	void ComponentManager::UpdateWorldMatrix()
+	{
+		for (const auto& component : m_components)
+			component->UpdateWorldMatrix();
+	}
+
 	bool ComponentManager::RegisterComponent(const SPtr<Component>& component)
 	{
 		if (component->InitializeComponent())

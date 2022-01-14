@@ -7,6 +7,7 @@ namespace client_fw
 	class Shader;
 	class RenderComponent;
 	class MeshComponent;
+	class CameraComponent;
 
 	//Render level supported by client framework.
 	//The defined order is the execution order.
@@ -18,6 +19,11 @@ namespace client_fw
 	enum class eShaderType
 	{
 		kDefault,
+	};
+
+	enum class eKindOfRenderLevel
+	{
+		kGraphics, kCompute, kDeferred,
 	};
 
 	enum class eRenderComponentType
@@ -32,7 +38,7 @@ namespace client_fw
 		static bool RegisterGraphicsRenderLevel(const std::string& name, const std::string& front_render_level_name)
 			//if you want to insert to the front, front_render_level_name set blank
 		{
-			s_render_system->AddRenderLevelOrder(name, front_render_level_name);
+			s_render_system->AddRenderLevelOrder(name, front_render_level_name, eKindOfRenderLevel::kGraphics);
 			return s_render_system->RegisterGraphicsRenderLevel<T>(name, true);
 		}
 
@@ -63,6 +69,9 @@ namespace client_fw
 
 		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
 		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
+
+		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
+		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 
 	public:
 		static std::string ConvertRenderLevelType(eRenderLevelType type);

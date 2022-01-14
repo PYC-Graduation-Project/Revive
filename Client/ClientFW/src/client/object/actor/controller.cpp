@@ -9,11 +9,6 @@ namespace client_fw
 	{
 	}
 
-	bool Controller::Initialize()
-	{
-		return true;
-	}
-
 	void Controller::Update(float delta_time)
 	{
 		m_updated = true;

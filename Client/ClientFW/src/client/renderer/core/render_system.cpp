@@ -5,6 +5,7 @@
 #include "client/renderer/shader/default_shader.h"	
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/util/camera_component.h"
 #include "client/asset/mesh/mesh.h"
 
 namespace client_fw
@@ -14,7 +15,7 @@ namespace client_fw
 	RenderSystem::RenderSystem()
 	{
 		Render::s_render_system = this;
-		m_render_level_order = { "default" };
+		m_render_level_order = { {"default", eKindOfRenderLevel::kGraphics} };
 	}
 
 	bool RenderSystem::Initialize(ID3D12Device* device)
@@ -46,19 +47,35 @@ namespace client_fw
 		}
 		m_ready_meshes.clear();
 
-		for (const auto& level_name : m_render_level_order)
+		for (const auto& [level_name, kind] : m_render_level_order)
 		{
-			//compute생각
-			m_graphics_render_levels.at(level_name)->Update(device, command_list);
+			switch (kind)
+			{
+			case eKindOfRenderLevel::kGraphics:
+				m_graphics_render_levels.at(level_name)->Update(device, command_list);
+				break;
+			case eKindOfRenderLevel::kDeferred:
+				break;
+			case eKindOfRenderLevel::kCompute:
+				break;
+			}
 		}
 	}
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		for (const auto& level_name : m_render_level_order)
+		for (const auto& [level_name, kind] : m_render_level_order)
 		{
-			//compute생각
-			m_graphics_render_levels.at(level_name)->Draw(command_list);
+			switch (kind)
+			{
+			case eKindOfRenderLevel::kGraphics:
+				m_graphics_render_levels.at(level_name)->Draw(command_list, m_basic_cameras);
+				break;
+			case eKindOfRenderLevel::kDeferred:
+				break;
+			case eKindOfRenderLevel::kCompute:
+				break;
+			}
 		}
 	}
 
@@ -69,7 +86,8 @@ namespace client_fw
 			m_added_render_levels.erase(level_name);
 			m_graphics_render_levels[level_name]->Shutdown();
 			m_graphics_render_levels.erase(level_name);
-			auto iter = find(m_render_level_order.begin(), m_render_level_order.end(), level_name);
+			auto iter = find(m_render_level_order.begin(), m_render_level_order.end(), 
+				std::make_pair(level_name, eKindOfRenderLevel::kGraphics));
 			m_render_level_order.erase(iter);
 		}
 	}
@@ -121,17 +139,49 @@ namespace client_fw
 			m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
 	}
 
-	void RenderSystem::AddRenderLevelOrder(const std::string& name, const std::string& front_render_level_name)
+	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
+	{
+		switch (camera_comp->GetCameraUsage())
+		{
+		case eCameraUsage::kBasic:
+			m_basic_cameras.push_back(camera_comp);
+			break;
+		case eCameraUsage::kLight:
+			break;
+		}
+		return true;
+	}
+
+	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
+	{
+		switch (camera_comp->GetCameraUsage())
+		{
+		case eCameraUsage::kBasic:
+		{
+			auto iter = std::find(m_basic_cameras.begin(), m_basic_cameras.end(), camera_comp);
+			if (iter != m_basic_cameras.end())
+			{
+				std::iter_swap(iter, m_basic_cameras.end() - 1);
+				m_basic_cameras.pop_back();
+			}
+			break;
+		}
+		case eCameraUsage::kLight:
+			break;
+		}
+	}
+
+	void RenderSystem::AddRenderLevelOrder(const std::string& name, const std::string& front_render_level_name, eKindOfRenderLevel kind)
 	{
 		if (front_render_level_name.empty())
 		{
-			m_render_level_order.insert(m_render_level_order.begin(), name);
+			m_render_level_order.insert(m_render_level_order.begin(), { name, kind });
 		}
 		else
 		{
-			auto iter = std::find(m_render_level_order.begin(), m_render_level_order.end(), front_render_level_name);
+			auto iter = std::find(m_render_level_order.begin(), m_render_level_order.end(), std::pair{ front_render_level_name, kind });
 			if (iter != m_render_level_order.end())
-				m_render_level_order.insert(iter + 1, name);
+				m_render_level_order.insert(iter + 1, { name, kind });
 			else
 				LOG_ERROR("Could not find {0}", front_render_level_name);
 		}

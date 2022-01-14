@@ -2,6 +2,7 @@
 #include "client/renderer/renderlevel/core/render_level.h"
 #include "client/renderer/shader/core/shader.h"
 #include "client/renderer/shader/core/graphics_shader.h"
+#include "client/object/component/util/camera_component.h"
 
 namespace client_fw
 {
@@ -45,13 +46,28 @@ namespace client_fw
 			shader->Update(device, command_list, m_name);
 	}
 
-	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list)
+	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras)
 	{
 		command_list->SetGraphicsRootSignature(m_root_signature.Get());
 		SetRootCommonResource(command_list);
 
-		for (const auto& shader : m_graphics_shaders)
-			shader->Draw(command_list, m_name);
+		if (cameras.empty())
+		{
+			for (const auto& shader : m_graphics_shaders)
+				shader->Draw(command_list, m_name);
+		}
+		else
+		{
+			for (const auto& camera : cameras)
+			{
+				if (camera->GetCameraState() == eCameraState::kActive)
+				{
+					SetRootCameraResource(command_list, camera);
+					for (const auto& shader : m_graphics_shaders)
+						shader->Draw(command_list, m_name);
+				}
+			}
+		}
 	}
 
 	bool GraphicsRenderLevel::RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader)
