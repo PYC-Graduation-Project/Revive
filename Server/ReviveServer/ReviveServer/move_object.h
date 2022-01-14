@@ -5,7 +5,7 @@
 class MoveObj :public Object
 {
 public:
-	MoveObj()=default;
+	MoveObj() { m_state = STATE::ST_FREE; };
 	MoveObj(int id, STATE state, OBJ_TYPE type, float hp, float x, float y, float z)
 		:m_state(state),m_hp(hp),m_maxhp(hp)
 	{

@@ -21,8 +21,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		break;
 	}
 	case CS_PACKET_MOVE: {
-		
-		
+		ProcessMove(c_id, p);		
 		break;
 	}
 	case CS_PACKET_ATTACK: {
@@ -161,24 +160,32 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	Vector3 pos{ cl->GetPosX(),cl->GetPosY(),cl->GetPosZ() };
 	Vector3 look{ cl->GetLookVec()};
 	Vector3 right{ cl->GetRightVec() };
-	switch (packet->direction)
+	switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
-	case 0:
+	case 0://앞
 	{
-		//pos
+		
+		pos += look * MOVE_DISTANCE;
 		break;
 	}
-	case 1:
+	case 1://뒤
 	{
+		pos += look * (MOVE_DISTANCE*-1);
 		break;
 	}
-	case 2:
+	case 2://왼
 	{
+		pos += right * (MOVE_DISTANCE * -1);
 		break;
 	}
-	case 3:
+	case 3://오
 	{
+		pos += right * MOVE_DISTANCE ;
 		break;
 	}
 	}
+	cl->SetPosX(pos.x);
+	cl->SetPosY(pos.y);
+	cl->SetPosZ(pos.z);
+	SendMovePacket(c_id, c_id);
 }

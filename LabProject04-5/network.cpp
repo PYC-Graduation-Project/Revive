@@ -25,7 +25,7 @@ bool Network::Connect()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server_addr.sin_addr.s_addr = inet_addr("192.168.219.187");
 	int retval = WSAConnect(m_s_socket, reinterpret_cast<sockaddr*>(&server_addr),
 		sizeof(server_addr), NULL, NULL, NULL, NULL);
 	if (0 != retval) {
@@ -51,13 +51,13 @@ bool Network::Connect()
 			return false;
 		}
 	}
+		
 	return false;
 }
 
 void Network::Worker()
 {
-	while (true)
-	{
+	
 		for (;;) {
 			DWORD num_byte;
 			LONG64 iocp_key;
@@ -103,7 +103,7 @@ void Network::Worker()
 			
 			}
 		}
-	}
+	
 }
 
 void Network::DoRecv()
@@ -127,7 +127,9 @@ void Network::ProcessPacket(int c_id, unsigned char* p)
 	{
 	case SC_PACKET_MOVE: {
 		sc_packet_move* move_packet = reinterpret_cast<sc_packet_move*>(p);
-		
+		pos = XMFLOAT3(move_packet->x, move_packet->y, move_packet->z);
+		look= XMFLOAT3(move_packet->look_x, move_packet->look_y, move_packet->look_z);
+		right= XMFLOAT3(move_packet->right_x, move_packet->right_y, move_packet->right_z);
 	}
 	}
 }

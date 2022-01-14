@@ -2,7 +2,7 @@
 
 #include "Object.h"
 #include "Camera.h"
-
+#include "network.h"
 class CPlayer : public CGameObject
 {
 protected:
@@ -31,7 +31,7 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 	
-	
+	Network network;
 
 
 
@@ -50,6 +50,8 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+
+	
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }

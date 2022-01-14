@@ -13,7 +13,7 @@ const int  MAX_USER = 3;
 const int  MAX_NPC =100;
 
 const float MAX_SPEED=10000; //추후 수정
-const float MOVE_DISTANCE = 50.0f;
+const float MOVE_DISTANCE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;

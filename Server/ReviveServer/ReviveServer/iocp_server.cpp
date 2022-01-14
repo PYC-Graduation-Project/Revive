@@ -7,7 +7,7 @@ IOCPServer::IOCPServer()
 
 IOCPServer::~IOCPServer()
 {
-	WSACleanup();
+	
 }
 
 bool IOCPServer::Init(const int worker_num)
@@ -50,7 +50,7 @@ bool IOCPServer::BindListen(const int port_num)
 
 	SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 	char	accept_buf[sizeof(SOCKADDR_IN) * 2 + 32 + 100];
-	EXP_OVER	accept_ex;
+	
 	*(reinterpret_cast<SOCKET*>(&accept_ex._net_buf)) = c_socket;
 	ZeroMemory(&accept_ex._wsa_over, sizeof(accept_ex._wsa_over));
 	accept_ex._comp_op = COMP_OP::OP_ACCEPT;
@@ -65,6 +65,7 @@ void IOCPServer::CreateWorker()
 {
 	for (int i = 0; i < m_worker_num; ++i)
 		m_worker_threads.emplace_back([this]() {Worker(); });
+	cout << "CreateWorker" << endl;
 	
 }
 
