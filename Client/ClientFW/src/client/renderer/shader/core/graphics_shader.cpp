@@ -30,47 +30,47 @@ namespace client_fw
 		return D3D12_SHADER_BYTECODE{ nullptr, 0 };
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateHullShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateHullShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateDomainShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateDomainShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateGeometryShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateGeometryShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreatePixelShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_INPUT_LAYOUT_DESC GraphicsShader::CreateInputLayout(int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> GraphicsShader::CreateInputLayout(const std::string& level_name, int pso_index)
 	{
-		return D3D12_INPUT_LAYOUT_DESC{ nullptr, 0 };
+		return std::vector<D3D12_INPUT_ELEMENT_DESC>();
 	}
 
-	D3D12_RASTERIZER_DESC GraphicsShader::CreateRasterizerState(int pso_index)
+	D3D12_RASTERIZER_DESC GraphicsShader::CreateRasterizerState(const std::string& level_name, int pso_index)
 	{
 		return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_BLEND_DESC GraphicsShader::CreateBlendState(int pso_index)
+	D3D12_BLEND_DESC GraphicsShader::CreateBlendState(const std::string& level_name, int pso_index)
 	{
 		return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_DEPTH_STENCIL_DESC GraphicsShader::CreateDepthStencilState(int pso_index)
+	D3D12_DEPTH_STENCIL_DESC GraphicsShader::CreateDepthStencilState(const std::string& level_name, int pso_index)
 	{
 		return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_STREAM_OUTPUT_DESC GraphicsShader::CreateStreamOutputState(int pso_index)
+	D3D12_STREAM_OUTPUT_DESC GraphicsShader::CreateStreamOutputState(const std::string& level_name, int pso_index)
 	{
 		D3D12_STREAM_OUTPUT_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D12_STREAM_OUTPUT_DESC));
@@ -84,7 +84,7 @@ namespace client_fw
 		return desc;
 	}
 
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE GraphicsShader::GetPrimitiveTopologyType(int pso_index)
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE GraphicsShader::GetPrimitiveTopologyType(const std::string& level_name, int pso_index)
 	{
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	}
@@ -109,17 +109,18 @@ namespace client_fw
 
 		for (int i = 0; i < num_of_pso; ++i)
 		{
-			pso_desc.InputLayout = CreateInputLayout(i);
-			pso_desc.VS = CreateVertexShader(vertex_blob.GetAddressOf(), i);
-			pso_desc.HS = CreateHullShader(hull_blob.GetAddressOf(), i);
-			pso_desc.DS = CreateDomainShader(domain_blob.GetAddressOf(), i);
-			pso_desc.GS = CreateGeometryShader(geometry_blob.GetAddressOf(), i);
-			pso_desc.PS = CreatePixelShader(pixel_blob.GetAddressOf(), i);
-			pso_desc.StreamOutput = CreateStreamOutputState(i);
-			pso_desc.RasterizerState = CreateRasterizerState(i);
-			pso_desc.BlendState = CreateBlendState(i);
-			pso_desc.DepthStencilState = CreateDepthStencilState(i);
-			pso_desc.PrimitiveTopologyType = GetPrimitiveTopologyType(i);
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs = CreateInputLayout(render_level_name, i);
+			pso_desc.InputLayout = { input_element_descs.data(), static_cast<UINT>(input_element_descs.size()) };
+			pso_desc.VS = CreateVertexShader(vertex_blob.GetAddressOf(), render_level_name, i);
+			pso_desc.HS = CreateHullShader(hull_blob.GetAddressOf(), render_level_name, i);
+			pso_desc.DS = CreateDomainShader(domain_blob.GetAddressOf(), render_level_name, i);
+			pso_desc.GS = CreateGeometryShader(geometry_blob.GetAddressOf(), render_level_name, i);
+			pso_desc.PS = CreatePixelShader(pixel_blob.GetAddressOf(), render_level_name, i);
+			pso_desc.StreamOutput = CreateStreamOutputState(render_level_name, i);
+			pso_desc.RasterizerState = CreateRasterizerState(render_level_name, i);
+			pso_desc.BlendState = CreateBlendState(render_level_name, i);
+			pso_desc.DepthStencilState = CreateDepthStencilState(render_level_name, i);
+			pso_desc.PrimitiveTopologyType = GetPrimitiveTopologyType(render_level_name, i);
 
 			if (FAILED(device->CreateGraphicsPipelineState(&pso_desc, IID_PPV_ARGS(&m_pipeline_states[render_level_name][i]))))
 			{

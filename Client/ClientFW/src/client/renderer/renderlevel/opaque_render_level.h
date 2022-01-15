@@ -3,11 +3,11 @@
 
 namespace client_fw
 {
-	class DefaultRenderLevel final : public GraphicsRenderLevel
+	class OpaqueRenderLevel final : public GraphicsRenderLevel
 	{
 	public:
-		DefaultRenderLevel(const std::string& name);
-		virtual ~DefaultRenderLevel() = default;
+		OpaqueRenderLevel(const std::string& name);
+		virtual ~OpaqueRenderLevel() = default;
 
 	protected:
 		virtual bool CreateRootSignature(ID3D12Device* device) override final;

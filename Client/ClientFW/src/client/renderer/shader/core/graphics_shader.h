@@ -16,19 +16,19 @@ namespace client_fw
 		void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void DrawRenderItem(ID3D12GraphicsCommandList* command_list);
 
-		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, int pso_index) = 0;
-		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, int pso_index);
-		virtual D3D12_SHADER_BYTECODE CreateDomainShader(ID3DBlob** shader_blob, int pso_index);
-		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, int pso_index);
-		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, int pso_index);
+		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index) = 0;
+		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index);
+		virtual D3D12_SHADER_BYTECODE CreateDomainShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index);
+		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index);
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index);
 
-		virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int pso_index);
-		virtual D3D12_RASTERIZER_DESC CreateRasterizerState(int pso_index);
-		virtual D3D12_BLEND_DESC CreateBlendState(int pso_index);
-		virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int pso_index);
-		virtual D3D12_STREAM_OUTPUT_DESC CreateStreamOutputState(int pso_index);
+		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::string& level_name, int pso_index);
+		virtual D3D12_RASTERIZER_DESC CreateRasterizerState(const std::string& level_name, int pso_index);
+		virtual D3D12_BLEND_DESC CreateBlendState(const std::string& level_name, int pso_index);
+		virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(const std::string& level_name, int pso_index);
+		virtual D3D12_STREAM_OUTPUT_DESC CreateStreamOutputState(const std::string& level_name, int pso_index);
 
-		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(int pso_index);
+		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(const std::string& level_name, int pso_index);
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) = 0;
 

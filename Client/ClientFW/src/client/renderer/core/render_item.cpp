@@ -81,7 +81,7 @@ namespace client_fw
 			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.m_is_need_update))
 			{
 				Mat4 world_matrix = owner->GetWorldMatrix();
-				Mat4 world_inverse_transpose = mat4::Inverse(world_matrix);
+				Mat4 world_inverse_transpose = mat4::InverseVec(world_matrix);
 				world_matrix.Transpose();
 
 				InstanceData data{ world_matrix, world_inverse_transpose };

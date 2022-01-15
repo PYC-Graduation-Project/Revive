@@ -70,10 +70,6 @@ namespace client_fw
 		}
 		void UnregisterGraphicsShader(const std::string& shader_name, const std::string& level_name);
 
-		bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp,
-			eRenderComponentType comp_type, const std::string& shader_name);
-		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, 
-			eRenderComponentType comp_type, const std::string& shader_name);
 		bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);

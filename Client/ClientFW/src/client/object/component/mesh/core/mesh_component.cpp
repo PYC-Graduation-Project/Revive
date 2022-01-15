@@ -7,7 +7,7 @@
 namespace client_fw
 {
 	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
-		: RenderComponent(name, eRenderComponentType::kMesh, draw_shader_name)
+		: Component(name), m_draw_shader_name(draw_shader_name)
 	{
 	}
 
@@ -30,12 +30,12 @@ namespace client_fw
 
 	bool MeshComponent::RegisterToRenderSystem()
 	{
-		return Render::RegisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), m_draw_shader_name);
+		return Render::RegisterMeshComponent(shared_from_this(), m_draw_shader_name);
 	}
 
 	void MeshComponent::UnregisterFromRenderSystem()
 	{
-		Render::UnregisterMeshComponent(std::static_pointer_cast<MeshComponent>(shared_from_this()), m_draw_shader_name);
+		Render::UnregisterMeshComponent(shared_from_this(), m_draw_shader_name);
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)

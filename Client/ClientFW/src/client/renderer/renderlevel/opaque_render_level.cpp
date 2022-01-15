@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "client/renderer/renderlevel/default_render_level.h"
+#include "client/renderer/renderlevel/opaque_render_level.h"
 
 namespace client_fw
 {
-	DefaultRenderLevel::DefaultRenderLevel(const std::string& name)
+	OpaqueRenderLevel::OpaqueRenderLevel(const std::string& name)
 		: GraphicsRenderLevel(name, { DXGI_FORMAT_R8G8B8A8_UNORM }, DXGI_FORMAT_D24_UNORM_S8_UINT)
 	{
 	}
 
-	bool DefaultRenderLevel::CreateRootSignature(ID3D12Device* device)
+	bool OpaqueRenderLevel::CreateRootSignature(ID3D12Device* device)
 	{
 		std::array<CD3DX12_ROOT_PARAMETER, 2> root_parameters;
 		root_parameters[0].InitAsShaderResourceView(0, 0);
@@ -35,11 +35,11 @@ namespace client_fw
 			signature_blob->GetBufferSize(), IID_PPV_ARGS(&m_root_signature))));
 	}
 
-	void DefaultRenderLevel::UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void OpaqueRenderLevel::UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 	}
 
-	void DefaultRenderLevel::SetRootCommonResource(ID3D12GraphicsCommandList* command_list)
+	void OpaqueRenderLevel::SetRootCommonResource(ID3D12GraphicsCommandList* command_list)
 	{
 	}
 }

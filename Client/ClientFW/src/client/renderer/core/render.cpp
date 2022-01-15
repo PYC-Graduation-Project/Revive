@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
-#include "client/object/component/core/render_component.h"
 
 namespace client_fw
 {
@@ -13,18 +12,6 @@ namespace client_fw
 	void Render::UnregisterGraphicsShader(const std::string shader_name, const std::string& level_name)
 	{
 		s_render_system->UnregisterGraphicsShader(shader_name, level_name);
-	}
-
-	bool Render::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
-	{
-		return s_render_system->RegisterRenderComponent(render_comp, 
-			render_comp->GetRenderType(), shader_name);
-	}
-
-	void Render::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
-	{
-		s_render_system->UnregisterRenderComponent(render_comp,
-			render_comp->GetRenderType(), shader_name);
 	}
 
 	bool Render::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
@@ -51,8 +38,8 @@ namespace client_fw
 	{
 		switch (type)
 		{
-		case eRenderLevelType::kDefault:
-			return "default";
+		case eRenderLevelType::kOpaque:
+			return "opaque";
 		default:
 			return "unknown";
 		}
@@ -61,8 +48,8 @@ namespace client_fw
 	{
 		switch (type)
 		{
-		case eShaderType::kDefault:
-			return "default";
+		case eShaderType::kOpaqueMesh:
+			return "opaque mesh";
 		default:
 			return "unknown";
 		}

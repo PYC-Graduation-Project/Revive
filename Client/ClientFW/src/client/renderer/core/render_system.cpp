@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
-#include "client/renderer/renderlevel/default_render_level.h"
-#include "client/renderer/shader/default_shader.h"	
-#include "client/object/component/core/render_component.h"
+#include "client/renderer/renderlevel/opaque_render_level.h"
+#include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/asset/mesh/mesh.h"
@@ -15,15 +14,15 @@ namespace client_fw
 	RenderSystem::RenderSystem()
 	{
 		Render::s_render_system = this;
-		m_render_level_order = { {"default", eKindOfRenderLevel::kGraphics} };
+		m_render_level_order = { {"opaque", eKindOfRenderLevel::kGraphics} };
 	}
 
 	bool RenderSystem::Initialize(ID3D12Device* device)
 	{
 		m_device = device;
 
-		RegisterGraphicsRenderLevel<DefaultRenderLevel>("default");
-		RegisterGraphicsShader<DefaultShader>("default", "default");
+		RegisterGraphicsRenderLevel<OpaqueRenderLevel>("opaque");
+		RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", "opaque");
 
 		return true;
 	}
@@ -103,17 +102,6 @@ namespace client_fw
 			shader->Shutdown();
 			m_graphics_shaders.erase(shader_name);
 		}
-	}
-
-	bool RenderSystem::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp,
-		eRenderComponentType comp_type, const std::string& shader_name)
-	{
-		return false;
-	}
-
-	void RenderSystem::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, 
-		eRenderComponentType comp_type,	const std::string& shader_name)
-	{
 	}
 
 	bool RenderSystem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)

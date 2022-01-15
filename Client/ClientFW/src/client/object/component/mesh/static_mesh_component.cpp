@@ -5,7 +5,7 @@
 namespace client_fw
 {
 	StaticMeshComponent::StaticMeshComponent(const std::string& name)
-		: MeshComponent(name, Render::ConvertShaderType(eShaderType::kDefault))
+		: MeshComponent(name, Render::ConvertShaderType(eShaderType::kOpaqueMesh))
 	{
 	}
 

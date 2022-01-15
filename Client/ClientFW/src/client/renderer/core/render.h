@@ -13,22 +13,17 @@ namespace client_fw
 	//The defined order is the execution order.
 	enum class eRenderLevelType
 	{
-		kDefault
+		kOpaque
 	};
 
 	enum class eShaderType
 	{
-		kDefault,
+		kOpaqueMesh,
 	};
 
 	enum class eKindOfRenderLevel
 	{
 		kGraphics, kCompute, kDeferred,
-	};
-
-	enum class eRenderComponentType
-	{
-		kMesh, kLight, kCamera,
 	};
 
 	class Render final
@@ -63,9 +58,6 @@ namespace client_fw
 		}
 
 		static void UnregisterGraphicsShader(const std::string shader_name, const std::string& level_name);
-
-		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
-		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 
 		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
 		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);

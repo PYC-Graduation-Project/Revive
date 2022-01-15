@@ -341,6 +341,16 @@ namespace client_fw
 			return ret;
 		}
 
+		inline Mat4 InverseVec(const Mat4& mat)
+		{
+			XMMATRIX matrix = XMLoadFloat4x4(&mat);
+			matrix.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+			Mat4 ret;
+			XMStoreFloat4x4(&ret, XMMatrixInverse(&XMMatrixDeterminant(matrix), matrix));
+			return ret;
+		}
+
 		inline Mat4 Transpose(const Mat4& mat)
 		{
 			Mat4 ret;

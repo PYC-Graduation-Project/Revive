@@ -36,28 +36,22 @@ namespace render_test
 		}
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "VSDiffuse", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "PSDiffuse", "ps_5_1", shader_blob);
 	}
 
-	D3D12_INPUT_LAYOUT_DESC RenderRectShader::CreateInputLayout(int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderRectShader::CreateInputLayout(const std::string& level_name, int pso_index)
 	{
-		UINT nInputElementDescs = 1;
-		D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
+		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-		D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-		d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-		d3dInputLayoutDesc.NumElements = nInputElementDescs;
-
-		return d3dInputLayoutDesc;
+		return input_element_descs;
 	}
 
 	bool RenderRectShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
