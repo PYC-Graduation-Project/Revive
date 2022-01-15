@@ -5,7 +5,12 @@
 class MoveObj :public Object
 {
 public:
-	MoveObj() { m_state = STATE::ST_FREE; };
+	MoveObj() { 
+		m_state = STATE::ST_FREE; 
+		m_right = Vector3(1.0f, 0.0f, 0.0f);
+		m_look = Vector3(0.0f,0.0f, 1.0f);
+		m_up = Vector3(0.0f, 1.0f, 0.0f);
+	};
 	MoveObj(int id, STATE state, OBJ_TYPE type, float hp, float x, float y, float z)
 		:m_state(state),m_hp(hp),m_maxhp(hp)
 	{
@@ -13,9 +18,7 @@ public:
 		m_origin_x = x;
 		m_origin_y = y;
 		m_origin_z = z;
-		m_right = Vector3(1.0f, 0.0f, 0.0f);
-		m_look = Vector3(0.0f, 1.0f, 0.0f);
-		m_up = Vector3(0.0f, 0.0f, 1.0f);
+		
 	}
 
 	virtual ~MoveObj() = default;

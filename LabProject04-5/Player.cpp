@@ -99,10 +99,11 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 	}
-	
+	else {
 		m_xmf3Position = network.pos;
+		cout << "x :" << network.pos.x << ", y : " << network.pos.y << ", z : " << network.pos.z << endl;
 		m_pCamera->Move(xmf3Shift);
-	
+	}
 }
 
 void CPlayer::Rotate(float x, float y, float z)

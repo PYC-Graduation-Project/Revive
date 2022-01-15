@@ -3,7 +3,7 @@
 class Object
 {
 public:
-	Object() = default;
+	Object():m_x(0.0f),m_y(0.0f),m_z(0.0f) {};
 	virtual ~Object() = default;
 
 

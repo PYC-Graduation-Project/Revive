@@ -187,5 +187,6 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cl->SetPosX(pos.x);
 	cl->SetPosY(pos.y);
 	cl->SetPosZ(pos.z);
+	cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	SendMovePacket(c_id, c_id);
 }

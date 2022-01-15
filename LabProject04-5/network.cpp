@@ -3,6 +3,7 @@
 
 bool Network::Init()
 {
+	m_id = 0;
 	WSADATA WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0)
 		return false;
@@ -63,7 +64,7 @@ void Network::Worker()
 			LONG64 iocp_key;
 			WSAOVERLAPPED* p_over;
 			BOOL ret = GetQueuedCompletionStatus(m_hiocp, &num_byte, (PULONG_PTR)&iocp_key, &p_over, INFINITE);
-			cout << "GQCS returned.\n";
+			//cout << "GQCS returned.\n";
 			int client_id = static_cast<int>(iocp_key);
 			EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
 			if (FALSE == ret) {
@@ -130,6 +131,7 @@ void Network::ProcessPacket(int c_id, unsigned char* p)
 		pos = XMFLOAT3(move_packet->x, move_packet->y, move_packet->z);
 		look= XMFLOAT3(move_packet->look_x, move_packet->look_y, move_packet->look_z);
 		right= XMFLOAT3(move_packet->right_x, move_packet->right_y, move_packet->right_z);
+		cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	}
 	}
 }
