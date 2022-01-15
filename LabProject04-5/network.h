@@ -5,13 +5,14 @@
 #include <thread>
 #include<iostream>
 
+class PacketManager;
 class Network
 {
 public:
 	Network() {
+		//나중에는 object 컨테이너에 있는 오브젝트 패킷으로 초기화
 		pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-		
 		look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	
 	
@@ -32,24 +33,34 @@ public:
 		//while (true);
 		LocalFree(lpMsgBuf);
 	}
-
+	void DestroyWorker()
+	{
+		worker.join();
+	}
+private:
 	void Worker();
 	void DoRecv();
 	void ProcessPacket(int c_id,unsigned char*p);
-
+	int GetID() const
+	{
+		return m_id;
+	}
 	void CreateWorker()
 	{
-		
-		workers.emplace_back([this]() {Worker(); });
-		
+
+		worker = thread([this]() {Worker(); });
+
 	}
+	
 	SOCKET m_s_socket;
 	HANDLE m_hiocp;
 	EXP_OVER recv_over;
-	vector<thread>workers;
+	thread worker;
 	int m_id;
 	int m_prev_size = 0;
-	int m_curr_size = 0;
+	std::unique_ptr< PacketManager>m_PacketManager;
+public:
+	//임시 변수 이후에 클라에서는 필요없음
 	XMFLOAT3 pos;
 	XMFLOAT3 look;
 	XMFLOAT3 right;
