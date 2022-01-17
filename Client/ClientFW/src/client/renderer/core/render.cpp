@@ -4,14 +4,10 @@
 
 namespace client_fw
 {
-	void Render::UnregisterGraphicsRenderLevel(const std::string& level_name)
-	{
-		s_render_system->UnregisterGraphicsRenderLevel(level_name);
-	}
 
-	void Render::UnregisterGraphicsShader(const std::string shader_name, const std::string& level_name)
+	void Render::UnregisterGraphicsShader(const std::string shader_name, eRenderLevelType type)
 	{
-		s_render_system->UnregisterGraphicsShader(shader_name, level_name);
+		s_render_system->UnregisterGraphicsShader(shader_name, type);
 	}
 
 	bool Render::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)

@@ -24,13 +24,19 @@ namespace client_fw
 		RegisterAxisEvent("move up", { AxisEventKeyInfo{eKey::kE, 1.0f}, AxisEventKeyInfo{eKey::kQ, -1.0f} },
 			[this](float axis)->bool { AddMovementInput(GetUp(), axis); return true; });
 		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
-			[this](float axis)->bool { return AddControllerYawInput(axis); });
-		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
-			[this](float axis)->bool { return AddControllerPitchInput(axis); });
+			[this](float axis)->bool { 
+				IVec2 relative_pos = Input::GetRelativeMousePosition();
+				return AddControllerYawInput(axis * relative_pos.x); 
+			});
+		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
+			[this](float axis)->bool {
+				IVec2 relative_pos = Input::GetRelativeMousePosition();
+				return AddControllerPitchInput(axis * relative_pos.y);
+			});
 
 		SetUseControllerPitch(true);
 		SetUseControllerYaw(true);
-		//SetUseControllerRoll(true);
+		SetUseControllerRoll(true);
 
 		return ret;
 	}

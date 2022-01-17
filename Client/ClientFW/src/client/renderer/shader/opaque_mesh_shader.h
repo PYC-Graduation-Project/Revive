@@ -11,13 +11,13 @@ namespace client_fw
 
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, const std::string& level_name) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, const std::string& level_name) override;
+		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
 
-		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index) override;
-		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index) override;
+		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) override;
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) override;
 
-		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(const std::string& level_name, int pso_index) override;
+		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(eRenderLevelType level_type, int pso_index) override;
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
 	};

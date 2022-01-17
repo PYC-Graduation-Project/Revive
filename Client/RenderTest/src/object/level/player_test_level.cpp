@@ -2,6 +2,7 @@
 #include <client/input/input.h>
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
+#include <client/object/actor/static_mesh_actor.h>
 #include "object/level/player_test_level.h"
 
 namespace render_test
@@ -22,6 +23,18 @@ namespace render_test
 		SpawnActor(m_player_controller);
 
 
+		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		SpawnActor(police);
+		police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
+
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		SpawnActor(police);
+		police->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
+
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		SpawnActor(police);
+		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
+
 		return true;
 	}
 
@@ -31,8 +44,5 @@ namespace render_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-		LOG_TRACE("controller : {0}", m_player_controller->GetForward());
-		LOG_TRACE("player : {0}", m_player->GetForward());
-
 	}
 }

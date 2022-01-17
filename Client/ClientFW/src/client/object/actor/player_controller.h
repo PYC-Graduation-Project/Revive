@@ -22,9 +22,9 @@ namespace client_fw
 	private:
 		static PlayerController* s_player_controller;
 		SPtr<CameraComponent> m_camera_component;
-		float m_pitch_speed_scale = 2.5f;
-		float m_yaw_speed_scale = 2.5f;
-		float m_roll_speed_scale = 0.5f;
+		float m_pitch_speed_scale = 4.0f;
+		float  m_yaw_speed_scale = 4.0f;
+		float m_roll_speed_scale = 4.0f;
 
 	public:
 		const SPtr<CameraComponent>& GetPlayerCamera() const { return m_camera_component; }

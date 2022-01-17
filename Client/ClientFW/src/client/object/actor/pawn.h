@@ -12,7 +12,6 @@ namespace client_fw
 		Pawn(const std::string& name = "pawn");
 		virtual ~Pawn() = default;
 
-		virtual void UpdateActor(float delta_time) override final;
 		virtual void Update(float delta_time) override;
 
 		virtual void AddMovementInput(const Vec3& direction, float scale) {}

@@ -124,7 +124,7 @@ namespace client_fw
 		inline float LengthSq(const Vec3& v)
 		{
 			float ret;
-			XMStoreFloat(&ret, XMVector3Length(XMLoadFloat3(&v)));
+			XMStoreFloat(&ret, XMVector3LengthSq(XMLoadFloat3(&v)));
 			return ret;
 		}
 

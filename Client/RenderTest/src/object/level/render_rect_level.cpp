@@ -3,7 +3,7 @@
 #include <client/input/input.h>
 #include <client/renderer/core/render.h>
 #include <client/renderer/core/render_system.h>
-#include "render/level/render_rect_render_level.h"
+#include <client/renderer/renderlevel/core/render_level.h>
 #include "render/shader/render_rect_shader.h"
 #include "object/level/render_rect_level.h"
 #include "object/actor/rect_actor.h"
@@ -41,16 +41,15 @@ namespace render_test
 				return true;
 			});
 
-		Render::RegisterGraphicsRenderLevel<RenderRectRenderLevel>("render rect level", "");
-		Render::RegisterGraphicsShader<RenderRectShader>("render rect shader", "render rect level");
+
+		Render::RegisterGraphicsShader<RenderRectShader>("render rect shader", eRenderLevelType::kOpaque);
 
 		return true;
 	}
 
 	void RenderRectLevel::Shutdown()
 	{
-		Render::UnregisterGraphicsShader("render rect shader", "render rect level");
-		Render::UnregisterGraphicsRenderLevel("render rect level");
+		Render::UnregisterGraphicsShader("render rect shader", eRenderLevelType::kOpaque);
 	}
 
 	void RenderRectLevel::Update(float delta_time)

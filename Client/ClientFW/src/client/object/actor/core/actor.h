@@ -31,7 +31,7 @@ namespace client_fw
 		void ShutdownActor();
 		virtual void Shutdown() override {}
 
-		virtual void UpdateActor(float delta_time);
+		void UpdateActor(float delta_time);
 		virtual void Update(float delta_time) override {}
 
 	protected:

@@ -34,6 +34,8 @@ namespace client_fw
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
 
+		bool InitializeRenderSystem();
+
 	private:
 		ComPtr<IDXGIFactory4> m_factory = nullptr;
 		ComPtr<IDXGISwapChain3> m_swap_chain = nullptr;

@@ -43,17 +43,16 @@ namespace client_fw
 
 	void PlayerController::AddPitchInput(float value)
 	{
+		m_pitch_speed = math::ToRadian(value * m_pitch_speed_scale);
 	}
 
 	void PlayerController::AddYawInput(float value)
 	{
-		IVec2 relative_pos = Input::GetRelativeMousePosition();
-		Quaternion rot = GetRotation();
-		rot *= quat::CreateQuaternionFromNormal(vec3::AXIS_Y, math::ToRadian(value * m_yaw_speed_scale * relative_pos.x));
-		SetRotation(rot);
+		m_yaw_speed = math::ToRadian(value * m_yaw_speed_scale);
 	}
 
 	void PlayerController::AddRollInput(float value)
 	{
+		m_roll_speed = math::ToRadian(value * m_roll_speed_scale);
 	}
 }

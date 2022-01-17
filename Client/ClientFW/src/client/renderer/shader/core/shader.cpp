@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/shader/core/shader.h"
+#include "client/renderer/core/render.h"
 #include "client/renderer/renderlevel/core/render_level.h"
 
 namespace client_fw
@@ -33,8 +34,8 @@ namespace client_fw
 		return D3D12_SHADER_BYTECODE { (*shader_blob)->GetBufferPointer(), (*shader_blob)->GetBufferSize() };
 	}
 
-	void Shader::DebugPipelineState(const std::string& render_level_name, int index)
+	void Shader::DebugPipelineState(eRenderLevelType level_type, int index)
 	{
-		LOG_ERROR("Could not create {0}'s {1} PSO [{2}]", m_name, render_level_name, index);
+		LOG_ERROR("Could not create {0}'s {1} PSO [{2}]", m_name, Render::ConvertRenderLevelType(level_type), index);
 	}
 }

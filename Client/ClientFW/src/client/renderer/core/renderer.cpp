@@ -43,7 +43,7 @@ namespace client_fw
 			LOG_ERROR("Could not resize window");
 			return false;
 		}
-		if (m_render_system->Initialize(m_device.Get()) == false)
+		if (InitializeRenderSystem())
 		{
 			LOG_ERROR("Could not initialize render system");
 			return false;
@@ -59,6 +59,21 @@ namespace client_fw
 		CloseHandle(m_fence_event);
 		
 		m_render_system->Shutdown();
+	}
+
+	bool Renderer::InitializeRenderSystem()
+	{
+		m_command_list->Reset(m_command_allocator.Get(), nullptr);
+
+		if (m_render_system->Initialize(m_device.Get(), m_command_list.Get()))
+		{
+			m_command_list->Close();
+			ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
+			m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
+
+			WaitForGpuCompelete();
+		}
+		return false;
 	}
 
 	bool Renderer::Render()

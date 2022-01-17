@@ -3,14 +3,14 @@
 namespace client_fw
 {
 	class RenderSystem;
+	class RootSignature;
 	class RenderLevel;
 	class Shader;
 	class RenderComponent;
 	class MeshComponent;
 	class CameraComponent;
 
-	//Render level supported by client framework.
-	//The defined order is the execution order.
+
 	enum class eRenderLevelType
 	{
 		kOpaque
@@ -30,34 +30,12 @@ namespace client_fw
 	{
 	public:
 		template <class T>
-		static bool RegisterGraphicsRenderLevel(const std::string& name, const std::string& front_render_level_name)
-			//if you want to insert to the front, front_render_level_name set blank
-		{
-			s_render_system->AddRenderLevelOrder(name, front_render_level_name, eKindOfRenderLevel::kGraphics);
-			return s_render_system->RegisterGraphicsRenderLevel<T>(name, true);
-		}
-
-		template <class T>
-		static bool RegisterGraphicsRenderLevel(const std::string& name, eRenderLevelType type)
-		{
-			return Render::RegisterGraphicsRenderLevel<T>(name, ConvertRenderLevelType(type));
-		}
-
-		static void UnregisterGraphicsRenderLevel(const std::string& level_name);
-
-		template <class T>
-		static bool RegisterGraphicsShader(const std::string& shader_name, const std::string& level_name)
-		{
-			return s_render_system->RegisterGraphicsShader<T>(shader_name, level_name, true);
-		}
-
-		template <class T>
 		static bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType type)
 		{
-			return RegisterGraphicsShader<T>(shader_name, ConvertRenderLevelType(type));
+			return s_render_system->RegisterGraphicsShader<T>(shader_name, type, true);
 		}
 
-		static void UnregisterGraphicsShader(const std::string shader_name, const std::string& level_name);
+		static void UnregisterGraphicsShader(const std::string shader_name, eRenderLevelType type);
 
 		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
 		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);

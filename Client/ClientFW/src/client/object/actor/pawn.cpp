@@ -11,51 +11,8 @@ namespace client_fw
 	{
 	}
 
-	void Pawn::UpdateActor(float delta_time)
-	{
-		if (m_controller.expired() == false)
-		{
-			m_is_need_update = true;
-			if (m_controller.lock()->IsUpdated())
-			{
-				Actor::UpdateActor(delta_time);
-				m_is_need_update = false;
-			}
-		}
-		else
-		{
-			Actor::UpdateActor(delta_time);
-		}
-	}
-
 	void Pawn::Update(float delta_time)
-	{
-		if (m_controller.expired() == false)
-		{
-			const auto& controller = m_controller.lock();
-			if (IsUseControllerPitch())
-			{
-
-			}
-			if (IsUseControllerYaw())
-			{
-				Vec3 pawn_forward = GetForward();
-				pawn_forward.y = 0.0f;
-				pawn_forward.Normalize();
-				Vec3 cont_forward = controller->GetForward();
-				cont_forward.y = 0.0f;
-				cont_forward.Normalize();
-
-				Quaternion rot = GetRotation();
-				rot *= quat::CreateQuaternionFromNormal(vec3::AXIS_Y, vec3::BetweenAngle(pawn_forward, cont_forward));
-				SetRotation(rot);
-			}
-			if (IsUseControllerRoll())
-			{
-
-			}
-		}
-		
+	{		
 	}
 
 	void Pawn::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys, 

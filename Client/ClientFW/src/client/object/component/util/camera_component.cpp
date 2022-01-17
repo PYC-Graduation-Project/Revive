@@ -24,7 +24,11 @@ namespace client_fw
 	void CameraComponent::UpdateWorldMatrix()
 	{
 		const auto& owner = GetOwner().lock();
-		m_view_matrix = mat4::LookAt(owner->GetPosition(), owner->GetForward(), owner->GetUp());
+		Vec3 eye = owner->GetPosition();
+		Vec3 target = eye + owner->GetForward();
+		Vec3 up = owner->GetUp();
+
+		m_view_matrix = mat4::LookAt(eye, target, up);
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -32,7 +36,7 @@ namespace client_fw
 		switch (m_projection_mode)
 		{
 		case client_fw::eProjectionMode::kPerspective:
-			m_projection_matrix = mat4::Perspective(m_field_of_view, m_aspect_ratio, m_near_z, m_far_z);
+			m_projection_matrix = mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
 			break;
 		case client_fw::eProjectionMode::kOrthographic:
 			//m_projection_matrix = mat4::Ortho()

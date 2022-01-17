@@ -1,16 +1,5 @@
 
-struct InstanceData
-{
-    matrix world;
-    matrix world_inverse_transpose;
-};
-
-StructuredBuffer<InstanceData> g_instance_datas : register(t0, space0);
-
-cbuffer cbDefaultPass : register(b0, space0)
-{
-    matrix gViewProj;
-}
+#include "../../../../ClientFW/src/client/renderer/hlsl/opaque.hlsl"
 
 struct VS_DIFFUSE_IN
 {

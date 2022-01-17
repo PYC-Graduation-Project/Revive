@@ -1,6 +1,7 @@
 #include <include/client_core.h>
 #include <include/dx12_shader_fw.h>
-#include "render/level/render_rect_render_level.h"
+#include <client/renderer/renderlevel/core/render_level.h>
+#include <client/renderer/core/render.h>
 #include "render/shader/render_rect_shader.h"
 
 namespace render_test
@@ -18,17 +19,17 @@ namespace render_test
 	{
 	}
 
-	void RenderRectShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, const std::string& level_name)
+	void RenderRectShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
 		UpdateRenderItem(device, command_list);
 	}
 
-	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, const std::string& level_name)
+	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
-		switch (HashCode(level_name.c_str()))
+		switch (level_type)
 		{
-		case HashCode("render rect level"):
-			command_list->SetPipelineState(m_pipeline_states.at(level_name)[0].Get());
+		case eRenderLevelType::kOpaque:
+			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			DrawRenderItem(command_list);
 			break;
 		default:
@@ -36,17 +37,17 @@ namespace render_test
 		}
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "VSDiffuse", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "PSDiffuse", "ps_5_1", shader_blob);
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderRectShader::CreateInputLayout(const std::string& level_name, int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderRectShader::CreateInputLayout(eRenderLevelType level_type, int pso_index)
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
 		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -58,13 +59,14 @@ namespace render_test
 	{
 		bool result = true;
 
-		switch (HashCode(render_level->GetName().c_str()))
+		switch (render_level->GetRenderLevelType())
 		{
-		case HashCode("render rect level"):
+		case eRenderLevelType::kOpaque:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:
-			LOG_ERROR("Could not support {0} from {1}", render_level->GetName(), m_name);
+			LOG_ERROR("Could not support {0} from {1}",
+				Render::ConvertRenderLevelType(render_level->GetRenderLevelType()), m_name);
 			return false;
 		}
 

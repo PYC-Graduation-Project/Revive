@@ -18,17 +18,17 @@ namespace client_fw
 	{
 	}
 
-	void OpaqueMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, const std::string& level_name)
+	void OpaqueMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
 		UpdateRenderItem(device, command_list);
 	}
 
-	void OpaqueMeshShader::Draw(ID3D12GraphicsCommandList* command_list, const std::string& level_name)
+	void OpaqueMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
-		switch (HashCode(level_name.c_str()))
+		switch (level_type)
 		{
-		case HashCode("opaque"):
-			command_list->SetPipelineState(m_pipeline_states.at(level_name)[0].Get());
+		case eRenderLevelType::kOpaque:
+			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			DrawRenderItem(command_list);
 			break;
 		default:
@@ -36,24 +36,24 @@ namespace client_fw
 		}
 	}
 
-	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateVertexShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMesh", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreatePixelShader(ID3DBlob** shader_blob, const std::string& level_name, int pso_index)
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueMesh", "ps_5_1", shader_blob);
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(const std::string& level_name, int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index)
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
 		input_element_descs.resize(3);
 
 		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 		return input_element_descs;
 	}
@@ -62,13 +62,14 @@ namespace client_fw
 	{
 		bool result = true;
 
-		switch (HashCode(render_level->GetName().c_str()))
+		switch (render_level->GetRenderLevelType())
 		{
-		case HashCode("opaque"):
+		case eRenderLevelType::kOpaque:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:
-			LOG_ERROR("Could not support {0} from {1}", render_level->GetName(), m_name);
+			LOG_ERROR("Could not support {0} from {1}",
+				Render::ConvertRenderLevelType(render_level->GetRenderLevelType()), m_name);
 			return false;
 		}
 
