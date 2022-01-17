@@ -24,6 +24,7 @@ namespace client_fw
 	public:	
 		bool RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type);
 		void UnregisterEvent(const std::string& name);
+		eInputMode GetInputMode() const { return m_input_mode; }
 		void SetInputMode(eInputMode mode) { m_input_mode = mode; }
 
 	private:

@@ -139,7 +139,7 @@ namespace client_fw
 
 	enum class eInputMode
 	{
-		kUIOnly, kUIAndGame, kGameOnly,
+		kUIOnly, kUIAndGame, kGameOnly, kInActive,
 	};
 
 	enum class eInputOwnerType
@@ -175,6 +175,7 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption, eInputOwnerType type);
 		static void UnregisterInputEvent(const std::string& name);
 
+		static eInputMode GetInputMode();
 		static void SetInputMode(eInputMode input_mode);
 
 	private:

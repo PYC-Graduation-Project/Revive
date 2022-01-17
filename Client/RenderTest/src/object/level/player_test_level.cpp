@@ -35,11 +35,17 @@ namespace render_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
 
+		Input::SetInputMode(eInputMode::kUIAndGame);
+		Input::SetHideCursor(true);
+
 		return true;
 	}
 
 	void PlayerTestLevel::Shutdown()
 	{
+		Input::SetHideCursor(false);
+		Input::SetClipCursor(false);
+		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
 	void PlayerTestLevel::Update(float delta_time)

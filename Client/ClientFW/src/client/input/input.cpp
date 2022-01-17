@@ -103,6 +103,11 @@ namespace client_fw
 		s_input_event_system->GetInputEventManager()->UnregisterEvent(name);
 	}
 
+	eInputMode Input::GetInputMode()
+	{
+		return s_input_event_system->GetInputEventManager()->GetInputMode();
+	}
+
 	void Input::SetInputMode(eInputMode input_mode)
 	{
 		s_input_event_system->GetInputEventManager()->SetInputMode(input_mode);

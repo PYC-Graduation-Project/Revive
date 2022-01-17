@@ -19,12 +19,12 @@ namespace client_fw
 		ExecuteEvents(m_actor_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_level_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_pawn_events, eInputMode::kGameOnly);
-		ExecuteEvents(m_application_events, eInputMode::kUIAndGame);
+		ExecuteEvents(m_application_events, eInputMode::kUIOnly);
 	}
 
 	void InputEventManager::ExecuteEvents(std::vector<UPtr<InputEventInfo>>& events, eInputMode mode)
 	{
-		if (mode == eInputMode::kUIAndGame || m_input_mode == mode)
+		if (m_input_mode == eInputMode::kUIAndGame || m_input_mode == mode)
 		{
 			for (const auto& event : events)
 				event->ExecuteEvent();
