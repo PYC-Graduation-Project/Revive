@@ -71,7 +71,7 @@ namespace client_fw
 				{
 					AddMaterial();
 					ss >> material_name;
-					std::string mtl_path = parent_path + "\\" + material_name;
+					std::string mtl_path = parent_path + "/" + material_name + extension;
 					material = AssetStore::LoadMaterial(mtl_path);
 					if (material == nullptr)
 					{

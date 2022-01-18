@@ -75,7 +75,6 @@ namespace client_fw
 			if (asset != nullptr)
 				SaveAsset(eAssetType::kMesh, stem, path, extension, asset);
 		}
-		LOG_INFO("Load Mesh : {0}", asset->GetName());
 
 		return (asset == nullptr) ? nullptr : std::reinterpret_pointer_cast<Mesh>(asset);
 	}

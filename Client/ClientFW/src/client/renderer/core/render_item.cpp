@@ -26,7 +26,10 @@ namespace client_fw
 		if (m_mesh_comp_data.empty() == false)
 		{
 			if (m_is_need_resource_create)
+			{
 				CreateResources(device, command_list);
+				m_is_need_resource_create = false;
+			}
 			UpdateResources();
 		}
 	}
