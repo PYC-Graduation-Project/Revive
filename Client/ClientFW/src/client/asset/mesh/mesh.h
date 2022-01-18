@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class Material;
+
 	struct InstanceInfo
 	{
 		UINT count;
@@ -48,6 +50,13 @@ namespace client_fw
 		ComPtr<ID3DBlob>& GetIndexBufferBlob() { return m_vertex_buffer_blob; }
 		const BoundingOrientedBox& GetOrientedBox() const { return m_oriented_box; }
 		void SetOrientBox(const BoundingOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
+
+	protected:
+		std::vector<SPtr<Material>> m_materials;
+
+	public:
+		void AddMaterial(SPtr<Material>&& material) { m_materials.emplace_back(std::move(material)); }
+		const std::vector<SPtr<Material>> GetMaterials() const { return m_materials; }
 	};
 
 	class TextureLightVertex;

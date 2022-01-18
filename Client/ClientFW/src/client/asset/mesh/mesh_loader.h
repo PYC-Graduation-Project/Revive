@@ -10,9 +10,9 @@ namespace client_fw
 	public:
 		MeshLoader() = default;
 
-		virtual SPtr<Mesh> LoadMesh(const std::string& name, const std::string& path, const std::string& extension);
+		virtual SPtr<Mesh> LoadMesh(const std::string& path, const std::string& extension);
 
-		virtual SPtr<StaticMesh> LoadObj(const std::string& name, const std::string& path, const std::string& extension);
+		virtual SPtr<StaticMesh> LoadObj(const std::string& path, const std::string& extension);
 	};
 }
 

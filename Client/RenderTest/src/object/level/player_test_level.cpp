@@ -27,13 +27,17 @@ namespace render_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
+
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police_merge.obj");
+		SpawnActor(police);
+		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/renderer/core/render_item.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/mesh/material.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/util/d3d_util.h"
@@ -10,6 +11,7 @@ namespace client_fw
 	RenderItem::RenderItem(const SPtr<Mesh>& mesh, UINT material_count)
 		: m_mesh(mesh), m_material_count(material_count)
 	{
+		m_material_count = static_cast<UINT>(m_mesh->GetMaterials().size());
 	}
 
 	void RenderItem::Shutdown()
@@ -35,11 +37,11 @@ namespace client_fw
 		{
 			command_list->SetGraphicsRootShaderResourceView(0, m_instance_data->GetGPUVirtualAddress());
 			m_mesh->PreDraw(command_list);
-			/*for (UINT i = 0; i < m_material_count; ++i)
+			for (UINT i = 0; i < m_material_count; ++i)
 			{
-
-			}*/
-			m_mesh->Draw(command_list, static_cast<UINT>(m_mesh_comp_data.size()), 0);
+				m_mesh->Draw(command_list, static_cast<UINT>(m_mesh_comp_data.size()), i);
+			}
+		
 		}
 	}
 

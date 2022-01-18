@@ -12,6 +12,11 @@ namespace client_fw
 		Vec3 camera_position;
 	};
 
+	struct RSMaterialData
+	{
+		Vec4 base_color;
+	};
+
 	class GraphicsSuperRootSignature final : public RootSignature
 	{
 	public:
@@ -28,6 +33,9 @@ namespace client_fw
 	private:
 		ComPtr<ID3D12Resource> m_camera_data;
 		BYTE* m_camera_mapped_data;
+
+		ComPtr<ID3D12Resource> m_material_data;
+		BYTE* m_material_mapped_data;
 	};
 }
 

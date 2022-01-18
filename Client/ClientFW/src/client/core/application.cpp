@@ -10,6 +10,7 @@
 #include "client/renderer/core/renderer.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/mesh/mesh_loader.h"
+#include "client/asset/mesh/material_loader.h"
 
 namespace client_fw
 {
@@ -66,7 +67,7 @@ namespace client_fw
 
 	void Application::InitializeAssetManager()
 	{
-		m_asset_manager->Initialize(CreateUPtr<MeshLoader>());
+		m_asset_manager->Initialize(CreateUPtr<MeshLoader>(), CreateUPtr<MaterialLoader>());
 	}
 
 	void Application::Shutdown()
