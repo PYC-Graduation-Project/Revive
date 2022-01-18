@@ -4,8 +4,9 @@ namespace client_fw
 {
 	class Mesh;
 	class MeshComponent;
+	template<class T> class UploadBuffer;
 
-	struct InstanceData
+	struct RSInstanceData
 	{
 		Mat4 world_matrix;
 		Mat4 world_inverse_transpose;
@@ -21,14 +22,14 @@ namespace client_fw
 	{
 	public:
 		RenderItem(const SPtr<Mesh>& mesh, UINT material_count);
-		virtual ~RenderItem() = default;
+		~RenderItem();
 
 		void Shutdown();
 
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list);
 
-		void CreateResources(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void CreateResources(ID3D12Device* device);
 		virtual void UpdateResources();
 
 		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
@@ -42,11 +43,9 @@ namespace client_fw
 		std::vector<MeshComponentData> m_mesh_comp_data;
 		std::unordered_set<UINT> m_changed_resource_index;
 
-		ComPtr<ID3D12Resource> m_instance_data;
-		BYTE* m_instance_mapped_data = nullptr;
+		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 
 		UINT m_num_of_instance_data = 1;
-		UINT m_num_of_updated_instance_data = 0;
 
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }

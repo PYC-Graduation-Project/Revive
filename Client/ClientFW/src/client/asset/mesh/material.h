@@ -14,6 +14,8 @@ namespace client_fw
 		Vec4 m_base_color;
 
 	public:
+		UINT GetResourceIndex() const { return m_material_resource_index; }
+		void SetResourceIndex(UINT index) { m_material_resource_index = index; }
 		const Vec4& GetBaseColor() const { return m_base_color; }
 		void SetBaseColor(const Vec4& base_color) { m_base_color = base_color; }
 	};

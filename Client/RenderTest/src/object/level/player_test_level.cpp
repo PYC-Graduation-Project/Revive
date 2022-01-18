@@ -35,6 +35,8 @@ namespace render_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
 
+		//police->SetScale(0.2f);
+
 		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police_merge.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
@@ -54,5 +56,41 @@ namespace render_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
+		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		static float time = 0.0f;
+
+		static UINT count = 1;
+
+		time += delta_time;
+
+		if (time >= 0.016f)
+		{
+			for (int i = 0; i < 10; ++i)
+			{
+				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructable, "../Contents/police.obj");
+				SpawnActor(police);
+				police->SetPosition(Vec3{ x, y, z });
+				police->SetScale(0.2f);
+				++count;
+
+				z += 100.0f;
+			}
+
+			if (z > 4000.0f)
+			{
+				x -= 100.0f;
+				z = 1000.0f;
+				if (x < -3300.0f)
+				{
+					x = -300.0f;
+					y += 100.0f;
+				}
+			}
+
+			time -= 0.016f;
+		}
+
+		if (count % 100 == 1)
+			LOG_INFO(count);*/
 	}
 }

@@ -5,6 +5,7 @@
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/util/d3d_util.h"
+#include "client/util/upload_buffer.h"
 
 namespace client_fw
 {
@@ -12,13 +13,16 @@ namespace client_fw
 		: m_mesh(mesh), m_material_count(material_count)
 	{
 		m_material_count = static_cast<UINT>(m_mesh->GetMaterials().size());
+		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
+	}
+
+	RenderItem::~RenderItem()
+	{
 	}
 
 	void RenderItem::Shutdown()
 	{
-		if (m_instance_data != nullptr)
-			m_instance_data->Unmap(0, nullptr);
-		m_instance_mapped_data = nullptr;
+		m_instance_data->Shutdown();
 	}
 
 	void RenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -27,7 +31,7 @@ namespace client_fw
 		{
 			if (m_is_need_resource_create)
 			{
-				CreateResources(device, command_list);
+				CreateResources(device);
 				m_is_need_resource_create = false;
 			}
 			UpdateResources();
@@ -38,46 +42,27 @@ namespace client_fw
 	{
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
-			command_list->SetGraphicsRootShaderResourceView(0, m_instance_data->GetGPUVirtualAddress());
+			command_list->SetGraphicsRootShaderResourceView(0, m_instance_data->GetResource()->GetGPUVirtualAddress());
 			m_mesh->PreDraw(command_list);
 			for (UINT i = 0; i < m_material_count; ++i)
 			{
 				m_mesh->Draw(command_list, static_cast<UINT>(m_mesh_comp_data.size()), i);
 			}
-		
 		}
 	}
 
-	void RenderItem::CreateResources(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderItem::CreateResources(ID3D12Device* device)
 	{
-		auto updated_instance_size = m_num_of_updated_instance_data * sizeof(InstanceData);
-		auto instance_size = m_num_of_instance_data * sizeof(InstanceData);
-
-		BYTE* instance_data = nullptr;
-		if (updated_instance_size > 0)
-		{
-			instance_data = new BYTE[updated_instance_size];
-			memcpy(instance_data, m_instance_mapped_data, updated_instance_size);
-		}
-
-		if (m_instance_data != nullptr)
-			m_instance_data->Unmap(0, nullptr);
-
-		m_instance_data = D3DUtil::CreateUploadBuffer(device, command_list, static_cast<UINT>(instance_size), &m_instance_mapped_data);
-
-		if (instance_data != nullptr)
-		{
-			memcpy(m_instance_mapped_data, instance_data, updated_instance_size);
-			delete[] instance_data;
-			instance_data = nullptr;
-		}
-
-		m_num_of_updated_instance_data = m_num_of_instance_data;
+		m_instance_data->CreateResource(device, m_num_of_instance_data);
 	}
 
 	void RenderItem::UpdateResources()
 	{
 		UINT index = 0;
+
+		//BYTE* mapped_data = m_instance_data->GetMappedData();
+		//UINT byte_size = m_instance_data->GetByteSize();
+
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
 			const auto& mesh_comp = mesh_data.mesh_comp;
@@ -89,9 +74,11 @@ namespace client_fw
 				Mat4 world_inverse_transpose = mat4::InverseVec(world_matrix);
 				world_matrix.Transpose();
 
-				InstanceData data{ world_matrix, world_inverse_transpose };
+				RSInstanceData data{ world_matrix, world_inverse_transpose };
+				
+				//memcpy(&mapped_data[index * byte_size], &data, sizeof(InstanceData));
 
-				memcpy(&m_instance_mapped_data[index * sizeof(InstanceData)], &data, sizeof(InstanceData));
+				m_instance_data->CopyData(index, data);
 
 				mesh_data.m_is_need_update = false;
 			}
