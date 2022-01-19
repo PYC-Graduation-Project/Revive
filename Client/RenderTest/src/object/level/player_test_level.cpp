@@ -35,9 +35,9 @@ namespace render_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
 
-		//police->SetScale(0.2f);
+		///police->SetScale(0.2f);
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police_merge.obj");
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
 
@@ -88,9 +88,9 @@ namespace render_test
 			}
 
 			time -= 0.016f;
-		}
+		}*/
 
-		if (count % 100 == 1)
+		/*if (count % 100 == 1)
 			LOG_INFO(count);*/
 	}
 }

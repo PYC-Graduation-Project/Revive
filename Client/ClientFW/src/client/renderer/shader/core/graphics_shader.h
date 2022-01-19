@@ -13,6 +13,9 @@ namespace client_fw
 		GraphicsShader(const std::string& name);
 		virtual ~GraphicsShader() = default;
 
+		virtual void Initialize(ID3D12Device* device) override;
+		virtual void Shutdown() override;
+
 		void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void DrawRenderItem(ID3D12GraphicsCommandList* command_list);
 
@@ -39,7 +42,7 @@ namespace client_fw
 		virtual D3D12_SHADER_BYTECODE CreateShader(ID3DBlob** shader_blob);
 
 	public:
-		virtual bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
+		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp);
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 
 	private:

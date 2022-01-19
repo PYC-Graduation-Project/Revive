@@ -30,10 +30,11 @@ namespace client_fw
 
 	bool GraphicsSuperRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
-		std::array<CD3DX12_ROOT_PARAMETER, 3> root_parameters;
-		root_parameters[0].InitAsShaderResourceView(0, 0);
-		root_parameters[1].InitAsConstantBufferView(0, 0);
-		root_parameters[2].InitAsShaderResourceView(1, 0);
+		std::array<CD3DX12_ROOT_PARAMETER, 4> root_parameters;
+		root_parameters[0].InitAsConstantBufferView(0, 0);
+		root_parameters[1].InitAsShaderResourceView(0, 0);
+		root_parameters[2].InitAsConstantBufferView(1, 0);
+		root_parameters[3].InitAsShaderResourceView(1, 0);
 
 		CD3DX12_ROOT_SIGNATURE_DESC root_signature_desc(static_cast<UINT>(root_parameters.size()), root_parameters.data(),
 			0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -74,6 +75,6 @@ namespace client_fw
 
 		m_camera_data->CopyData(0, camera_data);
 
-		command_list->SetGraphicsRootConstantBufferView(1, m_camera_data->GetResource()->GetGPUVirtualAddress());
+		command_list->SetGraphicsRootConstantBufferView(2, m_camera_data->GetResource()->GetGPUVirtualAddress());
 	}
 }

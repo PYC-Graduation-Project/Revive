@@ -10,7 +10,7 @@ namespace client_fw
 	class MeshComponent;
 	class CameraComponent;
 	enum class eKindOfRenderLevel;
-	class RenderAssetManager;
+	class RenderResourceManager;
 
 	class RenderSystem final
 	{
@@ -74,7 +74,6 @@ namespace client_fw
 
 	private:
 		ID3D12Device* m_device;
-		ID3D12GraphicsCommandList* m_command_list;
 
 		SPtr<GraphicsSuperRootSignature> m_graphics_super_root_signature;
 		std::map<eRenderLevelType, SPtr<GraphicsRenderLevel>> m_graphics_render_levels;
@@ -85,7 +84,7 @@ namespace client_fw
 
 		std::vector<SPtr<CameraComponent>> m_basic_cameras;
 
-		UPtr<RenderAssetManager> m_render_asset_manager;
+		UPtr<RenderResourceManager> m_render_asset_manager;
 
 	public:
 		ID3D12Device* GetDevice() const { return m_device; }

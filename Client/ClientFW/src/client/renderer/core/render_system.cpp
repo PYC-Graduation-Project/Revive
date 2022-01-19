@@ -4,7 +4,7 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
-#include "client/renderer/core/render_asset_manager.h"
+#include "client/renderer/core/render_resource_manager.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/util/camera_component.h"
 
@@ -19,7 +19,7 @@ namespace client_fw
 
 		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics} };
 
-		m_render_asset_manager = CreateUPtr<RenderAssetManager>();
+		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 	}
 
 	RenderSystem::~RenderSystem()
@@ -29,7 +29,6 @@ namespace client_fw
 	bool RenderSystem::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		m_device = device;
-		m_command_list = command_list;
 
 		m_graphics_super_root_signature->Initialize(device, command_list);
 
@@ -112,7 +111,7 @@ namespace client_fw
 			return false;
 		}
 
-		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(mesh_comp);
+		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
 	}
 
 	void RenderSystem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)

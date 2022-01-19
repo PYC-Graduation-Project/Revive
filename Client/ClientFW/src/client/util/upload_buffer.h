@@ -21,12 +21,13 @@ namespace client_fw
 			if (m_resource_buffer != nullptr)
 				m_resource_buffer->Unmap(0, nullptr);
 			m_mapped_data = nullptr;
+			m_num_of_updated_data = 0;
 		}
 
 		void CreateResource(ID3D12Device* device, UINT num_of_data)
 		{
-			auto updated_resource_size = m_num_of_updated_data * sizeof(T);
-			auto resource_size = num_of_data * sizeof(T);
+			auto updated_resource_size = m_num_of_updated_data * m_byte_size;
+			auto resource_size = num_of_data * m_byte_size;
 
 			BYTE* updated_data = nullptr;
 			if (updated_resource_size > 0)

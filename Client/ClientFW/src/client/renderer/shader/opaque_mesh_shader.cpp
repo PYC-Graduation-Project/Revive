@@ -10,14 +10,6 @@ namespace client_fw
 	{
 	}
 
-	void OpaqueMeshShader::Initialize(ID3D12Device* device)
-	{
-	}
-
-	void OpaqueMeshShader::Shutdown()
-	{
-	}
-
 	void OpaqueMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
 		UpdateRenderItem(device, command_list);

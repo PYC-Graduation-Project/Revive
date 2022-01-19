@@ -11,11 +11,14 @@ namespace client_fw
 		Vec4 base_color;
 	};
 
-	class RenderAssetManager final
+	class RenderResourceManager final
 	{
 	public:
-		RenderAssetManager();
-		~RenderAssetManager();
+		RenderResourceManager();
+		~RenderResourceManager();
+
+		RenderResourceManager(const RenderResourceManager&) = delete;
+		RenderResourceManager& operator=(const RenderResourceManager&) = delete;
 
 		void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
@@ -37,6 +40,7 @@ namespace client_fw
 	private:
 		UINT m_num_of_material_data = 0;
 		UPtr<UploadBuffer<RSMaterialData>> m_material_data;
+
 	};
 }
 

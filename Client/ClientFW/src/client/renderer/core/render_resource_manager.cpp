@@ -1,26 +1,26 @@
 #include "stdafx.h"
-#include "client/renderer/core/render_asset_manager.h"
+#include "client/renderer/core/render_resource_manager.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/mesh/material.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
 {
-	RenderAssetManager::RenderAssetManager()
+	RenderResourceManager::RenderResourceManager()
 	{
 		m_material_data = CreateUPtr<UploadBuffer<RSMaterialData>>();
 	}
 
-	RenderAssetManager::~RenderAssetManager()
+	RenderResourceManager::~RenderResourceManager()
 	{
 	}
 
-	void RenderAssetManager::Shutdown()
+	void RenderResourceManager::Shutdown()
 	{
 		m_material_data->Shutdown();
 	}
 
-	void RenderAssetManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		for (const auto& mesh : m_ready_meshes)
 		{
@@ -37,13 +37,13 @@ namespace client_fw
 		}
 	}
 
-	void RenderAssetManager::Draw(ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list)
 	{
 		if (m_material_data->GetResource() != nullptr)
-			command_list->SetGraphicsRootShaderResourceView(2, m_material_data->GetResource()->GetGPUVirtualAddress());
+			command_list->SetGraphicsRootShaderResourceView(3, m_material_data->GetResource()->GetGPUVirtualAddress());
 	}
 
-	void RenderAssetManager::RegisterMesh(const SPtr<Mesh>& mesh)
+	void RenderResourceManager::RegisterMesh(const SPtr<Mesh>& mesh)
 	{
 		if (m_initialized_assets.find(mesh->GetPath()) == m_initialized_assets.cend())
 		{
@@ -54,7 +54,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderAssetManager::RegisterMaterials(const std::vector<SPtr<Material>>& materials)
+	void RenderResourceManager::RegisterMaterials(const std::vector<SPtr<Material>>& materials)
 	{
 		for (const auto& material : materials)
 		{
@@ -66,13 +66,13 @@ namespace client_fw
 		}
 	}
 
-	void RenderAssetManager::CreateMaterialResource(ID3D12Device* device)
+	void RenderResourceManager::CreateMaterialResource(ID3D12Device* device)
 	{
 		m_material_data->CreateResource(device, m_num_of_material_data +
 			static_cast<UINT>(m_ready_materials.size()));
 	}
 
-	void RenderAssetManager::UpdateMaterialResource()
+	void RenderResourceManager::UpdateMaterialResource()
 	{
 		for (const auto& material : m_ready_materials)
 		{
