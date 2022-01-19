@@ -136,6 +136,7 @@ timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE e
 void PacketManager::End()
 {
 	m_moveobj_manager->DestroyObject();
+	if (m_moveobj_manager)delete m_moveobj_manager;
 }
 
 void PacketManager::Disconnect(int c_id)

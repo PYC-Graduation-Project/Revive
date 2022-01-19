@@ -40,6 +40,7 @@ public:
 private:
 	void Worker();
 	void DoRecv();
+	void OnRecv(int client_id, EXP_OVER* exp_over, DWORD num_byte);
 	void ProcessPacket(int c_id,unsigned char*p);
 	int GetID() const
 	{
@@ -58,7 +59,7 @@ private:
 	thread worker;
 	int m_id;
 	int m_prev_size = 0;
-	std::unique_ptr< PacketManager>m_PacketManager;
+	std::unique_ptr< PacketManager>m_packet_manager;
 public:
 	//임시 변수 이후에 클라에서는 필요없음
 	XMFLOAT3 pos;

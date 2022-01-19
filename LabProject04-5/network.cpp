@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "network.h"
-
+#include"packet_manager.h"
 bool Network::Init()
 {
 	m_id = 0;
@@ -11,9 +11,9 @@ bool Network::Init()
 	if (INVALID_SOCKET == m_s_socket)
 	{
 		error_display(WSAGetLastError());
-		return true;
+		return false;
 	}
-	m_hiocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, NULL, 0);
+	m_packet_manager = std::make_unique<PacketManager>();
 	
 
 	
@@ -26,7 +26,7 @@ bool Network::Connect()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	server_addr.sin_addr.s_addr = inet_addr("192.168.219.187");
+	server_addr.sin_addr.s_addr = inet_addr("192.168.219.187"); 
 	int retval = WSAConnect(m_s_socket, reinterpret_cast<sockaddr*>(&server_addr),
 		sizeof(server_addr), NULL, NULL, NULL, NULL);
 	if (0 != retval) {
@@ -39,7 +39,7 @@ bool Network::Connect()
 	recv_over._wsa_buf.buf = reinterpret_cast<CHAR*>(recv_over._net_buf);
 	recv_over._wsa_buf.len = sizeof(recv_over._net_buf);
 	DWORD flag = 0;
-
+	m_hiocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, NULL, 0);
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_s_socket), m_hiocp, m_id, 0);
 
 	int ret = WSARecv(m_s_socket, &recv_over._wsa_buf, 1,
@@ -68,29 +68,13 @@ void Network::Worker()
 			int client_id = static_cast<int>(iocp_key);
 			EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
 			if (FALSE == ret) {
-				
 				if (exp_over->_comp_op == COMP_OP::OP_SEND)
 					delete exp_over;
 				continue;
 			}
 			switch (exp_over->_comp_op) {
 			case COMP_OP::OP_RECV: {
-				int remain_data = num_byte + m_prev_size;
-				unsigned char* packet_start = exp_over->_net_buf;
-				int packet_size = packet_start[0];
-
-				while (packet_size <= remain_data) {
-					ProcessPacket(client_id, packet_start);
-					remain_data -= packet_size;
-					packet_start += packet_size;
-					if (remain_data > 0) packet_size = packet_start[0];
-					else break;
-				}
-
-				if (0 < remain_data) {
-					m_prev_size = remain_data;
-					memcpy(&exp_over->_net_buf, packet_start, remain_data);
-				}
+				OnRecv(client_id, exp_over, num_byte);
 				DoRecv();
 				break;
 			}
@@ -118,6 +102,26 @@ void Network::DoRecv()
 		int error_num = WSAGetLastError();
 		if (ERROR_IO_PENDING != error_num)
 			error_display(error_num);
+	}
+}
+
+void Network::OnRecv(int client_id,EXP_OVER*exp_over,DWORD num_byte)
+{
+	int remain_data = num_byte + m_prev_size;
+	unsigned char* packet_start = exp_over->_net_buf;
+	int packet_size = packet_start[0];
+
+	while (packet_size <= remain_data) {
+		m_packet_manager->ProcessPacket(client_id, packet_start);
+		remain_data -= packet_size;
+		packet_start += packet_size;
+		if (remain_data > 0) packet_size = packet_start[0];
+		else break;
+	}
+
+	if (0 < remain_data) {
+		m_prev_size = remain_data;
+		memcpy(&exp_over->_net_buf, packet_start, remain_data);
 	}
 }
 
