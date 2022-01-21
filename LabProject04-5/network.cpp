@@ -137,5 +137,8 @@ void Network::ProcessPacket(int c_id, unsigned char* p)
 		right= XMFLOAT3(move_packet->right_x, move_packet->right_y, move_packet->right_z);
 		cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	}
+	case SC_PACKET_CHAT:
+		//문자열 받고
+		
 	}
 }

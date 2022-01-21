@@ -23,21 +23,21 @@ public:
 	virtual void OnEvent(EXP_OVER* exp_over) { return; };
 	static void error_display(int err_no);
 	virtual bool StartServer();
-	virtual void ProcessEvent(timer_event& ev);
+
 	void DestroyThread();
 public:
 	//this의 워커를 람다로 join 어떻게될지 모른다 나중에 오류나면 가상함수로 수정
 	void CreateWorker();
-	void CreateTimer();
+
 	void Worker();//이거는 냅두고 내부함수를 override 
-	void DoTimer();
+	
 protected:
 	EXP_OVER	accept_ex;
 	SOCKET m_s_socket;
 	HANDLE m_hiocp;
 	int m_worker_num;
 	std::vector <std::thread> m_worker_threads;
-	concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
+	
 
 };
 

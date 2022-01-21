@@ -65,5 +65,6 @@ public:
 	XMFLOAT3 pos;
 	XMFLOAT3 look;
 	XMFLOAT3 right;
+	//컨테이너-> 위치, 충돌 ,
 };
 

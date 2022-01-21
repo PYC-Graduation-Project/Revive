@@ -42,6 +42,44 @@ void InGameServer::Disconnect(int c_id)
 	m_PacketManager->Disconnect(c_id);
 }
 
+void InGameServer::DoTimer()
+{
+	while (true) {
+		while (true) {
+			timer_event ev;
+			if (!m_timer_queue.try_pop(ev))continue;
+			auto start_t = chrono::system_clock::now();
+			if (ev.start_time <= start_t) {
+				ProcessEvent(ev);
+			}
+			else {
+				m_timer_queue.push(ev);
+				break;
+			}
+		}
+
+		this_thread::sleep_for(10ms);
+	}
+}
+
+void InGameServer::CreateTimer()
+{
+	m_worker_threads.emplace_back([this]() {DoTimer(); });
+}
+
+void InGameServer::ProcessEvent(timer_event& ev)
+{
+	EXP_OVER* ex_over = new EXP_OVER;
+	switch (ev.ev) {
+	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
+		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
+		break;
+	}
+	}
+
+	PostQueuedCompletionStatus(m_hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+}
+
 
 
 
@@ -50,6 +88,7 @@ void InGameServer::Run()
 	
 
 	StartServer();
+	CreateTimer();
 }
 
 void InGameServer::End()

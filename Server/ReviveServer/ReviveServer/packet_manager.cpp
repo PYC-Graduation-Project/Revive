@@ -47,7 +47,7 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 	}
 	else {//다시제작
 		Player* cl = m_moveobj_manager->GetPlayer(new_id);
-		cl->SetID( new_id);
+		cl->SetID(new_id);
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
