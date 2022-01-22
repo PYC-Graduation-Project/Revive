@@ -90,21 +90,21 @@ namespace client_fw
 			const auto& mesh_comp = mesh_data.mesh_comp;
 			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.m_is_need_update))
+			if (owner != nullptr && mesh_comp->IsVisible())
 			{
-				Mat4 world_matrix = owner->GetWorldMatrix();
-				Mat4 world_inverse_transpose = mat4::InverseVec(world_matrix);
-				world_matrix.Transpose();
+				if (owner->IsUpdatedWorldMatrix() || mesh_data.is_need_update)
+				{
+					Mat4 world_matrix = owner->GetWorldMatrix();
+					mesh_data.world_transpose = mat4::Transpose(world_matrix);
+					mesh_data.world_inverse = mat4::InverseVec(world_matrix);
+					mesh_data.is_need_update = false;
+				}
 
-				RSInstanceData data{ world_matrix, world_inverse_transpose };
-				
-				//memcpy(&mapped_data[index * byte_size], &data, sizeof(InstanceData));
+				m_instance_data->CopyData(index,
+					RSInstanceData{ mesh_data.world_transpose, mesh_data.world_inverse });
 
-				m_instance_data->CopyData(index, data);
-
-				mesh_data.m_is_need_update = false;
-			}
-			++index;
+				++index;
+			} 
 		}
 	}
 
@@ -126,7 +126,7 @@ namespace client_fw
 		MeshComponentData data;
 		data.mesh_comp = mesh_comp;
 		data.mesh_comp->SetInstanceIndex(static_cast<UINT>(m_mesh_comp_data.size()));
-		data.m_is_need_update = true;
+		data.is_need_update = true;
 
 		m_mesh_comp_data.emplace_back(std::move(data));
 
@@ -149,7 +149,7 @@ namespace client_fw
 
 		std::swap(*(m_mesh_comp_data.begin() + index), *(m_mesh_comp_data.end() - 1));
 		m_mesh_comp_data[index].mesh_comp->SetInstanceIndex(index);
-		m_mesh_comp_data[index].m_is_need_update = true;
+		m_mesh_comp_data[index].is_need_update = true;
 
 		m_mesh_comp_data.pop_back();
 

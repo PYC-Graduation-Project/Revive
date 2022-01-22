@@ -10,6 +10,7 @@ namespace client_fw
 
 	bool Component::InitializeComponent()
 	{
+		UpdateWorldMatrix();
 		return Initialize();
 	}
 

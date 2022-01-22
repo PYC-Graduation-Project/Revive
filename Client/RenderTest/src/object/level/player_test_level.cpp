@@ -3,6 +3,7 @@
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
+#include <client/util/octree/mesh_octree.h>
 #include "object/level/player_test_level.h"
 
 namespace render_test
@@ -35,12 +36,13 @@ namespace render_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
 
-		///police->SetScale(0.2f);
+		//police->SetScale(0.2f);
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
+
+		/*police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
-
+		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });*/
+ 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
 
@@ -92,5 +94,10 @@ namespace render_test
 
 		/*if (count % 100 == 1)
 			LOG_INFO(count);*/
+	}
+
+	SPtr<MeshOctree> PlayerTestLevel::CreateMeshOctree() const
+	{
+		return CreateSPtr<MeshOctree>(10000.0f);
 	}
 }

@@ -20,7 +20,9 @@ namespace client_fw
 	struct MeshComponentData
 	{
 		SPtr<MeshComponent> mesh_comp;
-		bool m_is_need_update;
+		bool is_need_update;
+		Mat4 world_transpose;
+		Mat4 world_inverse;
 	};
 
 	class RenderItem final

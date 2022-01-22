@@ -21,6 +21,7 @@ namespace client_fw
 
 	bool Actor::InitializeActor()
 	{
+		UpdateWorldMatrix();
 		return Initialize();
 	}
 

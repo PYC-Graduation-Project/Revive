@@ -25,10 +25,22 @@ namespace client_fw
 	{
 		const auto& owner = GetOwner().lock();
 		Vec3 eye = owner->GetPosition();
-		Vec3 target = eye + owner->GetForward();
-		Vec3 up = owner->GetUp();
+		Vec3 target, up;
+		if (m_owner_controller.expired())
+		{
+			target = eye + owner->GetForward();
+			up = owner->GetUp();
+		}
+		else
+		{
+			target = eye + m_owner_controller.lock()->GetForward();
+			up = m_owner_controller.lock()->GetUp();
+
+		}
 
 		m_view_matrix = mat4::LookAt(eye, target, up);
+		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
+		m_bf_projection.Transform(m_bounding_frustum, XMLoadFloat4x4(&m_inverse_view_matrix));
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -37,6 +49,7 @@ namespace client_fw
 		{
 		case client_fw::eProjectionMode::kPerspective:
 			m_projection_matrix = mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
+			BoundingFrustum::CreateFromMatrix(m_bf_projection, XMLoadFloat4x4(&m_projection_matrix));
 			break;
 		case client_fw::eProjectionMode::kOrthographic:
 			//m_projection_matrix = mat4::Ortho()

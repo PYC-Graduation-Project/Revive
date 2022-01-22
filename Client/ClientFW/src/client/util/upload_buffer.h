@@ -19,7 +19,10 @@ namespace client_fw
 		void Shutdown()
 		{
 			if (m_resource_buffer != nullptr)
+			{
 				m_resource_buffer->Unmap(0, nullptr);
+				m_resource_buffer = nullptr;
+			}
 			m_mapped_data = nullptr;
 			m_num_of_updated_data = 0;
 		}

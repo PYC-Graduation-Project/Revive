@@ -6,6 +6,7 @@ namespace client_fw
 	class Actor;
 	class ActorManager;
 	struct EventKeyInfo;
+	class MeshOctree;
 
 	enum class eLevelState
 	{
@@ -53,6 +54,8 @@ namespace client_fw
 		void SetLevelState(eLevelState level_state) { m_level_state = level_state; }
 		void SetRuntime() { m_is_runtime_level = true; }
 		bool IsRuntime() const { return m_is_runtime_level; }
+
+		virtual SPtr<MeshOctree> CreateMeshOctree() const { return nullptr; }
 	};
 }
 

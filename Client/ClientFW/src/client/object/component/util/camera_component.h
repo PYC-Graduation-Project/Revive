@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class Actor;
+
 	enum class eProjectionMode
 	{
 		kPerspective, kOrthographic
@@ -28,7 +30,7 @@ namespace client_fw
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateWorldMatrix();
+		virtual void UpdateWorldMatrix() override;
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -36,17 +38,22 @@ namespace client_fw
 		void UnregisterFromRenderSystem();
 
 	protected:
+		WPtr<Actor> m_owner_controller;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
 		Mat4 m_view_matrix;
+		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
 		float m_aspect_ratio = 1.777778f;
 		float m_field_of_view = 45.0f;
 		float m_near_z = 1.01f;
 		float m_far_z = 100000.0f;
+		BoundingFrustum m_bf_projection;
+		BoundingFrustum m_bounding_frustum;
 
 	public:
+		void SetOwnerController(const WPtr<Actor>& owner) { m_owner_controller = owner; }
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
