@@ -67,7 +67,7 @@ namespace client_fw
 			{
 				command_list->SetGraphicsRootConstantBufferView(0, material_index_resource->GetGPUVirtualAddress() +
 					i * material_index_resource_byte_size);
-				m_mesh->Draw(command_list, static_cast<UINT>(m_mesh_comp_data.size()), i);
+				m_mesh->Draw(command_list, m_num_of_draw_data, i);
 			}
 		}
 	}
@@ -80,7 +80,7 @@ namespace client_fw
 
 	void RenderItem::UpdateResources()
 	{
-		UINT index = 0;
+		m_num_of_draw_data = 0;
 
 		//BYTE* mapped_data = m_instance_data->GetMappedData();
 		//UINT byte_size = m_instance_data->GetByteSize();
@@ -100,10 +100,12 @@ namespace client_fw
 					mesh_data.is_need_update = false;
 				}
 
-				m_instance_data->CopyData(index,
+				m_instance_data->CopyData(m_num_of_draw_data,
 					RSInstanceData{ mesh_data.world_transpose, mesh_data.world_inverse });
 
-				++index;
+				mesh_comp->SetVisiblity(false);
+
+				++m_num_of_draw_data;
 			} 
 		}
 	}

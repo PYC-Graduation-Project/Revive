@@ -4,6 +4,7 @@
 namespace client_fw
 {
 	class MeshComponent;
+	class CameraComponent;
 
 	struct MeshTreeNode
 	{
@@ -24,9 +25,12 @@ namespace client_fw
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
 
+		void SetVisibilityFromCamera(const SPtr<CameraComponent>& camera);
+
 	private:
-		void CreateChildNodeInfo(const SPtr<MeshTreeNode>& node_info, UINT depth);
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node_info);
+		void CreateChildNodeInfo(const SPtr<MeshTreeNode>& node, UINT depth);
+		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node);
+		void SetVisibilityFromCamera(const BoundingFrustum& bounding_frustum, ContainmentType type, const SPtr<MeshTreeNode>& node);
 
 	private:
 		float m_width;

@@ -22,7 +22,9 @@ namespace client_fw
 	bool Actor::InitializeActor()
 	{
 		UpdateWorldMatrix();
-		return Initialize();
+		bool ret = Initialize();
+		UpdateWorldMatrix();
+		return ret;
 	}
 
 	void Actor::ShutdownActor()

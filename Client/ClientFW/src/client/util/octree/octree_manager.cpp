@@ -42,4 +42,10 @@ namespace client_fw
 		if (m_mesh_octree != nullptr)
 			m_mesh_octree->UnregisterMeshComponent(mesh);
 	}
+
+	void OctreeManager::SetVisibilityFromCamera(const SPtr<CameraComponent>& camera)
+	{
+		if (m_mesh_octree != nullptr)
+			m_mesh_octree->SetVisibilityFromCamera(camera);
+	}
 }

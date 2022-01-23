@@ -55,6 +55,7 @@ namespace client_fw
 
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
+		UINT m_num_of_draw_data = 0;
 
 		UPtr<UploadBuffer<RSMaterialIndexData>> m_material_index_data;
 		bool m_is_updated_material_index_data = false;

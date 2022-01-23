@@ -13,4 +13,9 @@ namespace client_fw
 	{
 		OctreeManager::GetOctreeManager().UnregisterMeshComponent(mesh);
 	}
+
+	void OctreeHelper::SetVisibilityFromCamera(const SPtr<CameraComponent>& camera)
+	{
+		OctreeManager::GetOctreeManager().SetVisibilityFromCamera(camera);
+	}
 }

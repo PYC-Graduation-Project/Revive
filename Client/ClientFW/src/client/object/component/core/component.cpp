@@ -11,7 +11,9 @@ namespace client_fw
 	bool Component::InitializeComponent()
 	{
 		UpdateWorldMatrix();
-		return Initialize();
+		bool ret = Initialize();
+		UpdateWorldMatrix();
+		return ret;
 	}
 
 	void Component::ShutdownComponent()

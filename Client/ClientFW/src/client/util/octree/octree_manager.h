@@ -4,6 +4,7 @@ namespace client_fw
 {
 	class MeshOctree;
 	class MeshComponent;
+	class CameraComponent;
 
 	class OctreeManager
 	{
@@ -19,6 +20,8 @@ namespace client_fw
 
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
+
+		void SetVisibilityFromCamera(const SPtr<CameraComponent>& camera);
 
 	private:
 		static OctreeManager* s_instance;

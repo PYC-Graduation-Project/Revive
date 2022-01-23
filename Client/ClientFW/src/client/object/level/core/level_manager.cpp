@@ -32,6 +32,7 @@ namespace client_fw
 	{
 		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
 		{
+			m_octree_manager->UnregisterMeshOctree();
 			m_cur_level->ShutdownLevel();
 			m_cur_level = nullptr;
 		}

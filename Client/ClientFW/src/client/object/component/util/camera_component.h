@@ -64,6 +64,7 @@ namespace client_fw
 		void SetFieldOfView(float fov) { m_field_of_view = fov; }
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
+		const BoundingFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
 	};
 }
 

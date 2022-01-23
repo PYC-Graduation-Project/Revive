@@ -35,7 +35,6 @@ namespace client_fw
 		{
 			target = eye + m_owner_controller.lock()->GetForward();
 			up = m_owner_controller.lock()->GetUp();
-
 		}
 
 		m_view_matrix = mat4::LookAt(eye, target, up);

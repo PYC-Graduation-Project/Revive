@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/util/octree/mesh_octree.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/util/camera_component.h"
 #include "client/object/actor/core/actor.h"
 
 namespace client_fw
@@ -29,8 +30,7 @@ namespace client_fw
 			RegisterMeshComponent(mesh, m_root_node);
 		else
 			m_out_of_range_mesh_comps.push_back(mesh);
-		//mesh->SetVisiblity(false);
-		mesh->SetVisiblity(true);
+		mesh->SetVisiblity(false);
 	}
 
 	void MeshOctree::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh)
@@ -64,54 +64,129 @@ namespace client_fw
 		}
 	}
 
-	void MeshOctree::CreateChildNodeInfo(const SPtr<MeshTreeNode>& node_info, UINT depth)
+	void MeshOctree::SetVisibilityFromCamera(const SPtr<CameraComponent>& camera)
 	{
-		Vec3 extents = Vec3(node_info->bounding_box.Extents) * 0.5f;
+		const auto& bounding_frustum = camera->GetBoudingFrustum();
+
+		ContainmentType type = bounding_frustum.Contains(m_root_node->bounding_box);
+ 		if (type != ContainmentType::DISJOINT)
+		{
+			SetVisibilityFromCamera(bounding_frustum, type, m_root_node);
+		}
+
+		for (const auto& mesh : m_out_of_range_mesh_comps)
+		{
+			if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
+				mesh->SetVisiblity(true);
+		}
+	}
+
+
+	void MeshOctree::CreateChildNodeInfo(const SPtr<MeshTreeNode>& node, UINT depth)
+	{
+		Vec3 extents = Vec3(node->bounding_box.Extents) * 0.5f;
 
 		for (UINT i = 0; i < 8; ++i)
 		{
-			node_info->child_nodes[i] = CreateSPtr<MeshTreeNode>();
-			node_info->child_nodes[i]->parent_node = node_info;
-			node_info->child_nodes[i]->bounding_box.Extents = extents;
-			node_info->child_nodes[i]->bounding_box.Center.x =
-				((i % 2 == 0) ? node_info->bounding_box.Center.x + extents.x
-					: node_info->bounding_box.Center.x - extents.x);
-			node_info->child_nodes[i]->bounding_box.Center.y =
-				((i / 4 == 0) ? node_info->bounding_box.Center.y + extents.y
-					: node_info->bounding_box.Center.y - extents.y);
-			node_info->child_nodes[i]->bounding_box.Center.z =
-				((i % 4 < 2) ? node_info->bounding_box.Center.z + extents.z
-					: node_info->bounding_box.Center.z - extents.z);
+			node->child_nodes[i] = CreateSPtr<MeshTreeNode>();
+			node->child_nodes[i]->parent_node = node;
+			node->child_nodes[i]->bounding_box.Extents = extents;
+			node->child_nodes[i]->bounding_box.Center.x =
+				((i % 2 == 0) ? node->bounding_box.Center.x + extents.x
+					: node->bounding_box.Center.x - extents.x);
+			node->child_nodes[i]->bounding_box.Center.y =
+				((i / 4 == 0) ? node->bounding_box.Center.y + extents.y
+					: node->bounding_box.Center.y - extents.y);
+			node->child_nodes[i]->bounding_box.Center.z =
+				((i % 4 < 2) ? node->bounding_box.Center.z + extents.z
+					: node->bounding_box.Center.z - extents.z);
 
 			if (depth < m_depth)
-				CreateChildNodeInfo(node_info->child_nodes[i], depth + 1);
+				CreateChildNodeInfo(node->child_nodes[i], depth + 1);
 		}
 	}
 	
-	void MeshOctree::RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node_info)
+	void MeshOctree::RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node)
 	{
-		if (node_info->child_nodes[0] == nullptr)
+		if (node->child_nodes[0] == nullptr)
 		{
 			if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kStatic)
 			{
-				node_info->static_mesh_components.push_back(mesh);
+				node->static_mesh_components.push_back(mesh);
 				//사실 Static객체들은 Level이 Close될 때만 UnregisterEvent가 발생한다.
 				//그래서 한번에 다 지우는게 효율적이다. 이 부분의 수정은 추후에 할 것이고
 				//일단은 Frustum 기능이 잘 작동하는지 파악하기 위해서 TreeNode를 MeshComponent에 추가하겠다.
-				mesh->AddMeshTreeNode(node_info);
+				mesh->AddMeshTreeNode(node);
 			}
 			else
 			{
-				node_info->dynamic_mesh_components.push_back(mesh);
-				mesh->AddMeshTreeNode(node_info);
+				node->dynamic_mesh_components.push_back(mesh);
+				mesh->AddMeshTreeNode(node);
 			}
 			return;
 		}
 
 		for (UINT i = 0; i < 8; ++i)
 		{
-			if (mesh->GetOrientdBox().Intersects(node_info->child_nodes[i]->bounding_box))
-				RegisterMeshComponent(mesh, node_info->child_nodes[i]);
+			if (mesh->GetOrientdBox().Intersects(node->child_nodes[i]->bounding_box))
+				RegisterMeshComponent(mesh, node->child_nodes[i]);
 		}
+	}
+
+	void MeshOctree::SetVisibilityFromCamera(const BoundingFrustum& bounding_frustum, ContainmentType type, const SPtr<MeshTreeNode>& node)
+	{
+		if (node->child_nodes[0] == nullptr)
+		{
+			switch (type)
+			{
+			case DirectX::INTERSECTS:
+				for (const auto& mesh : node->static_mesh_components)
+				{
+					if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
+						mesh->SetVisiblity(true);
+				}
+				for (const auto& mesh : node->dynamic_mesh_components)
+				{
+					if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
+						mesh->SetVisiblity(true);
+				}
+				break;
+			case DirectX::CONTAINS:
+				for (const auto& mesh : node->static_mesh_components)
+				{
+					mesh->SetVisiblity(true);
+				}
+				for (const auto& mesh : node->dynamic_mesh_components)
+				{
+					mesh->SetVisiblity(true);
+				}
+				break;
+			default:
+				break;
+			}
+			return;
+		}
+
+		switch (type)
+		{
+		case DirectX::INTERSECTS:
+		{
+			ContainmentType type;
+			for (UINT i = 0; i < 8; ++i)
+			{
+				type = bounding_frustum.Contains(node->child_nodes[i]->bounding_box);
+				if (type != ContainmentType::DISJOINT)
+					SetVisibilityFromCamera(bounding_frustum, type, node->child_nodes[i]);
+			}
+			break;
+		}
+		case DirectX::CONTAINS:
+			for (UINT i = 0; i < 8; ++i)
+				SetVisibilityFromCamera(bounding_frustum, type, node->child_nodes[i]);
+			break;
+		default:
+			break;
+		}
+		
 	}
 }
