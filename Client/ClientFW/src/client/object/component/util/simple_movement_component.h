@@ -3,7 +3,7 @@
 
 namespace client_fw
 {
-	class SimpleMovementComponent : public MovementComponent
+	class SimpleMovementComponent : public PawnMovementComponent
 	{
 	public:
 		SimpleMovementComponent(const std::string& name = "simple movement component");

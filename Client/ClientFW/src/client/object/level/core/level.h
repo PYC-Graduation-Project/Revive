@@ -55,7 +55,7 @@ namespace client_fw
 		void SetRuntime() { m_is_runtime_level = true; }
 		bool IsRuntime() const { return m_is_runtime_level; }
 
-		virtual SPtr<MeshOctree> CreateMeshOctree() const { return nullptr; }
+		virtual SPtr<MeshOctree> CreateMeshOctree() const;
 	};
 }
 

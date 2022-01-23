@@ -3,6 +3,7 @@
 #include "client/object/actor/core/actor_manager.h"
 #include "client/object/actor/core/actor.h"
 #include "client/input/input.h"
+#include "client/util/octree/mesh_octree.h"
 
 namespace client_fw
 {
@@ -76,6 +77,11 @@ namespace client_fw
 
 	void Level::RegisterInputEvent(const std::string& name)
 	{
-		m_registered_input_event.emplace_back(std::move(name));
+		m_registered_input_event.push_back(name);
+	}
+
+	SPtr<MeshOctree> Level::CreateMeshOctree() const
+	{
+		return CreateSPtr<MeshOctree>(0.0f, vec3::ZERO, 0);
 	}
 }

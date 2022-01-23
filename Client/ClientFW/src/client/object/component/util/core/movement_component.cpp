@@ -9,7 +9,12 @@ namespace client_fw
 	{
 	}
 
-	void MovementComponent::Update(float delta_time)
+	PawnMovementComponent::PawnMovementComponent(const std::string& name)
+		: MovementComponent(name)
+	{
+	}
+
+	void PawnMovementComponent::Update(float delta_time)
 	{
 		if (math::NearZero(m_velocity.Length()) == false)
 		{
@@ -25,7 +30,7 @@ namespace client_fw
 		m_move_input = vec3::ZERO;
 	}
 
-	void MovementComponent::AddInputVector(const Vec3& vec)
+	void PawnMovementComponent::AddInputVector(const Vec3& vec)
 	{
 		m_move_input += vec;
 	}
