@@ -1,0 +1,100 @@
+#include "pch.h"
+#include "db.h"
+#include"player.h"
+#include<iostream>
+using namespace std;
+DB::DB()
+{
+}
+
+DB::~DB()
+{
+}
+
+bool DB::Init()
+{
+	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+
+	// Set the ODBC version environment attribute  
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+
+		// Allocate connection handle  
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+
+			// Set login timeout to 5 seconds  
+			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+
+				// Connect to data source  
+				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"Revive_ODBC", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+
+				// Allocate statement handle  
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+					cout << "ODBC Connected\n";
+					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+				}
+
+
+			}
+		}
+	}
+	return true;
+}
+
+void DB::SaveData(int c_id)
+{
+}
+
+void DB::GetLoginData(Player*p, char* name)
+{
+	wchar_t exec[256];
+	wchar_t wname[MAX_NAME_SIZE];
+	size_t len;
+	mbstowcs_s(&len, wname, MAX_NAME_SIZE, name, MAX_NAME_SIZE);
+	wsprintf(exec, L"EXEC select_if_exist @Param=N'%ls'", wname);
+	wcout << exec << endl;
+	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec, SQL_NTS);
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+	{
+		retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, m_id, MAX_NAME_SIZE+1, &cb_id);
+		retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, &m_password, MAX_PASSWARD_SIZE+1, &cb_password);
+		
+		retcode = SQLFetch(hstmt);
+		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+			HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+		{
+			strcpy_s(p->GetName(),MAX_NAME_SIZE ,name);
+			//strcpy_s(p->GetPassword(), MAX_NAME_SIZE, name); 비밀번호는 wchar에 받아오고 그다음 형변환해서 넣어주기
+		}
+
+
+	}
+	else {
+		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
+	}
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+		SQLCancel(hstmt);
+	}
+}
+
+void DB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode)
+{
+	SQLSMALLINT iRec = 0;
+	SQLINTEGER iError;
+	WCHAR wszMessage[1000];
+	WCHAR wszState[SQL_SQLSTATE_SIZE + 1];
+	if (RetCode == SQL_INVALID_HANDLE) {
+		fwprintf(stderr, L"Invalid handle!\n");
+		return;
+	}
+	while (SQLGetDiagRec(hType, hHandle, ++iRec, wszState, &iError, wszMessage,
+		(SQLSMALLINT)(sizeof(wszMessage) / sizeof(WCHAR)), (SQLSMALLINT*)NULL) == SQL_SUCCESS) {
+		// Hide data truncated..
+		if (wcsncmp(wszState, L"01004", 5)) {
+			fwprintf(stderr, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
+		}
+	}
+}

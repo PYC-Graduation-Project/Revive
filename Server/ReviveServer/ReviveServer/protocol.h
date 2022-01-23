@@ -7,6 +7,7 @@ const int  WORLD_HEIGHT = 4800;// ÀüÃ¼¸Ê Å©±â´Â ¾Æ´Ô
 const int  WORLD_WIDTH = 10800;
 
 const int  MAX_NAME_SIZE = 20;
+const int  MAX_PASSWARD_SIZE = 20;
 const int  MAX_CHAT_SIZE = 100;
 
 const int  MAX_USER = 3;

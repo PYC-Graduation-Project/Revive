@@ -18,7 +18,7 @@ int main()
     server.Run();
     cout << "동작 끝" << endl;
     server.End();
-    WSACleanup();
+  
     return 0;
 }
 

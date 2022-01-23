@@ -7,7 +7,7 @@ IOCPServer::IOCPServer()
 
 IOCPServer::~IOCPServer()
 {
-	
+	WSACleanup();
 }
 
 bool IOCPServer::Init(const int worker_num)

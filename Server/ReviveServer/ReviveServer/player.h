@@ -20,11 +20,14 @@ private:
     EXP_OVER m_recv_over;
     SOCKET  m_socket;
     int		m_last_move_time;
-    
+    char m_name[MAX_NAME_SIZE + 1];
+    char m_password[MAX_PASSWARD_SIZE + 1];
 public:
     void DoRecv();
     void DoSend(int num_bytes, void* mess);
     SOCKET& GetSock() { return m_socket; }
     void Init(SOCKET&);
+    char* GetName() { return m_name; }
+    char* GetPassword() { return m_password; }
 };
 
