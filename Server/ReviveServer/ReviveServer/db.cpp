@@ -2,6 +2,7 @@
 #include "db.h"
 #include"player.h"
 #include<iostream>
+#include<string>
 using namespace std;
 DB::DB()
 {
@@ -43,15 +44,18 @@ bool DB::Init()
 	return true;
 }
 
-void DB::SaveData(int c_id)
+LOGINFAIL_TYPE DB::SaveData(int c_id)
 {
+	
+	return LOGINFAIL_TYPE::OK;
 }
 
-void DB::GetLoginData(Player*p, char* name)
+LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 {
 	wchar_t exec[256];
 	wchar_t wname[MAX_NAME_SIZE];
 	size_t len;
+	LOGINFAIL_TYPE ret=LOGINFAIL_TYPE::OK;
 	mbstowcs_s(&len, wname, MAX_NAME_SIZE, name, MAX_NAME_SIZE);
 	wsprintf(exec, L"EXEC select_if_exist @Param=N'%ls'", wname);
 	wcout << exec << endl;
@@ -59,25 +63,42 @@ void DB::GetLoginData(Player*p, char* name)
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 	{
 		retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, m_id, MAX_NAME_SIZE+1, &cb_id);
-		retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, &m_password, MAX_PASSWARD_SIZE+1, &cb_password);
+		retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, m_password, MAX_PASSWARD_SIZE+1, &cb_password);
 		
 		retcode = SQLFetch(hstmt);
 		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+		{
 			HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
+			ret= LOGINFAIL_TYPE::DB_ERROR;
+		}
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 		{
-			strcpy_s(p->GetName(),MAX_NAME_SIZE ,name);
+			//strcpy_s(p->GetName(),MAX_NAME_SIZE ,name);
 			//strcpy_s(p->GetPassword(), MAX_NAME_SIZE, name); 비밀번호는 wchar에 받아오고 그다음 형변환해서 넣어주기
+			if (cb_id == 0) ret = LOGINFAIL_TYPE::NO_ID;
+			else if (false == CompWcMC(reinterpret_cast<wchar_t*>(m_password), password))
+					ret = LOGINFAIL_TYPE::WRONG_PASSWORD;
 		}
 
 
 	}
 	else {
 		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
+		ret = LOGINFAIL_TYPE::DB_ERROR;
 	}
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 		SQLCancel(hstmt);
 	}
+	return ret;
+}
+
+bool DB::CompWcMC(wchar_t*wc, char*mc)
+{
+	wstring comp_wc{ wc };
+	string a{ mc };
+	wstring comp_mc{ a.begin(),a.end() };
+	if (comp_wc.compare(comp_mc) == 0)return true;
+	else return false;
 }
 
 void DB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode)

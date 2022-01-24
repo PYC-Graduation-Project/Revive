@@ -6,15 +6,15 @@ const short SERVER_PORT = 9000;
 const int  WORLD_HEIGHT = 4800;// 전체맵 크기는 아님
 const int  WORLD_WIDTH = 10800;
 
-const int  MAX_NAME_SIZE = 20;
-const int  MAX_PASSWARD_SIZE = 20;
-const int  MAX_CHAT_SIZE = 100;
+const int  MAX_NAME_SIZE = 20; // 아이디 최대 사이즈
+const int  MAX_PASSWARD_SIZE = 20;// 비밀 번호 최대 사이즈
+const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
 
-const int  MAX_USER = 3;
-const int  MAX_NPC =100;
+const int  MAX_USER = 30; //최대 동접 가능 인원
+const int  MAX_NPC =1000; //최대 npc 개수
 
-const float MAX_SPEED=10000; //추후 수정
-const float MOVE_DISTANCE = 1.0f;
+const float MAX_SPEED=10000; //추후 수정, 플레이어 이동 속도
+const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
@@ -117,7 +117,7 @@ struct sc_packet_chat {
 struct sc_packet_login_fail {
 	unsigned char size;
 	char type;
-	int	 reason;		// 0: 중복 ID,  1:사용자 Full
+	char reason;		// 0: 중복 ID,  1:사용자 Full
 };
 
 struct sc_packet_status_change {

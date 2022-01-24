@@ -2,6 +2,7 @@
 #include <sqlext.h> 
 #include<atomic>
 #include"define.h"
+
 class DB
 {
 public:
@@ -9,9 +10,9 @@ public:
 	~DB();
 
 	bool Init();
-	void SaveData(int c_id);
-	void GetLoginData(Player*, char* name);
-
+	LOGINFAIL_TYPE SaveData(int c_id);
+	LOGINFAIL_TYPE CheckLoginData( char* name, char* password);
+	bool CompWcMC(wchar_t*, char*);
 private:
 	
 	void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
