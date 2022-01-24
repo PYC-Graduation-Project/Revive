@@ -15,6 +15,9 @@ namespace event_test
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time);
+
+	public:
+		virtual SPtr<MeshOctree> CreateMeshOctree() const override;
 	};
 }
 

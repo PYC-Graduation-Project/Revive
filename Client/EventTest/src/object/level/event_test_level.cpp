@@ -6,6 +6,7 @@
 #include <client/util/octree/mesh_octree.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
+#include "object/actor/move_cube.h"
 
 namespace event_test
 {
@@ -38,6 +39,10 @@ namespace event_test
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ -500.0f, 0.0f, 800.0f });
 
+		auto move_cube = CreateSPtr<MoveCube>();
+		SpawnActor(move_cube);
+		move_cube->SetPosition(Vec3{ 0.0f, 0.0f, 500.0f });
+
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
 
@@ -53,5 +58,10 @@ namespace event_test
 
 	void EventTestLevel::Update(float delta_time)
 	{
+	}
+
+	SPtr<MeshOctree> EventTestLevel::CreateMeshOctree() const
+	{
+		return CreateSPtr<MeshOctree>(10000.0f);
 	}
 }

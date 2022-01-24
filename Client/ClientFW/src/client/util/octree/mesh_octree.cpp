@@ -26,40 +26,42 @@ namespace client_fw
 
 	void MeshOctree::RegisterMeshComponent(const SPtr<MeshComponent>& mesh)
 	{
-		if (mesh->GetOrientdBox().Intersects(m_root_node->bounding_box))
-			RegisterMeshComponent(mesh, m_root_node);
+		if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+		{
+			m_movable_mesh_comps.push_back(mesh);
+		}
 		else
-			m_out_of_range_mesh_comps.push_back(mesh);
+		{
+			if (mesh->GetOrientdBox().Intersects(m_root_node->bounding_box))
+				RegisterMeshComponent(mesh, m_root_node);
+			else
+				m_out_of_range_mesh_comps.push_back(mesh);
+		}
 		mesh->SetVisiblity(false);
 	}
 
 	void MeshOctree::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh)
 	{
-		if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kStatic)
+		auto UnregisterMesh([](std::vector<SPtr<MeshComponent>>& meshes, const SPtr<MeshComponent>& mesh) {
+			auto iter = std::find(meshes.begin(), meshes.end(), mesh);
+			std::iter_swap(iter, meshes.end() - 1);
+			meshes.pop_back();
+			});
+
+		if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 		{
-			for (const auto& tree_node : mesh->GetMeshTreeNodes())
-			{
-				//마찬가지로 Static Actor들은 이렇게 Unregister를 할 필요가 없지만
-				//기능 실험 단계에서는 이렇게 삭제한다.
-
-				auto node = tree_node.lock();
-
-				auto iter = std::find(node->static_mesh_components.begin(),
-					node->static_mesh_components.end(), mesh);
-				std::iter_swap(iter, node->static_mesh_components.end() - 1);
-				node->static_mesh_components.pop_back();
-			}
+			UnregisterMesh(m_movable_mesh_comps, mesh);
 		}
 		else
 		{
-			for (const auto& tree_node : mesh->GetMeshTreeNodes())
+			if (mesh->GetMeshTreeNodes().empty())
 			{
-				auto node = tree_node.lock();
-
-				auto iter = std::find(node->dynamic_mesh_components.begin(),
-					node->dynamic_mesh_components.end(), mesh);
-				std::iter_swap(iter, node->dynamic_mesh_components.end() - 1);
-				node->dynamic_mesh_components.pop_back();
+				UnregisterMesh(m_out_of_range_mesh_comps, mesh);
+			}
+			else
+			{
+				for (const auto& tree_node : mesh->GetMeshTreeNodes())
+					UnregisterMesh(tree_node.lock()->mesh_components, mesh);
 			}
 		}
 	}
@@ -75,6 +77,12 @@ namespace client_fw
 		}
 
 		for (const auto& mesh : m_out_of_range_mesh_comps)
+		{
+			if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
+				mesh->SetVisiblity(true);
+		}
+
+		for (const auto& mesh : m_movable_mesh_comps)
 		{
 			if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
 				mesh->SetVisiblity(true);
@@ -110,19 +118,8 @@ namespace client_fw
 	{
 		if (node->child_nodes[0] == nullptr)
 		{
-			if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kStatic)
-			{
-				node->static_mesh_components.push_back(mesh);
-				//사실 Static객체들은 Level이 Close될 때만 UnregisterEvent가 발생한다.
-				//그래서 한번에 다 지우는게 효율적이다. 이 부분의 수정은 추후에 할 것이고
-				//일단은 Frustum 기능이 잘 작동하는지 파악하기 위해서 TreeNode를 MeshComponent에 추가하겠다.
-				mesh->AddMeshTreeNode(node);
-			}
-			else
-			{
-				node->dynamic_mesh_components.push_back(mesh);
-				mesh->AddMeshTreeNode(node);
-			}
+			node->mesh_components.push_back(mesh);
+			mesh->AddMeshTreeNode(node);
 			return;
 		}
 
@@ -140,23 +137,14 @@ namespace client_fw
 			switch (type)
 			{
 			case DirectX::INTERSECTS:
-				for (const auto& mesh : node->static_mesh_components)
-				{
-					if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
-						mesh->SetVisiblity(true);
-				}
-				for (const auto& mesh : node->dynamic_mesh_components)
+				for (const auto& mesh : node->mesh_components)
 				{
 					if (bounding_frustum.Intersects(mesh->GetOrientdBox()))
 						mesh->SetVisiblity(true);
 				}
 				break;
 			case DirectX::CONTAINS:
-				for (const auto& mesh : node->static_mesh_components)
-				{
-					mesh->SetVisiblity(true);
-				}
-				for (const auto& mesh : node->dynamic_mesh_components)
+				for (const auto& mesh : node->mesh_components)
 				{
 					mesh->SetVisiblity(true);
 				}

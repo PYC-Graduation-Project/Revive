@@ -9,7 +9,7 @@
 namespace client_fw
 {
 	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
-		: Component(name), m_draw_shader_name(draw_shader_name)
+		: Component(name, 20), m_draw_shader_name(draw_shader_name)
 	{
 	}
 
@@ -36,7 +36,10 @@ namespace client_fw
 
 	void MeshComponent::UpdateWorldMatrix()
 	{
-		m_mesh->GetOrientedBox().Transform(m_oriented_box, XMLoadFloat4x4(&m_owner.lock()->GetWorldMatrix()));
+		if (m_owner.expired() == false)
+		{
+			m_mesh->GetOrientedBox().Transform(m_oriented_box, XMLoadFloat4x4(&m_owner.lock()->GetWorldMatrix()));
+		}
 	}
 
 	bool MeshComponent::RegisterToRenderSystem()

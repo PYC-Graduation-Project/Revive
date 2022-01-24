@@ -9,8 +9,7 @@ namespace client_fw
 	struct MeshTreeNode
 	{
 		BoundingBox bounding_box;
-		std::vector<SPtr<MeshComponent>> static_mesh_components;
-		std::vector<SPtr<MeshComponent>> dynamic_mesh_components;
+		std::vector<SPtr<MeshComponent>> mesh_components;
 		std::array<SPtr<MeshTreeNode>, 8> child_nodes;
 		WPtr<MeshTreeNode> parent_node;
 	};
@@ -38,6 +37,7 @@ namespace client_fw
 		UINT m_depth = 1;
 		SPtr<MeshTreeNode> m_root_node;
 		std::vector<SPtr<MeshComponent>> m_out_of_range_mesh_comps;
+		std::vector<SPtr<MeshComponent>> m_movable_mesh_comps;
 
 	};
 }
