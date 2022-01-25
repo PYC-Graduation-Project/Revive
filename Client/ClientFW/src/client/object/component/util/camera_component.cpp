@@ -2,6 +2,7 @@
 #include "client/object/component/util/camera_component.h"
 #include "client/object/actor/core/actor.h"
 #include "client/renderer/core/render.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -39,7 +40,7 @@ namespace client_fw
 
 		m_view_matrix = mat4::LookAt(eye, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
-		m_bf_projection.Transform(m_bounding_frustum, XMLoadFloat4x4(&m_inverse_view_matrix));
+		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -48,7 +49,7 @@ namespace client_fw
 		{
 		case client_fw::eProjectionMode::kPerspective:
 			m_projection_matrix = mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
-			BoundingFrustum::CreateFromMatrix(m_bf_projection, XMLoadFloat4x4(&m_projection_matrix));
+			m_bf_projection = BFrustum(m_projection_matrix);
 			break;
 		case client_fw::eProjectionMode::kOrthographic:
 			//m_projection_matrix = mat4::Ortho()

@@ -1,5 +1,6 @@
 #pragma once
 #include "client/object/component/core/component.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -49,8 +50,8 @@ namespace client_fw
 		float m_field_of_view = 45.0f;
 		float m_near_z = 1.01f;
 		float m_far_z = 100000.0f;
-		BoundingFrustum m_bf_projection;
-		BoundingFrustum m_bounding_frustum;
+		BFrustum m_bf_projection;
+		BFrustum m_bounding_frustum;
 
 	public:
 		void SetOwnerController(const WPtr<Actor>& owner) { m_owner_controller = owner; }
@@ -64,7 +65,7 @@ namespace client_fw
 		void SetFieldOfView(float fov) { m_field_of_view = fov; }
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
-		const BoundingFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
 	};
 }
 

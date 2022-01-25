@@ -5,6 +5,7 @@
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/material.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -193,11 +194,8 @@ namespace client_fw
 		Vec3 center = max_pos + min_pos;
 		Vec3 extents = (max_pos - min_pos) * 0.5f;
 		extents.x = abs(extents.x), extents.y = abs(extents.y), extents.z = abs(extents.z);
-		BoundingOrientedBox oriented_box;
-		oriented_box.Center = center;
-		oriented_box.Extents = extents;
 
-		mesh->SetOrientBox(oriented_box);
+		mesh->SetOrientBox(BOrientedBox{ center, extents });
 
 		return mesh;
 	}

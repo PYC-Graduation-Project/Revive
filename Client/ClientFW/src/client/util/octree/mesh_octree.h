@@ -1,5 +1,5 @@
 #pragma once
-#include <DirectXCollision.h>
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -8,7 +8,7 @@ namespace client_fw
 
 	struct MeshTreeNode
 	{
-		BoundingBox bounding_box;
+		BBox bounding_box;
 		std::vector<SPtr<MeshComponent>> mesh_components;
 		std::array<SPtr<MeshTreeNode>, 8> child_nodes;
 		WPtr<MeshTreeNode> parent_node;

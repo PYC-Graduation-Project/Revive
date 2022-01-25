@@ -1,5 +1,6 @@
 #pragma once
 #include "client/asset/core/asset.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -41,15 +42,15 @@ namespace client_fw
 
 		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-		BoundingOrientedBox m_oriented_box;
+		BOrientedBox m_oriented_box;
 
 		bool m_is_draw_index;
 
 	public:
 		ComPtr<ID3DBlob>& GetVertexBufferBlob() { return m_vertex_buffer_blob; }
 		ComPtr<ID3DBlob>& GetIndexBufferBlob() { return m_vertex_buffer_blob; }
-		const BoundingOrientedBox& GetOrientedBox() const { return m_oriented_box; }
-		void SetOrientBox(const BoundingOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
+		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }
+		void SetOrientBox(const BOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
 
 	protected:
 		std::vector<SPtr<Material>> m_materials;

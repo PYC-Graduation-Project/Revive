@@ -4,6 +4,7 @@
 #include "client/util/octree/octree_manager.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -39,7 +40,7 @@ namespace client_fw
 		}
 	}
 
-	void MeshVisualizer::UpdateVisibilityFromCamera(const BoundingFrustum& bounding_frustum, ContainmentType type, const SPtr<MeshTreeNode>& node)
+	void MeshVisualizer::UpdateVisibilityFromCamera(const BFrustum& bounding_frustum, ContainmentType type, const SPtr<MeshTreeNode>& node)
 	{
 		if (node->child_nodes[0] == nullptr)
 		{

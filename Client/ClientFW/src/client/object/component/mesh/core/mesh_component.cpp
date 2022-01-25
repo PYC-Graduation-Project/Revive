@@ -38,7 +38,7 @@ namespace client_fw
 	{
 		if (m_owner.expired() == false)
 		{
-			m_mesh->GetOrientedBox().Transform(m_oriented_box, XMLoadFloat4x4(&m_owner.lock()->GetWorldMatrix()));
+			m_oriented_box.Transform(m_mesh->GetOrientedBox(), m_owner.lock()->GetWorldMatrix());
 		}
 	}
 

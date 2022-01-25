@@ -2,6 +2,7 @@
 #include "client/util/octree/mesh_octree.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -13,8 +14,7 @@ namespace client_fw
 
 	void MeshOctree::Initialize()
 	{
-		m_root_node->bounding_box.Center = m_position;
-		m_root_node->bounding_box.Extents = Vec3(m_width * 0.5f, m_width * 0.5f, m_width * 0.5f);
+		m_root_node->bounding_box = BBox(m_position, Vec3(m_width * 0.5f, m_width * 0.5f, m_width * 0.5f));
 		CreateChildNodeInfo(m_root_node, 1);
 	}
 
@@ -70,23 +70,19 @@ namespace client_fw
 
 	void MeshOctree::CreateChildNodeInfo(const SPtr<MeshTreeNode>& node, UINT depth)
 	{
-		Vec3 extents = Vec3(node->bounding_box.Extents) * 0.5f;
+		Vec3 extents = node->bounding_box.GetExtents() * 0.5f;
+		Vec3 center = node->bounding_box.GetCenter();
 
 		for (UINT i = 0; i < 8; ++i)
 		{
 			node->child_nodes[i] = CreateSPtr<MeshTreeNode>();
 			node->child_nodes[i]->parent_node = node;
-			node->child_nodes[i]->bounding_box.Extents = extents;
-			node->child_nodes[i]->bounding_box.Center.x =
-				((i % 2 == 0) ? node->bounding_box.Center.x + extents.x
-					: node->bounding_box.Center.x - extents.x);
-			node->child_nodes[i]->bounding_box.Center.y =
-				((i / 4 == 0) ? node->bounding_box.Center.y + extents.y
-					: node->bounding_box.Center.y - extents.y);
-			node->child_nodes[i]->bounding_box.Center.z =
-				((i % 4 < 2) ? node->bounding_box.Center.z + extents.z
-					: node->bounding_box.Center.z - extents.z);
-
+			node->child_nodes[i]->bounding_box.SetExtents(extents);
+			Vec3 new_center;
+			new_center.x = ((i % 2 == 0) ? center.x + extents.x	: center.x - extents.x);
+			new_center.y = ((i / 4 == 0) ? center.y + extents.y	: center.y - extents.y);
+			new_center.z = ((i % 4 < 2) ? center.z + extents.z : center.z - extents.z);
+			node->child_nodes[i]->bounding_box.SetCenter(new_center);
 			if (depth < m_depth)
 				CreateChildNodeInfo(node->child_nodes[i], depth + 1);
 		}

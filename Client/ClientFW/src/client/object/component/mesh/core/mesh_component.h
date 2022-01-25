@@ -1,6 +1,6 @@
 #pragma once
-#include <DirectXCollision.h>
 #include "client/object/component/core/component.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
@@ -26,7 +26,7 @@ namespace client_fw
 
 	protected:
 		SPtr<Mesh> m_mesh;
-		BoundingOrientedBox m_oriented_box;
+		BOrientedBox m_oriented_box;
 		std::vector<WPtr<MeshTreeNode>> m_mesh_tree_node;
 		bool m_visibility = true;
 		UINT m_instance_index = 0;
@@ -36,7 +36,7 @@ namespace client_fw
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
 		virtual void SetMesh(const std::string& file_path);
-		const BoundingOrientedBox& GetOrientdBox() const { return m_oriented_box; }
+		const BOrientedBox& GetOrientdBox() const { return m_oriented_box; }
 		void AddMeshTreeNode(const WPtr<MeshTreeNode>& tree_node);
 		const std::vector<WPtr<MeshTreeNode>>& GetMeshTreeNodes() const { return m_mesh_tree_node; }
 		bool IsVisible() const { return m_visibility; }
