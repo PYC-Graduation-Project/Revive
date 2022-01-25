@@ -3,8 +3,9 @@
 #include "client/renderer/shader/core/shader.h"
 #include "client/renderer/shader/core/graphics_shader.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+#include "client/renderer/core/mesh_visualizer.h"
 #include "client/object/component/util/camera_component.h"
-#include "client/util/octree/octree_helper.h"
+#include "client/util/octree/octree_manager.h"
 
 namespace client_fw
 {
@@ -48,7 +49,7 @@ namespace client_fw
 				if (camera->GetCameraState() == eCameraState::kActive)
 				{
 					m_graphics_root_signature->SetCameraResource(command_list, camera);
-					OctreeHelper::SetVisibilityFromCamera(camera);
+					MeshVisualizer::UpdateVisibilityFromCamera(camera);
 					for (const auto& shader : m_graphics_shaders)
 						shader->Draw(command_list, m_level_type);
 				}

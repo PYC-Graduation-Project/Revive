@@ -4,7 +4,7 @@
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
-#include "client/util/octree/octree_helper.h"
+#include "client/util/octree/octree_manager.h"
 
 namespace client_fw
 {
@@ -54,12 +54,12 @@ namespace client_fw
 
 	void MeshComponent::RegisterToMeshOctree()
 	{
-		OctreeHelper::RegisterMeshComponent(shared_from_this());
+		OctreeManager::GetOctreeManager().RegisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::UnregisterFromMeshOctree()
 	{
-		OctreeHelper::UnregisterMeshComponent(shared_from_this());
+		OctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)

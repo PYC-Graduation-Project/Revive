@@ -16,7 +16,6 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-
 		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics} };
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();

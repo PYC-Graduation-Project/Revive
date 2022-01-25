@@ -24,12 +24,9 @@ namespace client_fw
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
 
-		void SetVisibilityFromCamera(const SPtr<CameraComponent>& camera);
-
 	private:
 		void CreateChildNodeInfo(const SPtr<MeshTreeNode>& node, UINT depth);
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node);
-		void SetVisibilityFromCamera(const BoundingFrustum& bounding_frustum, ContainmentType type, const SPtr<MeshTreeNode>& node);
+		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node);\
 
 	private:
 		float m_width;
@@ -39,6 +36,11 @@ namespace client_fw
 		std::vector<SPtr<MeshComponent>> m_out_of_range_mesh_comps;
 		std::vector<SPtr<MeshComponent>> m_movable_mesh_comps;
 
+
+	public:
+		const SPtr<MeshTreeNode>& GetRootNode() const { return m_root_node; }
+		const std::vector<SPtr<MeshComponent>> GetOutOfRangeMeshes() const { return m_out_of_range_mesh_comps; }
+		const std::vector<SPtr<MeshComponent>> GetMovableMeshes() const { return m_movable_mesh_comps; }
 	};
 }
 

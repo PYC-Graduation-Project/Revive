@@ -21,14 +21,13 @@ namespace client_fw
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
 
-		void SetVisibilityFromCamera(const SPtr<CameraComponent>& camera);
-
 	private:
 		static OctreeManager* s_instance;
 		SPtr<MeshOctree> m_mesh_octree;
 
 	public:
 		static OctreeManager& GetOctreeManager() { return *s_instance; }
+		const SPtr<MeshOctree> GetMeshOctree() const { return m_mesh_octree; }
 	};
 }
 
