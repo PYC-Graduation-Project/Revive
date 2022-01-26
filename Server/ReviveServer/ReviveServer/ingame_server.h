@@ -1,5 +1,6 @@
 #pragma once
 #include "iocp_server.h"
+#include<concurrent_queue.h>
 class PacketManager;
 class InGameServer :
     public IOCPServer
@@ -21,5 +22,6 @@ public:
 private:
     std::unique_ptr< PacketManager>m_PacketManager;
     concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
+    concurrency::concurrent_queue<db_task>m_db_queue;
 };
 

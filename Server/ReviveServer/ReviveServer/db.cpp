@@ -6,10 +6,12 @@
 using namespace std;
 DB::DB()
 {
+
 }
 
 DB::~DB()
 {
+
 }
 
 bool DB::Init()
@@ -98,7 +100,7 @@ bool DB::CompWcMC(wchar_t*wc, char*mc)
 	string a{ mc };
 	wstring comp_mc{ a.begin(),a.end() };
 	if (comp_wc.compare(comp_mc) == 0)return true;
-	else return false;
+	return false;
 }
 
 void DB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode)

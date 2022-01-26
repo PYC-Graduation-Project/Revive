@@ -75,5 +75,11 @@ struct timer_event {
 	{
 		return (start_time > _Left.start_time);
 	}
+};
 
+struct db_task {
+	int obj_id;
+	DB_TASK_TYPE dt;
+	char user_id[MAX_NAME_SIZE];
+	char user_password[MAX_PASSWARD_SIZE];
 };

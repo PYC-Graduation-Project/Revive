@@ -43,3 +43,8 @@ enum class LOGINFAIL_TYPE {
 	WRONG_PASSWORD,//비밀번호가 틀렸을 때
 	NO_ID// 회원가입 안했을 때(db에 정보 없음)
 };
+
+enum class DB_TASK_TYPE {
+	SIGHN_IN,
+	SIGHN_UP
+};
