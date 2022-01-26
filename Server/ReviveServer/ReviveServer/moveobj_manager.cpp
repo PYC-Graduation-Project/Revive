@@ -6,12 +6,14 @@ int MoveObjManager::GetNewID()
     Player* cl = NULL;
     for (int i = 0; i < MAX_USER; ++i)
     {
-        cl = GetPlayer(i);
-        cl->state_lock.lock();
+		
+        cl = (Player*)(GetMoveObj(i));
+		
+       cl->state_lock.lock();
         if (STATE::ST_FREE == cl->GetState())
         {
             cl->SetState(STATE::ST_ACCEPT);
-            cl->state_lock.unlock();
+           cl->state_lock.unlock();
             return i;
         }
 		cl->state_lock.unlock();

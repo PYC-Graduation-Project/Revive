@@ -65,6 +65,7 @@ void InGameServer::DoTimer()
 void InGameServer::CreateTimer()
 {
 	m_worker_threads.emplace_back([this]() {DoTimer(); });
+	DestroyThread();
 }
 
 void InGameServer::ProcessEvent(timer_event& ev)
@@ -94,7 +95,7 @@ void InGameServer::Run()
 void InGameServer::End()
 {
 	m_PacketManager->End();
-	DestroyThread();
+	
 	CloseHandle(m_hiocp);
 	closesocket(m_s_socket);
 

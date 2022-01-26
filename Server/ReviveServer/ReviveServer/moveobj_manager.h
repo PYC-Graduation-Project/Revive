@@ -7,7 +7,7 @@ public:
 	MoveObjManager() = default;
 	~MoveObjManager() = default;
 
-	Player* GetPlayer(int id) { return reinterpret_cast<Player*>(m_moveobj_arr[id]); }
+	Player* GetPlayer(int id) { return (Player*)(m_moveobj_arr[id]); }
 	MoveObj* GetMoveObj(int id) { return m_moveobj_arr[id]; }
 	bool IsPlayer(int id) { return (id >= 0) && (id < MAX_USER); }
 	bool IsNear(int a, int b);

@@ -1,6 +1,5 @@
 #pragma once
-#pragma comment (lib, "WS2_32.LIB")
-#pragma comment (lib, "MSWSock.LIB")
+
 #include"define.h"
 #include <thread>
 #include<iostream>
@@ -8,6 +7,25 @@
 class PacketManager;
 class Network
 {
+private:
+	static Network* m_pInst;
+
+public:
+	static Network* GetInst()
+	{
+		if (!m_pInst)
+			m_pInst = new Network;
+		return m_pInst;
+	}
+
+	static void DestroyInst()
+	{
+		if (m_pInst)
+		{
+			delete m_pInst;
+			m_pInst = NULL;
+		}
+	}
 public:
 	Network() {
 		//나중에는 object 컨테이너에 있는 오브젝트 패킷으로 초기화
@@ -37,6 +55,13 @@ public:
 	{
 		worker.join();
 	}
+	void CreateWorker()
+	{
+
+		worker = std::thread([this]() {Worker(); });
+
+	}
+
 private:
 	void Worker();
 	void DoRecv();
@@ -46,17 +71,11 @@ private:
 	{
 		return m_id;
 	}
-	void CreateWorker()
-	{
-
-		worker = thread([this]() {Worker(); });
-		worker.join();
-	}
 	
 	SOCKET m_s_socket;
 	HANDLE m_hiocp;
 	EXP_OVER recv_over;
-	thread worker;
+	std::thread worker;
 	int m_id;
 	int m_prev_size = 0;
 	std::unique_ptr< PacketManager>m_packet_manager;

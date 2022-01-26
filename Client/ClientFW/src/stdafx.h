@@ -1,7 +1,8 @@
 #pragma once
-
+#include"server/define.h"
 #include <Windows.h>
 #include <windowsx.h>
+
 
 #include <wrl.h>
 #include <shellapi.h>
@@ -50,3 +51,5 @@ using Microsoft::WRL::ComPtr;
 #include "client/core/core.h"
 #include "client/core/log.h"
 #include "client/math/math.h"
+
+
