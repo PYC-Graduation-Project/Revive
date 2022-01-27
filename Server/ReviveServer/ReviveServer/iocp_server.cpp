@@ -144,7 +144,7 @@ bool IOCPServer::StartServer()
 
 
 
-void IOCPServer::DestroyThread()
+void IOCPServer::JoinThread()
 {
 	for (auto& th : m_worker_threads)
 		th.join();

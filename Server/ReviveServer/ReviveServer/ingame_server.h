@@ -15,7 +15,10 @@ public:
     virtual void OnEvent(EXP_OVER* exp_over)override;
     virtual void Disconnect(int c_id)override;
     void DoTimer();
+    void DBThread();
     void CreateTimer();
+    void CreateDBThread();
+    void ProcessDBTask(db_task& dt);
     void ProcessEvent(timer_event& ev);
     void Run();
     void End();

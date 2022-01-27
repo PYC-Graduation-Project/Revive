@@ -1,6 +1,7 @@
 #include <client_fw.h>
 #include <client/core/entry_point.h>
 #include"network.h"
+#include"packet_manager.h"
 namespace revive
 {
 	class Revive : public client_fw::Application

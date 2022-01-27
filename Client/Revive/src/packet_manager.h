@@ -1,5 +1,5 @@
 #pragma once
-#include"define.h"
+#include"server/define.h"
 class PacketManager
 {
 public:

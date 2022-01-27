@@ -1,9 +1,10 @@
 #pragma once
 
 #include"server/define.h"
+#include <thread>
+#include<iostream>
 
-
-#include"server/packet_manager.h"
+class PacketManager;
 class Network
 {
 private:
@@ -46,7 +47,7 @@ public:
 			NULL, err_no,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			(LPTSTR)&lpMsgBuf, 0, 0);
-		//std::wcout << lpMsgBuf << std::endl;
+		std::wcout << lpMsgBuf << std::endl;
 		//while (true);
 		LocalFree(lpMsgBuf);
 	}
@@ -58,7 +59,7 @@ public:
 	{
 
 		worker = std::thread([this]() {Worker(); });
-		worker.join();
+
 	}
 
 private:
@@ -77,7 +78,7 @@ private:
 	std::thread worker;
 	int m_id;
 	int m_prev_size = 0;
-std::unique_ptr< PacketManager>m_packet_manager;
+	std::unique_ptr< PacketManager>m_packet_manager;
 public:
 	//임시 변수 이후에 클라에서는 필요없음
 	XMFLOAT3 pos;
