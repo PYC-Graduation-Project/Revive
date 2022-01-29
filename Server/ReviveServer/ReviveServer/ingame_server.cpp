@@ -88,6 +88,7 @@ void InGameServer::CreateTimer()
 
 void InGameServer::CreateDBThread()
 {
+	m_worker_threads.emplace_back([this]() {DBThread(); });
 }
 
 void InGameServer::ProcessEvent(timer_event& ev)

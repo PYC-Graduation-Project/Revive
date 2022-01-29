@@ -11,7 +11,10 @@ DB::DB()
 
 DB::~DB()
 {
-
+	SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+	SQLDisconnect(hdbc);
+	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+	SQLFreeHandle(SQL_HANDLE_ENV, henv);
 }
 
 bool DB::Init()
@@ -46,10 +49,32 @@ bool DB::Init()
 	return true;
 }
 
-LOGINFAIL_TYPE DB::SaveData(int c_id)
+LOGINFAIL_TYPE DB::SaveData(char*name,char*password)
 {
-	
-	return LOGINFAIL_TYPE::OK;
+	wchar_t exec[256];
+	wchar_t wname[MAX_NAME_SIZE];
+	wchar_t wpassword[MAX_NAME_SIZE];
+	LOGINFAIL_TYPE ret = LOGINFAIL_TYPE::OK;
+	size_t len;
+	mbstowcs_s(&len, wname, MAX_NAME_SIZE , name, MAX_NAME_SIZE );
+	mbstowcs_s(&len, wname, MAX_NAME_SIZE, password, MAX_PASSWORD_SIZE);
+	wsprintf(exec, L"EXEC insert_user_info @Param1=N'%ls',@Param2=%ls" ,wname, wpassword);
+	wcout << exec << endl;
+	retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec, SQL_NTS);
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+	{
+		cout << "저장성공\n";
+	}
+	else
+	{
+		HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
+		ret = LOGINFAIL_TYPE::DB_ERROR;
+	}
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+		SQLCancel(hstmt);
+	}
+	return ret;
 }
 
 LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
@@ -65,7 +90,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 	{
 		retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, m_id, MAX_NAME_SIZE+1, &cb_id);
-		retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, m_password, MAX_PASSWARD_SIZE+1, &cb_password);
+		retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, m_password, MAX_PASSWORD_SIZE+1, &cb_password);
 		
 		retcode = SQLFetch(hstmt);
 		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)

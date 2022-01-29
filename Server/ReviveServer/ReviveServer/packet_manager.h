@@ -1,7 +1,7 @@
 #pragma once
 #include"define.h"
 class MoveObjManager;
-
+class DB;
 class PacketManager
 {
 public:
@@ -18,7 +18,7 @@ public:
 	void Disconnect(int c_id);
 private:
 	MoveObjManager* m_moveobj_manager;
-	
+	DB* m_db;
 	//나중에 개발
 	void ProcessLogin (int c_id ,unsigned char *p);
 	void ProcessAttack(int c_id ,unsigned char* p);

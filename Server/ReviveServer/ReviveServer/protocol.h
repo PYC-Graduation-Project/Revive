@@ -7,7 +7,7 @@ const int  WORLD_HEIGHT = 4800;// 전체맵 크기는 아님
 const int  WORLD_WIDTH = 10800;
 
 const int  MAX_NAME_SIZE = 20; // 아이디 최대 사이즈
-const int  MAX_PASSWARD_SIZE = 20;// 비밀 번호 최대 사이즈
+const int  MAX_PASSWORD_SIZE = 20;// 비밀 번호 최대 사이즈
 const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
 
 const int  MAX_USER = 30; //최대 동접 가능 인원
@@ -42,6 +42,7 @@ struct cs_packet_login {
 	unsigned char size;
 	char	type;
 	char	name[MAX_NAME_SIZE];
+	char	password[MAX_PASSWORD_SIZE];
 };
 
 struct cs_packet_move {

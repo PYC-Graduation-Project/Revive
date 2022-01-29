@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "packet_manager.h"
-
+#include"db.h"
 #include"moveobj_manager.h"
 using namespace std;
 
@@ -8,6 +8,8 @@ void PacketManager::Init()
 {
 	m_moveobj_manager = new MoveObjManager;
 	m_moveobj_manager->InitPlayer();
+	m_db = new DB;
+	m_db->Init();
 }
 
 void PacketManager::ProcessPacket(int c_id, unsigned char* p)
@@ -137,6 +139,7 @@ void PacketManager::End()
 {
 	m_moveobj_manager->DestroyObject();
 	if (m_moveobj_manager)delete m_moveobj_manager;
+	if (m_db)delete m_db;
 }
 
 void PacketManager::Disconnect(int c_id)

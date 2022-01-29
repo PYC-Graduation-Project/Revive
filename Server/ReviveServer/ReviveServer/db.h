@@ -10,7 +10,7 @@ public:
 	~DB();
 
 	bool Init();
-	LOGINFAIL_TYPE SaveData(int c_id);
+	LOGINFAIL_TYPE SaveData(char*,char*);
 	LOGINFAIL_TYPE CheckLoginData( char* name, char* password);
 	bool CompWcMC(wchar_t*, char*);
 private:
@@ -22,7 +22,7 @@ private:
 	SQLHSTMT hstmt;
 
 	SQLWCHAR m_id[MAX_NAME_SIZE + 1];
-	SQLWCHAR m_password[MAX_NAME_SIZE + 1];
+	SQLWCHAR m_password[MAX_PASSWORD_SIZE + 1];
 
 	SQLLEN cb_id, cb_password;
 
