@@ -60,7 +60,7 @@ bool Network::Connect()
 
 void Network::Worker()
 {
-	
+	Connect();
 		for (;;) {
 			DWORD num_byte;
 			LONG64 iocp_key;
@@ -71,8 +71,13 @@ void Network::Worker()
 			int client_id = static_cast<int>(iocp_key);
 			EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
 			if (FALSE == ret) {
-				if (exp_over->_comp_op == COMP_OP::OP_SEND)
-					delete exp_over;
+				int err_no = WSAGetLastError();
+				if (64 == err_no)closesocket(m_s_socket);
+				else {
+					error_display(err_no);
+					closesocket(m_s_socket);
+				}
+				
 				continue;
 			}
 			switch (exp_over->_comp_op) {
@@ -83,7 +88,7 @@ void Network::Worker()
 			}
 			case COMP_OP::OP_SEND: {
 				if (num_byte != exp_over->_wsa_buf.len) {
-					// DISCONNECT();
+					closesocket(m_s_socket);
 				}
 				delete exp_over;
 				break;
