@@ -12,7 +12,7 @@ namespace client_test
         ClientTestLevel(const std::string& name = "client_test_level");
         virtual ~ClientTestLevel() = default;
 
-        virtual void Initialize() override;
+        virtual bool Initialize() override;
         virtual void Shutdown() override;
 
         virtual void Update(float delta_time) override;

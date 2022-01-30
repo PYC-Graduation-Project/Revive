@@ -4,6 +4,11 @@
 
 namespace client_fw
 {
+	Vec4::Vec4(const XMVECTORF32 color)
+	{
+		XMStoreFloat4(this, color);
+	}
+
 	Vec4& Vec4::operator+=(const Vec4& rhs)
 	{
 		XMStoreFloat4(this, XMVectorAdd(XMLoadFloat4(this), XMLoadFloat4(&rhs)));

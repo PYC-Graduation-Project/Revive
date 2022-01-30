@@ -16,17 +16,17 @@ namespace client_fw
 
 	enum class eMobilityState
 	{
-		kStatic, kMovable
+		kStatic, kDestructable, kMovable
 	};
 
-	class Actor : public IBaseObject
+	class Actor : public IBaseObject, public std::enable_shared_from_this<Actor>
 	{
 	public:
 		Actor(eMobilityState mobility = eMobilityState::kStatic, const std::string& name = "Actor");
 		virtual ~Actor();
 
-		void InitializeActor();
-		virtual void Initialize() override {}
+		bool InitializeActor();
+		virtual bool Initialize() override { return true; }
 
 		void ShutdownActor();
 		virtual void Shutdown() override {}
@@ -35,23 +35,22 @@ namespace client_fw
 		virtual void Update(float delta_time) override {}
 
 	protected:
-		virtual void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		virtual void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
-		virtual void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		virtual void RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
-		virtual void RegisterAxisEvent(std::string_view name, std::vector <AxisEventKeyInfo>&& keys,
+		virtual void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
-		void SpawnActor(const SPtr<Actor>& actor);
+		void RegisterInputEvent(const std::string& name);
 
 	public:
-		void AttachComponent(const SPtr<Component> comp);
+		void SpawnActor(const SPtr<Actor>& actor);
+		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 
 	private:
 		void UpdateWorldMatrix();
-
-		void RegisterInputEvent(std::string_view name);
 
 	protected:
 		std::string m_name;
@@ -59,7 +58,7 @@ namespace client_fw
 		eMobilityState m_mobility_state;
 
 	private:
-		std::vector<std::string_view> m_registered_input_event;
+		std::vector<std::string> m_registered_input_event;
 		UPtr<ComponentManager> m_component_manager;
 
 		Mat4 m_world_matrix;
@@ -71,6 +70,7 @@ namespace client_fw
 
 	public:
 		const std::string& GetName() const { return m_name; }
+		void SetName(const std::string& name) { m_name = name; }
 		eActorState GetActorState() const { return m_actor_state; }
 		void SetActorState(eActorState actor_state) { m_actor_state = actor_state; }
 		eMobilityState GetMobilityState() const { return m_mobility_state; }

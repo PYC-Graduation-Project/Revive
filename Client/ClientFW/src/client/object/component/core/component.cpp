@@ -8,9 +8,9 @@ namespace client_fw
 	{
 	}
 
-	void Component::InitializeComponent()
+	bool Component::InitializeComponent()
 	{
-		Initialize();
+		return Initialize();
 	}
 
 	void Component::ShutdownComponent()

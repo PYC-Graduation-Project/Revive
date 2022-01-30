@@ -7,6 +7,7 @@ namespace client_fw
 	public:
 		constexpr explicit Vec4() : XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) {}
 		constexpr explicit Vec4(float x, float y, float z, float w = 1.0f) : XMFLOAT4(x, y, z, w) {}
+		explicit Vec4(const XMVECTORF32 color);
 		
 		Vec4& operator+=(const Vec4& rhs);
 		Vec4& operator-=(const Vec4& rhs);

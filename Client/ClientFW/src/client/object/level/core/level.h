@@ -18,8 +18,8 @@ namespace client_fw
 		Level(const std::string& name = "level");
 		virtual ~Level();
 
-		void InitializeLevel();
-		virtual void Initialize() override {}
+		bool InitializeLevel();
+		virtual bool Initialize() override { return true; }
 
 		void ShutdownLevel();
 		virtual void Shutdown() override {}
@@ -30,26 +30,29 @@ namespace client_fw
 		void SpawnActor(const SPtr<Actor>& actor);
 
 	protected:
-		void RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
-		void RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		void RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
 
 	private:
-		void RegisterInputEvent(std::string_view name);
+		void RegisterInputEvent(const std::string& name);
 
 	protected:
 		std::string m_name;
 		eLevelState m_level_state;
 
 	private:
-		std::vector<std::string_view> m_registered_input_event;
+		std::vector<std::string> m_registered_input_event;
 		UPtr<ActorManager> m_actor_manager;
+		bool m_is_runtime_level;
 
 	public:
 		const std::string& GetName() const { return m_name; }
 		eLevelState GetLevelState() const { return m_level_state; }
 		void SetLevelState(eLevelState level_state) { m_level_state = level_state; }
+		void SetRuntime() { m_is_runtime_level = true; }
+		bool IsRuntime() const { return m_is_runtime_level; }
 	};
 }
 

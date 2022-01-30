@@ -14,7 +14,7 @@ namespace client_test
 	{
 	}
 
-	void ClientTestActor::Initialize()
+	bool ClientTestActor::Initialize()
 	{
 		LOG_INFO("Initialize {0}", m_name);
 
@@ -53,6 +53,8 @@ namespace client_test
 				});
 			break;
 		}
+
+		return true;
 	}
 
 	void ClientTestActor::Shutdown()

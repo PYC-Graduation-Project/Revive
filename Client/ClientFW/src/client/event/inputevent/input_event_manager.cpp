@@ -18,29 +18,33 @@ namespace client_fw
 	{
 		ExecuteEvents(m_actor_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_level_events, eInputMode::kGameOnly);
-		ExecuteEvents(m_application_events, eInputMode::kUIAndGame);
+		ExecuteEvents(m_pawn_events, eInputMode::kGameOnly);
+		ExecuteEvents(m_application_events, eInputMode::kUIOnly);
 	}
 
 	void InputEventManager::ExecuteEvents(std::vector<UPtr<InputEventInfo>>& events, eInputMode mode)
 	{
-		if (mode == eInputMode::kUIAndGame || m_input_mode == mode)
+		if (m_input_mode == eInputMode::kUIAndGame || m_input_mode == mode)
 		{
 			for (const auto& event : events)
 				event->ExecuteEvent();
 		}
 	}
 
-	void InputEventManager::DeleteEvent(std::vector<UPtr<InputEventInfo>>& events, std::string_view name)
+	void InputEventManager::DeleteEvent(std::vector<UPtr<InputEventInfo>>& events, const std::string& name)
 	{
 		auto delete_event = std::find_if(events.begin(), events.end(), [name](const UPtr<InputEventInfo>& event)
 			{ return name == event->GetEventName(); });
 		if (delete_event != events.cend())
-			events.erase(delete_event);
+		{
+			std::iter_swap(delete_event, events.end() - 1);
+			events.pop_back();
+		}
 	}
 
 	bool InputEventManager::RegisterEvent(UPtr<InputEventInfo>&& event_info, eInputOwnerType type)
 	{
-		std::string_view event_name = event_info->GetEventName();
+		const std::string& event_name = event_info->GetEventName();
 
 		if (m_event_names.find(event_name) == m_event_names.cend())
 		{
@@ -56,6 +60,7 @@ namespace client_fw
 				m_actor_events.emplace_back(std::move(event_info));
 				break;
 			case eInputOwnerType::kPawn:
+				m_pawn_events.emplace_back(std::move(event_info));
 				break;
 			default:
 				break;
@@ -70,7 +75,7 @@ namespace client_fw
 		}
 	}
 
-	void InputEventManager::UnregisterEvent(std::string_view name)
+	void InputEventManager::UnregisterEvent(const std::string& name)
 	{
 		auto iter = m_event_names.find(name);
 		if (iter !=  m_event_names.cend())
@@ -87,6 +92,7 @@ namespace client_fw
 				DeleteEvent(m_actor_events, name);
 				break;
 			case eInputOwnerType::kPawn:
+				DeleteEvent(m_pawn_events, name);
 				break;
 			default:
 				break;

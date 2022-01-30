@@ -12,7 +12,7 @@ namespace client_test
 		ClientTestActor(eMobilityState mobility, const std::string& name = "Actor");
 		virtual ~ClientTestActor() = default;
 
-		virtual void Initialize() override;
+		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;

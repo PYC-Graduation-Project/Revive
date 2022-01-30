@@ -139,7 +139,7 @@ namespace client_fw
 
 	enum class eInputMode
 	{
-		kUIOnly, kUIAndGame, kGameOnly,
+		kUIOnly, kUIAndGame, kGameOnly, kInActive,
 	};
 
 	enum class eInputOwnerType
@@ -167,14 +167,15 @@ namespace client_fw
 		static void SetClipCursor(bool clip);
 		static bool IsClipCursor();
 
-		static bool RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		static bool RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption, eInputOwnerType type);
-		static bool RegisterReleasedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys,
+		static bool RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption, eInputOwnerType type);
-		static bool RegisterAxisEvent(std::string_view name, std::vector<AxisEventKeyInfo>&& keys,
+		static bool RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption, eInputOwnerType type);
-		static void UnregisterInputEvent(std::string_view name);
+		static void UnregisterInputEvent(const std::string& name);
 
+		static eInputMode GetInputMode();
 		static void SetInputMode(eInputMode input_mode);
 
 	private:

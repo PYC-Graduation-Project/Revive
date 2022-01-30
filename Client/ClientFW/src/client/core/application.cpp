@@ -8,6 +8,8 @@
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
 #include "client/renderer/core/renderer.h"
+#include "client/asset/core/asset_manager.h"
+#include "client/asset/mesh/mesh_loader.h"
 
 namespace client_fw
 {
@@ -25,6 +27,7 @@ namespace client_fw
 		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
+		m_asset_manager = CreateUPtr<AssetManager>();
 	}
 
 	Application::~Application()
@@ -56,7 +59,14 @@ namespace client_fw
 			return false;
 		}
 
+		InitializeAssetManager();
+
 		return true;
+	}
+
+	void Application::InitializeAssetManager()
+	{
+		m_asset_manager->Initialize(CreateUPtr<MeshLoader>());
 	}
 
 	void Application::Shutdown()
@@ -121,7 +131,7 @@ namespace client_fw
 		GetWindowRect(m_window->hWnd, &m_window->rect);
 	}
 
-	void Application::RegisterPressedEvent(std::string_view name, std::vector<EventKeyInfo>&& keys, 
+	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
 		Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kApplication);
@@ -217,6 +227,30 @@ namespace client_fw
 				app->UpdateWindowSize();
 			}
 			break;
+		case WM_ACTIVATE:
+		{
+			static bool s_clip = false;
+			static bool s_hide = false;
+			static eInputMode s_input_mode = eInputMode::kUIOnly;
+			switch (wParam)
+			{
+			case WA_ACTIVE:
+			case WA_CLICKACTIVE:
+				Input::SetClipCursor(s_clip);
+				Input::SetHideCursor(s_hide);
+				Input::SetInputMode(s_input_mode);
+				break;
+			case WA_INACTIVE:
+				s_clip = Input::IsClipCursor();
+				s_hide = Input::IsHideCursor();
+				s_input_mode = Input::GetInputMode();
+				Input::SetHideCursor(false);
+				Input::SetClipCursor(false);
+				Input::SetInputMode(eInputMode::kInActive);
+				break;
+			}
+			break;
+		}
 		case WM_MOVE:
 			app->UpdateWindowRect();
 			break;

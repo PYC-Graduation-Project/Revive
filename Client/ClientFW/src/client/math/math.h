@@ -124,7 +124,7 @@ namespace client_fw
 		inline float LengthSq(const Vec3& v)
 		{
 			float ret;
-			XMStoreFloat(&ret, XMVector3Length(XMLoadFloat3(&v)));
+			XMStoreFloat(&ret, XMVector3LengthSq(XMLoadFloat3(&v)));
 			return ret;
 		}
 
@@ -338,6 +338,16 @@ namespace client_fw
 		{
 			Mat4 ret;
 			XMStoreFloat4x4(&ret, XMMatrixInverse(nullptr, XMLoadFloat4x4(&mat)));
+			return ret;
+		}
+
+		inline Mat4 InverseVec(const Mat4& mat)
+		{
+			XMMATRIX matrix = XMLoadFloat4x4(&mat);
+			matrix.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+			Mat4 ret;
+			XMStoreFloat4x4(&ret, XMMatrixInverse(&XMMatrixDeterminant(matrix), matrix));
 			return ret;
 		}
 

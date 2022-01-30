@@ -4,6 +4,8 @@ namespace client_fw
 {
 	struct Window;
 
+	class RenderSystem;
+
 	class Renderer final
 	{
 	public:
@@ -16,6 +18,7 @@ namespace client_fw
 
 	private:
 		WPtr<Window> m_window;
+		UPtr<RenderSystem> m_render_system;
 
 	private:
 		bool CreateDevice();
@@ -30,6 +33,8 @@ namespace client_fw
 		void SetViewAndScissor(float left, float top, float width, float height);
 		void WaitForGpuCompelete();
 		void MoveToNextFrame();
+
+		bool InitializeRenderSystem();
 
 	private:
 		ComPtr<IDXGIFactory4> m_factory = nullptr;
