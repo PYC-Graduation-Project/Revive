@@ -1,6 +1,6 @@
 #pragma once
 #include "iocp_server.h"
-#include<concurrent_queue.h>
+
 class PacketManager;
 class InGameServer :
     public IOCPServer
@@ -15,16 +15,16 @@ public:
     virtual void OnEvent(EXP_OVER* exp_over)override;
     virtual void Disconnect(int c_id)override;
     void DoTimer();
-    void DBThread();
+    
     void CreateTimer();
-    void CreateDBThread();
-    void ProcessDBTask(db_task& dt);
+    
+  
     void ProcessEvent(timer_event& ev);
     void Run();
     void End();
 private:
     std::unique_ptr< PacketManager>m_PacketManager;
     concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
-    concurrency::concurrent_queue<db_task>m_db_queue;
+    
 };
 

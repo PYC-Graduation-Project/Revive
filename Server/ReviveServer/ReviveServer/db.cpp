@@ -60,7 +60,7 @@ LOGINFAIL_TYPE DB::SaveData(char*name,char*password)
 	mbstowcs_s(&len, wname, MAX_NAME_SIZE, password, MAX_PASSWORD_SIZE);
 	wsprintf(exec, L"EXEC insert_user_info @Param1=N'%ls',@Param2=%ls" ,wname, wpassword);
 	wcout << exec << endl;
-	retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+	//retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec, SQL_NTS);
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 	{

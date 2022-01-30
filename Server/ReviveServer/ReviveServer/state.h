@@ -45,6 +45,6 @@ enum class LOGINFAIL_TYPE {
 };
 
 enum class DB_TASK_TYPE {
-	SIGHN_IN,
-	SIGHN_UP
+	SIGN_IN,
+	SIGN_UP
 };

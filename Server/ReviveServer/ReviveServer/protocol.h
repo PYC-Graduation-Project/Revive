@@ -19,11 +19,12 @@ const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
 
-const char CS_PACKET_LOGIN = 1;
-const char CS_PACKET_MOVE = 2;
-const char CS_PACKET_ATTACK = 3;
-const char CS_PACKET_CHAT = 4;
-const char CS_PACKET_TELEPORT = 5;
+const char CS_PACKET_SIGN_IN = 1;
+const char CS_PACKET_SIGN_UP = 2;
+const char CS_PACKET_MOVE = 3;
+const char CS_PACKET_ATTACK = 4;
+const char CS_PACKET_CHAT = 5;
+const char CS_PACKET_TELEPORT = 6;
 
 
 const char SC_PACKET_LOGIN_OK = 1;
@@ -38,12 +39,20 @@ const char SC_PACKET_STATUS_CHANGE = 7;
 
 
 #pragma pack (push, 1)
-struct cs_packet_login {
+struct cs_packet_sign_in {
 	unsigned char size;
 	char	type;
 	char	name[MAX_NAME_SIZE];
 	char	password[MAX_PASSWORD_SIZE];
 };
+
+struct cs_packet_sign_up {
+	unsigned char size;
+	char	type;
+	char	name[MAX_NAME_SIZE];
+	char	password[MAX_PASSWORD_SIZE];
+};
+
 
 struct cs_packet_move {
 	unsigned char size;
@@ -118,7 +127,7 @@ struct sc_packet_chat {
 struct sc_packet_login_fail {
 	unsigned char size;
 	char type;
-	char reason;		// 0: 중복 ID,  1:사용자 Full
+	char reason;		// 1: DBerror,  2:사용자 Full, 3:이미 접속중, 4:비번틀림, 5:아이디없음
 };
 
 struct sc_packet_status_change {

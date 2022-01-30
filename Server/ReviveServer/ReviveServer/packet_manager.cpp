@@ -18,8 +18,12 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	//Player* cl = reinterpret_cast<Player*>(clients[client_id]);
 
 	switch (packet_type) {
-	case CS_PACKET_LOGIN: {
-		
+	case CS_PACKET_SIGN_IN: {
+		ProcessSignIn(c_id, p);
+		break;
+	}
+	case CS_PACKET_SIGN_UP: {
+		ProcessSignUp(c_id, p);
 		break;
 	}
 	case CS_PACKET_MOVE: {
@@ -27,7 +31,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		break;
 	}
 	case CS_PACKET_ATTACK: {
-	
+		ProcessAttack(c_id, p);
 		break;
 	}
 	case CS_PACKET_TELEPORT: {
@@ -149,8 +153,27 @@ void PacketManager::Disconnect(int c_id)
 
 
 
-void PacketManager::ProcessLogin(int c_id,unsigned char* p)
+void PacketManager::ProcessSignIn(int c_id,unsigned char* p)
 {
+	cs_packet_sign_in*packet= reinterpret_cast<cs_packet_sign_in*>(p);
+	db_task dt;
+	dt.dt = DB_TASK_TYPE::SIGN_IN;
+	dt.obj_id = c_id;
+	strcpy_s(dt.user_id, packet->name);
+	strcpy_s(dt.user_password, packet->password);
+	m_db_queue.push(move(dt));
+
+}
+
+void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
+{
+	cs_packet_sign_up* packet = reinterpret_cast<cs_packet_sign_up*>(p);
+	db_task dt;
+	dt.dt = DB_TASK_TYPE::SIGN_UP;
+	dt.obj_id = c_id;
+	strcpy_s(dt.user_id, packet->name);
+	strcpy_s(dt.user_password, packet->password);
+	m_db_queue.push(move(dt));
 }
 
 void PacketManager::ProcessAttack(int c_id,unsigned char* p)
@@ -193,4 +216,68 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cl->SetPosZ(pos.z);
 	cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	SendMovePacket(c_id, c_id);
+}
+
+
+
+void PacketManager::DBThread()
+{
+	while (true)
+	{
+		db_task dt;
+		if (!m_db_queue.try_pop(dt))
+		{
+			this_thread::sleep_for(10ms);
+			continue;
+		}
+		ProcessDBTask(dt);
+	}
+}
+
+void PacketManager::ProcessDBTask(db_task& dt)
+{
+	LOGINFAIL_TYPE ret=m_db->CheckLoginData(dt.user_id, dt.user_password);
+	Player* pl = m_moveobj_manager->GetPlayer(dt.obj_id);
+	switch (dt.dt)
+	{
+	case DB_TASK_TYPE::SIGN_IN:
+	{
+		if (ret == LOGINFAIL_TYPE::OK)
+		{
+			pl->state_lock.lock();
+			if (STATE::ST_INGAME != pl->GetState())
+			{
+				pl->SetState(STATE::ST_INGAME);
+				pl->state_lock.unlock();
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+			//로그인 실패 패킷보내기
+		}
+		break;
+	}
+	case DB_TASK_TYPE::SIGN_UP:
+	{
+		if (ret == LOGINFAIL_TYPE::OK || ret == LOGINFAIL_TYPE::WRONG_PASSWORD)
+			m_db->SaveData(dt.user_id, dt.user_password);
+		else
+			//추후 이미 아이디가 있어 회원가입 불가능하다는 패킷 보내기
+		break;
+	}
+	}
+
+}
+void PacketManager::JoinDBThread()
+{
+	db_thread.join();
+}
+void PacketManager::CreateDBThread()
+{
+
+	db_thread=std::thread([this]() {DBThread(); });
 }

@@ -62,23 +62,7 @@ void InGameServer::DoTimer()
 	}
 }
 
-void InGameServer::DBThread()
-{
-	while (true)
-	{
-		db_task dt;
-		if (!m_db_queue.try_pop(dt))
-		{
-			this_thread::sleep_for(10ms);
-			continue;
-		}
-		ProcessDBTask(dt);
-	}
-}
 
-void InGameServer::ProcessDBTask(db_task& dt)
-{
-}
 
 void InGameServer::CreateTimer()
 {
@@ -86,10 +70,6 @@ void InGameServer::CreateTimer()
 	
 }
 
-void InGameServer::CreateDBThread()
-{
-	m_worker_threads.emplace_back([this]() {DBThread(); });
-}
 
 void InGameServer::ProcessEvent(timer_event& ev)
 {
@@ -113,7 +93,9 @@ void InGameServer::Run()
 
 	StartServer();
 	CreateTimer();
+	m_PacketManager->CreateDBThread();
 	JoinThread();
+	m_PacketManager->JoinDBThread();
 }
 
 void InGameServer::End()

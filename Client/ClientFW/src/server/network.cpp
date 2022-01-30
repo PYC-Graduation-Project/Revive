@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "network.h"
-#include"packet_manager.h"
+#include"server/packet_manager.h"
 using namespace std;
 Network* Network::m_pInst = NULL;
 bool Network::Init()

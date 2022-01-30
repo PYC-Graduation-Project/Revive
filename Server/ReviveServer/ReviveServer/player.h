@@ -21,7 +21,7 @@ private:
     SOCKET  m_socket;
     int		m_last_move_time;
     char m_name[MAX_NAME_SIZE + 1];
-    char m_password[MAX_PASSWARD_SIZE + 1];
+    char m_password[MAX_PASSWORD_SIZE + 1];
 public:
     void DoRecv();
     void DoSend(int num_bytes, void* mess);
