@@ -10,6 +10,8 @@ void PacketManager::Init()
 	m_moveobj_manager->InitPlayer();
 	m_db = new DB;
 	m_db->Init();
+	m_db2 = new DB;
+	m_db2->Init();
 }
 
 void PacketManager::ProcessPacket(int c_id, unsigned char* p)
@@ -32,11 +34,6 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	}
 	case CS_PACKET_ATTACK: {
 		ProcessAttack(c_id, p);
-		break;
-	}
-	case CS_PACKET_TELEPORT: {
-
-
 		break;
 	}
 	}
@@ -129,6 +126,29 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendLoginFailPacket(int c_id, int reason)
+{
+	sc_packet_login_fail packet;
+	Player* pl = m_moveobj_manager->GetPlayer(c_id);
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_LOGIN_FAIL;
+	packet.reason = reason;
+	pl->DoSend(sizeof(packet), &packet);
+}
+
+void PacketManager::SendSignInOK(int c_id)
+{
+	
+}
+
+void PacketManager::SendSignUpOK(int c_id)
+{
+	sc_packet_sign_up_ok packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_SIGN_UP_OK;
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds)
 {
 	timer_event t;
@@ -144,6 +164,7 @@ void PacketManager::End()
 	m_moveobj_manager->DestroyObject();
 	if (m_moveobj_manager)delete m_moveobj_manager;
 	if (m_db)delete m_db;
+	if (m_db2)delete m_db2;
 }
 
 void PacketManager::Disconnect(int c_id)
@@ -244,6 +265,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 	{
 		if (ret == LOGINFAIL_TYPE::OK)
 		{
+			//접속꽉찬거는 accept 쪽에서 보내기주기
 			pl->state_lock.lock();
 			if (STATE::ST_INGAME != pl->GetState())
 			{
@@ -251,22 +273,26 @@ void PacketManager::ProcessDBTask(db_task& dt)
 				pl->state_lock.unlock();
 			}
 			else
-			{
-
-			}
+				pl->state_lock.unlock();
+			//여기오면 성공패킷 보내주기
 		}
 		else
 		{
 			//로그인 실패 패킷보내기
+			SendLoginFailPacket(dt.obj_id, static_cast<int>(ret));
 		}
 		break;
 	}
 	case DB_TASK_TYPE::SIGN_UP:
 	{
 		if (ret == LOGINFAIL_TYPE::OK || ret == LOGINFAIL_TYPE::WRONG_PASSWORD)
-			m_db->SaveData(dt.user_id, dt.user_password);
+		{
+			m_db2->SaveData(dt.user_id, dt.user_password);
+			SendSignUpOK(dt.obj_id);
+		}
 		else
-			//추후 이미 아이디가 있어 회원가입 불가능하다는 패킷 보내기
+			// 아이디가 있어 회원가입 불가능 패킷 보내기
+			SendLoginFailPacket(dt.obj_id,6);
 		break;
 	}
 	}

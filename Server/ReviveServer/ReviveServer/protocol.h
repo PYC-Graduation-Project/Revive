@@ -27,14 +27,14 @@ const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_TELEPORT = 6;
 
 
-const char SC_PACKET_LOGIN_OK = 1;
+const char SC_PACKET_SIGN_IN_OK = 1;
 const char SC_PACKET_MOVE = 2;
 const char SC_PACKET_PUT_OBJECT = 3;
 const char SC_PACKET_REMOVE_OBJECT = 4;
 const char SC_PACKET_CHAT = 5;
 const char SC_PACKET_LOGIN_FAIL = 6;
 const char SC_PACKET_STATUS_CHANGE = 7;
-
+const char SC_PACKET_SIGN_UP_OK = 8;
 
 
 
@@ -81,7 +81,7 @@ struct cs_packet_teleport {
 
 
 
-struct sc_packet_login_ok {
+struct sc_packet_sign_in_ok {
 	unsigned char size;
 	char type;
 	int		id;
@@ -91,7 +91,10 @@ struct sc_packet_login_ok {
 	//int		exp;
 };
 
-
+struct sc_packet_sign_up_ok {
+	unsigned char size;
+	char type;
+};
 struct sc_packet_move {
 	unsigned char size;
 	char type;
@@ -127,7 +130,7 @@ struct sc_packet_chat {
 struct sc_packet_login_fail {
 	unsigned char size;
 	char type;
-	char reason;		// 1: DBerror,  2:사용자 Full, 3:이미 접속중, 4:비번틀림, 5:아이디없음
+	char reason;		// 1: DBerror,  2:사용자 Full, 3:이미 접속중, 4:비번틀림, 5:아이디없음, 6:해당아이디 이미존재
 };
 
 struct sc_packet_status_change {

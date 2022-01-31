@@ -3,6 +3,7 @@
 #include"player.h"
 #include<iostream>
 #include<string>
+#include<algorithm>
 using namespace std;
 DB::DB()
 {
@@ -57,7 +58,7 @@ LOGINFAIL_TYPE DB::SaveData(char*name,char*password)
 	LOGINFAIL_TYPE ret = LOGINFAIL_TYPE::OK;
 	size_t len;
 	mbstowcs_s(&len, wname, MAX_NAME_SIZE , name, MAX_NAME_SIZE );
-	mbstowcs_s(&len, wname, MAX_NAME_SIZE, password, MAX_PASSWORD_SIZE);
+	mbstowcs_s(&len, wpassword, MAX_NAME_SIZE, password, MAX_PASSWORD_SIZE);
 	wsprintf(exec, L"EXEC insert_user_info @Param1=N'%ls',@Param2=%ls" ,wname, wpassword);
 	wcout << exec << endl;
 	//retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
@@ -84,7 +85,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 	size_t len;
 	LOGINFAIL_TYPE ret=LOGINFAIL_TYPE::OK;
 	mbstowcs_s(&len, wname, MAX_NAME_SIZE, name, MAX_NAME_SIZE);
-	wsprintf(exec, L"EXEC select_if_exist @Param=N'%ls'", wname);
+	wsprintf(exec, L"EXEC select_user_info @Param1=N'%ls'", wname);
 	wcout << exec << endl;
 	retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec, SQL_NTS);
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
@@ -96,7 +97,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 		{
 			HandleDiagnosticRecord(hstmt, SQL_HANDLE_STMT, retcode);
-			ret= LOGINFAIL_TYPE::DB_ERROR;
+			//ret= LOGINFAIL_TYPE::DB_ERROR;
 		}
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 		{
@@ -115,6 +116,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 	}
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 		SQLCancel(hstmt);
+		
 	}
 	return ret;
 }
@@ -122,6 +124,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 bool DB::CompWcMC(wchar_t*wc, char*mc)
 {
 	wstring comp_wc{ wc };
+	comp_wc.erase(remove(comp_wc.begin(), comp_wc.end(), ' '), comp_wc.end());
 	string a{ mc };
 	wstring comp_mc{ a.begin(),a.end() };
 	if (comp_wc.compare(comp_mc) == 0)return true;

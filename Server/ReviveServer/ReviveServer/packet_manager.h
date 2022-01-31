@@ -9,12 +9,19 @@ class PacketManager
 public:
 	PacketManager() = default;
 	~PacketManager() = default;
+	
 	void Init();
 	void ProcessPacket(int c_id, unsigned char* p);
 	void ProcessAccept(HANDLE ,SOCKET&,EXP_OVER*);
 	void ProcessRecv(int, EXP_OVER*, DWORD);
 	void UpdateObjMove();
+
+
 	void SendMovePacket(int c_id, int mover);
+	void SendLoginFailPacket(int c_id, int reason);
+	void SendSignInOK(int c_id);
+	void SendSignUpOK(int c_id);
+	
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
 	void End();
 	void Disconnect(int c_id);
@@ -25,8 +32,9 @@ public:
 private:
 	MoveObjManager* m_moveobj_manager;
 	DB* m_db;
+	DB* m_db2;
 	concurrency::concurrent_queue<db_task>m_db_queue;
-	thread db_thread;
+	std::thread db_thread;
 	//나중에 개발
 	void ProcessSignIn (int c_id ,unsigned char *p);
 	void ProcessSignUp(int c_id, unsigned char* p);

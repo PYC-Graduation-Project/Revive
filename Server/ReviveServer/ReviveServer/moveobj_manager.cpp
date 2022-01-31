@@ -7,7 +7,7 @@ int MoveObjManager::GetNewID()
     for (int i = 0; i < MAX_USER; ++i)
     {
 		
-        cl = (Player*)(GetMoveObj(i));
+        cl = GetPlayer(i);
 		
        cl->state_lock.lock();
         if (STATE::ST_FREE == cl->GetState())
