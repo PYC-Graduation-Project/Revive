@@ -4,7 +4,10 @@
 #include<iostream>
 #include<string>
 #include<algorithm>
+
 using namespace std;
+
+
 DB::DB()
 {
 
@@ -101,8 +104,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 		}
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 		{
-			//strcpy_s(p->GetName(),MAX_NAME_SIZE ,name);
-			//strcpy_s(p->GetPassword(), MAX_NAME_SIZE, name); 비밀번호는 wchar에 받아오고 그다음 형변환해서 넣어주기
+			
 			if (cb_id == 0) ret = LOGINFAIL_TYPE::NO_ID;
 			else if (false == CompWcMC(reinterpret_cast<wchar_t*>(m_password), password))
 					ret = LOGINFAIL_TYPE::WRONG_PASSWORD;
