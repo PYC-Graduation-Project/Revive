@@ -39,6 +39,10 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		ProcessAttack(c_id, p);
 		break;
 	}
+	case CS_PACKET_MATCHING: {
+		ProcessMatching(c_id, p);
+		break;
+	}
 	}
 }
 
@@ -240,6 +244,16 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cl->SetPosZ(pos.z);
 	cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	SendMovePacket(c_id, c_id);
+}
+
+void PacketManager::ProcessMatching(int c_id, unsigned char* p)
+{
+	cs_packet_matching* packet = reinterpret_cast<cs_packet_matching*>(p);
+	Player*pl=m_moveobj_manager->GetPlayer(c_id);
+	pl->SetMatchUserSize(packet->user_num);
+	pl->is_matching = true;
+	//유저 검사 해서 매칭해주는 함수 구현
+	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
 }
 
 

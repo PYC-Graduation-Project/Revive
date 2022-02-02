@@ -15,6 +15,7 @@ public:
    virtual ~Player()=default;
    std::mutex state_lock;
    int		m_prev_size;
+   std::atomic_bool is_matching = false;
 private:
     
     EXP_OVER m_recv_over;
@@ -22,6 +23,7 @@ private:
     int		m_last_move_time;
     char m_name[MAX_NAME_SIZE + 1];
     char m_password[MAX_PASSWORD_SIZE + 1];
+    short m_mach_user_size = 0;
 public:
     void DoRecv();
     void DoSend(int num_bytes, void* mess);
@@ -29,5 +31,7 @@ public:
     void Init(SOCKET&);
     char* GetName() { return m_name; }
     char* GetPassword() { return m_password; }
+    short GetMatchUserSize() { return m_mach_user_size; }
+    void SetMatchUserSize(short val) { m_mach_user_size = val; }
 };
 

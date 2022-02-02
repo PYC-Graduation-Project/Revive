@@ -38,10 +38,12 @@ private:
 	DB* m_db2;
 	concurrency::concurrent_queue<db_task>m_db_queue;
 	std::thread db_thread;
+
 	//나중에 개발
 	void ProcessSignIn (int c_id ,unsigned char *p);
 	void ProcessSignUp(int c_id, unsigned char* p);
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
+	void ProcessMatching(int c_id, unsigned char* p);
 };
 

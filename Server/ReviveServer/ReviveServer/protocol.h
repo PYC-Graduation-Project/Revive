@@ -27,17 +27,18 @@ const char CS_PACKET_SIGN_UP = 2;
 const char CS_PACKET_MOVE = 3;
 const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
-const char CS_PACKET_TELEPORT = 6;
+const char CS_PACKET_MATCHING = 6;
 
 
 const char SC_PACKET_SIGN_IN_OK = 1;
-const char SC_PACKET_MOVE = 2;
-const char SC_PACKET_PUT_OBJECT = 3;
-const char SC_PACKET_REMOVE_OBJECT = 4;
-const char SC_PACKET_CHAT = 5;
-const char SC_PACKET_LOGIN_FAIL = 6;
-const char SC_PACKET_STATUS_CHANGE = 7;
-const char SC_PACKET_SIGN_UP_OK = 8;
+const char SC_PACKET_SIGN_UP_OK = 2;
+const char SC_PACKET_MOVE = 3;
+const char SC_PACKET_PUT_OBJECT = 4;
+const char SC_PACKET_REMOVE_OBJECT = 5;
+const char SC_PACKET_CHAT = 6;
+const char SC_PACKET_LOGIN_FAIL = 7;
+const char SC_PACKET_STATUS_CHANGE = 8;
+
 
 
 
@@ -56,6 +57,11 @@ struct cs_packet_sign_up {
 	char	password[MAX_PASSWORD_SIZE];
 };
 
+struct cs_packet_matching {
+	unsigned char size;
+	char	type;
+	short	user_num;//원하는 인원수
+};
 
 struct cs_packet_move {
 	unsigned char size;
