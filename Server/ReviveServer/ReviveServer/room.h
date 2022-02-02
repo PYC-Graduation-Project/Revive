@@ -14,12 +14,12 @@ public:
 	void Init(int user_num, char* name);
 	bool EnterRoom(int c_id);
 	void LeaveRoom(int c_id);
-	void ClearRoom();
+
 
 	bool CheckUserCount(){ return max_user > curr_user_count; }
 
 	int GetRoomID() { return room_id; }
-	int GetMaxUser() { return room_id; }
+	int GetMaxUser() { return max_user; }
 	int GetCurrUserCount() { return curr_user_count; }
 
 

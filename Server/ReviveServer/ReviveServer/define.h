@@ -5,6 +5,18 @@
 #include<chrono>
 #include"state.h"
 #include"protocol.h"
+
+
+
+
+extern "C" {
+#include "include\lua.h"
+#include "include\lauxlib.h"
+#include "include\lualib.h"
+}
+
+#pragma comment (lib, "lua54.lib")
+
 const int BUFSIZE = 256;
 
 

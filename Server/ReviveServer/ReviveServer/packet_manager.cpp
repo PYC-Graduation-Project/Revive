@@ -2,12 +2,15 @@
 #include "packet_manager.h"
 #include"db.h"
 #include"moveobj_manager.h"
+#include"room_manager.h"
 using namespace std;
 
 void PacketManager::Init()
 {
 	m_moveobj_manager = new MoveObjManager;
 	m_moveobj_manager->InitPlayer();
+	m_room_manager = new RoomManager;
+	m_room_manager->InitRoom();
 	m_db = new DB;
 	m_db->Init();
 	m_db2 = new DB;
