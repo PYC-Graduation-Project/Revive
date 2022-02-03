@@ -36,6 +36,8 @@ public:
 	Vector3 GetLookVec()const { return m_look; }
 	Vector3 GetUpVec()const { return m_up; }
 	
+	int GetRoomID()const { return m_room_id; }
+
 	void SetRightVec(const Vector3& val) { m_right = val; }
 	void SetLookVec(const Vector3& val) { m_look = val; }
 	void SetUpVec(const Vector3& val) { m_up = val; }
@@ -44,9 +46,11 @@ public:
 	void SetHP(float val)    {  m_hp=val; }
 	void SetMaxHP(float val) {  m_maxhp=val; }
 	void SetState(STATE val) {  m_state=val; }
+	void SetRoomID(int val) { m_room_id = val; }
 
 private:
 	std::atomic_bool m_is_active = true; //죽어있는지 살아있는지
+	int m_room_id;
 	float m_damage;
 	float m_hp, m_maxhp;
 	STATE m_state;

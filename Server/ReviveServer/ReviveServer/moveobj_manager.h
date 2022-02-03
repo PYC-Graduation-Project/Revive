@@ -1,6 +1,7 @@
 #pragma once
 #include<array>
 #include"player.h"
+#include<unordered_set>
 class MoveObjManager
 {
 public:
@@ -18,7 +19,8 @@ public:
 	bool IsNear(int a, int b);
 	bool IsNPC(int id);
 
-
+	
+		
 	int GetNewID();
 	void Disconnect(int);
 	void InitPlayer();

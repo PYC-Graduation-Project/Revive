@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "moveobj_manager.h"
 using namespace std;
+
+
+
 int MoveObjManager::GetNewID()
 {
     Player* cl = NULL;
@@ -25,7 +28,7 @@ int MoveObjManager::GetNewID()
 void MoveObjManager::Disconnect(int c_id)
 {
 	Player* cl = GetPlayer(c_id);
-	
+	//매칭취소 넣기
 	//for (auto& other : my_vl) {
 	//	Player* target = (Player*)clients[other];
 	//	if (true == is_npc(target->id)) continue;
@@ -49,6 +52,8 @@ void MoveObjManager::InitPlayer()
 {
 	for (int i = 0; i < MAX_USER; ++i)
 		m_moveobj_arr[i] = new Player;
+
+	
 }
 
 void MoveObjManager::DestroyObject()

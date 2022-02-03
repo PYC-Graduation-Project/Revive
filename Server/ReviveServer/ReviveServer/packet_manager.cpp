@@ -156,6 +156,14 @@ void PacketManager::SendSignUpOK(int c_id)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendMatchingOK(int c_id)
+{
+	sc_packet_matching packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_MATCHING;
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds)
 {
 	timer_event t;
@@ -252,7 +260,39 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	Player*pl=m_moveobj_manager->GetPlayer(c_id);
 	pl->SetMatchUserSize(packet->user_num);
 	pl->is_matching = true;
-	//유저 검사 해서 매칭해주는 함수 구현
+	Player* other_pl = NULL;
+	unordered_set<int>match_list;
+	//유저 검사 해서 매칭해주는 함수 구현-> 일단 코딩하고 함수화 하자
+	match_list.insert(c_id);
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		other_pl = m_moveobj_manager->GetPlayer(i);
+		if (match_list.size() == pl->GetMatchUserSize())
+			break;
+		if (false == other_pl->is_matching)
+			continue;
+		if (pl->GetMatchUserSize() != other_pl->GetMatchUserSize())
+			continue;
+		match_list.insert(i);
+
+	}
+	if (match_list.size() == pl->GetMatchUserSize())
+	{
+		for (auto id : match_list)
+		{
+			Player* player = m_moveobj_manager->GetPlayer(id);
+			player->is_matching = false;
+			player->state_lock.lock();
+			player->SetState(STATE::ST_INGAME);
+			player->state_lock.unlock();
+			cout << id << endl;
+			SendMatchingOK(id);
+		}
+
+		//빈방 검사
+		//방에 아이디 넘겨주기
+	}
+	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
 }
 

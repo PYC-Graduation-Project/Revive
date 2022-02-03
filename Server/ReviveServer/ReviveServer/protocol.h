@@ -38,7 +38,7 @@ const char SC_PACKET_REMOVE_OBJECT = 5;
 const char SC_PACKET_CHAT = 6;
 const char SC_PACKET_LOGIN_FAIL = 7;
 const char SC_PACKET_STATUS_CHANGE = 8;
-
+const char SC_PACKET_MATCHING = 9;
 
 
 
@@ -99,7 +99,11 @@ struct sc_packet_sign_in_ok {
 	//short	hp, maxhp;
 	//int		exp;
 };
-
+struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
+	unsigned char size;
+	char	type;
+	//short	user_num;//원하는 인원수
+};
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
