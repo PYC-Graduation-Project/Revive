@@ -6,41 +6,36 @@ namespace client_fw
 	class MeshComponent;
 	class CameraComponent;
 
-	struct MeshTreeNode
+	struct VisualTreeNode
 	{
 		BBox bounding_box;
 		std::vector<SPtr<MeshComponent>> mesh_components;
-		std::array<SPtr<MeshTreeNode>, 8> child_nodes;
-		WPtr<MeshTreeNode> parent_node;
+		std::array<SPtr<VisualTreeNode>, 8> child_nodes;
+		WPtr<VisualTreeNode> parent_node;
 	};
 
-	class MeshOctree
+	class VisualOctree
 	{
 	public:
-		MeshOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
+		VisualOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
 		
 		void Initialize();
 		void Shutdown();
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
-		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
 
 	private:
-		void CreateChildNodeInfo(const SPtr<MeshTreeNode>& node, UINT depth);
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<MeshTreeNode>& node);\
+		void CreateChildNodeInfo(const SPtr<VisualTreeNode>& node, UINT depth);
+		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<VisualTreeNode>& node);
 
 	private:
 		float m_width;
 		Vec3 m_position;
-		UINT m_depth = 1;
-		SPtr<MeshTreeNode> m_root_node;
-		std::vector<SPtr<MeshComponent>> m_out_of_range_mesh_comps;
-		std::vector<SPtr<MeshComponent>> m_movable_mesh_comps;
-
+		UINT m_depth;
+		SPtr<VisualTreeNode> m_root_node;
 
 	public:
-		const SPtr<MeshTreeNode>& GetRootNode() const { return m_root_node; }
-		const std::vector<SPtr<MeshComponent>> GetOutOfRangeMeshes() const { return m_out_of_range_mesh_comps; }
-		const std::vector<SPtr<MeshComponent>> GetMovableMeshes() const { return m_movable_mesh_comps; }
+		const SPtr<VisualTreeNode>& GetRootNode() const { return m_root_node; }
+		const std::vector<SPtr<MeshComponent>> GetOutOfRangeMeshes() const { return m_root_node->mesh_components; }
 	};
 }
 

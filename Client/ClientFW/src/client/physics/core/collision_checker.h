@@ -3,7 +3,7 @@
 namespace client_fw
 {
 	struct BOrientedBox;
-	struct MeshTreeNode;
+	struct VisualTreeNode;
 	class MeshComponent;
 
 	class CollisionChecker
@@ -17,7 +17,7 @@ namespace client_fw
 		void CheckCollisions();
 
 	private:
-		void CheckCollisions(const SPtr<MeshComponent>& mesh, const BOrientedBox& obox, const SPtr<MeshTreeNode>& node);
+		void CheckCollisions(const SPtr<MeshComponent>& mesh, const BOrientedBox& obox, const SPtr<VisualTreeNode>& node);
 		void CheckCollisions(const SPtr<MeshComponent>& mesh, const BOrientedBox& obox, const std::vector<SPtr<MeshComponent>>& static_meshes);
 
 	};

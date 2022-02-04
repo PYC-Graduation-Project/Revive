@@ -2,7 +2,7 @@
 
 namespace client_fw
 {
-	class MeshOctree;
+	class VisualOctree;
 	class MeshComponent;
 	class CameraComponent;
 
@@ -13,21 +13,40 @@ namespace client_fw
 		~OctreeManager() = default;
 
 		OctreeManager(const OctreeManager&) = delete;
-		OctreeManager& oprator(const OctreeManager&) = delete;
+		OctreeManager& operator=(const OctreeManager&) = delete;
 
-		void RegisterMeshOctree(const SPtr<MeshOctree>& octree);
-		void UnregisterMeshOctree();
+		void RegisterVisualOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
+		void UnregisterOctrees();
+
+	private:
+		UPtr<class VisualOctreeManager> m_visual_octree_manager;
+	};
+
+	class VisualOctreeManager
+	{
+	public:
+		VisualOctreeManager();
+		~VisualOctreeManager() = default;
+
+		VisualOctreeManager(const VisualOctreeManager&) = delete;
+		VisualOctreeManager& operator=(const VisualOctreeManager&) = delete;
+
+		void RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
+		void UnregisterOctrees();
 
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
 
 	private:
-		static OctreeManager* s_instance;
-		SPtr<MeshOctree> m_mesh_octree;
+		static VisualOctreeManager* s_instance;
+		bool m_is_active = false;
+		std::vector<SPtr<VisualOctree>> m_visual_octrees;
+		std::vector<SPtr<MeshComponent>> m_movable_meshes;
 
 	public:
-		static OctreeManager& GetOctreeManager() { return *s_instance; }
-		const SPtr<MeshOctree> GetMeshOctree() const { return m_mesh_octree; }
+		static VisualOctreeManager& GetOctreeManager() { return *s_instance; }
+		const std::vector<SPtr<VisualOctree>> GetVisualOctrees() const { return m_visual_octrees; }
+		const std::vector<SPtr<MeshComponent>> GetMovableMeshes() const { return m_movable_meshes; }
 	};
 }
 

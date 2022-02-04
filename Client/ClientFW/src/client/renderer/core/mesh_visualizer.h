@@ -9,7 +9,7 @@ namespace client_fw
 {
 	class CameraComponent;
 	class MeshComponent;
-	struct MeshTreeNode;
+	struct VisualTreeNode;
 	struct BFrustum;
 	
 	class MeshVisualizer final
@@ -19,7 +19,7 @@ namespace client_fw
 
 	private:
 		static void UpdateVisibilityFromCamera(const BFrustum& bounding_frustum,
-			ContainmentType type, const SPtr<MeshTreeNode>& node, const Vec3& eye);
+			ContainmentType type, const SPtr<VisualTreeNode>& node, const Vec3& eye);
 
 		static void UpdateLevelOfDetail(const SPtr<MeshComponent>& mesh, const Vec3& eye);
 	};

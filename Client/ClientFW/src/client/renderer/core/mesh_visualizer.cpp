@@ -12,45 +12,35 @@ namespace client_fw
 {
 	void MeshVisualizer::UpdateVisibilityFromCamera(const SPtr<CameraComponent>& camera)
 	{
-		const auto& mesh_octree = OctreeManager::GetOctreeManager().GetMeshOctree();
-		if (mesh_octree != nullptr)
+		const auto& bounding_frustum = camera->GetBoudingFrustum();
+		const auto& eye = camera->GetOwner().lock()->GetPosition();
+
+		const auto& visual_octrees = VisualOctreeManager::GetOctreeManager().GetVisualOctrees();
+		for (const auto& octree : visual_octrees)
 		{
-			const auto& root_node = mesh_octree->GetRootNode();
-			const auto& out_of_range_meshes = mesh_octree->GetOutOfRangeMeshes();
-			const auto& movable_meshes = mesh_octree->GetMovableMeshes();
-
-
-			const auto& bounding_frustum = camera->GetBoudingFrustum();
-			const auto& eye = camera->GetOwner().lock()->GetPosition();
+			const auto& root_node = octree->GetRootNode();
 
 			ContainmentType type = bounding_frustum.Contains(root_node->bounding_box);
 			if (type != ContainmentType::DISJOINT)
 			{
 				UpdateVisibilityFromCamera(bounding_frustum, type, root_node, eye);
 			}
+		}
 
-			for (const auto& mesh : out_of_range_meshes)
-			{
-				if (bounding_frustum.Intersects(mesh->GetOrientedBox()))
-				{
-					mesh->SetVisiblity(true);
-					UpdateLevelOfDetail(mesh, eye);
-				}
-			}
+		const auto& movable_meshes = VisualOctreeManager::GetOctreeManager().GetMovableMeshes();
 
-			for (const auto& mesh : movable_meshes)
+		for (const auto& mesh : movable_meshes)
+		{
+			if (bounding_frustum.Intersects(mesh->GetOrientedBox()))
 			{
-				if (bounding_frustum.Intersects(mesh->GetOrientedBox()))
-				{
-					mesh->SetVisiblity(true);
-					UpdateLevelOfDetail(mesh, eye);
-				}
+				mesh->SetVisiblity(true);
+				UpdateLevelOfDetail(mesh, eye);
 			}
 		}
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromCamera(const BFrustum& bounding_frustum,
-		ContainmentType type, const SPtr<MeshTreeNode>& node, const Vec3& eye)
+		ContainmentType type, const SPtr<VisualTreeNode>& node, const Vec3& eye)
 	{
 		if (node->child_nodes[0] == nullptr)
 		{

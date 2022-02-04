@@ -5,7 +5,7 @@
 namespace client_fw
 {
 	class Mesh;
-	struct MeshTreeNode;
+	struct VisualTreeNode;
 
 	class MeshComponent : public Component, public std::enable_shared_from_this<MeshComponent>
 	{
@@ -29,7 +29,7 @@ namespace client_fw
 		BOrientedBox m_oriented_box;
 		float m_max_extent = 0;
 		UINT m_level_of_detail = 0;
-		std::vector<WPtr<MeshTreeNode>> m_mesh_tree_node;
+		std::vector<WPtr<VisualTreeNode>> m_visual_tree_node;
 		bool m_visibility = false;
 		UINT m_instance_index = 0;
 		std::string m_draw_shader_name;
@@ -42,8 +42,8 @@ namespace client_fw
 		bool IsUseLevelOfDetail() const;
 		UINT GetLevelOfDetail() const { return m_level_of_detail; }
 		void SetLevelOfDetail(UINT lod);
-		void AddMeshTreeNode(const WPtr<MeshTreeNode>& tree_node);
-		const std::vector<WPtr<MeshTreeNode>>& GetMeshTreeNodes() const { return m_mesh_tree_node; }
+		void AddVisualTreeNode(const WPtr<VisualTreeNode>& tree_node);
+		const std::vector<WPtr<VisualTreeNode>>& GetVisualTreeNodes() const { return m_visual_tree_node; }
 		bool IsVisible() const { return m_visibility; }
 		void SetVisiblity(bool value) { m_visibility = value; }
 		UINT GetInstanceIndex() const { return m_instance_index; }

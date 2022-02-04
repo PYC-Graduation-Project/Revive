@@ -32,14 +32,14 @@ namespace client_fw
 	{
 		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
 		{
-			m_octree_manager->UnregisterMeshOctree();
+			m_octree_manager->UnregisterOctrees();
 			m_cur_level->ShutdownLevel();
 			m_cur_level = nullptr;
 		}
 
 		if (m_ready_level != nullptr)
 		{
-			m_octree_manager->RegisterMeshOctree(m_ready_level->CreateMeshOctree());
+			m_octree_manager->RegisterVisualOctrees(std::move(m_ready_level->CreateVisualOctrees()));
 			if (m_ready_level->InitializeLevel())
 			{
 				m_cur_level = std::move(m_ready_level);
@@ -50,7 +50,7 @@ namespace client_fw
 			{
 				LOG_WARN("Could not initailize level : {0}", m_ready_level->GetName());
 				m_ready_level->ShutdownLevel();
-				m_octree_manager->UnregisterMeshOctree();
+				m_octree_manager->UnregisterOctrees();
 			}
 		}
 

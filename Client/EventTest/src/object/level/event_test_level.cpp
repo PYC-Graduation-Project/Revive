@@ -60,8 +60,10 @@ namespace event_test
 	{
 	}
 
-	SPtr<MeshOctree> EventTestLevel::CreateMeshOctree() const
+	std::vector<SPtr<VisualOctree>> EventTestLevel::CreateVisualOctrees() const
 	{
-		return CreateSPtr<MeshOctree>(10000.0f);
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
+		return visual_octrees;
 	}
 }

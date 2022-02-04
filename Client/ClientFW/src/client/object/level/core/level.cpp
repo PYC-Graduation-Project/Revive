@@ -80,8 +80,10 @@ namespace client_fw
 		m_registered_input_event.push_back(name);
 	}
 
-	SPtr<MeshOctree> Level::CreateMeshOctree() const
+	std::vector<SPtr<VisualOctree>> Level::CreateVisualOctrees() const
 	{
-		return CreateSPtr<MeshOctree>(0.0f, vec3::ZERO, 0);
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(0.0f, vec3::ZERO, 0));
+		return visual_octrees;
 	}
 }

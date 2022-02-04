@@ -58,12 +58,12 @@ namespace client_fw
 
 	void MeshComponent::RegisterToMeshOctree()
 	{
-		OctreeManager::GetOctreeManager().RegisterMeshComponent(shared_from_this());
+		VisualOctreeManager::GetOctreeManager().RegisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::UnregisterFromMeshOctree()
 	{
-		OctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
+		VisualOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)
@@ -82,8 +82,8 @@ namespace client_fw
 		m_mesh->AddLODMeshCount(m_level_of_detail);
 	}
 
-	void MeshComponent::AddMeshTreeNode(const WPtr<MeshTreeNode>& tree_node)
+	void MeshComponent::AddVisualTreeNode(const WPtr<VisualTreeNode>& tree_node)
 	{
-		m_mesh_tree_node.push_back(tree_node);
+		m_visual_tree_node.push_back(tree_node);
 	}
 }

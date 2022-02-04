@@ -96,8 +96,10 @@ namespace render_test
 			LOG_INFO(count);*/
 	}
 
-	SPtr<MeshOctree> PlayerTestLevel::CreateMeshOctree() const
+	std::vector<SPtr<VisualOctree>> PlayerTestLevel::CreateVisualOctrees() const
 	{
-		return CreateSPtr<MeshOctree>(10000.0f);
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
+		return visual_octrees;
 	}
 }
