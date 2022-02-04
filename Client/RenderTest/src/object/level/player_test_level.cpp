@@ -24,25 +24,24 @@ namespace render_test
 		SpawnActor(m_player_controller);
 
 
-		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+	/*	police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
 
 		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
+		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });*/
 
-		//police->SetScale(0.2f);
-
-
-		/*police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
+		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });*/
- 
+		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
+
+		police->SetScale(0.2f);
+
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
 
@@ -58,14 +57,15 @@ namespace render_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-	/*	static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		
+		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
 
 		time += delta_time;
 
-		if (time >= 0.016f)
+		if (time >= 0.016f && count <= 6000)
 		{
 			for (int i = 0; i < 10; ++i)
 			{
@@ -90,9 +90,9 @@ namespace render_test
 			}
 
 			time -= 0.016f;
-		}
+		}*/
 
-		if (count % 100 == 1)
+		/*if (count % 100 == 1)
 			LOG_INFO(count);*/
 	}
 

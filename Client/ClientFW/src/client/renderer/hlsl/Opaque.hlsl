@@ -56,9 +56,8 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
     return output;
 }
 
+//[earlydepthstencil]
 float4 PSOpaqueMesh(VS_OPAQUE_MESH_OUT input) : SV_TARGET
 {
     return g_material_datas[g_material_index].base_color;
-    
-    return float4(abs(input.normal), 1.0f);
 }

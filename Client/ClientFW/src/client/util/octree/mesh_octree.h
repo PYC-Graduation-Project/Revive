@@ -17,7 +17,7 @@ namespace client_fw
 	class MeshOctree
 	{
 	public:
-		MeshOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 4);
+		MeshOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
 		
 		void Initialize();
 		void Shutdown();

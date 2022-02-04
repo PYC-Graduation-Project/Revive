@@ -21,6 +21,14 @@ namespace client_fw
 		kBasic, kLight,
 	};
 
+	struct Viewport
+	{
+		float left;
+		float top;
+		float width;
+		float height;
+	};
+
 	class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
 	{
 	public:
@@ -32,6 +40,7 @@ namespace client_fw
 		virtual void Shutdown() override;
 
 		virtual void UpdateWorldMatrix() override;
+		virtual void UpdateViewport(float left, float top, float width, float height);
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -43,6 +52,7 @@ namespace client_fw
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
+		Viewport m_viewport;
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
@@ -61,6 +71,8 @@ namespace client_fw
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
+		Mat4 GetPerspectiveMatrix() const;
+		Mat4 GetOrthoMatrix() const;
 		void SetAspectRatio(float aspect_ratio) { m_aspect_ratio = aspect_ratio; }
 		void SetFieldOfView(float fov) { m_field_of_view = fov; }
 		void SetNearZ(float near_z) { m_near_z = near_z; }

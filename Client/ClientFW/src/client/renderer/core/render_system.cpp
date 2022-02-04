@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/core/window.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
@@ -12,7 +13,8 @@ namespace client_fw
 {
 	RenderSystem* Render::s_render_system = nullptr;
 
-	RenderSystem::RenderSystem()
+	RenderSystem::RenderSystem(const WPtr<Window>& window)
+		: m_window(window)
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
@@ -87,6 +89,17 @@ namespace client_fw
 		}
 	}
 
+	void RenderSystem::UpdateViewport()
+	{
+		const auto& window = m_window.lock();
+		for (const auto& camera : m_basic_cameras)
+		{
+			camera->UpdateViewport(static_cast<float>(window->rect.left),
+				static_cast<float>(window->rect.top), static_cast<float>(window->width),
+				static_cast<float>(window->height));
+		}
+	}
+
 	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type)
 	{
 		if (m_added_shaders.find(shader_name) != m_added_shaders.cend() && 
@@ -121,10 +134,14 @@ namespace client_fw
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
+		const auto& window = m_window.lock();
 		switch (camera_comp->GetCameraUsage())
 		{
 		case eCameraUsage::kBasic:
 			m_basic_cameras.push_back(camera_comp);
+			camera_comp->UpdateViewport(static_cast<float>(window->rect.left), 
+				static_cast<float>(window->rect.top), static_cast<float>(window->width),
+				static_cast<float>(window->height));
 			break;
 		case eCameraUsage::kLight:
 			break;

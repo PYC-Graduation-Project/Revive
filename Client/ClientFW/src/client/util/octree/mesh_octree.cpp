@@ -31,7 +31,7 @@ namespace client_fw
 		}
 		else
 		{
-			if (mesh->GetOrientdBox().Intersects(m_root_node->bounding_box))
+			if (mesh->GetOrientedBox().Intersects(m_root_node->bounding_box))
 				RegisterMeshComponent(mesh, m_root_node);
 			else
 				m_out_of_range_mesh_comps.push_back(mesh);
@@ -99,7 +99,7 @@ namespace client_fw
 
 		for (UINT i = 0; i < 8; ++i)
 		{
-			if (mesh->GetOrientdBox().Intersects(node->child_nodes[i]->bounding_box))
+			if (mesh->GetOrientedBox().Intersects(node->child_nodes[i]->bounding_box))
 				RegisterMeshComponent(mesh, node->child_nodes[i]);
 		}
 	}

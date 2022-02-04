@@ -37,25 +37,28 @@ namespace client_fw
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list);
 
-		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
-		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
+		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
+		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 
 	private:
 		void CreateResources(ID3D12Device* device);
-		virtual void UpdateResources();
+		void UpdateResources();
+		void UpdateResourcesBeforeDraw();
 		void UpdateMaterialIndexResource();
 
 	protected:
 		bool m_is_need_resource_create = false;
 		SPtr<Mesh> m_mesh;
 		UINT m_material_count = 0;
-		
+		std::vector<UINT> m_lod_material_counts;
+		std::vector<UINT> m_lod_material_indexs;
+		std::vector<UINT> m_index_of_lod_instance_data;
+
 		std::vector<MeshComponentData> m_mesh_comp_data;
 		std::unordered_set<UINT> m_changed_resource_index;
 
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
-		UINT m_num_of_draw_data = 0;
 
 		UPtr<UploadBuffer<RSMaterialIndexData>> m_material_index_data;
 		bool m_is_updated_material_index_data = false;

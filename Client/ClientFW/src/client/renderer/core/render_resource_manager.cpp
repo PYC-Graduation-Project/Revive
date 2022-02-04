@@ -50,7 +50,8 @@ namespace client_fw
 			m_initialized_assets.insert(mesh->GetPath());
 			m_ready_meshes.push_back(mesh);
 			
-			RegisterMaterials(mesh->GetMaterials());
+			for (UINT i = 0; i < mesh->GetLODCount(); ++i)
+				RegisterMaterials(mesh->GetMaterials(i));
 		}
 	}
 

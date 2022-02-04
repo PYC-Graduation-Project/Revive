@@ -13,7 +13,13 @@ namespace client_fw
 	RenderItem::RenderItem(const SPtr<Mesh>& mesh)
 		: m_mesh(mesh)
 	{
-		m_material_count = static_cast<UINT>(m_mesh->GetMaterials().size());
+		for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
+		{
+			m_lod_material_indexs.push_back(m_material_count);
+			m_lod_material_counts.push_back(static_cast<UINT>(m_mesh->GetMaterials(lod).size()));
+			m_material_count += m_lod_material_counts[lod];
+		}
+		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
 		m_material_index_data = CreateUPtr<UploadBuffer<RSMaterialIndexData>>(true);
 	}
@@ -43,7 +49,7 @@ namespace client_fw
 				m_is_need_resource_create = false;
 			}
 			UpdateResources();
-
+		
 			//이 코드는 사실 Material data들의 저장 index가 바뀌지 않으면 Update를
 			//한번만 해주면 된다. 임시로 코드는 이렇게 작성하였다.
 			if (m_is_updated_material_index_data == false)
@@ -55,20 +61,36 @@ namespace client_fw
 
 	void RenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
+		UpdateResourcesBeforeDraw();
+
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
-			command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress());
+			
 			m_mesh->PreDraw(command_list);
 
 			auto material_index_resource = m_material_index_data->GetResource();
 			UINT material_index_resource_byte_size = m_material_index_data->GetByteSize();
 
-			for (UINT i = 0; i < m_material_count; ++i)
+			for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
 			{
-				command_list->SetGraphicsRootConstantBufferView(0, material_index_resource->GetGPUVirtualAddress() +
-					i * material_index_resource_byte_size);
-				m_mesh->Draw(command_list, m_num_of_draw_data, i);
+				if (m_mesh->GetLODMeshCount(lod) > 0)
+				{
+					command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress() +
+						m_index_of_lod_instance_data[lod] * m_instance_data->GetByteSize());
+
+					m_mesh->PreDraw(command_list, lod);
+
+					for (UINT i = 0; i < m_lod_material_counts[lod]; ++i)
+					{
+						command_list->SetGraphicsRootConstantBufferView(0, material_index_resource->GetGPUVirtualAddress() +
+							(i + m_lod_material_indexs[lod]) * material_index_resource_byte_size);
+						m_mesh->Draw(command_list, lod, i);
+					}
+				}
+				
 			}
+
+			m_mesh->PostDraw(command_list);
 		}
 	}
 
@@ -80,10 +102,30 @@ namespace client_fw
 
 	void RenderItem::UpdateResources()
 	{
-		m_num_of_draw_data = 0;
+		for (auto& mesh_data : m_mesh_comp_data)
+		{
+			const auto& mesh_comp = mesh_data.mesh_comp;
+			const auto& owner = mesh_comp->GetOwner().lock();
 
-		//BYTE* mapped_data = m_instance_data->GetMappedData();
-		//UINT byte_size = m_instance_data->GetByteSize();
+			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.is_need_update))
+			{
+				Mat4 world_matrix = owner->GetWorldMatrix();
+				mesh_data.world_transpose = mat4::Transpose(world_matrix);
+				mesh_data.world_inverse = mat4::InverseVec(world_matrix);
+				mesh_data.is_need_update = false;
+			}
+		}
+	}
+
+	void RenderItem::UpdateResourcesBeforeDraw()
+	{
+		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
+		m_index_of_lod_instance_data[0] = m_mesh->GetLODMeshCount(0);
+		for (size_t lod = 1; lod < m_mesh->GetLODCount(); ++lod)
+		{
+			m_index_of_lod_instance_data[lod] =
+				m_index_of_lod_instance_data[lod - 1] + m_mesh->GetLODMeshCount(static_cast<UINT>(lod));
+		}
 
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
@@ -92,31 +134,26 @@ namespace client_fw
 
 			if (owner != nullptr && mesh_comp->IsVisible())
 			{
-				if (owner->IsUpdatedWorldMatrix() || mesh_data.is_need_update)
-				{
-					Mat4 world_matrix = owner->GetWorldMatrix();
-					mesh_data.world_transpose = mat4::Transpose(world_matrix);
-					mesh_data.world_inverse = mat4::InverseVec(world_matrix);
-					mesh_data.is_need_update = false;
-				}
+				UINT lod = mesh_comp->GetLevelOfDetail();
 
-				m_instance_data->CopyData(m_num_of_draw_data,
+				m_instance_data->CopyData(--m_index_of_lod_instance_data.at(lod),
 					RSInstanceData{ mesh_data.world_transpose, mesh_data.world_inverse });
 
 				mesh_comp->SetVisiblity(false);
-
-				++m_num_of_draw_data;
-			} 
+			}
 		}
 	}
 
 	void RenderItem::UpdateMaterialIndexResource()
 	{
 		UINT index = 0;
-		for (const auto& material : m_mesh->GetMaterials())
+		for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
 		{
-			m_material_index_data->CopyData(index, RSMaterialIndexData{ material->GetResourceIndex() });
-			++index;
+			for (const auto& material : m_mesh->GetMaterials(lod))
+			{
+				m_material_index_data->CopyData(index, RSMaterialIndexData{ material->GetResourceIndex() });
+				++index;
+			}
 		}
 		m_is_updated_material_index_data = true;
 	}

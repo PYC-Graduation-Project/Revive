@@ -44,20 +44,11 @@ namespace client_fw
 			return nullptr;
 		}
 
-		std::vector<Vec3> positions;
-		std::vector<Vec3> normals;
-		std::vector<Vec2> tex_coords;
-		std::map<std::string, SPtr<Material>> materials;
-		std::vector<CombineData> combine_data;
-		UINT combine_data_index = 0;
+		std::string parent_path = file_help::GetParentPathFromPath(path);
+		std::string stem = file_help::GetStemFromPath(path);
 
-		std::stringstream ss;
-		std::string line;
-		std::string prefix;
-
-		Vec3 temp_vec;
-		UINT temp_uint = 0;
-		std::string temp_string;
+		UINT lod = 0;
+		SPtr<StaticMesh> mesh = CreateSPtr<StaticMesh>();
 
 		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
@@ -72,38 +63,56 @@ namespace client_fw
 			min_pos.z = min(min_pos.z, pos.z);
 			});
 
-		while (std::getline(obj_file, line))
+		while (lod < 4)
 		{
-			ss.clear();
-			prefix.clear();
-			ss.str(line);
-			ss >> prefix;
+			std::vector<Vec3> positions;
+			std::vector<Vec3> normals;
+			std::vector<Vec2> tex_coords;
+			std::map<std::string, SPtr<Material>> materials;
+			std::vector<CombineData> combine_data;
+			UINT combine_data_index = 0;
 
-			switch (HashCode(prefix.c_str()))
+			std::stringstream ss;
+			std::string line;
+			std::string prefix;
+
+			Vec3 temp_vec;
+			UINT temp_uint = 0;
+			std::string temp_string;
+
+			while (std::getline(obj_file, line))
 			{
-			case HashCode("mtllib"):
-			{
-				ss >> temp_string;
-				materials = AssetStore::LoadMaterials(file_help::GetParentPathFromPath(path) + "\\" + temp_string);
-				break;
-			}
-			case HashCode("v"):
-				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-				temp_vec.z *= -1.0f;
-				UpdateMaxMin(temp_vec);
-				positions.emplace_back(std::move(temp_vec));
-				break;
-			case HashCode("vt"):
-				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-				temp_vec.y = 1.0f - temp_vec.y;
-				tex_coords.emplace_back(Vec2{ temp_vec.x, temp_vec.y });
-				break;
-			case HashCode("vn"):
-				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-				temp_vec.z *= -1.0f;
-				normals.emplace_back(std::move(temp_vec));
-				break;
-			case HashCode("usemtl"):
+				ss.clear();
+				prefix.clear();
+				ss.str(line);
+				ss >> prefix;
+
+				switch (HashCode(prefix.c_str()))
+				{
+				case HashCode("mtllib"):
+				{
+					ss >> temp_string;
+					materials = AssetStore::LoadMaterials(file_help::GetParentPathFromPath(path) + "\\" + temp_string);
+					break;
+				}
+				case HashCode("v"):
+					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
+					temp_vec.z *= -1.0f;
+					if(lod == 0)
+						UpdateMaxMin(temp_vec);
+					positions.emplace_back(std::move(temp_vec));
+					break;
+				case HashCode("vt"):
+					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
+					temp_vec.y = 1.0f - temp_vec.y;
+					tex_coords.emplace_back(Vec2{ temp_vec.x, temp_vec.y });
+					break;
+				case HashCode("vn"):
+					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
+					temp_vec.z *= -1.0f;
+					normals.emplace_back(std::move(temp_vec));
+					break;
+				case HashCode("usemtl"):
 				{
 					ss >> temp_string;
 					auto iter = std::find_if(combine_data.cbegin(), combine_data.cend(),
@@ -121,7 +130,7 @@ namespace client_fw
 					}
 				}
 				break;
-			case HashCode("f"):
+				case HashCode("f"):
 				{
 					int count = 0;
 
@@ -129,9 +138,9 @@ namespace client_fw
 					{
 						if (count == 0)
 							combine_data[combine_data_index].pos_indices.emplace_back(temp_uint - 1);
-						else if(count == 1)
+						else if (count == 1)
 							combine_data[combine_data_index].tex_indices.emplace_back(temp_uint - 1);
-						else if(count == 2)
+						else if (count == 2)
 							combine_data[combine_data_index].normal_indices.emplace_back(temp_uint - 1);
 
 						if (ss.peek() == '/')
@@ -147,49 +156,57 @@ namespace client_fw
 					}
 				}
 				break;
-			default:
-				break;
+				default:
+					break;
+				}
 			}
-		}
 
-		SPtr<StaticMesh> mesh = CreateSPtr<StaticMesh>();
+			mesh->CreateDataForLodMesh(lod);
 
-		UINT vertex_count = 0;
-		for (const auto& data : combine_data)
-			vertex_count += static_cast<UINT>(data.pos_indices.size());
+			UINT vertex_count = 0;
+			for (const auto& data : combine_data)
+				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
-		std::vector<TextureLightVertex> vertices(vertex_count);
+			std::vector<TextureLightVertex> vertices(vertex_count);
 
-		vertex_count = 0;
-		for (const auto& data : combine_data)
-		{
-			UINT count = static_cast<UINT>(data.pos_indices.size());
-			mesh->AddInstanceInfo({ count, vertex_count });
-			mesh->AddMaterial(std::move(materials[data.mtl_name]));
-
-			for (UINT i = 0; i < count; ++i)
+			vertex_count = 0;
+			for (const auto& data : combine_data)
 			{
-				UINT index = i + vertex_count;
-				if (index % 3 == 0)
-					index += 2;
-				else if (index % 3 == 2)
-					index -= 2;
+				UINT count = static_cast<UINT>(data.pos_indices.size());
+				mesh->AddInstanceInfo(lod, { count, vertex_count });
+				mesh->AddMaterial(lod, std::move(materials[data.mtl_name]));
 
-				vertices[index].SetPosition(positions[data.pos_indices[i]]);
-				vertices[index].SetTexCoord(tex_coords[data.tex_indices[i]]);
-				vertices[index].SetNormal(normals[data.normal_indices[i]]);
+				for (UINT i = 0; i < count; ++i)
+				{
+					UINT index = i + vertex_count;
+					if (index % 3 == 0)
+						index += 2;
+					else if (index % 3 == 2)
+						index -= 2;
+
+					vertices[index].SetPosition(positions[data.pos_indices[i]]);
+					vertices[index].SetTexCoord(tex_coords[data.tex_indices[i]]);
+					vertices[index].SetNormal(normals[data.normal_indices[i]]);
+				}
+
+				vertex_count += count;
 			}
 
-			vertex_count += count;
-		}
+			const UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
+			if (mesh->CreateVertexBufferBlob(lod, vertices_size) == false)
+			{
+				LOG_ERROR("Could not create blob for vertex");
+				return nullptr;
+			}
+			CopyMemory(mesh->GetVertexBufferBlob(lod)->GetBufferPointer(), vertices.data(), vertices_size);
 
-		const UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
-		if (FAILED(D3DCreateBlob(vertices_size, &mesh->GetVertexBufferBlob())))
-		{
-			LOG_ERROR("Could not create blob for vertex");
-			return nullptr;
+			++lod;
+			std::string lod_path = parent_path + "/" + stem + "_lod" + std::to_string(lod) + extension;
+			obj_file = std::ifstream(lod_path);
+
+			if (obj_file.is_open() == false)
+				break;
 		}
-		CopyMemory(mesh->GetVertexBufferBlob()->GetBufferPointer(), vertices.data(), vertices_size);
 
 		Vec3 center = max_pos + min_pos;
 		Vec3 extents = (max_pos - min_pos) * 0.5f;

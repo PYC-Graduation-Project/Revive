@@ -193,6 +193,16 @@ namespace client_fw
 		}
 	}
 
+	namespace vec4
+	{
+		inline Vec4 Transform(const Vec4& vec, const Mat4& mat)
+		{
+			Vec4 ret;
+			XMStoreFloat4(&ret, XMVector4Transform(XMLoadFloat4(&vec), XMLoadFloat4x4(&mat)));
+			return ret;
+		}
+	}
+
 	namespace mat3
 	{
 		inline float GetDeterminant(const Mat3& mat)
@@ -323,7 +333,7 @@ namespace client_fw
 		inline Mat4 Ortho(float left, float right, float bottom, float top, float near_z, float far_z)
 		{
 			Mat4 ret;
-			XMStoreFloat4x4(&ret, XMMatrixOrthographicLH(right - left, top - bottom, near_z, far_z));
+			XMStoreFloat4x4(&ret, XMMatrixOrthographicLH(right - left, bottom - top, near_z, far_z));
 			return ret;
 		}
 

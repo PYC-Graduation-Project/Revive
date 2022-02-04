@@ -2,6 +2,7 @@
 
 namespace client_fw
 {
+	struct Window;
 	class GraphicsSuperRootSignature;
 	enum class eRenderLevelType;
 	class GraphicsRenderLevel;
@@ -15,7 +16,7 @@ namespace client_fw
 	class RenderSystem final
 	{
 	public:
-		RenderSystem();
+		RenderSystem(const WPtr<Window>& window);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
@@ -26,6 +27,8 @@ namespace client_fw
 
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list);
+
+		void UpdateViewport();
 
 	public:
 		template <class T>
@@ -73,6 +76,7 @@ namespace client_fw
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 
 	private:
+		WPtr<Window> m_window;
 		ID3D12Device* m_device;
 
 		SPtr<GraphicsSuperRootSignature> m_graphics_super_root_signature;

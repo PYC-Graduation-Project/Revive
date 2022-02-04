@@ -39,6 +39,10 @@ namespace client_fw
 		if (m_owner.expired() == false)
 		{
 			m_oriented_box.Transform(m_mesh->GetOrientedBox(), m_owner.lock()->GetWorldMatrix());
+			Vec3 extents = m_oriented_box.GetExtents();
+			m_max_extent = extents.x;
+			m_max_extent = max(m_max_extent, extents.y);
+			m_max_extent = max(m_max_extent, extents.z);
 		}
 	}
 
@@ -65,6 +69,17 @@ namespace client_fw
 	void MeshComponent::SetMesh(const std::string& file_path)
 	{
 		m_mesh = AssetStore::LoadMesh(file_path);
+	}
+
+	bool MeshComponent::IsUseLevelOfDetail() const
+	{
+		return m_mesh->GetLODCount() > 1;
+	}
+
+	void MeshComponent::SetLevelOfDetail(UINT lod)
+	{
+		m_level_of_detail = min(lod, m_mesh->GetLODCount() - 1);
+		m_mesh->AddLODMeshCount(m_level_of_detail);
 	}
 
 	void MeshComponent::AddMeshTreeNode(const WPtr<MeshTreeNode>& tree_node)

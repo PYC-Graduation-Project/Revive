@@ -117,7 +117,7 @@ namespace client_fw
 	void Application::Update(float delta_time)
 	{
 		m_level_manager->Update(delta_time);
-		m_physics_world->Update(delta_time);
+		//m_physics_world->Update(delta_time);
 	}
 
 	void Application::Render()
@@ -141,6 +141,10 @@ namespace client_fw
 	void Application::UpdateWindowRect()
 	{
 		GetWindowRect(m_window->hWnd, &m_window->rect);
+		if (m_renderer->UpdateViewport() == false)
+		{
+			SetAppState(eAppState::kDead);
+		}
 	}
 
 	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

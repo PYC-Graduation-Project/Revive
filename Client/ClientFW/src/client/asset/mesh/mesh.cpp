@@ -5,43 +5,71 @@
 
 namespace client_fw
 {
+	void Mesh::PostDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		for (auto& count : m_lod_mesh_counts)
+			count = 0;
+	}
+
+	void Mesh::CreateDataForLodMesh(UINT lod)
+	{
+		if (lod == m_lod_count)
+		{
+			m_lod_mesh_counts.emplace_back(0);
+			m_vertex_buffer_blobs.emplace_back(ComPtr<ID3DBlob>());
+			m_vertex_buffers.emplace_back(ComPtr<ID3D12Resource>());
+			m_vertex_upload_buffers.emplace_back(ComPtr<ID3D12Resource>());
+			m_vertex_buffer_views.emplace_back(D3D12_VERTEX_BUFFER_VIEW());
+			m_index_buffer_blobs.emplace_back(ComPtr<ID3DBlob>());
+			m_index_buffers.emplace_back(ComPtr<ID3D12Resource>());
+			m_index_upload_buffers.emplace_back(ComPtr<ID3D12Resource>());
+			m_index_buffer_views.emplace_back(D3D12_INDEX_BUFFER_VIEW());
+
+			m_materials.emplace_back(std::vector<SPtr<Material>>());
+
+			++m_lod_count;
+		}
+	}
+
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-
-		auto vertices = reinterpret_cast<TextureLightVertex*>(m_vertex_buffer_blob->GetBufferPointer());
-		auto vertices_size = static_cast<UINT>(m_vertex_buffer_blob->GetBufferSize());
-
-		m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
-			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
-
-		m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
-		m_vertex_buffer_view.SizeInBytes = vertices_size;
-		m_vertex_buffer_view.StrideInBytes = sizeof(TextureLightVertex);
-
-		if (m_vertex_buffer == nullptr)
+		for (UINT i = 0; i < m_lod_count; ++i)
 		{
-			LOG_ERROR("Could not create vertex buffer : {0}", m_asset_info.name);
-			return false;
-		}
+			auto vertices = reinterpret_cast<TextureLightVertex*>(m_vertex_buffer_blobs.at(i)->GetBufferPointer());
+			auto vertices_size = static_cast<UINT>(m_vertex_buffer_blobs.at(i)->GetBufferSize());
 
-		if (m_index_buffer_blob != nullptr)
-		{
-			m_is_draw_index = true;
+			m_vertex_buffers.at(i) = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
+				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffers.at(i));
 
-			auto indices = reinterpret_cast<UINT*>(m_index_buffer_blob->GetBufferPointer());
-			auto indices_size = static_cast<UINT>(m_index_buffer_blob->GetBufferSize());
+			m_vertex_buffer_views.at(i).BufferLocation = m_vertex_buffers.at(i)->GetGPUVirtualAddress();
+			m_vertex_buffer_views.at(i).SizeInBytes = vertices_size;
+			m_vertex_buffer_views.at(i).StrideInBytes = sizeof(TextureLightVertex);
 
-			m_index_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, indices, indices_size,
-				D3D12_RESOURCE_STATE_INDEX_BUFFER, m_index_upload_buffer);
-
-			m_index_buffer_view.BufferLocation = m_index_buffer->GetGPUVirtualAddress();
-			m_index_buffer_view.Format = DXGI_FORMAT_R32_UINT;
-			m_index_buffer_view.SizeInBytes = indices_size;
-
-			if (m_index_buffer == nullptr)
+			if (m_vertex_buffers.at(i) == nullptr)
 			{
-				LOG_ERROR("Could not create index buffer : {0}", m_asset_info.name);
+				LOG_ERROR("Could not create vertex buffer : {0}", m_asset_info.name);
 				return false;
+			}
+
+			if (m_index_buffer_blobs.at(i) != nullptr)
+			{
+				m_is_draw_index = true;
+
+				auto indices = reinterpret_cast<UINT*>(m_index_buffer_blobs.at(i)->GetBufferPointer());
+				auto indices_size = static_cast<UINT>(m_index_buffer_blobs.at(i)->GetBufferSize());
+
+				m_index_buffers.at(i) = D3DUtil::CreateDefaultBuffer(device, command_list, indices, indices_size,
+					D3D12_RESOURCE_STATE_INDEX_BUFFER, m_index_upload_buffers.at(i));
+
+				m_index_buffer_views.at(i).BufferLocation = m_index_buffers.at(i)->GetGPUVirtualAddress();
+				m_index_buffer_views.at(i).Format = DXGI_FORMAT_R32_UINT;
+				m_index_buffer_views.at(i).SizeInBytes = indices_size;
+
+				if (m_index_buffers.at(i) == nullptr)
+				{
+					LOG_ERROR("Could not create index buffer : {0}", m_asset_info.name);
+					return false;
+				}
 			}
 		}
 
@@ -51,20 +79,71 @@ namespace client_fw
 	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list)
 	{
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
-		command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_view);
 	}
 
-	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index)
+	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list, UINT lod)
 	{
-		const auto& [count, start_location] = m_instance_info[material_index];
+		command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_views.at(lod));
 		if (m_is_draw_index)
-			command_list->DrawIndexedInstanced(count, instance_count, start_location, 0, 0);
-		else
-			command_list->DrawInstanced(count, instance_count, start_location, 0);
+			command_list->IASetIndexBuffer(&m_index_buffer_views.at(lod));
 	}
 
-	void StaticMesh::AddInstanceInfo(InstanceInfo&& info)
+	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod, UINT material_index)
 	{
-		m_instance_info.emplace_back(std::move(info));
+		//LOG_INFO(m_lod_mesh_counts.at(lod));
+		//LOG_INFO(m_instance_info.at(lod).size());
+		const auto& [count, start_location] = m_instance_info.at(lod)[material_index];
+		if (m_is_draw_index)
+			command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
+		else
+			command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
 	}
+
+	void StaticMesh::CreateDataForLodMesh(UINT lod)
+	{
+		if (lod == m_lod_count)
+		{
+			Mesh::CreateDataForLodMesh(lod);
+			m_instance_info.push_back(std::vector<InstanceInfo>());
+		}
+	}
+
+	ComPtr<ID3DBlob> Mesh::GetVertexBufferBlob(UINT lod)
+	{
+		if (lod < m_lod_count)
+			return m_vertex_buffer_blobs.at(lod);
+		else
+		{
+			LOG_ERROR("{0}-lod index out of range : {1}", m_asset_info.name, lod);
+			return nullptr;
+		}
+	}
+
+	bool Mesh::CreateVertexBufferBlob(UINT lod, UINT size)
+	{
+		return SUCCEEDED(D3DCreateBlob(size, m_vertex_buffer_blobs.at(lod).GetAddressOf()));
+	}
+
+	ComPtr<ID3DBlob> Mesh::GetIndexBufferBlob(UINT lod)
+	{
+		if (lod < m_lod_count)
+			return m_index_buffer_blobs.at(lod);
+		else
+		{
+			LOG_ERROR("{0}-lod index out of range : {1}", m_asset_info.name, lod);
+			return nullptr;
+		}
+	}
+
+	bool Mesh::CreateIndexBufferBlob(UINT lod, UINT size)
+	{
+		return SUCCEEDED(D3DCreateBlob(size, m_index_buffer_blobs.at(lod).GetAddressOf()));
+	}
+
+	void StaticMesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
+	{
+		if (lod < m_lod_count)
+			m_instance_info.at(lod).emplace_back(std::move(info));
+	}
+	
 }

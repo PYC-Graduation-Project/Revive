@@ -9,7 +9,7 @@ namespace client_fw
 	Renderer::Renderer(const WPtr<Window>& window)
 		: m_window(window)
 	{
-		m_render_system = CreateUPtr<RenderSystem>();
+		m_render_system = CreateUPtr<RenderSystem>(window);
 	}
 
 	Renderer::~Renderer()
@@ -123,6 +123,20 @@ namespace client_fw
 
 		MoveToNextFrame();
 
+		return true;
+	}
+
+	bool Renderer::UpdateViewport()
+	{
+		if (m_device != nullptr)
+		{
+			if (ResizeViewport() == false)
+			{
+				LOG_ERROR("Could not resize window");
+				return false;
+			}
+			m_render_system->UpdateViewport();
+		}
 		return true;
 	}
 
