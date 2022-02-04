@@ -5,6 +5,7 @@
 namespace client_fw
 {
 	class Material;
+	template<class T> class UploadBuffer;
 
 	struct InstanceInfo
 	{
@@ -12,16 +13,21 @@ namespace client_fw
 		UINT start_location;
 	};
 
+	struct RSMaterialIndexData
+	{
+		UINT index;
+	};
+
 	class Mesh : public Asset
 	{
 	public:
-		Mesh() = default;
-		virtual ~Mesh() = default;
+		Mesh();
+		virtual ~Mesh();
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
+		virtual void Shutdown();
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list, UINT lod) = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod, UINT material_index) = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) = 0;
 		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
@@ -65,6 +71,7 @@ namespace client_fw
 
 	protected:
 		std::vector<std::vector<SPtr<Material>>> m_materials;
+		std::vector<UPtr<UploadBuffer<RSMaterialIndexData>>> m_material_index_data;
 
 	public:
 		void AddMaterial(UINT lod, SPtr<Material>&& material) { m_materials.at(lod).emplace_back(std::move(material)); }
@@ -79,10 +86,9 @@ namespace client_fw
 		StaticMesh() = default;
 		virtual ~StaticMesh() = default;
 
-		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list, UINT lod);
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod, UINT material_index);
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) override;
 
 		virtual void CreateDataForLodMesh(UINT lod) override;
 

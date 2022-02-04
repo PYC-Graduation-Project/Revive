@@ -1,14 +1,29 @@
 #include "stdafx.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/mesh/vertex.h"
+#include "client/asset/mesh/material.h"
 #include "client/util/d3d_util.h"
+#include "client/util/upload_buffer.h"
 
 namespace client_fw
 {
+	Mesh::Mesh()
+	{
+	}
+
+	Mesh::~Mesh()
+	{
+	}
+
+	void Mesh::Shutdown()
+	{
+		for (const auto& data : m_material_index_data)
+			data->Shutdown();
+	}
+
 	void Mesh::PostDraw(ID3D12GraphicsCommandList* command_list)
 	{
-		for (auto& count : m_lod_mesh_counts)
-			count = 0;
+		std::fill(m_lod_mesh_counts.begin(), m_lod_mesh_counts.end(), 0);
 	}
 
 	void Mesh::CreateDataForLodMesh(UINT lod)
@@ -71,6 +86,12 @@ namespace client_fw
 					return false;
 				}
 			}
+
+			m_material_index_data.emplace_back(CreateUPtr<UploadBuffer<RSMaterialIndexData>>(true));
+			UINT mat_size = static_cast<UINT>(m_materials.at(i).size());
+			m_material_index_data.at(i)->CreateResource(device, mat_size);
+			for (UINT index = 0; index < mat_size; ++index)
+				m_material_index_data.at(i)->CopyData(index, RSMaterialIndexData{ m_materials.at(i)[index]->GetResourceIndex() });
 		}
 
 		return true;
@@ -81,22 +102,22 @@ namespace client_fw
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 	}
 
-	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list, UINT lod)
+	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod)
 	{
 		command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_views.at(lod));
 		if (m_is_draw_index)
 			command_list->IASetIndexBuffer(&m_index_buffer_views.at(lod));
-	}
 
-	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod, UINT material_index)
-	{
-		//LOG_INFO(m_lod_mesh_counts.at(lod));
-		//LOG_INFO(m_instance_info.at(lod).size());
-		const auto& [count, start_location] = m_instance_info.at(lod)[material_index];
-		if (m_is_draw_index)
-			command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
-		else
-			command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
+		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
+		{
+			command_list->SetGraphicsRootConstantBufferView(0, m_material_index_data.at(lod)->GetResource()->GetGPUVirtualAddress() +
+				mat_index * m_material_index_data.at(lod)->GetByteSize());
+			const auto& [count, start_location] = m_instance_info.at(lod)[mat_index];
+			if (m_is_draw_index)
+				command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
+			else
+				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
+		}
 	}
 
 	void StaticMesh::CreateDataForLodMesh(UINT lod)

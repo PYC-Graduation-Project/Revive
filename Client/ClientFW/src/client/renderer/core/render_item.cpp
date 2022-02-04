@@ -2,7 +2,6 @@
 #include "client/renderer/core/render_item.h"
 #include "client/renderer/core/render.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/mesh/material.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/util/d3d_util.h"
@@ -13,15 +12,8 @@ namespace client_fw
 	RenderItem::RenderItem(const SPtr<Mesh>& mesh)
 		: m_mesh(mesh)
 	{
-		for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
-		{
-			m_lod_material_indexs.push_back(m_material_count);
-			m_lod_material_counts.push_back(static_cast<UINT>(m_mesh->GetMaterials(lod).size()));
-			m_material_count += m_lod_material_counts[lod];
-		}
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
-		m_material_index_data = CreateUPtr<UploadBuffer<RSMaterialIndexData>>(true);
 	}
 
 	RenderItem::~RenderItem()
@@ -30,13 +22,11 @@ namespace client_fw
 
 	void RenderItem::Initialize(ID3D12Device* device)
 	{
-		m_material_index_data->CreateResource(device, m_material_count);
 	}
 
 	void RenderItem::Shutdown()
 	{
 		m_instance_data->Shutdown();
-		m_material_index_data->Shutdown();
 	}
 
 	void RenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -49,13 +39,6 @@ namespace client_fw
 				m_is_need_resource_create = false;
 			}
 			UpdateResources();
-		
-			//이 코드는 사실 Material data들의 저장 index가 바뀌지 않으면 Update를
-			//한번만 해주면 된다. 임시로 코드는 이렇게 작성하였다.
-			if (m_is_updated_material_index_data == false)
-			{
-				UpdateMaterialIndexResource();
-			}
 		}
 	}
 
@@ -68,9 +51,6 @@ namespace client_fw
 			
 			m_mesh->PreDraw(command_list);
 
-			auto material_index_resource = m_material_index_data->GetResource();
-			UINT material_index_resource_byte_size = m_material_index_data->GetByteSize();
-
 			for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
 			{
 				if (m_mesh->GetLODMeshCount(lod) > 0)
@@ -78,14 +58,7 @@ namespace client_fw
 					command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress() +
 						m_index_of_lod_instance_data[lod] * m_instance_data->GetByteSize());
 
-					m_mesh->PreDraw(command_list, lod);
-
-					for (UINT i = 0; i < m_lod_material_counts[lod]; ++i)
-					{
-						command_list->SetGraphicsRootConstantBufferView(0, material_index_resource->GetGPUVirtualAddress() +
-							(i + m_lod_material_indexs[lod]) * material_index_resource_byte_size);
-						m_mesh->Draw(command_list, lod, i);
-					}
+					m_mesh->Draw(command_list, lod);
 				}
 				
 			}
@@ -142,20 +115,6 @@ namespace client_fw
 				mesh_comp->SetVisiblity(false);
 			}
 		}
-	}
-
-	void RenderItem::UpdateMaterialIndexResource()
-	{
-		UINT index = 0;
-		for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
-		{
-			for (const auto& material : m_mesh->GetMaterials(lod))
-			{
-				m_material_index_data->CopyData(index, RSMaterialIndexData{ material->GetResourceIndex() });
-				++index;
-			}
-		}
-		m_is_updated_material_index_data = true;
 	}
 
 	void RenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)

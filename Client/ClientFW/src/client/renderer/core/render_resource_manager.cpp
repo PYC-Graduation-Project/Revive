@@ -22,19 +22,19 @@ namespace client_fw
 
 	void RenderResourceManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		for (const auto& mesh : m_ready_meshes)
-		{
-			mesh->Initialize(device, command_list);
-			LOG_INFO(mesh->GetPath());
-		}
-		m_ready_meshes.clear();
-
 		if (m_ready_materials.empty() == false)
 		{
 			CreateMaterialResource(device);
 			UpdateMaterialResource();
 			m_ready_materials.clear();
 		}
+
+		for (const auto& mesh : m_ready_meshes)
+		{
+			mesh->Initialize(device, command_list);
+			LOG_INFO(mesh->GetPath());
+		}
+		m_ready_meshes.clear();
 	}
 
 	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list)

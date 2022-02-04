@@ -12,11 +12,6 @@ namespace client_fw
 		Mat4 world_inverse_transpose;
 	};
 
-	struct RSMaterialIndexData
-	{
-		UINT index;
-	};
-
 	struct MeshComponentData
 	{
 		SPtr<MeshComponent> mesh_comp;
@@ -44,14 +39,10 @@ namespace client_fw
 		void CreateResources(ID3D12Device* device);
 		void UpdateResources();
 		void UpdateResourcesBeforeDraw();
-		void UpdateMaterialIndexResource();
 
 	protected:
 		bool m_is_need_resource_create = false;
 		SPtr<Mesh> m_mesh;
-		UINT m_material_count = 0;
-		std::vector<UINT> m_lod_material_counts;
-		std::vector<UINT> m_lod_material_indexs;
 		std::vector<UINT> m_index_of_lod_instance_data;
 
 		std::vector<MeshComponentData> m_mesh_comp_data;
@@ -59,9 +50,6 @@ namespace client_fw
 
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
-
-		UPtr<UploadBuffer<RSMaterialIndexData>> m_material_index_data;
-		bool m_is_updated_material_index_data = false;
 
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
