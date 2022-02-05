@@ -42,6 +42,7 @@ void MoveObjManager::Disconnect(int c_id)
 	//	}
 	//	else target->m_vl.unlock();
 	//}
+	cl->is_matching = false;
 	cl->state_lock.lock();
 	closesocket(cl->GetSock());
 	cl->SetState ( STATE::ST_FREE);

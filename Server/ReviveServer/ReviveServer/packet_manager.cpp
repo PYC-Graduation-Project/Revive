@@ -3,6 +3,7 @@
 #include"db.h"
 #include"moveobj_manager.h"
 #include"room_manager.h"
+#include"room.h"
 using namespace std;
 
 void PacketManager::Init()
@@ -278,6 +279,14 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	}
 	if (match_list.size() == pl->GetMatchUserSize())
 	{
+		int r_id = m_room_manager->GetEmptyRoom();
+		if (-1 == r_id)//빈방 검사
+		{
+			//방없다고 패킷보내주기
+			return;
+		}
+		
+		Room *room=m_room_manager->GetRoom(r_id);
 		for (auto id : match_list)
 		{
 			Player* player = m_moveobj_manager->GetPlayer(id);
@@ -285,12 +294,13 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			player->state_lock.lock();
 			player->SetState(STATE::ST_INGAME);
 			player->state_lock.unlock();
+			room->EnterRoom(id);//방에 아이디 넘겨주기
 			cout << id << endl;
 			SendMatchingOK(id);
 		}
-
-		//빈방 검사
-		//방에 아이디 넘겨주기
+		
+		
+		
 	}
 	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지

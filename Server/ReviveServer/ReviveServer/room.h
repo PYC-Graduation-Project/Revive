@@ -12,21 +12,19 @@ public:
 
 
 	void Init(int user_num, char* name);
-	bool EnterRoom(int c_id);
-	void LeaveRoom(int c_id);
-
-
-	bool CheckUserCount(){ return max_user > curr_user_count; }
+	void EnterRoom(int c_id);
+	
 
 	int GetRoomID() { return room_id; }
 	int GetMaxUser() { return max_user; }
-	int GetCurrUserCount() { return curr_user_count; }
 
-
+	bool GetState() { return is_ingame; }
+	void SetState(bool val) { is_ingame = val; }
+	
 private:
 	int room_id;
 	int max_user;
-	std::atomic_int curr_user_count;
+	std::atomic_bool is_ingame = false;
 	int max_npc;
 	char m_name[MAX_NAME_SIZE];
 	std::mutex m_obj_lock;
