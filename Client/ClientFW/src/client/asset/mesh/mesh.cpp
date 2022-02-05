@@ -67,4 +67,38 @@ namespace client_fw
 	{
 		m_instance_info.emplace_back(std::move(info));
 	}
+	void Skeleton::SetChild(SPtr<Skeleton>& child)
+	{
+		if (child)
+		{
+			//child->m_parent = this;
+		}
+		if (m_child)
+		{
+			if (child) child->m_sibling = m_child->m_sibling;
+			m_child->m_sibling = child;
+		}
+		else
+		{
+			m_child = child;
+		}
+	}
+
+	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		std::cout << "초기화합니다" << std::endl;
+		return false;
+	}
+
+	void SkeletalMesh::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		std::cout << "미리그립니다" << std::endl;
+
+	}
+
+	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index)
+	{
+		std::cout << "그립니다" << std::endl;
+
+	}
 }

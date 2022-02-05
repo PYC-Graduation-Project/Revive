@@ -1,6 +1,6 @@
 #pragma once
 #include "client/asset/core/asset.h"
-
+#include "client/asset/mesh/mesh_loader.h"
 namespace client_fw
 {
 	struct InstanceInfo
@@ -67,5 +67,48 @@ namespace client_fw
 
 	public:
 		virtual void AddInstanceInfo(InstanceInfo&& info);
+	};
+
+	class Skeleton 
+	{
+	public:
+		Skeleton() = default;
+		virtual ~Skeleton() = default;
+
+	private:
+		SPtr<Skeleton> m_parent = nullptr;
+		SPtr<Skeleton> m_child = nullptr;
+		SPtr<Skeleton> m_sibling = nullptr;
+
+
+		std::string bone_name;
+	public:
+		void SetChild(SPtr<Skeleton>& child);
+
+		void SetBoneName(const std::string& name) { bone_name = name; }
+
+	};
+
+	class SkeletalMesh : public Mesh
+	{
+	public:
+		SkeletalMesh() = default;
+		virtual ~SkeletalMesh() = default;
+
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index);
+
+		
+		
+	private:
+		SPtr<Skeleton> m_skeleton ;
+		
+		
+
+	public:
+		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
+		
+
 	};
 }
