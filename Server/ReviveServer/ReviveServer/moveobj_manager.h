@@ -24,6 +24,7 @@ public:
 	int GetNewID();
 	void Disconnect(int);
 	void InitPlayer();
+	void InitNPC();
 	void DestroyObject();
 private:
 	std::array <MoveObj*, MAX_USER + MAX_NPC>m_moveobj_arr;

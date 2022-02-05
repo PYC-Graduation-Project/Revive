@@ -57,6 +57,10 @@ void MoveObjManager::InitPlayer()
 	
 }
 
+void MoveObjManager::InitNPC()
+{
+}
+
 void MoveObjManager::DestroyObject()
 {
 	for (int i = 0; i < MAX_USER; ++i)
