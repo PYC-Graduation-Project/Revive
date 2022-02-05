@@ -42,9 +42,20 @@ namespace event_test
 		auto move_cube = CreateSPtr<MoveCube>();
 		SpawnActor(move_cube);
 		move_cube->SetPosition(Vec3{ 0.0f, 0.0f, 500.0f });
+		m_spawn_pos = Vec3(0.0f, 0.0f, 600.0f);
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
+
+		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
+			[this]()->bool {
+				auto move_cube = CreateSPtr<MoveCube>();
+				SpawnActor(move_cube);
+				move_cube->SetPosition(m_spawn_pos);
+				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
+				return true;
+			});
+
 
 		return true;
 	}
@@ -65,5 +76,12 @@ namespace event_test
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
 		return visual_octrees;
+	}
+
+	std::vector<SPtr<CollisionOctree>> EventTestLevel::CreateCollisionOctrees() const
+	{
+		std::vector<SPtr<CollisionOctree>> collision_octrees;
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(10000.0f));
+		return collision_octrees;
 	}
 }

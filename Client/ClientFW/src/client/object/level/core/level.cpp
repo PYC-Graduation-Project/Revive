@@ -83,7 +83,14 @@ namespace client_fw
 	std::vector<SPtr<VisualOctree>> Level::CreateVisualOctrees() const
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(0.0f, vec3::ZERO, 0));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f, vec3::ZERO, 0));
 		return visual_octrees;
+	}
+
+	std::vector<SPtr<CollisionOctree>> Level::CreateCollisionOctrees() const
+	{
+		std::vector<SPtr<CollisionOctree>> octrees;
+		octrees.emplace_back(CreateSPtr<CollisionOctree>(10000.0f, vec3::ZERO, 0));
+		return octrees;
 	}
 }

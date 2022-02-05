@@ -43,6 +43,8 @@ namespace client_fw
 			m_max_extent = extents.x;
 			m_max_extent = max(m_max_extent, extents.y);
 			m_max_extent = max(m_max_extent, extents.z);
+			if (m_collision_info.preset != eCollisionPreset::kNoCollision)
+				CollisionOctreeManager::GetOctreeManager().ReregisterMeshComponent(shared_from_this());
 		}
 	}
 
@@ -64,6 +66,8 @@ namespace client_fw
 	void MeshComponent::UnregisterFromMeshOctree()
 	{
 		VisualOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
+		if (m_collision_info.preset != eCollisionPreset::kNoCollision)
+			CollisionOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)
@@ -85,5 +89,10 @@ namespace client_fw
 	void MeshComponent::AddVisualTreeNode(const WPtr<VisualTreeNode>& tree_node)
 	{
 		m_visual_tree_node.push_back(tree_node);
+	}
+
+	void MeshComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)
+	{
+		m_collision_tree_node.push_back(tree_node);
 	}
 }

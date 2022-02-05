@@ -40,6 +40,7 @@ namespace client_fw
 		if (m_ready_level != nullptr)
 		{
 			m_octree_manager->RegisterVisualOctrees(std::move(m_ready_level->CreateVisualOctrees()));
+			m_octree_manager->RegisterCollisionOctrees(std::move(m_ready_level->CreateCollisionOctrees()));
 			if (m_ready_level->InitializeLevel())
 			{
 				m_cur_level = std::move(m_ready_level);

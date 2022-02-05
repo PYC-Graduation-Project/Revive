@@ -102,4 +102,11 @@ namespace render_test
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
 		return visual_octrees;
 	}
+
+	std::vector<SPtr<CollisionOctree>> PlayerTestLevel::CreateCollisionOctrees() const
+	{
+		std::vector<SPtr<CollisionOctree>> collision_octrees;
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(10000.0f));
+		return collision_octrees;
+	}
 }

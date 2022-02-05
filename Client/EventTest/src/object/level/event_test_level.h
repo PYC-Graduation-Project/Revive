@@ -18,6 +18,10 @@ namespace event_test
 
 	public:
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
+		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
+
+	private:
+		Vec3 m_spawn_pos;
 	};
 }
 

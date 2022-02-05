@@ -64,7 +64,7 @@ namespace client_fw
 		BFrustum m_bounding_frustum;
 
 	public:
-		void SetOwnerController(const WPtr<Actor>& owner) { m_owner_controller = owner; }
+		void SetOwnerController(const WPtr<Actor>& owner);
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }

@@ -79,6 +79,12 @@ namespace client_fw
 		Render::UnregisterCameraComponent(shared_from_this());
 	}
 
+	void CameraComponent::SetOwnerController(const WPtr<Actor>& owner)
+	{
+		m_owner_controller = owner; 
+		UpdateWorldMatrix();
+	}
+
 	Mat4 CameraComponent::GetPerspectiveMatrix() const
 	{
 		return mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
