@@ -48,7 +48,7 @@ public:
 	void SetState(STATE val) {  m_state=val; }
 	void SetRoomID(int val) { m_room_id = val; }
 
-private:
+protected:
 	std::atomic_bool m_is_active = true; //죽어있는지 살아있는지
 	int m_room_id;
 	float m_damage;

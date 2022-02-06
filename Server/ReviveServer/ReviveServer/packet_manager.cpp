@@ -10,6 +10,7 @@ void PacketManager::Init()
 {
 	m_moveobj_manager = new MoveObjManager;
 	m_moveobj_manager->InitPlayer();
+	m_moveobj_manager->InitNPC();
 	m_room_manager = new RoomManager;
 	m_room_manager->InitRoom();
 	m_db = new DB;
@@ -264,7 +265,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	Player* other_pl = NULL;
 	unordered_set<int>match_list;
 	//유저 검사 해서 매칭해주는 함수 구현-> 일단 코딩하고 함수화 하자
-	match_list.insert(c_id);
+	//match_list.insert(c_id);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		other_pl = m_moveobj_manager->GetPlayer(i);
@@ -299,8 +300,11 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			SendMatchingOK(id);
 		}
 		
+		room->Init(pl->GetMatchUserSize());
+		//빈 npc 검사
 		
-		
+		//npc아이디 넣어주기
+		//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기기->회의 필요
 	}
 	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지

@@ -32,7 +32,7 @@ public:
 	void SetPosX(float val) { m_x = val; };
 	void SetPosY(float val) { m_y = val; };
 	void SetPosZ(float val) { m_z = val; };
-private:
+protected:
 	int m_id;
 	OBJ_TYPE m_type;
 	float m_x, m_y, m_z;

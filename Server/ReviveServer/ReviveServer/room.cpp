@@ -11,13 +11,11 @@ Room::~Room()
 {
 }
 
-void Room::Init(int user_num, char* name)
+void Room::Init(int user_num)
 {
 	//이후에 방비우기로 사용
-	ZeroMemory(m_name, sizeof(m_name));
 	max_user = user_num;
 	max_npc = max_user * NPC_PER_USER;
-	strcpy_s(m_name, name);
 	
 }
 

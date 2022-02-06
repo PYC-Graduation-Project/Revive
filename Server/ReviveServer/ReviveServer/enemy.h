@@ -8,8 +8,14 @@ class Enemy :
 {
 public:
     Enemy() = default;
-    ~Enemy() = default;
+    ~Enemy() 
+    {
+        lua_close(L);
+    };
     
+
+    void Init(const char* script_name);
+    void RegisterAPI();
 private:
     lua_State* L;
     std::mutex lua_lock;

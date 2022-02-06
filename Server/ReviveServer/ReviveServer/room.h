@@ -11,7 +11,7 @@ public:
 
 
 
-	void Init(int user_num, char* name);
+	void Init(int user_num);
 	void EnterRoom(int c_id);
 	
 
@@ -26,7 +26,6 @@ private:
 	int max_user;
 	std::atomic_bool is_ingame = false;
 	int max_npc;
-	char m_name[MAX_NAME_SIZE];
 	std::mutex m_obj_lock;
 	std::unordered_set<int>m_obj_list;
 

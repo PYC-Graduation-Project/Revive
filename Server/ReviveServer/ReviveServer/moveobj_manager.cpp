@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "moveobj_manager.h"
+#include"enemy.h"
 using namespace std;
 
 
@@ -59,6 +60,8 @@ void MoveObjManager::InitPlayer()
 
 void MoveObjManager::InitNPC()
 {
+	for (int i = NPC_ID_START; i <= NPC_ID_START; ++i)
+		m_moveobj_arr[i] = new Enemy;
 }
 
 void MoveObjManager::DestroyObject()
