@@ -2,9 +2,10 @@
 
 namespace client_fw
 {
-	struct BOrientedBox;
+	class BOrientedBox;
 	struct CollisionTreeNode;
 	class MeshComponent;
+	enum class eCollisionComplex;
 
 	class CollisionChecker
 	{
@@ -18,6 +19,9 @@ namespace client_fw
 
 	private:
 		void CheckCollisionInLeafNode(const SPtr<CollisionTreeNode>& node);
+		void CheckCollisionComplexity(const SPtr<MeshComponent>& mesh1, const SPtr<MeshComponent>& mesh2);
+		UINT GetLODFromCollisionComplex(const SPtr<MeshComponent>& mesh, eCollisionComplex complex) const;
+
 	};
 }
 

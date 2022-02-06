@@ -10,7 +10,7 @@ namespace client_fw
 	class CameraComponent;
 	class MeshComponent;
 	struct VisualTreeNode;
-	struct BFrustum;
+	class BFrustum;
 	
 	class MeshVisualizer final
 	{

@@ -18,6 +18,7 @@ namespace client_fw
 		UINT index;
 	};
 
+	//template<class VertexType>
 	class Mesh : public Asset
 	{
 	public:
@@ -68,7 +69,8 @@ namespace client_fw
 		bool CreateIndexBufferBlob(UINT lod, UINT size);
 		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }
 		void SetOrientBox(const BOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
-
+		bool IsDrawIndex() const { return m_is_draw_index; }
+ 
 	protected:
 		std::vector<std::vector<SPtr<Material>>> m_materials;
 		std::vector<UPtr<UploadBuffer<RSMaterialIndexData>>> m_material_index_data;

@@ -2,7 +2,6 @@
 #include "client/util/octree/mesh_octree.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/actor/core/actor.h"
-#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {

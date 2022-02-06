@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "client/asset/mesh/vertex.h"
+#include "client/asset/mesh/mesh.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/actor/core/actor.h"
 #include "client/physics/core/collision_checker.h"
@@ -36,23 +38,13 @@ namespace client_fw
 						const auto& movable_mesh = node->movable_mesh_components[j];
 
 						if (mesh->GetOrientedBox().Intersects(movable_mesh->GetOrientedBox()))
-						{
-							//이벤트 실행
-							LOG_INFO("{0} col {1}",
-								mesh->GetOwner().lock()->GetName(),
-								movable_mesh->GetOwner().lock()->GetName());
-						}
+							CheckCollisionComplexity(mesh, movable_mesh);
 					}
 
 					for (const auto& static_mesh : node->static_mesh_components)
 					{
 						if (mesh->GetOrientedBox().Intersects(static_mesh->GetOrientedBox()))
-						{
-							//이벤트 실행
-							LOG_INFO("{0} col {1}",
-								mesh->GetOwner().lock()->GetName(),
-								static_mesh->GetOwner().lock()->GetName());
-						}
+							CheckCollisionComplexity(mesh, static_mesh);
 					}
 				}
 			}
@@ -62,5 +54,12 @@ namespace client_fw
 			for (const auto& child_node : node->child_nodes)
 				CheckCollisionInLeafNode(child_node);
 		}
+	}
+
+	void CollisionChecker::CheckCollisionComplexity(const SPtr<MeshComponent>& mesh1, const SPtr<MeshComponent>& mesh2)
+	{
+		LOG_INFO("{0} col {1}",
+			mesh1->GetOwner().lock()->GetName(),
+			mesh2->GetOwner().lock()->GetName());
 	}
 }

@@ -3,99 +3,101 @@
 
 namespace client_fw
 {
-	struct BBox;
-	struct BOrientedBox;
-	struct BFrustum;
-	struct BSphere;
+	class BBox;
+	class BOrientedBox;
+	class BFrustum;
+	class BSphere;
 
-	struct BBox
+	namespace triangle_test
+	{
+		bool Intersect(const Vec3& a1, const Vec3& a2, const Vec3& a3,
+			const Vec3& b1, const Vec3& b2, const Vec3& b3);
+		bool Intersect(const Vec3& origin, const Vec3& direction,
+			const Vec3& v1, const Vec3& v2, const Vec3& v3, float& distance);
+	}
+
+	template <class Type>
+	class Bounding
+	{
+	public:
+		void Transform(const Mat4& mat)
+		{
+			m_bounding.Transform(m_bounding, XMLoadFloat4x4(&mat));
+		}
+		void Transform(const Bounding<Type>& in, const Mat4& mat)
+		{
+			in.GetBounding().Transform(m_bounding, XMLoadFloat4x4(&mat));
+		}
+
+		template <class AnotherType>
+		ContainmentType Contains(const Bounding<AnotherType>& bounding_mesh) const
+		{
+			return m_bounding.Contains(bounding_mesh.GetBounding());
+		}
+		template <class AnotherType>
+		bool Intersects(const Bounding<AnotherType>& bounding_mesh) const
+		{
+			return m_bounding.Intersects(bounding_mesh.GetBounding());
+		}
+
+		ContainmentType Contains(const Vec3& v1, const Vec3& v2, const Vec3& v3) const
+		{
+			return m_bounding.Contains(XMLoadFloat3(&v1), XMLoadFloat3(&v2), XMLoadFloat3(&v3));
+		}
+		bool Intersects(const Vec3& v1, const Vec3& v2, const Vec3& v3) const
+		{
+			return m_bounding.Intersects(XMLoadFloat3(&v1), XMLoadFloat3(&v2), XMLoadFloat3(&v3));
+		}
+		bool Intersects(const Vec3& origin, const Vec3& direction, float& distance)
+		{
+			return m_bounding.Intersects(XMLoadFloat3(&origin), XMLoadFloat3(&direction), distance);
+		}
+
+	protected:
+		Type m_bounding;
+
+	public:
+		const Type& GetBounding() const { return m_bounding; }
+	};
+
+	class BBox : public Bounding<BoundingBox>
 	{
 	public:
 		BBox(Vec3 center = vec3::ZERO, Vec3 extents = Vec3(1.f, 1.f, 1.f));
 
-		virtual void Transform(const Mat4& mat);
-		void Transform(const BBox& in, const Mat4& mat);
-
-		ContainmentType Contains(const BBox& box) const;
-		bool Intersects(const BBox& box) const;
-		ContainmentType Contains(const BOrientedBox& obox) const;
-		bool Intersects(const BOrientedBox& obox) const;
-		ContainmentType Contains(const BFrustum& frustum) const;
-		bool Intersects(const BFrustum& frustum) const;
-		ContainmentType Contains(const BSphere& sphere) const;
-		bool Intersects(const BSphere& sphere) const;
-
-	private:
-		BoundingBox bounding_box;
-
 	public:
-		const BoundingBox& GetBoundingBox() const { return bounding_box; }
-		BoundingBox& GetBoundingBox() { return bounding_box; }
-		Vec3 GetCenter() const { return Vec3(bounding_box.Center); }
-		Vec3 GetExtents() const { return Vec3(bounding_box.Extents); }
-		void SetCenter(const Vec3& center) { bounding_box.Center = center; }
-		void SetExtents(const Vec3& extents) { bounding_box.Extents = extents; }
+		Vec3 GetCenter() const { return Vec3(m_bounding.Center); }
+		Vec3 GetExtents() const { return Vec3(m_bounding.Extents); }
+		void SetCenter(const Vec3& center) { m_bounding.Center = center; }
+		void SetExtents(const Vec3& extents) { m_bounding.Extents = extents; }
 	};
 
-	struct BOrientedBox
+	class BOrientedBox : public Bounding<BoundingOrientedBox>
 	{
 	public:
 		BOrientedBox(Vec3 center = vec3::ZERO, Vec3 extents = Vec3(1.f, 1.f, 1.f));
 
-		virtual void Transform(const Mat4& mat);
-		void Transform(const BOrientedBox& in, const Mat4& mat);
-
-		ContainmentType Contains(const BBox& box) const;
-		bool Intersects(const BBox& box) const;
-		ContainmentType Contains(const BOrientedBox& obox) const;
-		bool Intersects(const BOrientedBox& obox) const;
-		ContainmentType Contains(const BFrustum& frustum) const;
-		bool Intersects(const BFrustum& frustum) const;
-		ContainmentType Contains(const BSphere& sphere) const;
-		bool Intersects(const BSphere& sphere) const;
-
-	private:
-		BoundingOrientedBox bounding_oriented_box;
-
-	public:
-		const BoundingOrientedBox& GetBoundingOrientedBox() const { return bounding_oriented_box; }
-		BoundingOrientedBox& GetBoundingOrientedBox() { return bounding_oriented_box; }
-		Vec3 GetCenter() const { return Vec3(bounding_oriented_box.Center); }
-		Vec3 GetExtents() const { return Vec3(bounding_oriented_box.Extents); }
-		void SetCenter(const Vec3& center) { bounding_oriented_box.Center = center; }
-		void SetExtents(const Vec3& extents) { bounding_oriented_box.Extents = extents; }
+		Vec3 GetCenter() const { return Vec3(m_bounding.Center); }
+		Vec3 GetExtents() const { return Vec3(m_bounding.Extents); }
+		void SetCenter(const Vec3& center) { m_bounding.Center = center; }
+		void SetExtents(const Vec3& extents) { m_bounding.Extents = extents; }
 	};
 
-	struct BFrustum
+	class BFrustum : public Bounding<BoundingFrustum>
 	{
 	public:
 		BFrustum(Mat4 mat = mat4::IDENTITY);
-
-		virtual void Transform(const Mat4& mat);
-		void Transform(const BFrustum& in, const Mat4& mat);
-
-		ContainmentType Contains(const BBox& box) const;
-		bool Intersects(const BBox& box) const;
-		ContainmentType Contains(const BOrientedBox& obox) const;
-		bool Intersects(const BOrientedBox& obox) const;
-		ContainmentType Contains(const BFrustum& frustum) const;
-		bool Intersects(const BFrustum& frustum) const;
-		ContainmentType Contains(const BSphere& sphere) const;
-		bool Intersects(const BSphere& sphere) const;
-
-	private:
-		BoundingFrustum bounding_frustum;
-
-
-	public:
-		const BoundingFrustum& GetBoundingFrustum() const { return bounding_frustum; }
-		BoundingFrustum& GetBoundingFrustum() { return bounding_frustum; }
-
 	};
 
-	struct BSphere
+	class BSphere : public Bounding<BoundingSphere>
 	{
+	public:
+		BSphere(Vec3 center = vec3::ZERO, float radius = 1.f);
 
+		Vec3 GetCenter() const { return Vec3(m_bounding.Center); }
+		float GetRadius() const { return m_bounding.Radius; }
+		void SetCenter(const Vec3& center) { m_bounding.Center = center; }
+		void SetRadius(float radius) { m_bounding.Radius = radius; }
 	};
 }
 
