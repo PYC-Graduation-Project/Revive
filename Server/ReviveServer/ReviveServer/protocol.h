@@ -14,6 +14,8 @@ const int MAX_ROOM_SIZE = 25;//방 최대 사이즈
 
 constexpr int  MAX_USER = MAX_ROOM_SIZE*3; //최대 동접 가능 인원
 const int  NPC_PER_USER = 15;//사람하나당 최대 npc
+const int  SORDIER_PER_USER = 9;//사람하나당 최대 해골 병사
+const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER* NPC_PER_USER; //최대 npc 개수
 
 const float MAX_SPEED=10000; //추후 수정, 플레이어 이동 속도
@@ -21,6 +23,9 @@ const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
+
+
+
 
 const char CS_PACKET_SIGN_IN = 1;
 const char CS_PACKET_SIGN_UP = 2;

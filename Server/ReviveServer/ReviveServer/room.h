@@ -17,7 +17,7 @@ public:
 
 	int GetRoomID() { return room_id; }
 	int GetMaxUser() { return max_user; }
-
+	int GetMaxEnemy() { return max_npc; }
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
 	
