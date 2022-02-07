@@ -15,17 +15,14 @@ public:
 		:m_hp(hp),m_maxhp(hp)
 	{
 		Init(id, type, x, y, z);
-		m_origin_x = x;
-		m_origin_y = y;
-		m_origin_z = z;
+		
 		
 	}
 
 	virtual ~MoveObj() = default;
 
-	float GetOriginX()const { return m_origin_x; }
-	float GetOriginY()const { return m_origin_y; }
-	float GetOriginZ()const { return m_origin_z; }
+	Vector3 GetOriginX()const { return m_origin_pos; }
+	
 
 	float GetDamge()const { return m_damage; }
 	float GetHP()const { return m_hp; }
@@ -48,6 +45,7 @@ public:
 	
 	void SetRoomID(int val) { m_room_id = val; }
 
+	void SetOriginPos(const Vector3& val) { m_origin_pos = val; }
 protected:
 	std::atomic_bool m_is_active = true; //죽어있는지 살아있는지
 	int m_room_id;
@@ -55,5 +53,5 @@ protected:
 	float m_hp, m_maxhp;
 	
 	Vector3 m_right, m_look, m_up;
-	float m_origin_x, m_origin_y, m_origin_z;
+	Vector3 m_origin_pos;
 };

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "enemy.h"
 using namespace std;
-void Enemy::Init(const char* script_name)
+void Enemy::InitLua(const char* script_name)
 {
 	L = luaL_newstate();
 	luaL_openlibs(L);
@@ -11,9 +11,9 @@ void Enemy::Init(const char* script_name)
 
 	lua_getglobal(L, "initializEnemy");
 	lua_pushnumber(L,m_id);
-	lua_pushnumber(L,m_x);
-	lua_pushnumber(L,m_y);
-	lua_pushnumber(L,m_z);
+	lua_pushnumber(L,m_pos.x);
+	lua_pushnumber(L,m_pos.y);
+	lua_pushnumber(L,m_pos.z);
 	lua_pushnumber(L,m_maxhp);
 	lua_pushnumber(L,m_damage);
 	lua_pushnumber(L,(int)m_type);
@@ -21,6 +21,11 @@ void Enemy::Init(const char* script_name)
 	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
 
 	RegisterAPI();
+
+}
+
+void Enemy::InitEnemy(OBJ_TYPE type, int room_id, float max_hp, Vector3& pos, float damage)
+{
 
 }
 

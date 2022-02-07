@@ -20,7 +20,12 @@ public:
 	int GetMaxEnemy() { return max_npc; }
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
+
 	
+	std::unordered_set<int>& GetObjList()
+	{
+		return m_obj_list;
+	}
 private:
 	int room_id;
 	int max_user;

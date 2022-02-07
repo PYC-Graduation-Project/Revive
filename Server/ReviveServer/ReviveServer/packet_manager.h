@@ -16,6 +16,7 @@ public:
 	void ProcessPacket(int c_id, unsigned char* p);
 	void ProcessAccept(HANDLE ,SOCKET&,EXP_OVER*);
 	void ProcessRecv(int, EXP_OVER*, DWORD);
+	
 	void UpdateObjMove();
 
 
@@ -29,6 +30,7 @@ public:
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
 	void End();
 	void Disconnect(int c_id);
+
 	void CreateDBThread();
 	void DBThread();
 	void ProcessDBTask(db_task& dt);
@@ -47,5 +49,7 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
+
+	void StartGame(int room_id);
 };
 

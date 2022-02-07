@@ -3,7 +3,9 @@
 class Object
 {
 public:
-	Object():m_x(0.0f),m_y(0.0f),m_z(0.0f) {};
+	Object(){
+		m_pos = Vector3(0.0f, 0.0f, 0.0f);
+	};
 	virtual ~Object() = default;
 
 
@@ -11,15 +13,15 @@ public:
 	{
 		m_id = id;
 		m_type = type;
-		m_x = x;
-		m_y = y;
-		m_z = z;
+		m_pos.x = x;
+		m_pos.y = y;
+		m_pos.z = z;
 	};
 
-	float GetPosX()const { return m_x; };
-	float GetPosY()const { return m_y; };
-	float GetPosZ()const { return m_z; };
-
+	float GetPosX()const { return m_pos.x; };
+	float GetPosY()const { return m_pos.y; };
+	float GetPosZ()const { return m_pos.z; };
+	Vector3& GetPos() { return m_pos; }
 	
 
 	int GetID()const   { return m_id; };
@@ -29,13 +31,14 @@ public:
 	void SetID(int val)   { m_id = val; };
 	void SetType(OBJ_TYPE val) { m_type = val; }
 
-	void SetPosX(float val) { m_x = val; };
-	void SetPosY(float val) { m_y = val; };
-	void SetPosZ(float val) { m_z = val; };
+	void SetPosX(float val) { m_pos.x = val; };
+	void SetPosY(float val) {m_pos.y = val; };
+	void SetPosZ(float val) {m_pos.z = val; };
+	void SetPos(Vector3& val) { m_pos = val; }
 protected:
 	int m_id;
 	OBJ_TYPE m_type;
-	float m_x, m_y, m_z;
+	Vector3 m_pos;
 	
 
 

@@ -319,10 +319,19 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		//npc아이디 넣어주기
 		for (auto obj_id : match_list)
 			room->EnterRoom(obj_id);
-		//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화->회의 필요
+		
+		StartGame(room->GetRoomID());
 	}
 	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
+}
+
+void PacketManager::StartGame(int room_id)
+{
+	Room*room=m_room_manager->GetRoom(room_id);
+
+
+	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 }
 
 
