@@ -196,10 +196,12 @@ namespace client_fw
 
 	}
 
-	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index)
+	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod)
 	{
-		std::cout << "그립니다" << std::endl;
+	}
 
+	void SkeletalMesh::CreateDataForLodMesh(UINT lod)
+	{
 	}
 
 	

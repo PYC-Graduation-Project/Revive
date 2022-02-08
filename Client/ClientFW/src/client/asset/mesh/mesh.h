@@ -108,13 +108,29 @@ namespace client_fw
 		SPtr<Skeleton> m_child = nullptr;
 		SPtr<Skeleton> m_sibling = nullptr;
 
-
 		std::string bone_name;
+		
+		Mat4 m_to_parent;
+		
+	public:
+
+		Vec3 m_scale;
+		Vec3 m_translation;
+		Vec3 m_rotation;
+
 	public:
 		void SetChild(SPtr<Skeleton>& child);
 
 		void SetBoneName(const std::string& name) { bone_name = name; }
 
+		void SetToParent(const Mat4& to_parent) { m_to_parent = to_parent; }
+	};
+
+	struct BoneData {
+		std::vector<std::string> bone_names;
+		std::vector<Mat4> bone_offsets;
+		std::vector<IVec4> bone_indices;
+		std::vector<Vec4> bone_weights;
 	};
 
 	class SkeletalMesh : public Mesh
@@ -123,15 +139,16 @@ namespace client_fw
 		SkeletalMesh() = default;
 		virtual ~SkeletalMesh() = default;
 
-		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index);
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) override;
+		virtual void CreateDataForLodMesh(UINT lod) override;
 
 		
 		
 	private:
 		SPtr<Skeleton> m_skeleton ;
-		
+		BoneData m_bone_data;
 		
 
 	public:

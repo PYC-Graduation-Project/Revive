@@ -9,7 +9,9 @@ using namespace DirectX::PackedVector;
 #include "client/math/ivec2.h"
 
 #include "client/math/vec3.h"
+
 #include "client/math/vec4.h"
+#include "client/math/ivec4.h"
 
 #include "client/math/mat3.h"
 #include "client/math/mat4.h"

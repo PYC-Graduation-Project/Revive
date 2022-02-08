@@ -18,6 +18,8 @@ namespace client_fw
 		
 		//애니메이션과 계층구조 형태의 파일(rev파일)을 읽음
 		void LoadFrameHierArchy(std::ifstream& rev_file,SPtr<Skeleton>& skeleton,SPtr<SkeletalMesh>& mesh);
+		
+		
 		void LoadMeshFromFIle(std::ifstream& rev_file); 
 		//void LoadSkinDeformations
 

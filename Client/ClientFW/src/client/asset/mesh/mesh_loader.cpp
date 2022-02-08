@@ -230,19 +230,10 @@ namespace client_fw
 			return nullptr;
 		}
 
-		std::vector<Vec3> positions;
-		std::vector<Vec3> normals;
-		std::vector<Vec2> tex_coords;
-		std::vector<CombineData> combine_data;
-		UINT combine_data_index = 0;
+		std::string parent_path = file_help::GetParentPathFromPath(path);
+		std::string stem = file_help::GetStemFromPath(path);
 
-		std::stringstream ss;
-		std::string line;
-		std::string prefix;
-
-		Vec3 temp_vec;
-		UINT temp_uint = 0;
-		std::string temp_string;
+		
 
 		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
@@ -259,7 +250,11 @@ namespace client_fw
 
 		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
 		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
-		
+
+		std::stringstream ss;
+		std::string line;
+		std::string prefix;
+
 		while (ReadFromFile(rev_file,&ss))
 		{
 			ss >> prefix;
@@ -281,9 +276,6 @@ namespace client_fw
 			}
 		}
 
-		
-		
-
 		return s_mesh;
 	}
 	void MeshLoader::LoadFrameHierArchy(std::ifstream &rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh)
@@ -293,9 +285,9 @@ namespace client_fw
 		std::string prefix;
 		
 		std::vector<Mat4> parent;
-		std::vector<Vec3> scale;
-		std::vector<Vec3> rotation;
-		std::vector<Vec3> translation;
+		Vec3 scale;
+		Vec3 rotation;
+		Vec3 translation;
 
 		int n_frame = 0; //프레임 수
 		int n_childs = 0;
@@ -324,19 +316,16 @@ namespace client_fw
 					{
 					case HashCode("<Transform>:"):
 						rev_file.read((char*)&temp_mat4, sizeof(Mat4));
-						parent.emplace_back(std::move(temp_mat4));
-
-						rev_file.read((char*)&temp_vec3, sizeof(Vec3));
-						scale.emplace_back(std::move(temp_vec3));
-						rev_file.read((char*)&temp_vec3, sizeof(Vec3));
-						rotation.emplace_back(std::move(temp_vec3));
-						rev_file.read((char*)&temp_vec3, sizeof(Vec3));
-						translation.emplace_back(std::move(temp_vec3));
+						skeleton->SetToParent(temp_mat4);
+						
+						rev_file.read((char*)&skeleton->m_scale, sizeof(Vec3));
+						rev_file.read((char*)&skeleton->m_rotation, sizeof(Vec3));
+						rev_file.read((char*)&skeleton->m_translation, sizeof(Vec3));
 
 						break;
 						
 					case HashCode("<Mesh>:"):
-						LoadMeshFromFIle(rev_file);
+						//s_mesh = LoadMeshFromFIle(rev_file,mesh);
 						break; 
 						
 					case HashCode("<SkinDeformations>:"):
