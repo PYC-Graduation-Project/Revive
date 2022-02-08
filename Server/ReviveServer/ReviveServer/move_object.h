@@ -11,13 +11,6 @@ public:
 		m_look = Vector3(0.0f,0.0f, 1.0f);
 		m_up = Vector3(0.0f, 1.0f, 0.0f);
 	};
-	MoveObj(int id, OBJ_TYPE type, float hp, float x, float y, float z)
-		:m_hp(hp),m_maxhp(hp)
-	{
-		Init(id, type, x, y, z);
-		
-		
-	}
 
 	virtual ~MoveObj() = default;
 

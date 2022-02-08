@@ -183,6 +183,7 @@ void PacketManager::End()
 	if (m_moveobj_manager)delete m_moveobj_manager;
 	if (m_db)delete m_db;
 	if (m_db2)delete m_db2;
+	if (m_room_manager)delete m_room_manager;
 }
 
 void PacketManager::Disconnect(int c_id)
@@ -329,8 +330,31 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 void PacketManager::StartGame(int room_id)
 {
 	Room*room=m_room_manager->GetRoom(room_id);
+	//맵 오브젝트 정보는 보내줄 필요없음
+	//npc와 player 초기화 및 보내주기
+	int cnt = 1;
+	Enemy* e = NULL;
+	Vector3 pos = Vector3(0.0f, 0.0f, 0.0f);//npc 초기화용 위치 추후수정
+	for (auto a : room->GetObjList())
+	{
+		if (m_moveobj_manager->IsPlayer(a))
+			continue;
+		e = m_moveobj_manager->GetEnemy(a);
+		if (cnt <= room->GetMaxUser() * SORDIER_PER_USER)
+		{
+			
+			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), SKULL_HP, pos, PLAYER_DAMAGE);
+			cnt++;
+		}
+		else
+		{
+			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), SKULLKING_HP, pos, PLAYER_DAMAGE);
+			
+		}
+	}
 
-
+	//주위객체 정보 보내주기
+	
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 }
 

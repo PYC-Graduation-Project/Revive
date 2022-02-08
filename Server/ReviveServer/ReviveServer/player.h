@@ -5,12 +5,13 @@ class Player :
     public MoveObj
 {
 public:
-    Player()
+    Player():m_last_move_time(0),
+        m_prev_size(0), m_socket(INVALID_SOCKET)
     {
+        //데미지랑 hp초기화 추가해야함
+        m_type = OBJ_TYPE::OT_PLAYER;
         m_state = STATE::ST_FREE;
-        m_last_move_time = 0;
-        m_prev_size = 0;
-        m_socket= INVALID_SOCKET;
+        
     }
    virtual ~Player()=default;
    std::mutex state_lock;
@@ -26,6 +27,9 @@ private:
     char m_password[MAX_PASSWORD_SIZE + 1];
     short m_mach_user_size = 0;
 public:
+
+    
+
     STATE GetState()const { return m_state; }
     void SetState(STATE val) { m_state = val; }
     void DoRecv();

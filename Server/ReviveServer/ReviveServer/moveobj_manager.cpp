@@ -66,15 +66,26 @@ void MoveObjManager::InitNPC()
 
 void MoveObjManager::DestroyObject()
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	//for (int i = 0; i < MAX_USER; ++i)
+	//{
+	//	if (STATE::ST_INGAME == m_moveobj_arr[i]->GetState())
+	//	{
+	//		Disconnect(m_moveobj_arr[i]->GetID());
+	//		delete m_moveobj_arr[i];
+	//	}
+	//}
+	for (auto obj : m_moveobj_arr)
 	{
-		if (STATE::ST_INGAME == m_moveobj_arr[i]->GetState())
+		if (true == IsPlayer(obj->GetID()))
 		{
-			Disconnect(m_moveobj_arr[i]->GetID());
-			delete m_moveobj_arr[i];
+			if (GetPlayer(obj->GetID())->GetState() != STATE::ST_FREE)
+				Disconnect(obj->GetID());
+		}
+		if (obj)
+		{
+			delete obj;
 		}
 	}
-
 }
 
 
