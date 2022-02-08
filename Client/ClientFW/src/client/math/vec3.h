@@ -10,6 +10,7 @@ namespace client_fw
 	public:
 		constexpr explicit Vec3() : XMFLOAT3(0.0f, 0.0f, 0.0f) {}
 		constexpr explicit Vec3(float x, float y, float z) : XMFLOAT3(x, y, z) {}
+		constexpr explicit Vec3(XMFLOAT3 xmf3) : XMFLOAT3(xmf3) {}
 
 		Vec3& operator+=(const Vec3& rhs);
 		Vec3& operator-=(const Vec3& rhs);

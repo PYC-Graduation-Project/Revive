@@ -9,8 +9,6 @@ namespace client_fw
 		OpaqueMeshShader(const std::string& name);
 		virtual ~OpaqueMeshShader() = default;
 
-		virtual void Initialize(ID3D12Device* device) override;
-		virtual void Shutdown() override;
 		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
 

@@ -4,7 +4,7 @@
 namespace client_fw
 {
 	SimpleMovementComponent::SimpleMovementComponent(const std::string& name)
-		: MovementComponent(name)
+		: PawnMovementComponent(name)
 	{
 	}
 
@@ -22,6 +22,6 @@ namespace client_fw
 		m_cur_speed = std::clamp(m_cur_speed, 0.0f, m_max_speed);
 		m_velocity = m_move_input * m_cur_speed;
 
-		MovementComponent::Update(delta_time);
+		PawnMovementComponent::Update(delta_time);
 	}
 }

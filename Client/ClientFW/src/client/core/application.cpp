@@ -7,9 +7,11 @@
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
+#include "client/physics/core/physics_world.h"
 #include "client/renderer/core/renderer.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/mesh/mesh_loader.h"
+#include "client/asset/mesh/material_loader.h"
 
 namespace client_fw
 {
@@ -26,6 +28,7 @@ namespace client_fw
 		m_timer = CreateUPtr<Timer>();
 		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
+		m_physics_world = CreateUPtr<PhysicsWorld>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 		m_asset_manager = CreateUPtr<AssetManager>();
 	}
@@ -52,6 +55,13 @@ namespace client_fw
 		}
 		m_timer->OnFpsChanged([this](UINT fps) {ShowFpsToWindowTitle(fps); });
 
+		result = m_physics_world->Initialize();
+		if (result == false)
+		{
+			LOG_ERROR("Could not initialize physics world");
+			return false;
+		}
+
 		result = m_renderer->Initialize();
 		if (result == false)
 		{
@@ -66,12 +76,13 @@ namespace client_fw
 
 	void Application::InitializeAssetManager()
 	{
-		m_asset_manager->Initialize(CreateUPtr<MeshLoader>());
+		m_asset_manager->Initialize(CreateUPtr<MeshLoader>(), CreateUPtr<MaterialLoader>());
 	}
 
 	void Application::Shutdown()
 	{
 		m_level_manager->Shutdown();
+		m_physics_world->Shutdown();
 		m_renderer->Shutdown();
 	}
 
@@ -106,6 +117,7 @@ namespace client_fw
 	void Application::Update(float delta_time)
 	{
 		m_level_manager->Update(delta_time);
+		//m_physics_world->Update(delta_time);
 	}
 
 	void Application::Render()
@@ -129,6 +141,10 @@ namespace client_fw
 	void Application::UpdateWindowRect()
 	{
 		GetWindowRect(m_window->hWnd, &m_window->rect);
+		if (m_renderer->UpdateViewport() == false)
+		{
+			SetAppState(eAppState::kDead);
+		}
 	}
 
 	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

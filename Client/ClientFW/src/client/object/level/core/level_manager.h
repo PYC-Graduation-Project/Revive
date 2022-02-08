@@ -7,12 +7,13 @@ namespace client_fw
 	class LevelLoader;
 
 	class Actor;
+	class OctreeManager;
 
 	class LevelManager final: public IBaseObjectManager
 	{
 	public:
 		LevelManager();
-		virtual ~LevelManager() = default;
+		virtual ~LevelManager();
 
 		LevelManager(const LevelManager&) = delete;
 		LevelManager& operator=(const LevelManager&) = delete;
@@ -30,6 +31,7 @@ namespace client_fw
 
 		SPtr<Level> m_ready_level;
 		SPtr<Level> m_cur_level;
+		UPtr<OctreeManager> m_octree_manager;
 
 	public:
 		inline static LevelManager& GetLevelManager() { return *s_instance; }

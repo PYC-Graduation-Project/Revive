@@ -1,53 +1,82 @@
 #pragma once
 #include "client/asset/core/asset.h"
 #include "client/asset/mesh/mesh_loader.h"
+#include "client/physics/core/bounding_mesh.h"
+
 namespace client_fw
 {
+	class Material;
+	template<class T> class UploadBuffer;
+
 	struct InstanceInfo
 	{
 		UINT count;
 		UINT start_location;
 	};
 
+	struct RSMaterialIndexData
+	{
+		UINT index;
+	};
+
 	class Mesh : public Asset
 	{
 	public:
-		Mesh() = default;
-		virtual ~Mesh() = default;
+		Mesh();
+		virtual ~Mesh();
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
+		virtual void Shutdown();
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index) = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) = 0;
+		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
 
-	protected:
-		ComPtr<ID3DBlob> m_vertex_buffer_blob;
-		ComPtr<ID3D12Resource> m_vertex_buffer;
-		ComPtr<ID3D12Resource> m_vertex_upload_buffer;
+		virtual void CreateDataForLodMesh(UINT lod);
 
-		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
+	protected:
+		UINT m_lod_count = 0;
+		std::vector<UINT> m_lod_mesh_counts;
+
+		std::vector<ComPtr<ID3DBlob>> m_vertex_buffer_blobs;
+		std::vector<ComPtr<ID3D12Resource>> m_vertex_buffers;
+		std::vector<ComPtr<ID3D12Resource>> m_vertex_upload_buffers;
+
+		std::vector<D3D12_VERTEX_BUFFER_VIEW> m_vertex_buffer_views;
 
 		UINT m_slot = 0;
-		UINT m_offset = 0;
 
-		ComPtr<ID3DBlob> m_index_buffer_blob;
-		ComPtr<ID3D12Resource> m_index_buffer;
-		ComPtr<ID3D12Resource> m_index_upload_buffer;
+		std::vector<ComPtr<ID3DBlob>> m_index_buffer_blobs;
+		std::vector<ComPtr<ID3D12Resource>> m_index_buffers;
+		std::vector<ComPtr<ID3D12Resource>> m_index_upload_buffers;
 
-		D3D12_INDEX_BUFFER_VIEW m_index_buffer_view;
+		std::vector<D3D12_INDEX_BUFFER_VIEW> m_index_buffer_views;
 
 		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-		BoundingOrientedBox m_oriented_box;
+		BOrientedBox m_oriented_box;
 
 		bool m_is_draw_index;
 
 	public:
-		ComPtr<ID3DBlob>& GetVertexBufferBlob() { return m_vertex_buffer_blob; }
-		ComPtr<ID3DBlob>& GetIndexBufferBlob() { return m_vertex_buffer_blob; }
-		const BoundingOrientedBox& GetOrientedBox() const { return m_oriented_box; }
-		void SetOrientBox(const BoundingOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
+		UINT GetLODCount() const { return m_lod_count; }
+		UINT GetLODMeshCount(UINT lod) const { return m_lod_mesh_counts.at(lod); }
+		void AddLODMeshCount(UINT lod) { ++m_lod_mesh_counts.at(lod); }
+		ComPtr<ID3DBlob> GetVertexBufferBlob(UINT lod);
+		bool CreateVertexBufferBlob(UINT lod, UINT size);
+		ComPtr<ID3DBlob> GetIndexBufferBlob(UINT lod);
+		bool CreateIndexBufferBlob(UINT lod, UINT size);
+		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }
+		void SetOrientBox(const BOrientedBox& oriented_box) { m_oriented_box = oriented_box; }
+
+	protected:
+		std::vector<std::vector<SPtr<Material>>> m_materials;
+		std::vector<UPtr<UploadBuffer<RSMaterialIndexData>>> m_material_index_data;
+
+	public:
+		void AddMaterial(UINT lod, SPtr<Material>&& material) { m_materials.at(lod).emplace_back(std::move(material)); }
+		const std::vector<SPtr<Material>> GetMaterials(UINT lod) const { return m_materials.at(lod); }
 	};
 
 	class TextureLightVertex;
@@ -58,15 +87,14 @@ namespace client_fw
 		StaticMesh() = default;
 		virtual ~StaticMesh() = default;
 
-		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT instance_count, UINT material_index);
-
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) override;
+		virtual void CreateDataForLodMesh(UINT lod) override;
 	private:
-		std::vector<InstanceInfo> m_instance_info;
-
+		std::vector<std::vector<InstanceInfo>> m_instance_info;
 	public:
-		virtual void AddInstanceInfo(InstanceInfo&& info);
+		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
 	};
 
 	class Skeleton 

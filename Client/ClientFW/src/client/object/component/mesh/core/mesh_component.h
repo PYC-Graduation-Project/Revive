@@ -1,9 +1,11 @@
 #pragma once
 #include "client/object/component/core/component.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
 	class Mesh;
+	struct MeshTreeNode;
 
 	class MeshComponent : public Component, public std::enable_shared_from_this<MeshComponent>
 	{
@@ -14,18 +16,36 @@ namespace client_fw
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
+		virtual void UpdateWorldMatrix() override;
+
 	private:
 		bool RegisterToRenderSystem();
 		void UnregisterFromRenderSystem();
+		void RegisterToMeshOctree();
+		void UnregisterFromMeshOctree();
 
 	protected:
 		SPtr<Mesh> m_mesh;
+		BOrientedBox m_oriented_box;
+		float m_max_extent = 0;
+		UINT m_level_of_detail = 0;
+		std::vector<WPtr<MeshTreeNode>> m_mesh_tree_node;
+		bool m_visibility = false;
 		UINT m_instance_index = 0;
 		std::string m_draw_shader_name;
 
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
 		virtual void SetMesh(const std::string& file_path);
+		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }
+		float GetMaxExtent() const { return m_max_extent; }
+		bool IsUseLevelOfDetail() const;
+		UINT GetLevelOfDetail() const { return m_level_of_detail; }
+		void SetLevelOfDetail(UINT lod);
+		void AddMeshTreeNode(const WPtr<MeshTreeNode>& tree_node);
+		const std::vector<WPtr<MeshTreeNode>>& GetMeshTreeNodes() const { return m_mesh_tree_node; }
+		bool IsVisible() const { return m_visibility; }
+		void SetVisiblity(bool value) { m_visibility = value; }
 		UINT GetInstanceIndex() const { return m_instance_index; }
 		void SetInstanceIndex(UINT index) { m_instance_index = index; }
 		void SetDrawShaderName(const std::string& shader_name) { m_draw_shader_name = shader_name; }

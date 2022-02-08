@@ -11,10 +11,8 @@
 #include <dxgi1_4.h>
 #include <dxgidebug.h>
 #include <d3dcompiler.h>
-#include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
-#include <DirectXCollision.h>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;

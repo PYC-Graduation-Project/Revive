@@ -1,29 +1,35 @@
 #include "stdafx.h"
+#include "client/core/window.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
+#include "client/renderer/core/render_resource_manager.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/util/camera_component.h"
-#include "client/asset/mesh/mesh.h"
 
 namespace client_fw
 {
 	RenderSystem* Render::s_render_system = nullptr;
 
-	RenderSystem::RenderSystem()
+	RenderSystem::RenderSystem(const WPtr<Window>& window)
+		: m_window(window)
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-
 		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics} };
+
+		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
+	}
+
+	RenderSystem::~RenderSystem()
+	{
 	}
 
 	bool RenderSystem::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		m_device = device;
-		m_command_list = command_list;
 
 		m_graphics_super_root_signature->Initialize(device, command_list);
 
@@ -39,18 +45,14 @@ namespace client_fw
 			render_level->Shutdown();
 		for (const auto& [name, shader] : m_graphics_shaders)
 			shader->Shutdown();
+		m_graphics_super_root_signature->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
 	}
 
 	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		for (const auto& mesh : m_ready_meshes)
-		{
-			mesh->Initialize(device, command_list);
-			LOG_INFO(mesh->GetPath());
-		}
-		m_ready_meshes.clear();
+		m_render_asset_manager->Update(device, command_list);
 
 		for (const auto& [level_name, kind] : m_render_level_order)
 		{
@@ -70,6 +72,7 @@ namespace client_fw
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
 		m_graphics_super_root_signature->Draw(command_list);
+		m_render_asset_manager->Draw(command_list);
 
 		for (const auto& [level_name, kind] : m_render_level_order)
 		{
@@ -83,6 +86,17 @@ namespace client_fw
 			case eKindOfRenderLevel::kCompute:
 				break;
 			}
+		}
+	}
+
+	void RenderSystem::UpdateViewport()
+	{
+		const auto& window = m_window.lock();
+		for (const auto& camera : m_basic_cameras)
+		{
+			camera->UpdateViewport(static_cast<float>(window->rect.left),
+				static_cast<float>(window->rect.top), static_cast<float>(window->width),
+				static_cast<float>(window->height));
 		}
 	}
 
@@ -101,11 +115,7 @@ namespace client_fw
 
 	bool RenderSystem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
 	{
-		if (m_initialized_assets.find(mesh_comp->GetMesh()->GetPath()) == m_initialized_assets.cend())
-		{
-			m_initialized_assets.insert(mesh_comp->GetMesh()->GetPath());
-			m_ready_meshes.push_back(mesh_comp->GetMesh());
-		}
+		m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
 
 		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
 		{
@@ -113,7 +123,7 @@ namespace client_fw
 			return false;
 		}
 
-		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(mesh_comp);
+		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
 	}
 
 	void RenderSystem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
@@ -124,10 +134,14 @@ namespace client_fw
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
+		const auto& window = m_window.lock();
 		switch (camera_comp->GetCameraUsage())
 		{
 		case eCameraUsage::kBasic:
 			m_basic_cameras.push_back(camera_comp);
+			camera_comp->UpdateViewport(static_cast<float>(window->rect.left), 
+				static_cast<float>(window->rect.top), static_cast<float>(window->width),
+				static_cast<float>(window->height));
 			break;
 		case eCameraUsage::kLight:
 			break;

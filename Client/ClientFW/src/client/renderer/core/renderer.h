@@ -16,6 +16,8 @@ namespace client_fw
 		void Shutdown();
 		bool Render();
 
+		bool UpdateViewport();
+
 	private:
 		WPtr<Window> m_window;
 		UPtr<RenderSystem> m_render_system;

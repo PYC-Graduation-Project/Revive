@@ -14,6 +14,16 @@ namespace client_fw
 	{
 	}
 
+	void GraphicsShader::Initialize(ID3D12Device* device)
+	{
+	}
+
+	void GraphicsShader::Shutdown()
+	{
+		for (const auto& render_item : m_render_items)
+			render_item->Shutdown();
+	}
+
 	void GraphicsShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		for (const auto& render_item : m_render_items)
@@ -132,7 +142,7 @@ namespace client_fw
 		return true;
 	}
 
-	bool GraphicsShader::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	bool GraphicsShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 
@@ -142,7 +152,8 @@ namespace client_fw
 		}
 		else
 		{
-			SPtr<RenderItem> render_item = CreateSPtr<RenderItem>(mesh_comp->GetMesh(), 1);	 //수정 필요
+			SPtr<RenderItem> render_item = CreateSPtr<RenderItem>(mesh_comp->GetMesh());	 //수정 필요
+			render_item->Initialize(device);
 			render_item->RegisterMeshComponent(mesh_comp);
 			m_render_items_map.insert({ path, render_item });
 			m_render_items.push_back(render_item);
