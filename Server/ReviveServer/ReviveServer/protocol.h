@@ -50,8 +50,7 @@ const char SC_PACKET_CHAT = 6;
 const char SC_PACKET_LOGIN_FAIL = 7;
 const char SC_PACKET_STATUS_CHANGE = 8;
 const char SC_PACKET_MATCHING = 9;
-
-
+const char SC_PACKET_STARTGAME = 10;
 
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
@@ -101,6 +100,7 @@ struct cs_packet_teleport {
 
 
 
+
 struct sc_packet_sign_in_ok {
 	unsigned char size;
 	char type;
@@ -128,6 +128,15 @@ struct sc_packet_move {
 	float look_x, look_y, look_z;
 };
 
+struct sc_packet_start_game {
+	unsigned char size;
+	char type;
+	int id;
+	float	hp, maxhp;
+	float damage;
+	float x, y, z;
+
+};
 
 struct sc_packet_put_object {
 	unsigned char size;

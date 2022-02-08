@@ -148,7 +148,11 @@ void PacketManager::SendLoginFailPacket(int c_id, int reason)
 
 void PacketManager::SendSignInOK(int c_id)
 {
-	
+	sc_packet_sign_in_ok packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_SIGN_IN_OK;
+	packet.id = c_id;
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendSignUpOK(int c_id)
@@ -353,8 +357,14 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 
+	Player* pl = NULL;
 	//주위객체 정보 보내주기
-	
+	for (auto c_id : room->GetObjList())
+	{
+		if (false != m_moveobj_manager->IsPlayer(c_id))
+			continue;
+		pl = m_moveobj_manager->GetPlayer(c_id);
+	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 }
 
@@ -394,6 +404,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 			else
 				pl->state_lock.unlock();
 			//여기오면 성공패킷 보내주기
+			SendSignInOK(pl->GetID());
 		}
 		else
 		{
