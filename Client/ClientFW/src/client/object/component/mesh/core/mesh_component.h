@@ -1,13 +1,14 @@
 #pragma once
 #include "client/object/component/core/component.h"
 #include "client/physics/core/bounding_mesh.h"
-#include "client/physics/core/collision_util.h"
 
 namespace client_fw
 {
 	class Mesh;
+	class MeshCollisionManager;
 	struct VisualTreeNode;
 	struct CollisionTreeNode;
+
 
 	class MeshComponent : public Component, public std::enable_shared_from_this<MeshComponent>
 	{
@@ -28,19 +29,19 @@ namespace client_fw
 
 	protected:
 		SPtr<Mesh> m_mesh;
-		BOrientedBox m_oriented_box;
+		SPtr<BOrientedBox> m_oriented_box;
+		SPtr<MeshCollisionManager> m_collision_manager;
 		bool m_visibility = false;
-		CollisionInfo m_collision_info;
 		std::string m_draw_shader_name;
 
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
 		virtual void SetMesh(const std::string& file_path);
-		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }
+		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
 		bool IsVisible() const { return m_visibility; }
+		void SetMeshCollisionManager(SPtr<MeshCollisionManager>&& collision_manager);
+		const SPtr<MeshCollisionManager>& GetCollisionManager() const { return m_collision_manager; }
 		void SetVisiblity(bool value) { m_visibility = value; }
-		const CollisionInfo& GetCollisionInfo() const { return m_collision_info; }
-		void SetCollisionInfo(CollisionInfo&& info) { m_collision_info = std::move(info); }
 		void SetDrawShaderName(const std::string& shader_name) { m_draw_shader_name = shader_name; }
 
 	private:

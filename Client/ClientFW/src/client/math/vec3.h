@@ -19,6 +19,8 @@ namespace client_fw
 		Vec3& operator/=(const Vec3& rhs);
 		Vec3& operator/=(float scalar);
 
+		float operator[](size_t index) const;
+
 		void Normalize();
 
 		float Length() const;

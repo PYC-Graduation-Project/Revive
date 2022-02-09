@@ -6,6 +6,7 @@
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/material.h"
 #include "client/physics/core/bounding_mesh.h"
+#include "client/physics/collision/mesh_bounding_tree.h"
 
 namespace client_fw
 {
@@ -50,19 +51,6 @@ namespace client_fw
 		UINT lod = 0;
 		SPtr<StaticMesh> mesh = CreateSPtr<StaticMesh>();
 
-		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
-
-		auto UpdateMaxMin([&max_pos, &min_pos](const Vec3& pos) {
-			max_pos.x = max(max_pos.x, pos.x);
-			max_pos.y = max(max_pos.y, pos.y);
-			max_pos.z = max(max_pos.z, pos.z);
-
-			min_pos.x = min(min_pos.x, pos.x);
-			min_pos.y = min(min_pos.y, pos.y);
-			min_pos.z = min(min_pos.z, pos.z);
-			});
-
 		while (lod < 4)
 		{
 			std::vector<Vec3> positions;
@@ -98,8 +86,6 @@ namespace client_fw
 				case HashCode("v"):
 					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 					temp_vec.z *= -1.0f;
-					if(lod == 0)
-						UpdateMaxMin(temp_vec);
 					positions.emplace_back(std::move(temp_vec));
 					break;
 				case HashCode("vt"):
@@ -168,6 +154,8 @@ namespace client_fw
 				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
 			std::vector<TextureLightVertex> vertices(vertex_count);
+			std::vector<Triangle> triangles(vertex_count / 3);
+			size_t tri_index = 0;
 
 			vertex_count = 0;
 			for (const auto& data : combine_data)
@@ -187,6 +175,24 @@ namespace client_fw
 					vertices[index].SetPosition(positions[data.pos_indices[i]]);
 					vertices[index].SetTexCoord(tex_coords[data.tex_indices[i]]);
 					vertices[index].SetNormal(normals[data.normal_indices[i]]);
+
+					switch (index % 3)
+					{
+					case 0:	triangles[tri_index].v1 = vertices[index].GetPosition(); break;
+					case 1:	triangles[tri_index].v2 = vertices[index].GetPosition(); break;
+					case 2:	triangles[tri_index].v3 = vertices[index].GetPosition(); break;
+					}
+
+					if (index % 3 == 0)
+					{
+						const auto& triangle = triangles[tri_index];
+						Vec3 normal = vec3::Cross(triangle.v3 - triangle.v1, triangle.v2 - triangle.v1, true);
+
+						if (normal == vec3::ZERO)
+							triangles.pop_back();
+						else
+							++tri_index;
+					}
 				}
 
 				vertex_count += count;
@@ -200,6 +206,17 @@ namespace client_fw
 			}
 			CopyMemory(mesh->GetVertexBufferBlob(lod)->GetBufferPointer(), vertices.data(), vertices_size);
 
+			if (lod == 0)
+			{
+#ifdef SHOW_TREE_INFO
+				LOG_INFO("Triangle Tree : {0}", path);
+#endif // SHOW_TREE_INFO
+				mesh->SetOrientBox(BOrientedBox(std::move(positions)));
+				auto bounding_tree = CreateSPtr<StaticMeshBoundingTree>();
+				bounding_tree->Initialize(std::move(triangles));
+				mesh->SetBoundingTree(std::move(bounding_tree));
+			}
+
 			++lod;
 			std::string lod_path = parent_path + "/" + stem + "_lod" + std::to_string(lod) + extension;
 			obj_file = std::ifstream(lod_path);
@@ -207,12 +224,6 @@ namespace client_fw
 			if (obj_file.is_open() == false)
 				break;
 		}
-
-		Vec3 center = max_pos + min_pos;
-		Vec3 extents = (max_pos - min_pos) * 0.5f;
-		extents.x = abs(extents.x), extents.y = abs(extents.y), extents.z = abs(extents.z);
-
-		mesh->SetOrientBox(BOrientedBox{ center, extents });
 
 		return mesh;
 	}

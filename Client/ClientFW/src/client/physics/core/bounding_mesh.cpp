@@ -29,6 +29,34 @@ namespace client_fw
 		SetExtents(extents);
 	}
 
+	BOrientedBox::BOrientedBox(const std::vector<Vec3>& positions, bool box_to_obox)
+	{
+		if (box_to_obox)
+		{
+			BoundingBox box;
+			BoundingBox::CreateFromPoints(box, positions.size(), positions.data(), sizeof(Vec3));
+			BoundingOrientedBox::CreateFromBoundingBox(m_bounding, box);
+		}
+		else
+		{
+			BoundingOrientedBox::CreateFromPoints(m_bounding, positions.size(), positions.data(), sizeof(Vec3));
+		}
+	}
+
+	BOrientedBox::BOrientedBox(std::vector<Vec3>&& positions, bool box_to_obox)
+	{
+		if (box_to_obox)
+		{
+			BoundingBox box;
+			BoundingBox::CreateFromPoints(box, positions.size(), positions.data(), sizeof(Vec3));
+			BoundingOrientedBox::CreateFromBoundingBox(m_bounding, box);
+		}
+		else
+		{
+			BoundingOrientedBox::CreateFromPoints(m_bounding, positions.size(), positions.data(), sizeof(Vec3));
+		}
+	}
+
 	BFrustum::BFrustum(Mat4 mat)
 	{
 		BoundingFrustum::CreateFromMatrix(m_bounding, XMLoadFloat4x4(&mat));

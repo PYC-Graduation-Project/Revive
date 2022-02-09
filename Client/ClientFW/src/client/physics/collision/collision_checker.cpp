@@ -1,12 +1,9 @@
 #include "stdafx.h"
-#include "client/asset/mesh/vertex.h"
-#include "client/asset/mesh/mesh.h"
 #include "client/object/component/mesh/core/mesh_component.h"
-#include "client/object/actor/core/actor.h"
-#include "client/physics/core/collision_checker.h"
-#include "client/physics/core/bounding_mesh.h"
+#include "client/physics/collision/collision_checker.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/util/octree/mesh_octree.h"
+#include "client/physics/collision/mesh_collision_manager.h"
 
 namespace client_fw
 {
@@ -36,15 +33,16 @@ namespace client_fw
 					for (size_t j = i + 1; j < node->movable_mesh_components.size(); ++j)
 					{
 						const auto& movable_mesh = node->movable_mesh_components[j];
-
-						if (mesh->GetOrientedBox().Intersects(movable_mesh->GetOrientedBox()))
-							CheckCollisionComplexity(mesh, movable_mesh);
+						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(movable_mesh->GetCollisionManager());
+						/*if (mesh->GetOrientedBox().Intersects(movable_mesh->GetOrientedBox()))
+							CheckCollisionComplexity(mesh, movable_mesh);*/
 					}
 
 					for (const auto& static_mesh : node->static_mesh_components)
 					{
-						if (mesh->GetOrientedBox().Intersects(static_mesh->GetOrientedBox()))
-							CheckCollisionComplexity(mesh, static_mesh);
+						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(static_mesh->GetCollisionManager());
+					/*	if (mesh->GetOrientedBox().Intersects(static_mesh->GetOrientedBox()))
+							CheckCollisionComplexity(mesh, static_mesh);*/
 					}
 				}
 			}
@@ -58,8 +56,6 @@ namespace client_fw
 
 	void CollisionChecker::CheckCollisionComplexity(const SPtr<MeshComponent>& mesh1, const SPtr<MeshComponent>& mesh2)
 	{
-		LOG_INFO("{0} col {1}",
-			mesh1->GetOwner().lock()->GetName(),
-			mesh2->GetOwner().lock()->GetName());
+		
 	}
 }

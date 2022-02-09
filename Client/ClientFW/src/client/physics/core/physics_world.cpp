@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/physics/core/physics_world.h"
-#include "client/physics/core/collision_checker.h"
+#include "client/physics/collision/collision_checker.h"
 
 namespace client_fw
 {

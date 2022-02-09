@@ -31,6 +31,7 @@ using Microsoft::WRL::ComPtr;
 #include <typeinfo>
 #include <utility>
 #include <algorithm>
+#include <numeric>
 #include <functional>
 #include <fstream>
 #include <sstream>

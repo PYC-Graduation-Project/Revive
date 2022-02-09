@@ -27,9 +27,33 @@ namespace event_test
 		auto sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
-		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 330.0f, 0.0f, 1000.0f });
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 360.0f, 0.0f, 1000.0f });
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 390.0f, 0.0f, 1000.0f });
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 300.0f, 30.0f, 1000.0f });
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 300.0f, 60.0f, 1000.0f });
+		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+		//SpawnActor(sphere);
+		//sphere->SetPosition(Vec3{ 300.0f, 90.0f, 1000.0f });
+
+		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
+
+		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3{ 1500.0f, 0.0f, 1500.0f });
+		sphere->SetScale(200.0f);
 
 		auto cube = CreateSPtr<RotatingCube>();
 		SpawnActor(cube);
@@ -43,6 +67,10 @@ namespace event_test
 		SpawnActor(move_cube);
 		move_cube->SetPosition(Vec3{ 0.0f, 0.0f, 500.0f });
 		m_spawn_pos = Vec3(0.0f, 0.0f, 600.0f);
+
+		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
+		SpawnActor(police);
+		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);

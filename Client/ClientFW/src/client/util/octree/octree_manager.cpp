@@ -71,7 +71,7 @@ namespace client_fw
 				for (const auto& octree : m_visual_octrees)
 				{
 					const auto& root_node = octree->GetRootNode();
-					if (mesh->GetOrientedBox().Intersects(root_node->bounding_box))
+					if (mesh->GetOrientedBox()->Intersects(root_node->bounding_box))
 						octree->RegisterMeshComponent(mesh, root_node);
 				}
 			}
@@ -139,7 +139,7 @@ namespace client_fw
 			for (const auto& octree : m_collision_octrees)
 			{
 				const auto& root_node = octree->GetRootNode();
-				if (mesh->GetOrientedBox().Intersects(root_node->bounding_box))
+				if (mesh->GetOrientedBox()->Intersects(root_node->bounding_box))
 					octree->RegisterMeshComponent(mesh, root_node);
 			}
 		}
@@ -179,7 +179,7 @@ namespace client_fw
 			if (tree_nodes.size() == 1)
 			{
 				//Contain from beginning
-				type = tree_nodes[0].lock()->bounding_box.Contains(mesh->GetOrientedBox());
+				type = tree_nodes[0].lock()->bounding_box.Contains(*mesh->GetOrientedBox());
 
 				if (type != ContainmentType::CONTAINS)
 				{

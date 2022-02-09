@@ -5,12 +5,14 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
 #include "client/util/octree/octree_manager.h"
+#include "client/physics/collision/mesh_collision_manager.h"
 
 namespace client_fw
 {
 	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
 		: Component(name, 20), m_draw_shader_name(draw_shader_name)
 	{
+		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
 
 	bool MeshComponent::Initialize()
@@ -19,6 +21,10 @@ namespace client_fw
 		if (m_mesh != nullptr)
 		{
 			RegisterToMeshOctree();
+			if (m_collision_manager != nullptr)
+			{
+				m_collision_manager->SetOwner(m_owner);
+			}
 			result = RegisterToRenderSystem();
 		}
 		return result;
@@ -38,12 +44,12 @@ namespace client_fw
 	{
 		if (m_owner.expired() == false)
 		{
-			m_oriented_box.Transform(m_mesh->GetOrientedBox(), m_owner.lock()->GetWorldMatrix());
-			Vec3 extents = m_oriented_box.GetExtents();
+			m_oriented_box->Transform(m_mesh->GetOrientedBox(), m_owner.lock()->GetWorldMatrix());
+			Vec3 extents = m_oriented_box->GetExtents();
 			m_max_extent = extents.x;
 			m_max_extent = max(m_max_extent, extents.y);
 			m_max_extent = max(m_max_extent, extents.z);
-			if (m_collision_info.preset != eCollisionPreset::kNoCollision)
+			if (m_collision_manager->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
 				CollisionOctreeManager::GetOctreeManager().ReregisterMeshComponent(shared_from_this());
 		}
 	}
@@ -66,13 +72,19 @@ namespace client_fw
 	void MeshComponent::UnregisterFromMeshOctree()
 	{
 		VisualOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
-		if (m_collision_info.preset != eCollisionPreset::kNoCollision)
+		if (m_collision_manager->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
 			CollisionOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
 	}
 
 	void MeshComponent::SetMesh(const std::string& file_path)
 	{
 		m_mesh = AssetStore::LoadMesh(file_path);
+		m_mesh->CreateCollision(shared_from_this());
+	}
+
+	void MeshComponent::SetMeshCollisionManager(SPtr<MeshCollisionManager>&& collision_manager)
+	{
+		m_collision_manager = std::move(collision_manager);
 	}
 
 	bool MeshComponent::IsUseLevelOfDetail() const

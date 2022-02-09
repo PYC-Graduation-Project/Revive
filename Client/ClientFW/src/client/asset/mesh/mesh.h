@@ -4,6 +4,7 @@
 
 namespace client_fw
 {
+	class MeshComponent;
 	class Material;
 	template<class T> class UploadBuffer;
 
@@ -18,7 +19,11 @@ namespace client_fw
 		UINT index;
 	};
 
-	//template<class VertexType>
+	enum class eMeshType
+	{
+		kStaticMesh,
+	};
+
 	class Mesh : public Asset
 	{
 	public:
@@ -35,7 +40,11 @@ namespace client_fw
 
 		virtual void CreateDataForLodMesh(UINT lod);
 
+		virtual void CreateCollision(const SPtr<MeshComponent> mesh_comp) = 0;
+
 	protected:
+		eMeshType type;
+
 		UINT m_lod_count = 0;
 		std::vector<UINT> m_lod_mesh_counts;
 
@@ -81,6 +90,7 @@ namespace client_fw
 	};
 
 	class TextureLightVertex;
+	class StaticMeshBoundingTree;
 
 	class StaticMesh : public Mesh
 	{
@@ -94,10 +104,14 @@ namespace client_fw
 
 		virtual void CreateDataForLodMesh(UINT lod) override;
 
+		virtual void CreateCollision(const SPtr<MeshComponent> mesh_comp) override;
+
 	private:
 		std::vector<std::vector<InstanceInfo>> m_instance_info;
+		SPtr<StaticMeshBoundingTree> m_bounding_tree;
 
 	public:
 		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
+		void SetBoundingTree(SPtr<StaticMeshBoundingTree>&& tree) { m_bounding_tree = std::move(tree); }
 	};
 }

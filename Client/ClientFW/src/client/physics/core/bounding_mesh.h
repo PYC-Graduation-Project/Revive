@@ -8,6 +8,11 @@ namespace client_fw
 	class BFrustum;
 	class BSphere;
 
+	/*struct Triangle
+	{
+		Vec3 v1, v2, v3;
+	};*/
+
 	namespace triangle_test
 	{
 		bool Intersect(const Vec3& a1, const Vec3& a2, const Vec3& a3,
@@ -76,6 +81,8 @@ namespace client_fw
 	{
 	public:
 		BOrientedBox(Vec3 center = vec3::ZERO, Vec3 extents = Vec3(1.f, 1.f, 1.f));
+		BOrientedBox(const std::vector<Vec3>& positions, bool box_to_obox = true);
+		BOrientedBox(std::vector<Vec3>&& positions, bool box_to_obox = true);
 
 		Vec3 GetCenter() const { return Vec3(m_bounding.Center); }
 		Vec3 GetExtents() const { return Vec3(m_bounding.Extents); }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/renderer/core/render.h"
+#include "client/physics/collision/mesh_collision_manager.h"
 
 namespace client_fw
 {

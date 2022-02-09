@@ -31,7 +31,7 @@ namespace client_fw
 
 		for (const auto& mesh : movable_meshes)
 		{
-			if (bounding_frustum.Intersects(mesh->GetOrientedBox()))
+			if (bounding_frustum.Intersects(*mesh->GetOrientedBox()))
 			{
 				mesh->SetVisiblity(true);
 				UpdateLevelOfDetail(mesh, eye);
@@ -51,7 +51,7 @@ namespace client_fw
 				{
 					if (mesh->IsVisible() == false)
 					{
-						if (bounding_frustum.Intersects(mesh->GetOrientedBox()))
+						if (bounding_frustum.Intersects(*mesh->GetOrientedBox()))
 						{
 							mesh->SetVisiblity(true);
 							UpdateLevelOfDetail(mesh, eye);
