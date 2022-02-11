@@ -2,17 +2,20 @@
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/mesh/vertex.h"
+#include "client/asset/core/asset_manager.h"
+#include "client/asset/core/asset_store.h"
+#include "client/asset/mesh/material.h"
 
 namespace client_fw
 {
-	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& name, const std::string& path, const std::string& extension)
+	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& path, const std::string& extension)
 	{
 		SPtr<Mesh> mesh = nullptr;
 
 		switch (HashCode(extension.c_str()))
 		{
 		case HashCode(".obj"):
-			mesh = LoadObj(name, path, extension);
+			mesh = LoadObj(path, extension);
 			break;
 		default:
 			LOG_ERROR("Files in {0} format cannot be supported", extension);
@@ -24,13 +27,13 @@ namespace client_fw
 
 	struct CombineData
 	{
-		std::string name; //추후에 Material로?
+		std::string mtl_name;
 		std::vector<UINT> pos_indices;
 		std::vector<UINT> tex_indices;
 		std::vector<UINT> normal_indices;
 	};
 
-	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& name, const std::string& path, const std::string& extension)
+	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& path, const std::string& extension)
 	{
 		std::ifstream obj_file(path);
 		
@@ -43,6 +46,7 @@ namespace client_fw
 		std::vector<Vec3> positions;
 		std::vector<Vec3> normals;
 		std::vector<Vec2> tex_coords;
+		std::map<std::string, SPtr<Material>> materials;
 		std::vector<CombineData> combine_data;
 		UINT combine_data_index = 0;
 
@@ -70,11 +74,18 @@ namespace client_fw
 		while (std::getline(obj_file, line))
 		{
 			ss.clear();
+			prefix.clear();
 			ss.str(line);
 			ss >> prefix;
 
 			switch (HashCode(prefix.c_str()))
 			{
+			case HashCode("mtllib"):
+			{
+				ss >> temp_string;
+				materials = AssetStore::LoadMaterials(file_help::GetParentPathFromPath(path) + "\\" + temp_string);
+				break;
+			}
 			case HashCode("v"):
 				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 				temp_vec.z *= -1.0f;
@@ -96,7 +107,7 @@ namespace client_fw
 					ss >> temp_string;
 					auto iter = std::find_if(combine_data.cbegin(), combine_data.cend(),
 						[temp_string](const CombineData& data) {
-							return data.name == temp_string;
+							return data.mtl_name == temp_string;
 						});
 					if (iter == combine_data.cend())
 					{
@@ -153,6 +164,7 @@ namespace client_fw
 		{
 			UINT count = static_cast<UINT>(data.pos_indices.size());
 			mesh->AddInstanceInfo({ count, vertex_count });
+			mesh->AddMaterial(std::move(materials[data.mtl_name]));
 
 			for (UINT i = 0; i < count; ++i)
 			{

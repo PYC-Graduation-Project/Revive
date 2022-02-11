@@ -8,6 +8,13 @@ namespace client_fw
 	protected:
 		MovementComponent(const std::string& name = "movement component", int update_order = 10);
 		virtual ~MovementComponent() = default;
+	};
+
+	class PawnMovementComponent : public MovementComponent
+	{
+	protected:
+		PawnMovementComponent(const std::string& name = "pawn movement component");
+		virtual ~PawnMovementComponent() = default;
 
 		virtual void Update(float delta_time) override;
 
@@ -19,7 +26,6 @@ namespace client_fw
 		const Vec3& GetVelocity() const { return m_velocity; }
 		void AddInputVector(const Vec3& vec);
 	};
-
 }
 
 

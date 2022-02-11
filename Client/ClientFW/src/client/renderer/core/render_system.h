@@ -7,17 +7,16 @@ namespace client_fw
 	class GraphicsRenderLevel;
 	class GraphicsShader;
 	class RenderComponent;
-	class Mesh;
 	class MeshComponent;
 	class CameraComponent;
-	enum class eRenderComponentType;
 	enum class eKindOfRenderLevel;
+	class RenderResourceManager;
 
 	class RenderSystem final
 	{
 	public:
 		RenderSystem();
-		~RenderSystem() = default;
+		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
@@ -75,7 +74,6 @@ namespace client_fw
 
 	private:
 		ID3D12Device* m_device;
-		ID3D12GraphicsCommandList* m_command_list;
 
 		SPtr<GraphicsSuperRootSignature> m_graphics_super_root_signature;
 		std::map<eRenderLevelType, SPtr<GraphicsRenderLevel>> m_graphics_render_levels;
@@ -83,12 +81,10 @@ namespace client_fw
 
 		std::vector<std::pair<eRenderLevelType, eKindOfRenderLevel>> m_render_level_order;
 		std::set<std::string> m_added_shaders;
-		std::unordered_set<std::string> m_initialized_assets; //Level Load Asset시스템을 사용하면, 이것도 초기화 해줘야 한다. 
-
-		std::vector<SPtr<Mesh>> m_ready_meshes;
 
 		std::vector<SPtr<CameraComponent>> m_basic_cameras;
 
+		UPtr<RenderResourceManager> m_render_asset_manager;
 
 	public:
 		ID3D12Device* GetDevice() const { return m_device; }

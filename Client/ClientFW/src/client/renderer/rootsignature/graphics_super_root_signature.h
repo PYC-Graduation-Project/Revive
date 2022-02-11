@@ -4,6 +4,7 @@
 namespace client_fw
 {
 	class CameraComponent;
+	template<class T> class UploadBuffer;
 
 	struct RSCameraData
 	{
@@ -15,19 +16,20 @@ namespace client_fw
 	class GraphicsSuperRootSignature final : public RootSignature
 	{
 	public:
-		GraphicsSuperRootSignature() = default;
+		GraphicsSuperRootSignature();
+		virtual ~GraphicsSuperRootSignature();
 
+		virtual void Shutdown() override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list) override;
 
 		virtual bool CreateRootSignature(ID3D12Device* device) override;
-		virtual void CreateResources(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+		virtual void CreateResources(ID3D12Device* device) override;
 		virtual void UpdateResources() override;
 
 		void SetCameraResource(ID3D12GraphicsCommandList* command_list, const SPtr<CameraComponent>& camera_comp);
 
 	private:
-		ComPtr<ID3D12Resource> m_camera_data;
-		BYTE* m_camera_mapped_data;
+		UPtr<UploadBuffer<RSCameraData>> m_camera_data;
 	};
 }
 

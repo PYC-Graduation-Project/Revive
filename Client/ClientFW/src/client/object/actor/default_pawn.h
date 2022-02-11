@@ -4,7 +4,7 @@
 namespace client_fw
 {
 	class StaticMeshComponent;
-	class MovementComponent;
+	class PawnMovementComponent;
 
 	class DefaultPawn : public Pawn
 	{
@@ -19,7 +19,7 @@ namespace client_fw
 		virtual void AddMovementInput(const Vec3& direction, float scale) override;
 
 	protected:
-		SPtr<MovementComponent> m_movement_component;
+		SPtr<PawnMovementComponent> m_movement_component;
 
 	private:
 		using Pawn::SetUseControllerPitch;

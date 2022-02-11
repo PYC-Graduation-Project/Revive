@@ -42,8 +42,7 @@ namespace client_fw
 		return buffer;
 	}
 
-	ComPtr<ID3D12Resource> D3DUtil::CreateUploadBuffer(ID3D12Device* device, 
-		ID3D12GraphicsCommandList* command_list, UINT byte_size, BYTE** mapped_data)
+	ComPtr<ID3D12Resource> D3DUtil::CreateUploadBuffer(ID3D12Device* device, UINT byte_size, BYTE** mapped_data)
 	{
 		ComPtr<ID3D12Resource> buffer;
 

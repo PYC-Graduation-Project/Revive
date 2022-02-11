@@ -17,5 +17,6 @@ group ""
 
 include "ClientFW"
 include "ClientTest"
+include "EventTest"
 include "RenderTest"
 include "Revive"

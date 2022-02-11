@@ -5,9 +5,20 @@ struct InstanceData
     matrix world_inverse_transpose;
 };
 
-StructuredBuffer<InstanceData> g_instance_datas : register(t0, space0);
+struct MaterialData
+{
+    float4 base_color;
+};
 
-cbuffer cbCameraData : register(b0, space0)
+StructuredBuffer<InstanceData> g_instance_datas : register(t0, space0);
+StructuredBuffer<MaterialData> g_material_datas : register(t1, space0);
+
+cbuffer cbMaterialIndexData : register(b0, space0)
+{
+    uint g_material_index;
+};
+
+cbuffer cbCameraData : register(b1, space0)
 {
     matrix g_view;
     matrix g_projection;
@@ -47,5 +58,7 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
 
 float4 PSOpaqueMesh(VS_OPAQUE_MESH_OUT input) : SV_TARGET
 {
+    return g_material_datas[g_material_index].base_color;
+    
     return float4(abs(input.normal), 1.0f);
 }

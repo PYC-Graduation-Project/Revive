@@ -26,6 +26,7 @@ namespace client_fw
 			if (m_controlled_pawn != nullptr)
 			{
 				m_camera_component->SetActive();
+				m_camera_component->SetOwnerController(shared_from_this());
 				return m_controlled_pawn->AttachComponent(m_camera_component);
 			}
 			return true;
