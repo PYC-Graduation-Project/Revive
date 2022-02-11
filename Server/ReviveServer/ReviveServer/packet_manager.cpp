@@ -374,7 +374,7 @@ void PacketManager::StartGame(int room_id)
 	//주위객체 정보 보내주기, 플레이어에게 플레이어 포함
 	for (auto c_id : room->GetObjList())
 	{
-		if (false != m_moveobj_manager->IsPlayer(c_id))
+		if (false == m_moveobj_manager->IsPlayer(c_id))
 			continue;
 		pl = m_moveobj_manager->GetPlayer(c_id);
 		for (auto obj : room->GetObjList())
