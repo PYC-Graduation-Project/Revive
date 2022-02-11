@@ -12,6 +12,7 @@ namespace animation_test
 		{
 
 		}
+		
 		bool Initialize() override
 		{
 			bool result = Application::Initialize();
@@ -23,6 +24,10 @@ namespace animation_test
 			RegisterPressedEvent("open player test level", { {eKey::k2} },
 				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
 			return result;
+		}
+		void InitializeAssetManager() override
+		{
+			client_fw::Application::m_asset_manager->Initialize(CreateUPtr<RevLoader>(), CreateUPtr<MaterialLoader>());
 		}
 		void Shutdown() override
 		{

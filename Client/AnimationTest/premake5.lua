@@ -29,9 +29,9 @@ project "AniamationTest"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "RenderTest_DEBUG"
+		defines "AnimationTest_DEBUG"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines "RenderTest_RELEASE"
+		defines "AnimationTest_RELEASE"
 		optimize "On"

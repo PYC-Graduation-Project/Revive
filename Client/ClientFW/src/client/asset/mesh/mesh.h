@@ -118,10 +118,10 @@ namespace client_fw
 
 		
 		
-	protected:
+	private:
 		SPtr<Skeleton> m_skeleton ;
 		BoneData m_bone_data;
-		
+		std::vector<std::vector<InstanceInfo>> m_instance_info;
 
 	public:
 		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
@@ -130,5 +130,8 @@ namespace client_fw
 		void AddBoneOffset(const Mat4& bone_offset);
 		void AddBoneIndex(const IVec4& bone_index);
 		void AddBoneWeight(const Vec4& bone_weight);
+
+		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
+
 	};
 }

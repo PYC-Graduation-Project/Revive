@@ -210,5 +210,11 @@ namespace client_fw
 		m_bone_data.bone_weights.emplace_back(std::move(bone_weight));
 	}
 
+	void SkeletalMesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
+	{
+		if (lod < m_lod_count)
+			m_instance_info.at(lod).emplace_back(std::move(info));
+	}
+
 	
 }
