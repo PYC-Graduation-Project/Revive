@@ -4,11 +4,11 @@
 
 namespace client_fw 
 {
-	void Skeleton::SetChild(SPtr<Skeleton>& child)
+	void Skeleton::SetChild(SPtr<Skeleton>& child, SPtr<Skeleton>& parent)
 	{
 		if (child)
 		{
-			//child->m_parent = this;
+			child->m_parent = parent;
 		}
 		if (m_child)
 		{

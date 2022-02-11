@@ -187,9 +187,16 @@ namespace client_fw
 
 	void SkeletalMesh::CreateDataForLodMesh(UINT lod)
 	{
+		if (lod == m_lod_count)
+		{
+			Mesh::CreateDataForLodMesh(lod);
+			m_instance_info.push_back(std::vector<InstanceInfo>());
+		}
 	}
 
-	void SkeletalMesh::AddBoneName(const std::string& name)
+	
+
+	/*void SkeletalMesh::AddBoneName(const std::string& name)
 	{
 		m_bone_data.bone_names.emplace_back(std::move(name));
 	}
@@ -208,7 +215,12 @@ namespace client_fw
 	void SkeletalMesh::AddBoneWeight(const Vec4& bone_weight)
 	{
 		m_bone_data.bone_weights.emplace_back(std::move(bone_weight));
-	}
+	}*/
 
+	void SkeletalMesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
+	{
+		if (lod < m_lod_count)
+			m_instance_info.at(lod).emplace_back(std::move(info));
+	}
 	
 }

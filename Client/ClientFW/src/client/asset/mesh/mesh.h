@@ -103,6 +103,7 @@ namespace client_fw
 		std::vector<Mat4> bone_offsets;
 		std::vector<IVec4> bone_indices;
 		std::vector<Vec4> bone_weights;
+		std::vector<BOrientedBox> oriented_boxes;
 	};
 
 	class SkeletalMesh : public Mesh
@@ -118,17 +119,25 @@ namespace client_fw
 
 		
 		
-	protected:
+	private:
 		SPtr<Skeleton> m_skeleton ;
-		BoneData m_bone_data;
-		
+
+		SPtr<BoneData> m_bone_data ;
+
+		std::vector<std::vector<InstanceInfo>> m_instance_info;
 
 	public:
 		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
 		
-		void AddBoneName(const std::string& name);
-		void AddBoneOffset(const Mat4& bone_offset);
-		void AddBoneIndex(const IVec4& bone_index);
-		void AddBoneWeight(const Vec4& bone_weight);
+		void SetBoneData(const SPtr<BoneData>& bone_data) { m_bone_data = bone_data; }
+
+		//void AddBoneName(const std::string& name);
+		//void AddBoneOffset(const Mat4& bone_offset);
+		//void AddBoneIndex(const IVec4& bone_index);
+		//void AddBoneWeight(const Vec4& bone_weight);
+
+
+		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
+
 	};
 }

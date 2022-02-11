@@ -1,13 +1,14 @@
 #pragma once
 namespace client_fw
 {
-	class Skeleton
+	class Skeleton //나중에 한번더 정리해야할듯
 	{
 	public:
 		Skeleton() = default;
 		virtual ~Skeleton() = default;
 
 	private:
+		//트리가 읽는게 오래걸리는데..
 		SPtr<Skeleton> m_parent = nullptr;
 		SPtr<Skeleton> m_child = nullptr;
 		SPtr<Skeleton> m_sibling = nullptr;
@@ -16,6 +17,7 @@ namespace client_fw
 
 		Mat4 m_to_parent;
 
+		
 	public:
 
 		Vec3 m_scale;
@@ -23,7 +25,7 @@ namespace client_fw
 		Vec3 m_rotation;
 
 	public:
-		void SetChild(SPtr<Skeleton>& child);
+		void SetChild(SPtr<Skeleton>& child, SPtr<Skeleton>& parent);
 
 		void SetBoneName(const std::string& name) { bone_name = name; }
 

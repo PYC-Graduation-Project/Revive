@@ -24,7 +24,7 @@ namespace animation_test
 		SpawnActor(m_player_controller);
 
 
-		auto gunner = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/c.rev");
+		auto gunner = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/c.rev ");
 		SpawnActor(gunner);
 		gunner->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 

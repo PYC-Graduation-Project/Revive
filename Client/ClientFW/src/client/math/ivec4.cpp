@@ -42,7 +42,7 @@ namespace client_fw
 	std::string IVec4::ToString() const
 	{
 		std::stringstream ret;
-		ret << "Vec2 : {" << x << ", " << y << "}";
+		ret << "Vec4 : {" << x << ", " << y << z << w <<"}";
 		return ret.str();
 	}
 
@@ -100,7 +100,7 @@ namespace client_fw
 
 	bool operator==(const IVec4& v1, const IVec4& v2)
 	{
-		return XMVector2Equal(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
+		return XMVector4Equal(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
 
 	bool operator!=(const IVec4& v1, const IVec4& v2)
@@ -110,21 +110,21 @@ namespace client_fw
 
 	bool operator<(const IVec4& v1, const IVec4& v2)
 	{
-		return XMVector2Less(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
+		return XMVector4Less(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
 
 	bool operator<=(const IVec4& v1, const IVec4& v2)
 	{
-		return XMVector2LessOrEqual(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
+		return XMVector4LessOrEqual(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
 
 	bool operator>(const IVec4& v1, const IVec4& v2)
 	{
-		return XMVector2Greater(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
+		return XMVector4Greater(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
 	bool operator>=(const IVec4& v1, const IVec4& v2)
 	{
-		return XMVector2GreaterOrEqual(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
+		return XMVector4GreaterOrEqual(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
 
 	std::ostream& operator<<(std::ostream& os, const IVec4& v)

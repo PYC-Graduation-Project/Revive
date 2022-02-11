@@ -3,6 +3,7 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/bone/skeleton.h"
 #include "client/asset/mesh/vertex.h"
+#include "client/asset/mesh/index.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/material.h"
@@ -18,9 +19,6 @@ namespace client_fw
 		{
 		case HashCode(".obj"):
 			mesh = LoadObj(path, extension);
-			break;
-		case HashCode(".rev"):
-			mesh = LoadRev(path, extension); 
 			break;
 		default:
 			LOG_ERROR("Files in {0} format cannot be supported", extension);
@@ -101,7 +99,7 @@ namespace client_fw
 				}
 				case HashCode("v"):
 					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-					
+
 					temp_vec.z *= -1.0f;
 					if(lod == 0)
 						UpdateMaxMin(temp_vec);
@@ -222,7 +220,37 @@ namespace client_fw
 		return mesh;
 	}
 
-	SPtr<SkeletalMesh> MeshLoader::LoadRev( const std::string& path, const std::string& extension)
+	struct MeshData
+	{
+		std::vector<Vec3>positions;
+		std::vector<Vec2>tex_coords;
+		std::vector<Vec3>normals;
+		std::vector<int> index_count; //안쓸예정 삭제예정
+		std::vector<UINT> incdices;
+		BOrientedBox oriented_box;
+	};
+
+	SPtr<Mesh> RevLoader::LoadMesh(const std::string& path, const std::string& extension)
+	{
+		SPtr<Mesh> mesh = nullptr;
+
+		switch (HashCode(extension.c_str()))
+		{
+		case HashCode(".obj"):
+			mesh = LoadObj(path, extension);
+			break;
+		case HashCode(".rev"):
+			mesh = LoadRev(path, extension);
+			break;
+		default:
+			LOG_ERROR("Files in {0} format cannot be supported", extension);
+			break;
+		}
+
+		return mesh;
+	}
+
+	SPtr<SkeletalMesh> RevLoader::LoadRev(const std::string& path, const std::string& extension)
 	{
 		//std::ifstream rev_file(path);
 		FILE* rev_file = NULL;
@@ -236,7 +264,7 @@ namespace client_fw
 		std::string parent_path = file_help::GetParentPathFromPath(path);
 		std::string stem = file_help::GetStemFromPath(path);
 
-		
+
 
 		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
@@ -258,18 +286,20 @@ namespace client_fw
 		std::string line;
 		std::string prefix;
 
-		while (client_fw::ReadStringFromFile(rev_file,&prefix))
+		while (ReadStringFromFile(rev_file, &prefix))
 		{
 
 			switch (HashCode(prefix.c_str()))
 			{
 			case HashCode("<Hierarchy>"):
-				LoadFrameHierArchy(rev_file,skeleton,s_mesh);
+				LoadFrameHierArchy(rev_file, skeleton, s_mesh);
 				s_mesh->SetSkeleton(skeleton);
-				
+				return s_mesh;
+
+
 				break;
 			case HashCode("<Animation>"):
-				
+
 				break;
 			case HashCode("</Animation>"):
 				break;
@@ -280,28 +310,42 @@ namespace client_fw
 
 		return s_mesh;
 	}
-	void MeshLoader::LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh)
+
+
+	bool RevLoader::LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh)
 	{
 		std::stringstream ss;
 		std::string line;
 		std::string prefix;
-		
+
 		//skeleton
 		std::string b_name;
 		std::vector<Mat4> parent;
+		//std::vector<BoneData> bone_data;
+		SPtr<BoneData> bone_data = CreateSPtr<BoneData>();
 		Vec3 scale;
 		Vec3 rotation;
 		Vec3 translation;
 
+		//mesh
+		std::vector<MeshData> mesh_data;
+		MeshData temp_mdata;
+		UINT lod = 0;
+
 		int n_frame = 0; //프레임 수
 		int n_childs = 0;
+		int material_count = 0;
+		std::string texture_name;
 
+		int temp_int = 0;
 		XMFLOAT4X4 temp_mat4;
 		Vec3 temp_vec3;
 		bool frame_end = false;
-		
-		while (ReadStringFromFile(rev_file,&prefix))
+		bool h_end = false;
+
+		while (ReadStringFromFile(rev_file, &prefix))
 		{
+			if (!prefix.compare("</Hierarchy>")) break;
 			switch (HashCode(prefix.c_str()))
 			{
 			case HashCode("<Frame>:"):
@@ -312,10 +356,11 @@ namespace client_fw
 				skeleton->SetBoneName(b_name);
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
+					if (!prefix.compare("</Frame>")) break;
 					switch (HashCode(prefix.c_str()))
 					{
 					case HashCode("<Transform>:"):
-					{
+
 						//rev_file.read((char*)&temp_mat4, sizeof(XMFLOAT4X4));
 						fread(&temp_mat4, sizeof(XMFLOAT4X4), 1, rev_file);
 						//skeleton->SetToParent(temp_mat4);
@@ -326,74 +371,165 @@ namespace client_fw
 						fread(&skeleton->m_scale, sizeof(Vec3), 1, rev_file);
 						fread(&skeleton->m_rotation, sizeof(Vec3), 1, rev_file);
 						fread(&skeleton->m_translation, sizeof(Vec3), 1, rev_file);
-
 						break;
-					}
-						
 
-						
-						
 					case HashCode("<Mesh>:"):
-						LoadMeshFromFile(rev_file, mesh);
-						break; 
-						
+						LoadMeshFromRevFile(rev_file, temp_mdata);
+						break;
+
 					case HashCode("<SkinDeformations>:"):
-						LoadSkinDeformations(rev_file, mesh);
+
+						LoadSkinDeformations(rev_file, bone_data);
+						//bone_data.emplace_back(std::move(temp_bdata));
 						ReadStringFromFile(rev_file, &prefix);
-						if (HashCode(prefix.c_str()) == HashCode("<Mesh>:"))
+						if (!prefix.compare("<Mesh>:"))
 						{
-							LoadMeshFromFile(rev_file, mesh);
+
+							LoadMeshFromRevFile(rev_file, temp_mdata);
+							mesh_data.emplace_back(std::move(temp_mdata));
 						}
-						
+
 						break;
-						
-					case HashCode("<Materals>:"):
+
+
+					case HashCode("<Materials>:"):
+						fread(&material_count, sizeof(int), 1, rev_file);
+						while (ReadStringFromFile(rev_file, &prefix))
+						{
+							if (!prefix.compare("</Materials>")) break;
+							switch (HashCode(prefix.c_str()))
+							{
+							case HashCode("<Material>:"):
+								fread(&temp_int, sizeof(int), 1, rev_file);
+								//원래는 여기서 마테리얼 초기화
+								break;
+							case HashCode("<AlbedoMap>:"):
+								ReadStringFromFile(rev_file, &texture_name); //W_HEAD_00_violet
+								//전달 받은 텍스처이름으로 경로를 붙여서 ex) ../Contetns/W_HEAD_00_violet.dds
+								//createTextureResourceFromDDSFile(); 생성해야함
+							}
+						}
 						break;
-						
+
 					case HashCode("<Children>:"):
 						//rev_file.read((char*)&n_childs, sizeof(int));
 						fread(&n_childs, sizeof(int), 1, rev_file);
-
 						if (n_childs > 0)
 						{
 							for (int i = 0; i < n_childs; ++i)
 							{
 								SPtr<Skeleton> child = CreateSPtr<Skeleton>();
-								LoadFrameHierArchy(rev_file, child, mesh);
-								if (child) skeleton->SetChild(child);
+								skeleton->SetChild(child,skeleton);//오른쪽 값은 부모설정, 원래 함수 내부에서
+								//this로 받으면되지만 이경우SPtr<Skeleton>이 아니라 Skeleton이므로 불가능
+								if (LoadFrameHierArchy(rev_file, child, mesh))
+								{
+									return true;
+								}
 							}
 						}
-						
-						break;
-						
-					case HashCode("</Frame>"):
-						frame_end = true;
+
 						break;
 
-					}
-					if (frame_end)
-					{
-						frame_end = false;
+					case HashCode("</Frame>"):
+						//frame_end = true;
 						break;
+
 					}
 				}
 				break;
 			case HashCode("</Hierarchy>"):
-				//CopyMemory
-				return;
+				break;
+				
 			}
 		}
+		//mesh->SetOrientBox(mesh_data.oriented_box);
+		mesh->CreateDataForLodMesh(lod);
+
+		mesh->SetBoneData(bone_data);
+
+		std::vector<TextureLightVertex> vertices;
+		std::vector<Index> indices;
+		UINT vertex_count = 0;
+		UINT index_count = 0;
+
+		for (auto data : mesh_data) //벡터 리사이즈해주기위해 전체 정점,인덱스 크기를 측정
+		{
+			UINT v_count = static_cast<UINT>(data.positions.size());
+			vertex_count += v_count;
+			UINT i_count = static_cast<UINT>(data.incdices.size()); 
+			index_count += i_count; 
+		}
+		vertices.resize(vertex_count);
+		indices.resize(index_count);
+		vertex_count = 0;
+		index_count = 0;
+
+		for (auto data : mesh_data) //메시가 여러개인데 합칠거임
+		{
+			
+			UINT v_count = static_cast<UINT>(data.positions.size());
+			//vertices.resize(v_count);
+			for (UINT i = 0; i < v_count; ++i)
+			{
+				UINT index = i + vertex_count;
+				vertices[index].SetPosition(data.positions[i]);
+				vertices[index].SetTexCoord(data.tex_coords[i]);
+				vertices[index].SetNormal(data.normals[i]);
+			}
+
+			vertex_count += v_count; //다음메시의 정점의 시작위치를 정한다.
+
+			UINT i_count = static_cast<UINT>(data.incdices.size()); // 420 1000 600
+			//indices.resize(i_count);
+			std::cout << "index_count[0] " << data.index_count[0];
+			if (i_count == data.index_count[0])
+			{
+				std::cout << " == current_indices.size() "<< i_count << std::endl;
+			}
+
+			for (UINT i = 0; i < i_count; ++i) // 0~420 0~ 1000
+			{
+				UINT index = i + index_count; //0 ~ 420 420~1420
+				indices[index].SetIndex(data.incdices[i]);
+			}
+			
+			index_count += i_count; //다음메시의 정점의 인덱스위치를 정한다. 420 1420
+			if (index_count > 0)
+				mesh->AddInstanceInfo(lod, { i_count,index_count }); //420, 1420
+			else
+				mesh->AddInstanceInfo(lod, { v_count,vertex_count });
+		}
+		//Blob연결할차례
+
+		UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
+		if (mesh->CreateVertexBufferBlob(lod, vertices_size) == false)
+		{
+			LOG_ERROR("Could not create blob for vertex");
+			return false;
+		}
+		CopyMemory(mesh->GetVertexBufferBlob(lod)->GetBufferPointer(), vertices.data(), vertices_size);
+
+		UINT indices_size = index_count * sizeof(Index);
+		if (mesh->CreateIndexBufferBlob(lod, indices_size) == false)
+		{
+			LOG_ERROR("Could not create blob for index");
+			return false;
+		}
+		CopyMemory(mesh->GetIndexBufferBlob(lod)->GetBufferPointer(), indices.data(), indices_size);
+		
+		return true;
 	}
-	void MeshLoader::LoadMeshFromFile(FILE* rev_file, SPtr<Mesh>&& mesh)
+	
+	void RevLoader::LoadMeshFromRevFile(FILE* rev_file, MeshData& mesh_data)
 	{
 		std::string mesh_name;
-		client_fw::ReadStringFromFile(rev_file, &mesh_name);
+		ReadStringFromFile(rev_file, &mesh_name);
 
 		std::vector<Vec3> positions;
 		std::vector<Vec3> normals;
 		std::vector<Vec2> tex_coords;
 		//이 벡터의 크기 == sub_mesh_count
-		std::vector<int> v_subset_index_count; 
+		std::vector<int> v_subset_index_count;
 		std::vector<std::vector<UINT>> vv_subset_index_count; //여기도추가햇음
 
 		//int sub_mesh_count = 0;
@@ -413,25 +549,27 @@ namespace client_fw
 			case HashCode("<Bounds>:"):
 				//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
 				fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
-				oriented_box.Center = temp_vec3;
+				mesh_data.oriented_box.SetCenter(temp_vec3);
 				//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
 				fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
-				oriented_box.Extents = temp_vec3;
+				mesh_data.oriented_box.SetExtents(temp_vec3);
 				break;
 
 			case HashCode("<ControlPoints>:"):
 				//rev_file.read((char*)&temp_uint, sizeof(UINT));
-				fread(&temp_uint, sizeof(UINT), 1, rev_file);
 
+				fread(&temp_uint, sizeof(UINT), 1, rev_file);
 				//vertex_count 정점수를 받는 변수 저장은 하지 않음
 				// 벡터 positions 크기와 같으니까
+
 				if (temp_uint > 0)
 				{
-					
 					//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
-					fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
-					//temp_vec.z *= -1.0f; 필요할까?
-					positions.emplace_back(std::move(temp_vec3));
+					for (int i = 0; i < temp_uint; ++i)
+					{
+						fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
+						mesh_data.positions.emplace_back(std::move(temp_vec3));
+					}
 				}
 				break;
 
@@ -443,14 +581,27 @@ namespace client_fw
 				if (temp_uint > 0)
 				{
 					//rev_file.read((char*)&temp_vec2, sizeof(Vec2));
-					fread(&temp_vec2, sizeof(Vec2), 1, rev_file);
+					for (int i = 0; i < temp_uint; ++i)
+					{
+						fread(&temp_vec2, sizeof(Vec2), 1, rev_file);
 
-					tex_coords.emplace_back(std::move(temp_vec2));
+						mesh_data.tex_coords.emplace_back(std::move(temp_vec2));
+					}
 				}
 
 				break;
 
 			case HashCode("<TextureCoords1>:"):
+				fread(&temp_uint, sizeof(UINT), 1, rev_file);
+				//tex_coord2_count
+				if (temp_uint > 0)
+				{
+					for (int i = 0; i < temp_uint; ++i)
+					{
+						fread(&temp_vec2, sizeof(Vec2), 1, rev_file);
+						//mesh_data.tex_coords2.emplace_back(std::move(temp_vec2));
+					}
+				}
 				break;
 
 			case HashCode("<Normals>:"):
@@ -459,9 +610,12 @@ namespace client_fw
 				//normal_count
 				if (temp_uint > 0)
 				{
-					fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
-					//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
-					normals.emplace_back(std::move(temp_vec3));
+					for (int i = 0; i < temp_uint; ++i)
+					{
+						fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
+						//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
+						mesh_data.normals.emplace_back(std::move(temp_vec3));
+					}
 				}
 				break;
 
@@ -471,7 +625,8 @@ namespace client_fw
 				//tan_count
 				if (temp_uint > 0)
 				{
-					fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
+					for (int i = 0; i < temp_uint; ++i)
+						fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
 					//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
 					//tangent.emplace_back
 				}
@@ -483,7 +638,8 @@ namespace client_fw
 				//bitan_count
 				if (temp_uint > 0)
 				{
-					fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
+					for (int i = 0; i < temp_uint; ++i)
+						fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
 					//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
 					//bitangent.emplace_back
 				}
@@ -495,6 +651,8 @@ namespace client_fw
 				//Polgon_count
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
+					auto a = prefix.c_str();
+					if (!prefix.compare( "</Polygons>"))break;
 					switch (HashCode(prefix.c_str()))
 					{
 					case HashCode("<SubIndices>:"):
@@ -505,34 +663,38 @@ namespace client_fw
 						//rev_file.read((char*)&temp_int, sizeof(int));
 						//sub_mesh_count = temp_int;
 						//if (sub_mesh_count == 0) sub_mesh_count = 1;
-						
-						while (ReadStringFromFile(rev_file, &prefix))
+
+						ReadStringFromFile(rev_file, &prefix);
+						switch (HashCode(prefix.c_str()))
 						{
-							switch (HashCode(prefix.c_str()))
+						case HashCode("<SubIndex>:"):
 							{
-							case HashCode("<SubIndex>:"):
 								fread(&temp_int, sizeof(int), 1, rev_file);
 								//rev_file.read((char*)&temp_int, sizeof(int));
 								//index_count
 								fread(&temp_int, sizeof(int), 1, rev_file);
 								//rev_file.read((char*)&temp_int, sizeof(int));
-								v_subset_index_count.emplace_back(std::move(temp_int));
-								int subset_index_size = v_subset_index_count.back();
+								mesh_data.index_count.emplace_back(std::move(temp_int));
+								int subset_index_size = mesh_data.index_count.back();
 								if (subset_index_size > 0)
 								{
 									for (int i = 0; i < subset_index_size; i++)
 									{
 										fread(&temp_uint, sizeof(UINT), 1, rev_file);
 										//rev_file.read((char*)&temp_uint, sizeof(UINT));
-										temp_v_uint.emplace_back(std::move(temp_uint));
+										mesh_data.incdices.emplace_back(std::move(temp_uint));
 									}
-									vv_subset_index_count.emplace_back(std::move(temp_v_uint));
+									//vv_subset_index_count.emplace_back(std::move(temp_v_uint));
 								}
-								break;
-							}
-						}
 						
+							}
+							break;
+						case HashCode("</Polygons>:"):
+							break;
+						}
+
 						break;
+
 					case HashCode("</Polygons>:"):
 						break;
 					}
@@ -540,16 +702,14 @@ namespace client_fw
 				break;
 
 			case HashCode("</Mesh>"):
-				break;
+				return;
 			}
 		}
-		
+
 	}
 
-	void MeshLoader::LoadSkinDeformations(FILE* rev_file, SPtr<SkeletalMesh>& mesh)
+	void RevLoader::LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data)
 	{
-		std::stringstream ss;
-		std::string line;
 		std::string prefix;
 
 		Mat4 temp_mat4;
@@ -560,10 +720,16 @@ namespace client_fw
 
 		int skinning_bone_count = 0;
 		int bone_per_vertex = 4;
+		//std::vector<std::string> bone_names;
+		//std::vector<Mat4> bone_offsets;
+		//std::vector<IVec4> bone_indices;
+		//std::vector<Vec4> bone_weights;
 		BOrientedBox oriented_box;
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
+			if (!prefix.compare( "</SkinDeformations>")) break;
+
 			switch (HashCode(prefix.c_str()))
 			{
 			case HashCode("<BonesPerVertex>:"):
@@ -577,7 +743,8 @@ namespace client_fw
 				fread(&temp_vec3, sizeof(Vec3), 1, rev_file);
 				//rev_file.read((char*)&temp_vec3, sizeof(Vec3));
 				oriented_box.SetExtents(temp_vec3);
-				mesh->SetOrientBox(oriented_box);
+				bone_data->oriented_boxes.emplace_back(std::move(oriented_box));
+				//mesh->SetOrientBox(oriented_box);
 				break;
 			case HashCode("<BoneNames>:"):
 				fread(&skinning_bone_count, sizeof(int), 1, rev_file);
@@ -587,7 +754,7 @@ namespace client_fw
 					for (int i = 0; i < skinning_bone_count; ++i)
 					{
 						ReadStringFromFile(rev_file, &prefix);
-						mesh->AddBoneName(prefix);
+						bone_data->bone_names.emplace_back(std::move(prefix));
 					}
 				}
 				break;
@@ -602,7 +769,7 @@ namespace client_fw
 						fread(&temp_mat4, sizeof(Mat4), 1, rev_file);
 						//rev_file.read((char*)&temp_mat4, sizeof(Mat4));
 						temp_mat4.Transpose();
-						mesh->AddBoneOffset(temp_mat4);
+						bone_data->bone_offsets.emplace_back(std::move(temp_mat4));
 					}
 				}
 				break;
@@ -615,7 +782,7 @@ namespace client_fw
 					{
 						fread(&temp_ivec4, sizeof(IVec4), 1, rev_file);
 						//rev_file.read((char*)&temp_ivec4, sizeof(IVec4));
-						mesh->AddBoneIndex(temp_ivec4);
+						bone_data->bone_indices.emplace_back(std::move(temp_ivec4));
 					}
 				}
 				break;
@@ -628,7 +795,7 @@ namespace client_fw
 					{
 						fread(&temp_vec4, sizeof(Vec4), 1, rev_file);
 						//rev_file.read((char*)&temp_vec4, sizeof(Vec4));
-						mesh->AddBoneWeight(temp_vec4);
+						bone_data->bone_weights.emplace_back(std::move(temp_vec4));
 					}
 				}
 				break;
@@ -636,6 +803,22 @@ namespace client_fw
 				break;
 			}
 		}
+
+		//BoneData bone_data{ bone_names,bone_offsets,bone_indices,bone_weights };
+		//mesh->SetBoneData(bone_data);
+	}
+
+	int RevLoader::ReadStringFromFile(FILE* file, std::string* word)
+	{
+		word->clear();
+		int length = 0;
+		char buffer[64] = { "\0" };
+		//file.read((char*)&length, sizeof(int));
+		fread(&length, sizeof(int), 1, file);
+		//file.read(buffer, sizeof(char) * length);
+		fread(&buffer, sizeof(char), length, file);
+		*word = buffer;
+		return length;
 	}
 
 	//int ReadFromFile(FILE* file, std::stringstream* word)
@@ -651,16 +834,4 @@ namespace client_fw
 	//	word->str(buffer);
 	//	return length;
 	//}
-	int ReadStringFromFile(FILE* file, std::string* word)
-	{
-		word->clear();
-		int length = 0;
-		char buffer[64] = { "\0" };
-		//file.read((char*)&length, sizeof(int));
-		fread(&length, sizeof(int), 1, file);
-		//file.read(buffer, sizeof(char) * length);
-		fread(&buffer, sizeof(char), length, file);
-		*word = buffer;
-		return length;
-	}
 }

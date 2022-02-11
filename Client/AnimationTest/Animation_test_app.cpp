@@ -1,5 +1,9 @@
+#include <include/client_core.h>
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
+#include <client/asset/mesh/mesh_loader.h>
+#include <client/asset/mesh/material_loader.h>
+#include <client/asset/core/asset_manager.h>
 #include "object/level/player_test_level.h"
 using namespace client_fw;
 
@@ -12,6 +16,7 @@ namespace animation_test
 		{
 
 		}
+		
 		bool Initialize() override
 		{
 			bool result = Application::Initialize();
@@ -23,6 +28,10 @@ namespace animation_test
 			RegisterPressedEvent("open player test level", { {eKey::k2} },
 				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
 			return result;
+		}
+		void InitializeAssetManager() override
+		{
+			m_asset_manager->Initialize(CreateUPtr<RevLoader>(), CreateUPtr<MaterialLoader>());
 		}
 		void Shutdown() override
 		{
