@@ -39,16 +39,9 @@ namespace event_test
 		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		//SpawnActor(sphere);
 		//sphere->SetPosition(Vec3{ 300.0f, 30.0f, 1000.0f });
-		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
-		//SpawnActor(sphere);
-		//sphere->SetPosition(Vec3{ 300.0f, 60.0f, 1000.0f });
-		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
-		//SpawnActor(sphere);
-		//sphere->SetPosition(Vec3{ 300.0f, 90.0f, 1000.0f });
-
-		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
+		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/monkey.obj");
 		SpawnActor(sphere);
-		sphere->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
+		sphere->SetPosition(Vec3{ 500.0f, 60.0f, 2000.0f });
 
 		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
 		SpawnActor(sphere);

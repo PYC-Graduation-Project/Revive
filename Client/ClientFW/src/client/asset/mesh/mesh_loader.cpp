@@ -153,47 +153,42 @@ namespace client_fw
 			for (const auto& data : combine_data)
 				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
-			std::vector<TextureLightVertex> vertices(vertex_count);
-			std::vector<Triangle> triangles(vertex_count / 3);
-			size_t tri_index = 0;
+			std::vector<TextureLightVertex> vertices;
+			vertices.reserve(vertex_count);
+			std::vector<Triangle> triangles;
+			triangles.reserve(vertex_count / 3);
 
 			vertex_count = 0;
 			for (const auto& data : combine_data)
 			{
-				UINT count = static_cast<UINT>(data.pos_indices.size());
+				UINT count = 0;
+				for (size_t i = 0; i < data.pos_indices.size() / 3; ++i)
+				{
+					size_t index = i * 3;
+
+					Vec3 v1 = positions[data.pos_indices[index + 2]];
+					Vec3 v2 = positions[data.pos_indices[index + 1]];
+					Vec3 v3 = positions[data.pos_indices[index]];
+
+					Vec3 normal = vec3::Cross(v3 - v1, v2 - v1, true);
+					if (normal == vec3::ZERO) continue;
+
+					triangles.emplace_back(Triangle{ v1, v2, v3, normal });
+
+					for (INT j = 2; j >= 0; --j)
+					{
+						TextureLightVertex vertex;
+						vertex.SetPosition(positions[data.pos_indices[index + j]]);
+						vertex.SetTexCoord(tex_coords[data.tex_indices[index + j]]);
+						vertex.SetNormal(normals[data.normal_indices[index + j]]);
+						vertices.emplace_back(std::move(vertex));
+					}			
+
+					count += 3;
+				}
+
 				mesh->AddInstanceInfo(lod, { count, vertex_count });
 				mesh->AddMaterial(lod, std::move(materials[data.mtl_name]));
-
-				for (UINT i = 0; i < count; ++i)
-				{
-					UINT index = i + vertex_count;
-					if (index % 3 == 0)
-						index += 2;
-					else if (index % 3 == 2)
-						index -= 2;
-
-					vertices[index].SetPosition(positions[data.pos_indices[i]]);
-					vertices[index].SetTexCoord(tex_coords[data.tex_indices[i]]);
-					vertices[index].SetNormal(normals[data.normal_indices[i]]);
-
-					switch (index % 3)
-					{
-					case 0:	triangles[tri_index].v1 = vertices[index].GetPosition(); break;
-					case 1:	triangles[tri_index].v2 = vertices[index].GetPosition(); break;
-					case 2:	triangles[tri_index].v3 = vertices[index].GetPosition(); break;
-					}
-
-					if (index % 3 == 0)
-					{
-						const auto& triangle = triangles[tri_index];
-						Vec3 normal = vec3::Cross(triangle.v3 - triangle.v1, triangle.v2 - triangle.v1, true);
-
-						if (normal == vec3::ZERO)
-							triangles.pop_back();
-						else
-							++tri_index;
-					}
-				}
 
 				vertex_count += count;
 			}
@@ -211,9 +206,10 @@ namespace client_fw
 #ifdef SHOW_TREE_INFO
 				LOG_INFO("Triangle Tree : {0}", path);
 #endif // SHOW_TREE_INFO
-				mesh->SetOrientBox(BOrientedBox(std::move(positions)));
-				auto bounding_tree = CreateSPtr<StaticMeshBoundingTree>();
-				bounding_tree->Initialize(std::move(triangles));
+				BOrientedBox box = BOrientedBox(std::move(positions));
+				mesh->SetOrientBox(box);
+				auto bounding_tree = CreateSPtr<KDTree>();
+				bounding_tree->Initialize(box, triangles);
 				mesh->SetBoundingTree(std::move(bounding_tree));
 			}
 

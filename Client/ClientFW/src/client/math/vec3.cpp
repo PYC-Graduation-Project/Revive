@@ -50,6 +50,17 @@ namespace client_fw
 		}
 	}
 
+	float& Vec3::operator[](size_t index)
+	{
+		switch (index)
+		{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+		default: LOG_WARN("Out of range : {0}", index);  return x;
+		}
+	}
+
 	void Vec3::Normalize()
 	{
 		*this = vec3::Normalize(*this);

@@ -135,7 +135,7 @@ namespace client_fw
 	void StaticMesh::CreateCollision(const SPtr<MeshComponent> mesh_comp)
 	{
 		mesh_comp->SetMeshCollisionManager(
-			CreateSPtr<StaticMeshCollisionManager>(m_bounding_tree, mesh_comp->GetOrientedBox()));
+			CreateSPtr<StaticMeshCollisionManager>(mesh_comp, m_bounding_tree, mesh_comp->GetOrientedBox()));
 	}
 
 	ComPtr<ID3DBlob> Mesh::GetVertexBufferBlob(UINT lod)

@@ -23,6 +23,11 @@ namespace client_fw
 		SetExtents(extents);
 	}
 
+	BBox::BBox(std::vector<Vec3>&& positions)
+	{
+		BoundingBox::CreateFromPoints(m_bounding, positions.size(), positions.data(), sizeof(Vec3));
+	}
+
 	BOrientedBox::BOrientedBox(Vec3 center, Vec3 extents)
 	{
 		SetCenter(center);
@@ -55,6 +60,11 @@ namespace client_fw
 		{
 			BoundingOrientedBox::CreateFromPoints(m_bounding, positions.size(), positions.data(), sizeof(Vec3));
 		}
+	}
+
+	BOrientedBox::BOrientedBox(const BoundingBox& box)
+	{
+		BoundingOrientedBox::CreateFromBoundingBox(m_bounding, box);
 	}
 
 	BFrustum::BFrustum(Mat4 mat)

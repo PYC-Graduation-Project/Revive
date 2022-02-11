@@ -13,8 +13,8 @@ namespace client_fw
 	enum class eCollisionComplex
 	{
 		kLow,				//Bounding box(sphere, etc...)
-		kMedium,			//
-		kHigh,				//
+		kMedium,			//KDTree Leaf OBB Check
+		kHigh,				//KDTree Leaf Triangle Check
 	};
 
 	struct CollisionInfo

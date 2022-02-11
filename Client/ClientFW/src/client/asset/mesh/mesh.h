@@ -90,7 +90,7 @@ namespace client_fw
 	};
 
 	class TextureLightVertex;
-	class StaticMeshBoundingTree;
+	class KDTree;
 
 	class StaticMesh : public Mesh
 	{
@@ -108,10 +108,10 @@ namespace client_fw
 
 	private:
 		std::vector<std::vector<InstanceInfo>> m_instance_info;
-		SPtr<StaticMeshBoundingTree> m_bounding_tree;
+		SPtr<KDTree> m_bounding_tree;
 
 	public:
 		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
-		void SetBoundingTree(SPtr<StaticMeshBoundingTree>&& tree) { m_bounding_tree = std::move(tree); }
+		void SetBoundingTree(SPtr<KDTree>&& tree) { m_bounding_tree = std::move(tree); }
 	};
 }

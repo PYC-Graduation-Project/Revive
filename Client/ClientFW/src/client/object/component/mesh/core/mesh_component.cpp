@@ -21,10 +21,6 @@ namespace client_fw
 		if (m_mesh != nullptr)
 		{
 			RegisterToMeshOctree();
-			if (m_collision_manager != nullptr)
-			{
-				m_collision_manager->SetOwner(m_owner);
-			}
 			result = RegisterToRenderSystem();
 		}
 		return result;

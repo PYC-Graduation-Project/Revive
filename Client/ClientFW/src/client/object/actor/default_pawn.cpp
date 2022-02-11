@@ -19,7 +19,7 @@ namespace client_fw
 		ret &= AttachComponent(m_movement_component);
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
-		mesh->SetMesh("../Contents/sphere.obj");
+		mesh->SetMesh("../Contents/cube.obj");
 		ret &= AttachComponent(mesh);
 
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },

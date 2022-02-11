@@ -20,6 +20,7 @@ namespace client_fw
 		Vec3& operator/=(float scalar);
 
 		float operator[](size_t index) const;
+		float& operator[](size_t index);
 
 		void Normalize();
 
