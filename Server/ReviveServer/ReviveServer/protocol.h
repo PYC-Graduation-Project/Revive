@@ -144,7 +144,7 @@ struct sc_packet_put_object {
 	int id;
 	float x, y, z;
 	char object_type;
-	char	name[MAX_NAME_SIZE];
+	char name[MAX_NAME_SIZE];
 };
 
 struct sc_packet_remove_object {

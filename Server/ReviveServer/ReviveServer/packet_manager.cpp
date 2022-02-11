@@ -171,6 +171,19 @@ void PacketManager::SendMatchingOK(int c_id)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type)
+{
+	sc_packet_put_object packet;
+	packet.id = obj_id;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_PUT_OBJECT;
+	packet.object_type = (char)obj_type;
+	packet.x = m_moveobj_manager->GetMoveObj(obj_id)->GetPosX();
+	packet.y = m_moveobj_manager->GetMoveObj(obj_id)->GetPosY();
+	packet.z = m_moveobj_manager->GetMoveObj(obj_id)->GetPosZ();
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds)
 {
 	timer_event t;
@@ -358,12 +371,17 @@ void PacketManager::StartGame(int room_id)
 	}
 
 	Player* pl = NULL;
-	//주위객체 정보 보내주기
+	//주위객체 정보 보내주기, 플레이어에게 플레이어 포함
 	for (auto c_id : room->GetObjList())
 	{
 		if (false != m_moveobj_manager->IsPlayer(c_id))
 			continue;
 		pl = m_moveobj_manager->GetPlayer(c_id);
+		for (auto obj : room->GetObjList())
+		{
+			if (c_id == obj)continue;
+			SendPutObjPacket(c_id, obj, m_moveobj_manager->GetMoveObj(obj)->GetType());
+		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 }
