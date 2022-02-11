@@ -1,5 +1,5 @@
 #pragma once
-#include "client/object/component/core/component.h"
+#include "client/object/component/core/scene_component.h"
 #include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
@@ -10,7 +10,7 @@ namespace client_fw
 	struct CollisionTreeNode;
 
 
-	class MeshComponent : public Component, public std::enable_shared_from_this<MeshComponent>
+	class MeshComponent : public SceneComponent, public std::enable_shared_from_this<MeshComponent>
 	{
 	protected:
 		MeshComponent(const std::string& name, const std::string& draw_shader_name);

@@ -7,7 +7,7 @@
 namespace client_fw
 {
 	CameraComponent::CameraComponent(const std::string& name, eCameraUsage usage)
-		: Component(name), m_camera_state(eCameraState::kPaused)
+		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
 	{
 	}
@@ -24,18 +24,19 @@ namespace client_fw
 
 	void CameraComponent::UpdateWorldMatrix()
 	{
-		const auto& owner = GetOwner().lock();
-		Vec3 eye = owner->GetPosition();
+		SceneComponent::UpdateWorldMatrix();
+
+		Vec3 eye = GetWorldPosition();
 		Vec3 target, up;
 		if (m_owner_controller.expired())
 		{
-			target = eye + owner->GetForward();
-			up = owner->GetUp();
+			target = eye + GetWorldForward();
+			up = GetWorldUp();
 		}
 		else
 		{
-			target = eye + m_owner_controller.lock()->GetForward();
-			up = m_owner_controller.lock()->GetUp();
+			target = eye + vec3::TransformNormal(GetLocalForward(), m_owner_controller.lock()->GetRotation());
+			up = vec3::TransformNormal(GetLocalUp(), m_owner_controller.lock()->GetRotation());
 		}
 
 		m_view_matrix = mat4::LookAt(eye, target, up);

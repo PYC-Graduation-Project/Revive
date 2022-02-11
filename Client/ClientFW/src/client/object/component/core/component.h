@@ -12,7 +12,7 @@ namespace client_fw
 		virtual ~Component() = default;
 
 	public:
-		bool InitializeComponent();
+		virtual bool InitializeComponent();
 		virtual bool Initialize() override { return true; }
 
 		void ShutdownComponent();

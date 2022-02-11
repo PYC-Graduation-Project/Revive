@@ -10,7 +10,7 @@
 namespace client_fw
 {
 	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
-		: Component(name, 20), m_draw_shader_name(draw_shader_name)
+		: SceneComponent(name, 20), m_draw_shader_name(draw_shader_name)
 	{
 		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
@@ -38,9 +38,11 @@ namespace client_fw
 
 	void MeshComponent::UpdateWorldMatrix()
 	{
+		SceneComponent::UpdateWorldMatrix();
+
 		if (m_owner.expired() == false)
 		{
-			m_oriented_box->Transform(m_mesh->GetOrientedBox(), m_owner.lock()->GetWorldMatrix());
+			m_oriented_box->Transform(m_mesh->GetOrientedBox(), GetWorldMatrix());
 			Vec3 extents = m_oriented_box->GetExtents();
 			m_max_extent = extents.x;
 			m_max_extent = max(m_max_extent, extents.y);

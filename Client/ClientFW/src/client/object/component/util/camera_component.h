@@ -1,5 +1,5 @@
 #pragma once
-#include "client/object/component/core/component.h"
+#include "client/object/component/core/scene_component.h"
 #include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
@@ -29,7 +29,7 @@ namespace client_fw
 		float height;
 	};
 
-	class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
+	class CameraComponent : public SceneComponent, public std::enable_shared_from_this<CameraComponent>
 	{
 	public:
 		CameraComponent(const std::string& name = "camera component",

@@ -40,8 +40,8 @@ namespace client_fw
 	{
 		if (m_box->Intersects(*mesh->GetOrientedBox()))
 		{
-			const auto& owner1 = m_mesh.lock()->GetOwner().lock();
-			const auto& owner2 = mesh->m_mesh.lock()->GetOwner().lock();
+			const auto& mesh1 = m_mesh.lock();
+			const auto& mesh2 = mesh->m_mesh.lock();
 			m_node_count = 0;
 			m_tri_count = 0;
 			switch (m_collision_info.complex)
@@ -55,21 +55,21 @@ namespace client_fw
 				case eCollisionComplex::kHigh:
 				{
 					BOrientedBox box2;
-					box2.Transform(mesh->m_bounding_tree->GetRootNode()->box, owner2->GetWorldMatrix());
+					box2.Transform(mesh->m_bounding_tree->GetRootNode()->box, mesh2->GetWorldMatrix());
 				
-					if (CheckCollision(owner1->GetWorldMatrix(), m_bounding_tree, m_bounding_tree->GetRootNode(), m_mesh.lock(),
-						owner2->GetWorldMatrix(), mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode(), mesh->m_mesh.lock(), box2))
+					if (CheckCollision(mesh1->GetWorldMatrix(), m_bounding_tree, m_bounding_tree->GetRootNode(), mesh1,
+						mesh2->GetWorldMatrix(), mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode(), mesh2, box2))
 					{
-						LOG_INFO("{0} col {1}",	owner1->GetName(), owner2->GetName());
+						LOG_INFO("{0} col {1}",	mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
 				case eCollisionComplex::kLow:
 				{
-					if (CheckCollision(*m_box, owner2->GetWorldMatrix(),
+					if (CheckCollision(*m_box, mesh2->GetWorldMatrix(),
 						mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode()))
 					{
-						LOG_INFO("{0} col {1}", owner1->GetName(), owner2->GetName());
+						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
@@ -83,16 +83,16 @@ namespace client_fw
 				case eCollisionComplex::kMedium:
 				case eCollisionComplex::kHigh:
 				{
-					if (CheckCollision(*m_box, owner2->GetWorldMatrix(),
+					if (CheckCollision(*m_box, mesh2->GetWorldMatrix(),
 						mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode()))
 					{
-						LOG_INFO("{0} col {1}", owner1->GetName(), owner2->GetName());
+						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
 				case eCollisionComplex::kLow:
 				{
-					LOG_INFO("{0} col {1}", owner1->GetName(), owner2->GetName());
+					LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					break;
 				}
 				}

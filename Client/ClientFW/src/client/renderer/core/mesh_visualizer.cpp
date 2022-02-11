@@ -13,7 +13,7 @@ namespace client_fw
 	void MeshVisualizer::UpdateVisibilityFromCamera(const SPtr<CameraComponent>& camera)
 	{
 		const auto& bounding_frustum = camera->GetBoudingFrustum();
-		const auto& eye = camera->GetOwner().lock()->GetPosition();
+		const auto& eye = camera->GetWorldPosition();
 
 		const auto& visual_octrees = VisualOctreeManager::GetOctreeManager().GetVisualOctrees();
 		for (const auto& octree : visual_octrees)
@@ -103,7 +103,7 @@ namespace client_fw
 	{
 		if (mesh->IsUseLevelOfDetail())
 		{
-			float distance = vec3::Length(eye - mesh->GetOwner().lock()->GetPosition());
+			float distance = vec3::Length(eye - mesh->GetWorldPosition());
 			float size = mesh->GetMaxExtent() / distance;
 
 			UINT lod = 0;

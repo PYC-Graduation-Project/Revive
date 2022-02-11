@@ -78,11 +78,10 @@ namespace client_fw
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
 			const auto& mesh_comp = mesh_data.mesh_comp;
-			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.is_need_update))
+			if (mesh_comp->IsUpdatedWorldMatrix() || mesh_data.is_need_update)
 			{
-				Mat4 world_matrix = owner->GetWorldMatrix();
+				Mat4 world_matrix = mesh_comp->GetWorldMatrix();
 				mesh_data.world_transpose = mat4::Transpose(world_matrix);
 				mesh_data.world_inverse = mat4::InverseVec(world_matrix);
 				mesh_data.is_need_update = false;
@@ -119,8 +118,6 @@ namespace client_fw
 
 	void RenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		const auto& owner = mesh_comp->GetOwner().lock();
-
 		MeshComponentData data;
 		data.mesh_comp = mesh_comp;
 		data.mesh_comp->SetInstanceIndex(static_cast<UINT>(m_mesh_comp_data.size()));
