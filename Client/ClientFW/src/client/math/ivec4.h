@@ -7,7 +7,7 @@ namespace client_fw
 	public:
 		constexpr explicit IVec4() : XMINT4(0, 0, 0, 0) {}
 		constexpr explicit IVec4(int x, int y, int z, int w ) : XMINT4(x, y, z, w) {}
-		constexpr explicit IVec4(XMINT3 xmi3) : XMINT4(xmi3.x, xmi3.y, xmi3.z, 0) {}
+		constexpr explicit IVec4(XMINT4 xmi4) : XMINT4(xmi4.x, xmi4.y, xmi4.z, 0) {}
 
 		IVec4& operator+=(const IVec4& rhs);
 		IVec4& operator-=(const IVec4& rhs);

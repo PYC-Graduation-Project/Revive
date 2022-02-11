@@ -167,22 +167,7 @@ namespace client_fw
 			m_instance_info.at(lod).emplace_back(std::move(info));
 	}
 
-	void Skeleton::SetChild(SPtr<Skeleton>& child)
-	{
-		if (child)
-		{
-			//child->m_parent = this;
-		}
-		if (m_child)
-		{
-			if (child) child->m_sibling = m_child->m_sibling;
-			m_child->m_sibling = child;
-		}
-		else
-		{
-			m_child = child;
-		}
-	}
+	
 
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
@@ -202,6 +187,27 @@ namespace client_fw
 
 	void SkeletalMesh::CreateDataForLodMesh(UINT lod)
 	{
+	}
+
+	void SkeletalMesh::AddBoneName(const std::string& name)
+	{
+		m_bone_data.bone_names.emplace_back(std::move(name));
+	}
+
+	void SkeletalMesh::AddBoneOffset(const Mat4& bone_offset)
+	{
+		m_bone_data.bone_offsets.emplace_back(std::move(bone_offset));
+	}
+
+	void SkeletalMesh::AddBoneIndex(const IVec4& bone_index)
+	{
+		m_bone_data.bone_indices.emplace_back(std::move(bone_index));
+
+	}
+
+	void SkeletalMesh::AddBoneWeight(const Vec4& bone_weight)
+	{
+		m_bone_data.bone_weights.emplace_back(std::move(bone_weight));
 	}
 
 	

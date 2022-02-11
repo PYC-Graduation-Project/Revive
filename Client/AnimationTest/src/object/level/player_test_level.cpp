@@ -3,6 +3,7 @@
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
+#include <client/util/octree/mesh_octree.h>
 #include "object/level/player_test_level.h"
 
 namespace animation_test
@@ -23,7 +24,7 @@ namespace animation_test
 		SpawnActor(m_player_controller);
 
 
-		auto gunner = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		auto gunner = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/c.rev");
 		SpawnActor(gunner);
 		gunner->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 
@@ -42,5 +43,9 @@ namespace animation_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
+	}
+	SPtr<MeshOctree> PlayerTestLevel::CreateMeshOctree() const
+	{
+		return CreateSPtr<MeshOctree>(10000.0f);
 	}
 }

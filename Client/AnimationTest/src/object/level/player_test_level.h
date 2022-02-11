@@ -19,6 +19,8 @@ namespace animation_test
 	private:
 		SPtr<class DefaultPawn> m_player;
 		SPtr<class PlayerController> m_player_controller;
+	public:
+		virtual SPtr<MeshOctree> CreateMeshOctree() const override;
 	};
 
 }

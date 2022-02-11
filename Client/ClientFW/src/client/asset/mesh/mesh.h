@@ -97,35 +97,7 @@ namespace client_fw
 		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
 	};
 
-	class Skeleton 
-	{
-	public:
-		Skeleton() = default;
-		virtual ~Skeleton() = default;
-
-	private:
-		SPtr<Skeleton> m_parent = nullptr;
-		SPtr<Skeleton> m_child = nullptr;
-		SPtr<Skeleton> m_sibling = nullptr;
-
-		std::string bone_name;
-		
-		Mat4 m_to_parent;
-		
-	public:
-
-		Vec3 m_scale;
-		Vec3 m_translation;
-		Vec3 m_rotation;
-
-	public:
-		void SetChild(SPtr<Skeleton>& child);
-
-		void SetBoneName(const std::string& name) { bone_name = name; }
-
-		void SetToParent(const Mat4& to_parent) { m_to_parent = to_parent; }
-	};
-
+	
 	struct BoneData {
 		std::vector<std::string> bone_names;
 		std::vector<Mat4> bone_offsets;
@@ -146,7 +118,7 @@ namespace client_fw
 
 		
 		
-	private:
+	protected:
 		SPtr<Skeleton> m_skeleton ;
 		BoneData m_bone_data;
 		
@@ -154,6 +126,9 @@ namespace client_fw
 	public:
 		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
 		
-
+		void AddBoneName(const std::string& name);
+		void AddBoneOffset(const Mat4& bone_offset);
+		void AddBoneIndex(const IVec4& bone_index);
+		void AddBoneWeight(const Vec4& bone_weight);
 	};
 }
