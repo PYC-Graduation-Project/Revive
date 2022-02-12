@@ -40,8 +40,6 @@ namespace client_fw
 
 		virtual void CreateDataForLodMesh(UINT lod);
 
-		virtual void CreateCollision(const SPtr<MeshComponent> mesh_comp) = 0;
-
 	protected:
 		eMeshType type;
 
@@ -104,14 +102,13 @@ namespace client_fw
 
 		virtual void CreateDataForLodMesh(UINT lod) override;
 
-		virtual void CreateCollision(const SPtr<MeshComponent> mesh_comp) override;
-
 	private:
 		std::vector<std::vector<InstanceInfo>> m_instance_info;
 		SPtr<KDTree> m_bounding_tree;
 
 	public:
 		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
+		const SPtr<KDTree>& GetBoundingTree() const { return m_bounding_tree; }
 		void SetBoundingTree(SPtr<KDTree>&& tree) { m_bounding_tree = std::move(tree); }
 	};
 }

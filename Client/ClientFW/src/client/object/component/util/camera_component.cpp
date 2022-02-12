@@ -70,14 +70,14 @@ namespace client_fw
 
 	bool CameraComponent::RegisterToRenderSystem()
 	{
-		if (Render::RegisterCameraComponent(shared_from_this()))
+		if (Render::RegisterCameraComponent(SharedFromThis()))
 			return true;
 		return false;
 	}
 
 	void CameraComponent::UnregisterFromRenderSystem()
 	{
-		Render::UnregisterCameraComponent(shared_from_this());
+		Render::UnregisterCameraComponent(SharedFromThis());
 	}
 
 	void CameraComponent::SetOwnerController(const WPtr<Actor>& owner)
@@ -95,6 +95,11 @@ namespace client_fw
 	{
 		return  mat4::Ortho(m_viewport.left, m_viewport.left + m_viewport.width,
 			m_viewport.top + m_viewport.height, m_viewport.top, m_near_z, m_far_z);
+	}
+
+	SPtr<CameraComponent> CameraComponent::SharedFromThis()
+	{
+		return std::static_pointer_cast<CameraComponent>(shared_from_this());
 	}
 
 }

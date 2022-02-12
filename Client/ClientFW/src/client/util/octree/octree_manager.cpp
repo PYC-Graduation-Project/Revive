@@ -132,7 +132,7 @@ namespace client_fw
 		m_is_active = false;
 	}
 
-	void CollisionOctreeManager::RegisterMeshComponent(const SPtr<MeshComponent>& mesh)
+	void CollisionOctreeManager::RegisterSceneComponent(const SPtr<SceneComponent>& mesh)
 	{
 		if (m_is_active)
 		{
@@ -140,57 +140,57 @@ namespace client_fw
 			{
 				const auto& root_node = octree->GetRootNode();
 				if (mesh->GetOrientedBox()->Intersects(root_node->bounding_box))
-					octree->RegisterMeshComponent(mesh, root_node);
+					octree->RegisterSceneComponent(mesh, root_node);
 			}
 		}
 	}
 
-	void CollisionOctreeManager::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh)
+	void CollisionOctreeManager::UnregisterSceneComponent(const SPtr<SceneComponent>& scene_comp)
 	{
 		if (m_is_active)
 		{
-			auto UnregisterMesh([&mesh](std::vector<SPtr<MeshComponent>>& meshes) {
-				auto iter = std::find(meshes.begin(), meshes.end(), mesh);
-				if (iter != meshes.end())
+			auto UnregisterSceneComp([&scene_comp](std::vector<SPtr<SceneComponent>>& scene_comps) {
+				auto iter = std::find(scene_comps.begin(), scene_comps.end(), scene_comp);
+				if (iter != scene_comps.end())
 				{
-					std::iter_swap(iter, meshes.end() - 1);
-					meshes.pop_back();
+					std::iter_swap(iter, scene_comps.end() - 1);
+					scene_comps.pop_back();
 				}
 				});
 
-			for (const auto& tree_node : mesh->GetCollisionTreeNodes())
+			for (const auto& tree_node : scene_comp->GetCollisionTreeNodes())
 			{
-				if(mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
-					UnregisterMesh(tree_node.lock()->movable_mesh_components);
+				if(scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+					UnregisterSceneComp(tree_node.lock()->movable_scene_components);
 				else 
-					UnregisterMesh(tree_node.lock()->static_mesh_components);
-				mesh->ResetCollisionTreeNode();
+					UnregisterSceneComp(tree_node.lock()->static_scene_components);
+				scene_comp->ResetCollisionTreeNode();
 			}
 		}
 	}
 
-	void CollisionOctreeManager::ReregisterMeshComponent(const SPtr<MeshComponent>& mesh)
+	void CollisionOctreeManager::ReregisterSceneComponent(const SPtr<SceneComponent>& scene_comp)
 	{
 		if (m_is_active)
 		{
-			const auto& tree_nodes = mesh->GetCollisionTreeNodes();
+			const auto& tree_nodes = scene_comp->GetCollisionTreeNodes();
 			ContainmentType type;
 
 			if (tree_nodes.size() == 1)
 			{
 				//Contain from beginning
-				type = tree_nodes[0].lock()->bounding_box.Contains(*mesh->GetOrientedBox());
+				type = tree_nodes[0].lock()->bounding_box.Contains(*scene_comp->GetOrientedBox());
 
 				if (type != ContainmentType::CONTAINS)
 				{
-					UnregisterMeshComponent(mesh);
-					RegisterMeshComponent(mesh);
+					UnregisterSceneComponent(scene_comp);
+					RegisterSceneComponent(scene_comp);
 				}
 			}
 			else
 			{
-				UnregisterMeshComponent(mesh);
-				RegisterMeshComponent(mesh);
+				UnregisterSceneComponent(scene_comp);
+				RegisterSceneComponent(scene_comp);
 			}			
 		}
 	}

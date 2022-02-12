@@ -1,73 +1,75 @@
 #include "stdafx.h"
-#include "client/physics/collision/mesh_collision_manager.h"
-#include "client/physics/collision/mesh_bounding_tree.h"
+#include "client/physics/collision/collisioner.h"
+#include "client/object/component/core/scene_component.h"
+#include "client/object/component/mesh/static_mesh_component.h"
 #include "client/asset/mesh/vertex.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/object/actor/core/actor.h"
 
-
 namespace client_fw
 {
-	MeshCollisionManager::MeshCollisionManager(const WPtr<MeshComponent>& mesh, eMeshCollisionType type)
-		: m_mesh(mesh), m_type(type)
+	Collisioner::Collisioner(const WPtr<SceneComponent>& owner, eMeshCollisionType type)
+		: m_owner(owner), m_type(type)
 	{
 	}
 
-	StaticMeshCollisionManager::StaticMeshCollisionManager(
-		const WPtr<MeshComponent>& mesh, const SPtr<KDTree>& tree, const SPtr<BOrientedBox>& box)
-		: MeshCollisionManager(mesh, eMeshCollisionType::kStaticMesh)
-		, m_bounding_tree(tree), m_box(box)
+	StaticMeshCollisioner::StaticMeshCollisioner(const WPtr<StaticMeshComponent>& owner)
+		: Collisioner(owner, eMeshCollisionType::kStaticMesh)
 	{
 	}
 
-	bool StaticMeshCollisionManager::CheckCollisionWithOtherMesh(const SPtr<MeshCollisionManager>& mesh)
+	bool StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
 	{
-		switch (mesh->GetMeshCollisionType())
+		switch (other->GetCollisioner()->GetMeshCollisionType())
 		{
-
 		case client_fw::eMeshCollisionType::kStaticMesh:
-			CheckCollision(std::reinterpret_pointer_cast<StaticMeshCollisionManager>(mesh));
+		{
+			const auto& mesh1 = std::static_pointer_cast<StaticMeshComponent>(GetOwner());
+			const auto& mesh2 = std::static_pointer_cast<StaticMeshComponent>(other->GetCollisioner()->GetOwner());
+			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex, 
+				mesh2, mesh2->GetCollisioner()->GetCollisionInfo().complex);
 			break;
+		}
 		default:
 			break;
 		}
-
 		return false;
 	}
 
-	void StaticMeshCollisionManager::CheckCollision(const SPtr<StaticMeshCollisionManager>& mesh)
+	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1, 
+		const SPtr<StaticMeshComponent>& mesh2, eCollisionComplex complex2)
 	{
-		if (m_box->Intersects(*mesh->GetOrientedBox()))
+		if (mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox()))
 		{
-			const auto& mesh1 = m_mesh.lock();
-			const auto& mesh2 = mesh->m_mesh.lock();
+			const auto& tree1 = mesh1->GetStaticMesh()->GetBoundingTree();
+			const auto& tree2 = mesh2->GetStaticMesh()->GetBoundingTree();
+
 			m_node_count = 0;
 			m_tri_count = 0;
-			switch (m_collision_info.complex)
+			switch (complex1)
 			{
 			case eCollisionComplex::kMedium:
 			case eCollisionComplex::kHigh:
 			{
-				switch (mesh->m_collision_info.complex)
+				switch (complex2)
 				{
 				case eCollisionComplex::kMedium:
 				case eCollisionComplex::kHigh:
 				{
 					BOrientedBox box2;
-					box2.Transform(mesh->m_bounding_tree->GetRootNode()->box, mesh2->GetWorldMatrix());
-				
-					if (CheckCollision(mesh1->GetWorldMatrix(), m_bounding_tree, m_bounding_tree->GetRootNode(), mesh1,
-						mesh2->GetWorldMatrix(), mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode(), mesh2, box2))
+					box2.Transform(tree2->GetRootNode()->box, mesh2->GetWorldMatrix());
+
+					if (CheckCollision(mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode(), mesh1,
+						mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode(), mesh2, box2))
 					{
-						LOG_INFO("{0} col {1}",	mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
 				case eCollisionComplex::kLow:
 				{
-					if (CheckCollision(*m_box, mesh2->GetWorldMatrix(),
-						mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode()))
+					if (CheckCollision(*mesh2->GetOrientedBox(), mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode()))
 					{
 						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
@@ -78,13 +80,12 @@ namespace client_fw
 			}
 			case eCollisionComplex::kLow:
 			{
-				switch (m_collision_info.complex)
+				switch (complex2)
 				{
 				case eCollisionComplex::kMedium:
 				case eCollisionComplex::kHigh:
 				{
-					if (CheckCollision(*m_box, mesh2->GetWorldMatrix(),
-						mesh->m_bounding_tree, mesh->m_bounding_tree->GetRootNode()))
+					if (CheckCollision(*mesh1->GetOrientedBox(), mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode()))
 					{
 						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
@@ -103,8 +104,8 @@ namespace client_fw
 		}
 	}
 
-	bool StaticMeshCollisionManager::CheckCollision(const Mat4& mat1, const SPtr<KDTree>& tree1, const SPtr<KDTreeNode>& node1, const SPtr<MeshComponent>& mesh1,
-		const Mat4& mat2, const SPtr<KDTree>& tree2, const SPtr<KDTreeNode>& node2, const SPtr<MeshComponent>& mesh2, const BOrientedBox& box2)
+	bool StaticMeshCollisioner::CheckCollision(const Mat4& mat1, const SPtr<KDTree>& tree1, const SPtr<KDTreeNode>& node1, const SPtr<StaticMeshComponent>& mesh1,
+		const Mat4& mat2, const SPtr<KDTree>& tree2, const SPtr<KDTreeNode>& node2, const SPtr<StaticMeshComponent>& mesh2, const BOrientedBox& box2)
 	{
 		++m_node_count;
 		BOrientedBox box1;
@@ -163,17 +164,17 @@ namespace client_fw
 		return false;
 	}
 
-	bool StaticMeshCollisionManager::CheckCollision(const BOrientedBox& box1, const Mat4& mat2, const SPtr<KDTree>& tree2, const SPtr<KDTreeNode>& node2)
+	bool StaticMeshCollisioner::CheckCollision(const BOrientedBox& box1, const Mat4& mat2, const SPtr<KDTree>& tree2, const SPtr<KDTreeNode>& node2)
 	{
 		return false;
 	}
 
-	bool StaticMeshCollisionManager::CheckTriangleCollision(const Mat4& mat1, const SPtr<MeshComponent>& mesh1, const SPtr<KDTreeNode>& node1,
-		const Mat4& mat2, const SPtr<MeshComponent>& mesh2, const SPtr<KDTreeNode>& node2)
+	bool StaticMeshCollisioner::CheckTriangleCollision(const Mat4& mat1, const SPtr<StaticMeshComponent>& mesh1, const SPtr<KDTreeNode>& node1, const Mat4& mat2,
+		const SPtr<StaticMeshComponent>& mesh2, const SPtr<KDTreeNode>& node2)
 	{
 		//둘다 Complex가 High인 경우만 검출한다. 둘중 하나가 Medium인 경우는 Box끼리의 검출만 한다.
-		if (mesh1->GetCollisionManager()->GetCollisionInfo().complex == eCollisionComplex::kHigh &&
-			mesh2->GetCollisionManager()->GetCollisionInfo().complex == eCollisionComplex::kHigh)
+		if (mesh1->GetCollisioner()->GetCollisionInfo().complex == eCollisionComplex::kHigh &&
+			mesh2->GetCollisioner()->GetCollisionInfo().complex == eCollisionComplex::kHigh)
 		{
 			if (node1->triangle_indices.empty() == false && node2->triangle_indices.empty() == false)
 			{
@@ -206,5 +207,4 @@ namespace client_fw
 		}
 		return true;
 	}
-
 }

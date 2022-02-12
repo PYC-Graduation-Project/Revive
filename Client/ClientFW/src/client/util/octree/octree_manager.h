@@ -4,6 +4,7 @@ namespace client_fw
 {
 	class VisualOctree;
 	class CollisionOctree;
+	class SceneComponent;
 	class MeshComponent;
 	class CameraComponent;
 
@@ -64,9 +65,9 @@ namespace client_fw
 		void RegisterOctrees(std::vector<SPtr<CollisionOctree>>&& octrees);
 		void UnregisterOctrees();
 
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
-		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
-		void ReregisterMeshComponent(const SPtr<MeshComponent>& mesh);
+		void RegisterSceneComponent(const SPtr<SceneComponent>& scene_comp);
+		void UnregisterSceneComponent(const SPtr<SceneComponent>& scene_comp);
+		void ReregisterSceneComponent(const SPtr<SceneComponent>& scene_comp);
 
 	private:
 		static CollisionOctreeManager* s_instance;

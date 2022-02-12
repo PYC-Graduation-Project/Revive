@@ -5,7 +5,7 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
 #include "client/util/octree/octree_manager.h"
-#include "client/physics/collision/mesh_collision_manager.h"
+#include "client/physics/collision/collisioner.h"
 
 namespace client_fw
 {
@@ -36,53 +36,33 @@ namespace client_fw
 		}
 	}
 
-	void MeshComponent::UpdateWorldMatrix()
+	void MeshComponent::UpdateOrientedBox()
 	{
-		SceneComponent::UpdateWorldMatrix();
-
-		if (m_owner.expired() == false)
-		{
-			m_oriented_box->Transform(m_mesh->GetOrientedBox(), GetWorldMatrix());
-			Vec3 extents = m_oriented_box->GetExtents();
-			m_max_extent = extents.x;
-			m_max_extent = max(m_max_extent, extents.y);
-			m_max_extent = max(m_max_extent, extents.z);
-			if (m_collision_manager->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
-				CollisionOctreeManager::GetOctreeManager().ReregisterMeshComponent(shared_from_this());
-		}
+		m_oriented_box->Transform(m_mesh->GetOrientedBox(), GetWorldMatrix());
+		Vec3 extents = m_oriented_box->GetExtents();
+		m_max_extent = extents.x;
+		m_max_extent = max(m_max_extent, extents.y);
+		m_max_extent = max(m_max_extent, extents.z);
 	}
 
 	bool MeshComponent::RegisterToRenderSystem()
 	{
-		return Render::RegisterMeshComponent(shared_from_this(), m_draw_shader_name);
+		return Render::RegisterMeshComponent(SharedFromThis(), m_draw_shader_name);
 	}
 
 	void MeshComponent::UnregisterFromRenderSystem()
 	{
-		Render::UnregisterMeshComponent(shared_from_this(), m_draw_shader_name);
+		Render::UnregisterMeshComponent(SharedFromThis(), m_draw_shader_name);
 	}
 
 	void MeshComponent::RegisterToMeshOctree()
 	{
-		VisualOctreeManager::GetOctreeManager().RegisterMeshComponent(shared_from_this());
+		VisualOctreeManager::GetOctreeManager().RegisterMeshComponent(SharedFromThis());
 	}
 
 	void MeshComponent::UnregisterFromMeshOctree()
 	{
-		VisualOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
-		if (m_collision_manager->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
-			CollisionOctreeManager::GetOctreeManager().UnregisterMeshComponent(shared_from_this());
-	}
-
-	void MeshComponent::SetMesh(const std::string& file_path)
-	{
-		m_mesh = AssetStore::LoadMesh(file_path);
-		m_mesh->CreateCollision(shared_from_this());
-	}
-
-	void MeshComponent::SetMeshCollisionManager(SPtr<MeshCollisionManager>&& collision_manager)
-	{
-		m_collision_manager = std::move(collision_manager);
+		VisualOctreeManager::GetOctreeManager().UnregisterMeshComponent(SharedFromThis());
 	}
 
 	bool MeshComponent::IsUseLevelOfDetail() const
@@ -101,8 +81,8 @@ namespace client_fw
 		m_visual_tree_node.push_back(tree_node);
 	}
 
-	void MeshComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)
+	SPtr<MeshComponent> MeshComponent::SharedFromThis()
 	{
-		m_collision_tree_node.push_back(tree_node);
+		return std::static_pointer_cast<MeshComponent>(shared_from_this());
 	}
 }

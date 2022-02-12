@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "client/object/component/core/scene_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/util/octree/octree_manager.h"
+#include "client/physics/collision/collisioner.h"
 
 namespace client_fw
 {
@@ -10,8 +12,13 @@ namespace client_fw
 	{
 	}
 
+	SceneComponent::~SceneComponent()
+	{
+	}
+
 	bool SceneComponent::InitializeComponent()
 	{
+		m_collisioner = std::move(CreateCollisioner());
 		UpdateLocalMatrix();
 		bool ret = Initialize();
 		return ret;
@@ -34,7 +41,11 @@ namespace client_fw
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation *= owner->GetRotation();
 			m_world_scale *= owner->GetScale();
+			UpdateOrientedBox();
+
 			m_is_updated_world_matrix = true;
+
+			RegisterToCollisionOctree();
 		}
 	}
 
@@ -48,6 +59,28 @@ namespace client_fw
 			m_update_local_matrix = false;
 
 			UpdateWorldMatrix();
+		}
+	}
+
+	void SceneComponent::UpdateOrientedBox()
+	{
+	}
+
+	void SceneComponent::RegisterToCollisionOctree()
+	{
+		if (m_collisioner != nullptr)
+		{
+			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+				CollisionOctreeManager::GetOctreeManager().ReregisterSceneComponent(shared_from_this());
+		}
+	}
+
+	void SceneComponent::UnregisterToCollsionOctree()
+	{
+		if (m_collisioner != nullptr)
+		{
+			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+				CollisionOctreeManager::GetOctreeManager().UnregisterSceneComponent(shared_from_this());
 		}
 	}
 
@@ -79,5 +112,15 @@ namespace client_fw
 	{
 		m_local_scale = Vec3(scale, scale, scale);
 		m_update_local_matrix = true;
+	}
+
+	UPtr<Collisioner> SceneComponent::CreateCollisioner()
+	{
+		return nullptr;
+	}
+
+	void SceneComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)
+	{
+		m_collision_tree_node.push_back(tree_node);
 	}
 }

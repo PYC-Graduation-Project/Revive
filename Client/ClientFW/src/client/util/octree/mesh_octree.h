@@ -3,6 +3,7 @@
 
 namespace client_fw
 {
+	class SceneComponent;
 	class MeshComponent;
 	class CameraComponent;
 
@@ -80,8 +81,8 @@ namespace client_fw
 	struct CollisionTreeNode
 	{
 		BBox bounding_box;
-		std::vector<SPtr<MeshComponent>> static_mesh_components;
-		std::vector<SPtr<MeshComponent>> movable_mesh_components;
+		std::vector<SPtr<SceneComponent>> static_scene_components;
+		std::vector<SPtr<SceneComponent>> movable_scene_components;
 		std::array<SPtr<CollisionTreeNode>, 8> child_nodes;
 	};
 
@@ -90,7 +91,7 @@ namespace client_fw
 	public:
 		CollisionOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
 
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<CollisionTreeNode>& node);
+		void RegisterSceneComponent(const SPtr<SceneComponent>& scene_comp, const SPtr<CollisionTreeNode>& node);
 	};
 }
 

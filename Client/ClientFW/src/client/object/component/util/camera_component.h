@@ -29,7 +29,7 @@ namespace client_fw
 		float height;
 	};
 
-	class CameraComponent : public SceneComponent, public std::enable_shared_from_this<CameraComponent>
+	class CameraComponent : public SceneComponent
 	{
 	public:
 		CameraComponent(const std::string& name = "camera component",
@@ -78,6 +78,9 @@ namespace client_fw
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+
+	protected:
+		SPtr<CameraComponent> SharedFromThis();
 	};
 }
 

@@ -31,22 +31,22 @@ namespace client_fw
 	{
 	}
 
-	void CollisionOctree::RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<CollisionTreeNode>& node)
+	void CollisionOctree::RegisterSceneComponent(const SPtr<SceneComponent>& scene_comp, const SPtr<CollisionTreeNode>& node)
 	{
 		if (node->child_nodes[0] == nullptr)
 		{
-			if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
-				node->movable_mesh_components.push_back(mesh);
+			if (scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+				node->movable_scene_components.push_back(scene_comp);
 			else
-				node->static_mesh_components.push_back(mesh);
-			mesh->AddCollisionTreeNode(node);
+				node->static_scene_components.push_back(scene_comp);
+			scene_comp->AddCollisionTreeNode(node);
 			return;
 		}
 
 		for (UINT i = 0; i < 8; ++i)
 		{
-			if (mesh->GetOrientedBox()->Intersects(node->child_nodes[i]->bounding_box))
-				RegisterMeshComponent(mesh, node->child_nodes[i]);
+			if (scene_comp->GetOrientedBox()->Intersects(node->child_nodes[i]->bounding_box))
+				RegisterSceneComponent(scene_comp, node->child_nodes[i]);
 		}
 	}
 }

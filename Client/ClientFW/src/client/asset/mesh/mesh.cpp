@@ -5,8 +5,6 @@
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 #include "client/object/component/mesh/core/mesh_component.h"
-#include "client/physics/collision/mesh_collision_manager.h"
-
 
 namespace client_fw
 {
@@ -130,12 +128,6 @@ namespace client_fw
 			Mesh::CreateDataForLodMesh(lod);
 			m_instance_info.push_back(std::vector<InstanceInfo>());
 		}
-	}
-
-	void StaticMesh::CreateCollision(const SPtr<MeshComponent> mesh_comp)
-	{
-		mesh_comp->SetMeshCollisionManager(
-			CreateSPtr<StaticMeshCollisionManager>(mesh_comp, m_bounding_tree, mesh_comp->GetOrientedBox()));
 	}
 
 	ComPtr<ID3DBlob> Mesh::GetVertexBufferBlob(UINT lod)

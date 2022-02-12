@@ -3,7 +3,7 @@
 #include "client/physics/collision/collision_checker.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/util/octree/mesh_octree.h"
-#include "client/physics/collision/mesh_collision_manager.h"
+#include "client/physics/collision/collisioner.h"
 
 namespace client_fw
 {
@@ -24,17 +24,23 @@ namespace client_fw
 	{
 		if (node->child_nodes[0] == nullptr)
 		{
-			if (node->movable_mesh_components.empty() == false)
+			if (node->movable_scene_components.empty() == false)
 			{
-				for (size_t i = 0; i < node->movable_mesh_components.size(); ++i)
+				for (size_t i = 0; i < node->movable_scene_components.size(); ++i)
 				{
-					const auto& mesh = node->movable_mesh_components[i];
+					const auto& mesh = node->movable_scene_components[i];
 					
-					for (size_t j = i + 1; j < node->movable_mesh_components.size(); ++j)
-						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(node->movable_mesh_components[j]->GetCollisionManager());
+					for (size_t j = i + 1; j < node->movable_scene_components.size(); ++j)
+					{
+						if (mesh->GetCollisioner() != nullptr && node->movable_scene_components[j]->GetCollisioner() != nullptr)
+							mesh->GetCollisioner()->CheckCollisionWithOtherComponent(node->movable_scene_components[j]);
+					}
 
-					for (const auto& static_mesh : node->static_mesh_components)
-						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(static_mesh->GetCollisionManager());
+					for (const auto& static_mesh : node->static_scene_components)
+					{
+						if (mesh->GetCollisioner() != nullptr && static_mesh->GetCollisioner() != nullptr)
+							mesh->GetCollisioner()->CheckCollisionWithOtherComponent(static_mesh);
+					}
 				}
 			}
 		}
