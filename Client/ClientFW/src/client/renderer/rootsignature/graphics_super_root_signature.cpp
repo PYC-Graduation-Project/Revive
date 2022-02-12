@@ -23,7 +23,7 @@ namespace client_fw
 		m_camera_data->Shutdown();
 	}
 
-	void GraphicsSuperRootSignature::Draw(ID3D12GraphicsCommandList* command_list)
+	void GraphicsSuperRootSignature::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		command_list->SetGraphicsRootSignature(m_root_signature.Get());
 	}

@@ -10,7 +10,7 @@
 
 namespace client_fw
 {
-	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& path, const std::string& extension)
+	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& path, const std::string& extension) const
 	{
 		SPtr<Mesh> mesh = nullptr;
 
@@ -35,7 +35,7 @@ namespace client_fw
 		std::vector<UINT> normal_indices;
 	};
 
-	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& path, const std::string& extension)
+	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& path, const std::string& extension) const
 	{
 		std::ifstream obj_file(path);
 		

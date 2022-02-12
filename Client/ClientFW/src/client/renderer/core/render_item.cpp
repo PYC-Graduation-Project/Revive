@@ -44,10 +44,9 @@ namespace client_fw
 
 	void RenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		UpdateResourcesBeforeDraw();
-
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
+			UpdateResourcesBeforeDraw();
 			
 			m_mesh->PreDraw(command_list);
 

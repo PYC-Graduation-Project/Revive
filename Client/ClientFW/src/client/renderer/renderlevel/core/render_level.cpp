@@ -35,7 +35,7 @@ namespace client_fw
 			shader->Update(device, command_list, m_level_type);
 	}
 
-	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras)
+	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras) const
 	{
 		if (cameras.empty())
 		{

@@ -31,19 +31,10 @@ namespace client_fw
 					const auto& mesh = node->movable_mesh_components[i];
 					
 					for (size_t j = i + 1; j < node->movable_mesh_components.size(); ++j)
-					{
-						const auto& movable_mesh = node->movable_mesh_components[j];
-						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(movable_mesh->GetCollisionManager());
-						/*if (mesh->GetOrientedBox().Intersects(movable_mesh->GetOrientedBox()))
-							CheckCollisionComplexity(mesh, movable_mesh);*/
-					}
+						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(node->movable_mesh_components[j]->GetCollisionManager());
 
 					for (const auto& static_mesh : node->static_mesh_components)
-					{
 						mesh->GetCollisionManager()->CheckCollisionWithOtherMesh(static_mesh->GetCollisionManager());
-					/*	if (mesh->GetOrientedBox().Intersects(static_mesh->GetOrientedBox()))
-							CheckCollisionComplexity(mesh, static_mesh);*/
-					}
 				}
 			}
 		}
@@ -52,10 +43,5 @@ namespace client_fw
 			for (const auto& child_node : node->child_nodes)
 				CheckCollisionInLeafNode(child_node);
 		}
-	}
-
-	void CollisionChecker::CheckCollisionComplexity(const SPtr<MeshComponent>& mesh1, const SPtr<MeshComponent>& mesh2)
-	{
-		
 	}
 }

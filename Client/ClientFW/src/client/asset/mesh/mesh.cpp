@@ -100,12 +100,12 @@ namespace client_fw
 		return true;
 	}
 
-	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list)
+	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list) const
 	{
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 	}
 
-	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod)
+	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
 	{
 		command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_views.at(lod));
 		if (m_is_draw_index)

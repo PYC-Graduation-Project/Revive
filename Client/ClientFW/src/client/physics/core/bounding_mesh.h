@@ -53,7 +53,7 @@ namespace client_fw
 		{
 			return m_bounding.Intersects(XMLoadFloat3(&v1), XMLoadFloat3(&v2), XMLoadFloat3(&v3));
 		}
-		bool Intersects(const Vec3& origin, const Vec3& direction, float& distance)
+		bool Intersects(const Vec3& origin, const Vec3& direction, float& distance) const
 		{
 			return m_bounding.Intersects(XMLoadFloat3(&origin), XMLoadFloat3(&direction), distance);
 		}

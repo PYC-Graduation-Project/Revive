@@ -15,12 +15,10 @@ namespace client_fw
 		CollisionChecker(const CollisionChecker&) = delete;
 		CollisionChecker& operator=(const CollisionChecker&) = delete;
 
-		void CheckCollisions();
+		static void CheckCollisions();
 
 	private:
-		void CheckCollisionInLeafNode(const SPtr<CollisionTreeNode>& node);
-		void CheckCollisionComplexity(const SPtr<MeshComponent>& mesh1, const SPtr<MeshComponent>& mesh2);
-		UINT GetLODFromCollisionComplex(const SPtr<MeshComponent>& mesh, eCollisionComplex complex) const;
+		static void CheckCollisionInLeafNode(const SPtr<CollisionTreeNode>& node);
 
 	};
 }

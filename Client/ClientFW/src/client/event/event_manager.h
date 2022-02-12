@@ -11,7 +11,7 @@ namespace client_fw
 		IEventManager(const IEventManager&) = delete;
 		IEventManager& operator=(const IEventManager&) = delete;
 
-		virtual void ExecuteEvent() = 0;
+		virtual void ExecuteEvent() const = 0;
 	};
 }
 

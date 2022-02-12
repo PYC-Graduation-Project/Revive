@@ -32,8 +32,8 @@ namespace client_fw
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
 		virtual void Shutdown();
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) = 0;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const = 0;
 		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
@@ -99,8 +99,8 @@ namespace client_fw
 		virtual ~StaticMesh() = default;
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const override;
 
 		virtual void CreateDataForLodMesh(UINT lod) override;
 

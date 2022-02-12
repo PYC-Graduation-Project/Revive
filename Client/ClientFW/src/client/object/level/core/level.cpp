@@ -40,7 +40,7 @@ namespace client_fw
 		m_actor_manager->Update(delta_time);
 	}
 
-	void Level::SpawnActor(const SPtr<Actor>& actor)
+	void Level::SpawnActor(const SPtr<Actor>& actor) const
 	{
 		if (IsRuntime())
 		{

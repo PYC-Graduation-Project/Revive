@@ -15,10 +15,10 @@ namespace client_fw
 		InputEventManager(const InputEventManager&) = delete;
 		InputEventManager& operator=(const InputEventManager&) = delete;
 
-		virtual void ExecuteEvent() override;
+		virtual void ExecuteEvent() const override;
 
 	private:
-		void ExecuteEvents(std::vector<UPtr<InputEventInfo>>& events, eInputMode mode);
+		void ExecuteEvents(const std::vector<UPtr<InputEventInfo>>& events, eInputMode mode) const;
 		void DeleteEvent(std::vector<UPtr<InputEventInfo>>& events, const std::string& name);
 
 	public:	

@@ -37,7 +37,7 @@ namespace client_fw
 		m_ready_meshes.clear();
 	}
 
-	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		if (m_material_data->GetResource() != nullptr)
 			command_list->SetGraphicsRootShaderResourceView(3, m_material_data->GetResource()->GetGPUVirtualAddress());

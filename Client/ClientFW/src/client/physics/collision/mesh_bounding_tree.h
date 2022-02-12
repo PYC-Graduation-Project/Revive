@@ -3,7 +3,7 @@
 
 namespace client_fw
 {
-#define SHOW_TREE_INFO
+//#define SHOW_TREE_INFO
 #define MIN_TRI_COUNT 3
 
 	struct Triangle
@@ -152,7 +152,7 @@ namespace client_fw
 		UINT m_leaf_node_count = 0;
 
 	protected:
-		void ShowTreeInfo()
+		void ShowTreeInfo() const
 		{
 			LOG_INFO("저장 Node 수 : {0}, Leaf : {1}", m_node_count, m_leaf_node_count);
 			LOG_INFO("삼각형 평균 : {0}, 최소 : {1}, 최대 : {2}", m_count / m_leaf_node_count, m_min_count, m_max_count);

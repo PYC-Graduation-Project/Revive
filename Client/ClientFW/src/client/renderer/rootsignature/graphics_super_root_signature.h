@@ -20,7 +20,7 @@ namespace client_fw
 		virtual ~GraphicsSuperRootSignature();
 
 		virtual void Shutdown() override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list) const override;
 
 		virtual bool CreateRootSignature(ID3D12Device* device) override;
 		virtual void CreateResources(ID3D12Device* device) override;

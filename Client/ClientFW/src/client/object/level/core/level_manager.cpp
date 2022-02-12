@@ -76,13 +76,13 @@ namespace client_fw
 		}*/
 	}
 
-	void LevelManager::CloseLevel()
+	void LevelManager::CloseLevel() const
 	{
 		if(m_cur_level != nullptr)
 			m_cur_level->SetLevelState(eLevelState::kDead);
 	}
 
-	void LevelManager::SpawnActor(const SPtr<Actor>& actor)
+	void LevelManager::SpawnActor(const SPtr<Actor>& actor) const
 	{
 		if (m_cur_level != nullptr)
 			m_cur_level->SpawnActor(actor);

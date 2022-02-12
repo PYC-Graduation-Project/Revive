@@ -29,7 +29,7 @@ namespace client_fw
 		void UpdateLevel(float delta_time);
 		virtual void Update(float delta_time) override {}
 
-		void SpawnActor(const SPtr<Actor>& actor);
+		void SpawnActor(const SPtr<Actor>& actor) const;
 
 	protected:
 		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

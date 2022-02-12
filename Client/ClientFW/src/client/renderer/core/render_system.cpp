@@ -69,7 +69,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list)
+	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);

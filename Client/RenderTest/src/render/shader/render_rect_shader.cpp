@@ -24,7 +24,7 @@ namespace render_test
 		UpdateRenderItem(device, command_list);
 	}
 
-	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
 		switch (level_type)
 		{
@@ -37,17 +37,17 @@ namespace render_test
 		}
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "VSDiffuse", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE RenderRectShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CompileShader(L"../RenderTest/src/render/hlsl/render_rect.hlsl", "PSDiffuse", "ps_5_1", shader_blob);
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderRectShader::CreateInputLayout(eRenderLevelType level_type, int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderRectShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
 		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };

@@ -146,7 +146,9 @@ namespace client_fw
 	void KDTree::Initialize(const BOrientedBox& box, std::vector<Triangle>& triangles)
 	{
 		CreateTree(nullptr, triangles, std::vector<size_t>(), box, 0);
+#ifdef SHOW_TREE_INFO
 		ShowTreeInfo();
+#endif
 		bool result = false;
 		for (const auto& triangle : triangles)
 		{
@@ -294,7 +296,9 @@ namespace client_fw
 			//Leaf Node는 AABB가 아닌 OBB를 활용하면 삼각형 검출을 줄일 수 있을 것으로 예상된다.
 			if (node->triangle_indices.empty() == false)
 			{
+#ifdef SHOW_TREE_INFO
 				UpdateTreeInfo(depth, static_cast<UINT>(node->triangle_indices.size()));
+#endif
 				std::vector<Vec3> positions;
 				for (const auto& index : node->triangle_indices)
 				{
@@ -307,6 +311,8 @@ namespace client_fw
 			}
 		}
 
+#ifdef SHOW_TREE_INFO
 		++m_node_count;
+#endif
 	}
 }
