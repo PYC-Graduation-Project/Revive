@@ -5,7 +5,7 @@ namespace client_fw
 	class VisualOctree;
 	class CollisionOctree;
 	class SceneComponent;
-	class MeshComponent;
+	class RenderComponent;
 	class CameraComponent;
 
 	class OctreeManager
@@ -38,19 +38,19 @@ namespace client_fw
 		void RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
 		void UnregisterOctrees();
 
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh);
-		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh);
+		void RegisterRenderComponent(const SPtr<RenderComponent>& render_comp);
+		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp);
 
 	private:
 		static VisualOctreeManager* s_instance;
 		bool m_is_active = false;
 		std::vector<SPtr<VisualOctree>> m_visual_octrees;
-		std::vector<SPtr<MeshComponent>> m_movable_meshes;
+		std::vector<SPtr<RenderComponent>> m_movable_render_comps;
 
 	public:
 		static VisualOctreeManager& GetOctreeManager() { return *s_instance; }
 		const std::vector<SPtr<VisualOctree>> GetVisualOctrees() const { return m_visual_octrees; }
-		const std::vector<SPtr<MeshComponent>> GetMovableMeshes() const { return m_movable_meshes; }
+		const std::vector<SPtr<RenderComponent>> GetMovableRenderComps() const { return m_movable_render_comps; }
 	};
 
 	class CollisionOctreeManager

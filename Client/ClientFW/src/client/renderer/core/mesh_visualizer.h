@@ -8,7 +8,7 @@ namespace DirectX
 namespace client_fw
 {
 	class CameraComponent;
-	class MeshComponent;
+	class RenderComponent;
 	struct VisualTreeNode;
 	class BFrustum;
 	
@@ -20,8 +20,6 @@ namespace client_fw
 	private:
 		static void UpdateVisibilityFromCamera(const BFrustum& bounding_frustum,
 			ContainmentType type, const SPtr<VisualTreeNode>& node, const Vec3& eye);
-
-		static void UpdateLevelOfDetail(const SPtr<MeshComponent>& mesh, const Vec3& eye);
 	};
 }
 

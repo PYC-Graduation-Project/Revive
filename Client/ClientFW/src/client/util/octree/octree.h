@@ -4,13 +4,13 @@
 namespace client_fw
 {
 	class SceneComponent;
-	class MeshComponent;
+	class RenderComponent;
 	class CameraComponent;
 
 	struct VisualTreeNode
 	{
 		BBox bounding_box;
-		std::vector<SPtr<MeshComponent>> mesh_components;
+		std::vector<SPtr<RenderComponent>> render_components;
 		std::array<SPtr<VisualTreeNode>, 8> child_nodes;
 	};
 
@@ -67,7 +67,6 @@ namespace client_fw
 	public:
 		float GetWidth() const { return m_width; }
 		const SPtr<TreeNode>& GetRootNode() const { return m_root_node; }
-		const std::vector<SPtr<MeshComponent>> GetOutOfRangeMeshes() const { return m_root_node->mesh_components; }
 	};
 
 	class VisualOctree : public Octree<VisualTreeNode>
@@ -75,7 +74,7 @@ namespace client_fw
 	public:
 		VisualOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
 
-		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<VisualTreeNode>& node);
+		void RegisterRenderComponent(const SPtr<RenderComponent>& mesh, const SPtr<VisualTreeNode>& node);
 	};
 
 	struct CollisionTreeNode

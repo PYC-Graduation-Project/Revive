@@ -101,9 +101,8 @@ namespace client_fw
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
 			const auto& mesh_comp = mesh_data.mesh_comp;
-			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner != nullptr && mesh_comp->IsVisible())
+			if (mesh_comp->IsVisible())
 			{
 				UINT lod = mesh_comp->GetLevelOfDetail();
 

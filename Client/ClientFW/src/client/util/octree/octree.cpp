@@ -10,11 +10,11 @@ namespace client_fw
 	{
 	}
 
-	void VisualOctree::RegisterMeshComponent(const SPtr<MeshComponent>& mesh, const SPtr<VisualTreeNode>& node)
+	void VisualOctree::RegisterRenderComponent(const SPtr<RenderComponent>& mesh, const SPtr<VisualTreeNode>& node)
 	{
 		if (node->child_nodes[0] == nullptr)
 		{
-			node->mesh_components.push_back(mesh);
+			node->render_components.push_back(mesh);
 			mesh->AddVisualTreeNode(node);
 			return;
 		}
@@ -22,7 +22,7 @@ namespace client_fw
 		for (UINT i = 0; i < 8; ++i)
 		{
 			if (mesh->GetOrientedBox()->Intersects(node->child_nodes[i]->bounding_box))
-				RegisterMeshComponent(mesh, node->child_nodes[i]);
+				RegisterRenderComponent(mesh, node->child_nodes[i]);
 		}
 	}
 

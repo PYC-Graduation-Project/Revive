@@ -8,7 +8,6 @@ namespace client_fw
 	class GraphicsRenderLevel;
 	class GraphicsShader;
 	class RenderComponent;
-	class MeshComponent;
 	class CameraComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
@@ -70,8 +69,8 @@ namespace client_fw
 		}
 		void UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type);
 
-		bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
-		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
+		bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
+		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 

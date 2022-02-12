@@ -10,14 +10,14 @@ namespace client_fw
 		s_render_system->UnregisterGraphicsShader(shader_name, type);
 	}
 
-	bool Render::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	bool Render::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		return s_render_system->RegisterMeshComponent(mesh_comp, shader_name);
+		return s_render_system->RegisterRenderComponent(render_comp, shader_name);
 	}
 
-	void Render::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	void Render::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		s_render_system->UnregisterMeshComponent(mesh_comp, shader_name);
+		s_render_system->UnregisterRenderComponent(render_comp, shader_name);
 	}
 
 	bool Render::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)

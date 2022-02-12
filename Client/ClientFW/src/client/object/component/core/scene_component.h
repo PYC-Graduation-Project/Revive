@@ -13,9 +13,10 @@ namespace client_fw
 		SceneComponent(const std::string& name, int update_order = 100);
 		virtual ~SceneComponent();
 
-		virtual bool InitializeComponent() override final;
+		virtual bool InitializeComponent() override;
+		virtual void ShutdownComponent() override;
+		virtual void UpdateComponent(float delta_time) override;
 
-		virtual void Update(float delta_time) override;
 		virtual void UpdateWorldMatrix() override;
 
 	private:

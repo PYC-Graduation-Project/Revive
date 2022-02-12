@@ -24,11 +24,19 @@ namespace client_fw
 		return ret;
 	}
 
-	void SceneComponent::Update(float delta_time)
+	void SceneComponent::ShutdownComponent()
+	{
+		UnregisterToCollsionOctree();
+		Shutdown();
+	}
+
+	void SceneComponent::UpdateComponent(float delta_time)
 	{
 		m_is_updated_world_matrix = false;
 
 		UpdateLocalMatrix();
+
+		Update(delta_time);
 	}
 
 	void SceneComponent::UpdateWorldMatrix()

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/util/octree/octree_manager.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/physics/core/bounding_mesh.h"
@@ -54,52 +54,52 @@ namespace client_fw
 		for (const auto& octree : m_visual_octrees)
 			octree->Shutdown();
 		m_visual_octrees.clear();
-		m_movable_meshes.clear();
+		m_movable_render_comps.clear();
 		m_is_active = false;
 	}
 
-	void VisualOctreeManager::RegisterMeshComponent(const SPtr<MeshComponent>& mesh)
+	void VisualOctreeManager::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp)
 	{
 		if (m_is_active)
 		{
-			if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				m_movable_meshes.push_back(mesh);
+				m_movable_render_comps.push_back(render_comp);
 			}
 			else
 			{
 				for (const auto& octree : m_visual_octrees)
 				{
 					const auto& root_node = octree->GetRootNode();
-					if (mesh->GetOrientedBox()->Intersects(root_node->bounding_box))
-						octree->RegisterMeshComponent(mesh, root_node);
+					if (render_comp->GetOrientedBox()->Intersects(root_node->bounding_box))
+						octree->RegisterRenderComponent(render_comp, root_node);
 				}
 			}
 		}
 	}
 
-	void VisualOctreeManager::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh)
+	void VisualOctreeManager::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp)
 	{
 		if (m_is_active)
 		{
-			auto UnregisterMesh([&mesh](std::vector<SPtr<MeshComponent>>& meshes) {
-				auto iter = std::find(meshes.begin(), meshes.end(), mesh);
-				if (iter != meshes.end())
+			auto UnregisterRenderComp([&render_comp](std::vector<SPtr<RenderComponent>>& render_comps) {
+				auto iter = std::find(render_comps.begin(), render_comps.end(), render_comp);
+				if (iter != render_comps.end())
 				{
-					std::iter_swap(iter, meshes.end() - 1);
-					meshes.pop_back();
+					std::iter_swap(iter, render_comps.end() - 1);
+					render_comps.pop_back();
 				}
 				});
 
-			if (mesh->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				UnregisterMesh(m_movable_meshes);
+				UnregisterRenderComp(m_movable_render_comps);
 			}
 			else
 			{
-				for (const auto& tree_node : mesh->GetVisualTreeNodes())
-					UnregisterMesh(tree_node.lock()->mesh_components);
-				mesh->ResetVisualTreeNode();
+				for (const auto& tree_node : render_comp->GetVisualTreeNodes())
+					UnregisterRenderComp(tree_node.lock()->render_components);
+				render_comp->ResetVisualTreeNode();
 			}
 		}
 	}

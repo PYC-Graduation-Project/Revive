@@ -4,7 +4,6 @@ namespace client_fw
 {
 	class BOrientedBox;
 	struct CollisionTreeNode;
-	class MeshComponent;
 	enum class eCollisionComplex;
 
 	class CollisionChecker
