@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
 	VisualOctree::VisualOctree(float width, Vec3 pos, UINT depth)
-		: MeshOctree(width, pos, depth)
+		: Octree(width, pos, depth)
 	{
 	}
 
@@ -27,7 +27,7 @@ namespace client_fw
 	}
 
 	CollisionOctree::CollisionOctree(float width, Vec3 pos, UINT depth)
-		: MeshOctree(width, pos, depth)
+		: Octree(width, pos, depth)
 	{
 	}
 

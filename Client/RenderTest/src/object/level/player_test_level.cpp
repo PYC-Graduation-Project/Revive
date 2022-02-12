@@ -3,7 +3,7 @@
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
-#include <client/util/octree/mesh_octree.h>
+#include <client/util/octree/octree.h>
 #include "object/level/player_test_level.h"
 
 namespace render_test

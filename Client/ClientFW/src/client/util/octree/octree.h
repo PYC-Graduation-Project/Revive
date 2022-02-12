@@ -15,16 +15,16 @@ namespace client_fw
 	};
 
 	template <class TreeNode>
-	class MeshOctree
+	class Octree
 	{
 	public:
-		MeshOctree(float width, Vec3 pos, UINT depth)
+		Octree(float width, Vec3 pos, UINT depth)
 			: m_width(width), m_position(pos), m_depth(depth)
 		{
 			if (m_width > 0.0f)
 				m_root_node = CreateSPtr<TreeNode>();
 		}
-		~MeshOctree() = default;
+		~Octree() = default;
 
 		void Initialize()
 		{
@@ -70,7 +70,7 @@ namespace client_fw
 		const std::vector<SPtr<MeshComponent>> GetOutOfRangeMeshes() const { return m_root_node->mesh_components; }
 	};
 
-	class VisualOctree : public MeshOctree<VisualTreeNode>
+	class VisualOctree : public Octree<VisualTreeNode>
 	{
 	public:
 		VisualOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);
@@ -86,7 +86,7 @@ namespace client_fw
 		std::array<SPtr<CollisionTreeNode>, 8> child_nodes;
 	};
 
-	class CollisionOctree : public MeshOctree<CollisionTreeNode>
+	class CollisionOctree : public Octree<CollisionTreeNode>
 	{
 	public:
 		CollisionOctree(float width, Vec3 pos = vec3::ZERO, UINT depth = 3);

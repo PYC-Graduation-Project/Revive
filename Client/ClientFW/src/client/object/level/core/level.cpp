@@ -3,7 +3,7 @@
 #include "client/object/actor/core/actor_manager.h"
 #include "client/object/actor/core/actor.h"
 #include "client/input/input.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 
 namespace client_fw
 {

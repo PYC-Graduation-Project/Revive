@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/core/mesh_visualizer.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"

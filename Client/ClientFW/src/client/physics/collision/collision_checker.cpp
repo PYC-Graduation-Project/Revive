@@ -2,7 +2,7 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/physics/collision/collision_checker.h"
 #include "client/util/octree/octree_manager.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 #include "client/physics/collision/collisioner.h"
 
 namespace client_fw
