@@ -5,7 +5,7 @@ namespace render_test
 {
 	using namespace client_fw;
 
-	class RenderRectShader final : public GraphicsShader
+	class RenderRectShader final : public MeshShader
 	{
 	public:
 		RenderRectShader(const std::string& name);

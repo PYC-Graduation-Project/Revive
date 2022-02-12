@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "client/asset/mesh/material_loader.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material_loader.h"
+#include "client/asset/material/material.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 

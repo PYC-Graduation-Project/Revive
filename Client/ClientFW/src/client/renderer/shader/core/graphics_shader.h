@@ -5,19 +5,16 @@ namespace client_fw
 {
 	class GraphicsRenderLevel;
 	class MeshComponent;
-	class RenderItem;
+	class MeshRenderItem;
 
 	class GraphicsShader : public Shader
 	{
 	public:
 		GraphicsShader(const std::string& name);
 		virtual ~GraphicsShader() = default;
-
-		virtual void Initialize(ID3D12Device* device) override;
-		virtual void Shutdown() override;
-
-		void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
+		
+		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const = 0;
 
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)  const= 0;
 		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const;
@@ -42,12 +39,30 @@ namespace client_fw
 		virtual D3D12_SHADER_BYTECODE CreateShader(ID3DBlob** shader_blob) const;
 
 	public:
-		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp);
-		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
+		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) = 0;
+		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) = 0;
+		//virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& comp) = 0;
+	};
+
+	class MeshShader : public GraphicsShader
+	{
+	public:
+		MeshShader(const std::string& name);
+		virtual ~MeshShader() = default;
+
+		virtual void Initialize(ID3D12Device* device) override;
+		virtual void Shutdown() override;
+
+	protected:
+		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override final;
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const override final;
+
+		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
+		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
 
 	private:
-		std::vector<SPtr<RenderItem>> m_render_items;
-		std::unordered_map<std::string, SPtr<RenderItem>> m_render_items_map;
+		std::vector<SPtr<MeshRenderItem>> m_render_items;
+		std::unordered_map<std::string, SPtr<MeshRenderItem>> m_render_items_map;
 	};
 }
 

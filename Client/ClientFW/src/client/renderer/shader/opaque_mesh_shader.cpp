@@ -6,7 +6,7 @@
 namespace client_fw
 {
 	OpaqueMeshShader::OpaqueMeshShader(const std::string& name)
-		: GraphicsShader(name)
+		: MeshShader(name)
 	{
 	}
 

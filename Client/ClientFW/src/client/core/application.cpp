@@ -11,7 +11,7 @@
 #include "client/renderer/core/renderer.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/mesh/mesh_loader.h"
-#include "client/asset/mesh/material_loader.h"
+#include "client/asset/material/material_loader.h"
 
 namespace client_fw
 {

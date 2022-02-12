@@ -7,7 +7,7 @@
 namespace render_test
 {
 	RenderRectShader::RenderRectShader(const std::string& name)
-		: GraphicsShader(name)
+		: MeshShader(name)
 	{
 	}
 

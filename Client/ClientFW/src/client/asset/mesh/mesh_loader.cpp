@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/mesh/vertex.h"
+#include "client/asset/primitive/vertex.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material.h"
 #include "client/physics/core/bounding_mesh.h"
 #include "client/physics/collision/mesh_bounding_tree.h"
 

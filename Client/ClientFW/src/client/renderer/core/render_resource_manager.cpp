@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw

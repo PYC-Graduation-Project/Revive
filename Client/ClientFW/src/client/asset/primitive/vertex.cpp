@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "client/asset/mesh/vertex.h"
+#include "client/asset/primitive/vertex.h"
 
 namespace client_fw
 {

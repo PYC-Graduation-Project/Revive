@@ -3,7 +3,7 @@
 
 namespace client_fw
 {
-	class OpaqueMeshShader final : public GraphicsShader
+	class OpaqueMeshShader final : public MeshShader
 	{
 	public:
 		OpaqueMeshShader(const std::string& name);

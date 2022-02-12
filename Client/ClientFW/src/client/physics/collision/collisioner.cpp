@@ -2,7 +2,7 @@
 #include "client/physics/collision/collisioner.h"
 #include "client/object/component/core/scene_component.h"
 #include "client/object/component/mesh/static_mesh_component.h"
-#include "client/asset/mesh/vertex.h"
+#include "client/asset/primitive/vertex.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/object/actor/core/actor.h"

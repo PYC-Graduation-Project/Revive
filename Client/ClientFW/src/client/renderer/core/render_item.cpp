@@ -9,27 +9,27 @@
 
 namespace client_fw
 {
-	RenderItem::RenderItem(const SPtr<Mesh>& mesh)
+	MeshRenderItem::MeshRenderItem(const SPtr<Mesh>& mesh)
 		: m_mesh(mesh)
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
 	}
 
-	RenderItem::~RenderItem()
+	MeshRenderItem::~MeshRenderItem()
 	{
 	}
 
-	void RenderItem::Initialize(ID3D12Device* device)
+	void MeshRenderItem::Initialize(ID3D12Device* device)
 	{
 	}
 
-	void RenderItem::Shutdown()
+	void MeshRenderItem::Shutdown()
 	{
 		m_instance_data->Shutdown();
 	}
 
-	void RenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		if (m_mesh_comp_data.empty() == false)
 		{
@@ -42,7 +42,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::Draw(ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
@@ -66,13 +66,13 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::CreateResources(ID3D12Device* device)
+	void MeshRenderItem::CreateResources(ID3D12Device* device)
 	{
 		//LOG_INFO(m_num_of_instance_data);
 		m_instance_data->CreateResource(device, m_num_of_instance_data);
 	}
 
-	void RenderItem::UpdateResources()
+	void MeshRenderItem::UpdateResources()
 	{
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
@@ -88,7 +88,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::UpdateResourcesBeforeDraw()
+	void MeshRenderItem::UpdateResourcesBeforeDraw()
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_index_of_lod_instance_data[0] = m_mesh->GetLODMeshCount(0);
@@ -114,7 +114,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		MeshComponentData data;
 		data.mesh_comp = mesh_comp;
@@ -136,7 +136,7 @@ namespace client_fw
 		
 	}
 
-	void RenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		UINT index = mesh_comp->GetInstanceIndex();
 
