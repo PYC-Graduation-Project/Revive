@@ -73,13 +73,14 @@ public:
 		return Vector3(a.x * b, a.y* b, a.z* b);
 
 	}
-	
+
 #endif // 연산자 오버로딩
 
 };
 
 struct timer_event {
 	int obj_id;
+	int room_id;
 	std::chrono::system_clock::time_point	start_time;
 	EVENT_TYPE ev;
 	int target_id;

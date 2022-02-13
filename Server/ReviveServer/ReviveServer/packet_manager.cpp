@@ -51,11 +51,11 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 
 void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_over)
 {
-	cout << "억셉트처리옴" << endl;
+	std::cout << "억셉트처리옴" << endl;
 	SOCKET c_socket = *(reinterpret_cast<SOCKET*>(exp_over->_net_buf));
 	int new_id = m_moveobj_manager->GetNewID();
 	if (-1 == new_id) {
-		cout << "Maxmum user overflow. Accept aborted.\n";
+		std::cout << "Maxmum user overflow. Accept aborted.\n";
 		
 	}
 	else {//다시제작
@@ -244,7 +244,8 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	Vector3 pos{ cl->GetPosX(),cl->GetPosY(),cl->GetPosZ() };
 	Vector3 look{ cl->GetLookVec()};
 	Vector3 right{ cl->GetRightVec() };
-	switch (packet->direction)//WORLD크기 정해지면 제한해주기
+	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
+	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
 	case 0://앞
 	{
@@ -267,12 +268,17 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 		pos += right * MOVE_DISTANCE ;
 		break;
 	}
+	}*/
+
+	cl->SetPos(pos);
+	std::cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
+	for (auto other_pl : room->GetObjList())
+	{
+		if (false == m_moveobj_manager->IsPlayer(other_pl))
+			continue;
+		SendMovePacket(other_pl, c_id);
 	}
-	cl->SetPosX(pos.x);
-	cl->SetPosY(pos.y);
-	cl->SetPosZ(pos.z);
-	cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
-	SendMovePacket(c_id, c_id);
+	
 }
 
 void PacketManager::ProcessMatching(int c_id, unsigned char* p)
@@ -361,12 +367,13 @@ void PacketManager::StartGame(int room_id)
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), SKULL_HP, pos, PLAYER_DAMAGE);
+			e->InitLua("enemy_sordier.lua");
 			cnt++;
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), SKULLKING_HP, pos, PLAYER_DAMAGE);
-			
+			e->InitLua("enemy_king.lua");
 		}
 	}
 
