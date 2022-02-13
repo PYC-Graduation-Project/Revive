@@ -29,6 +29,16 @@ namespace client_fw
 
 		void CreateResource(ID3D12Device* device, UINT num_of_data)
 		{
+			if (m_resource_buffer != nullptr)
+				m_resource_buffer->Unmap(0, nullptr);
+
+			m_resource_buffer = D3DUtil::CreateUploadBuffer(device, static_cast<UINT>(num_of_data * m_byte_size), &m_mapped_data);
+
+			m_num_of_updated_data = num_of_data;
+		}
+
+		void CreateAndCopyResource(ID3D12Device* device, UINT num_of_data)
+		{
 			auto updated_resource_size = m_num_of_updated_data * m_byte_size;
 			auto resource_size = num_of_data * m_byte_size;
 

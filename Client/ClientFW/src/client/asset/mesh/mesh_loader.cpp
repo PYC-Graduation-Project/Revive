@@ -193,13 +193,13 @@ namespace client_fw
 				vertex_count += count;
 			}
 
-			const UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
-			if (mesh->CreateVertexBufferBlob(lod, vertices_size) == false)
+			const auto& vertex_info = mesh->GetVertexInfo(lod);
+			if(vertex_info->CreateVertexBlob<TextureLightVertex>(vertex_count)==false)
 			{
 				LOG_ERROR("Could not create blob for vertex");
 				return nullptr;
 			}
-			CopyMemory(mesh->GetVertexBufferBlob(lod)->GetBufferPointer(), vertices.data(), vertices_size);
+			vertex_info->CopyData(vertices.data(), vertex_count);
 
 			if (lod == 0)
 			{

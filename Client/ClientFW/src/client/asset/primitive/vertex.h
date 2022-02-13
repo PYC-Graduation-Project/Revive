@@ -41,4 +41,27 @@ namespace client_fw
 	protected:
 		Vec3 m_normal;
 	};
+
+	class ShapeVertex : public Vertex
+	{
+	public:
+		ShapeVertex();
+		ShapeVertex(const Vec3& position, const Vec3& size,
+			const Vec3& forward, const Vec3& right, const Vec3& up);
+
+		const Vec3& GetSize() const { return m_size; }
+		void SetSize(const Vec3& size) { m_size = size; }
+		const Vec3& GetForward() const { return m_forward; }
+		const Vec3& GetRight() const { return m_right; }
+		const Vec3& GetUp() const { return m_up; }
+		void SetForward(const Vec3& forward) { m_forward = forward; }
+		void SetRight(const Vec3& right) { m_right = right; }
+		void SetUp(const Vec3& up) { m_up = up; }
+
+	protected:
+		Vec3 m_size;
+		Vec3 m_forward;
+		Vec3 m_right;
+		Vec3 m_up;
+	};
 }

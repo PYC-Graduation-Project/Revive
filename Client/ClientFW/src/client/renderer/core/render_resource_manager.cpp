@@ -69,7 +69,7 @@ namespace client_fw
 
 	void RenderResourceManager::CreateMaterialResource(ID3D12Device* device)
 	{
-		m_material_data->CreateResource(device, m_num_of_material_data +
+		m_material_data->CreateAndCopyResource(device, m_num_of_material_data +
 			static_cast<UINT>(m_ready_materials.size()));
 	}
 

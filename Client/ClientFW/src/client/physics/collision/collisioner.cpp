@@ -178,8 +178,8 @@ namespace client_fw
 		{
 			if (node1->triangle_indices.empty() == false && node2->triangle_indices.empty() == false)
 			{
-				auto vertices1 = reinterpret_cast<TextureLightVertex*>(mesh1->GetMesh()->GetVertexBufferBlob(0)->GetBufferPointer());
-				auto vertices2 = reinterpret_cast<TextureLightVertex*>(mesh2->GetMesh()->GetVertexBufferBlob(0)->GetBufferPointer());
+				auto vertices1 = mesh1->GetStaticMesh()->GetVertices(0);
+				auto vertices2 = mesh2->GetStaticMesh()->GetVertices(0);
 
 				for (size_t i1 : node1->triangle_indices)
 				{
