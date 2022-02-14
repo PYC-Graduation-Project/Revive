@@ -1,7 +1,7 @@
 #include <include/client_core.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/util/rotating_movement_component.h>
-#include <client/object/component/render/box_component.h>
+#include <client/object/component/render/sphere_component.h>
 #include "rotating_cube.h"
 
 namespace event_test
@@ -16,6 +16,7 @@ namespace event_test
 	{
 		bool ret = StaticMeshActor::Initialize();
 		ret &= AttachComponent(m_rotating_component);
+		ret &= AttachComponent(CreateSPtr<SphereComponent>(200.0f));
 		return ret;
 	}
 

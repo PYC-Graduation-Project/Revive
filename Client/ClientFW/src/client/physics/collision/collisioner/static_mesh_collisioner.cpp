@@ -34,6 +34,16 @@ namespace client_fw
 			}
 			break;
 		}
+		case eMeshCollisionType::kSphere:
+		{
+			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
+			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
+			{
+				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());
+			}
+			break;
+		}
 		default:
 			break;
 		}

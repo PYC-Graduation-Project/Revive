@@ -6,11 +6,12 @@ namespace client_fw
 {
 	class SceneComponent;
 	class BoxComponent;
+	class SphereComponent;
 	class StaticMeshComponent;
 
 	enum class eMeshCollisionType
 	{
-		kStaticMesh, kBox,
+		kStaticMesh, kBox, kSphere,
 	};
 
 	class Collisioner
