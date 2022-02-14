@@ -22,9 +22,9 @@ namespace client_fw
 		virtual void Update(float delta_time) override;
 
 		void OpenLevel(const SPtr<Level> new_level, UPtr<LevelLoader>&& level_loader);
-		void CloseLevel();
+		void CloseLevel() const;
 
-		void SpawnActor(const SPtr<Actor>& actor);
+		void SpawnActor(const SPtr<Actor>& actor) const;
 
 	private:
 		static LevelManager* s_instance;

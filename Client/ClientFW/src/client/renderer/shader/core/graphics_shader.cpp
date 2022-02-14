@@ -14,74 +14,52 @@ namespace client_fw
 	{
 	}
 
-	void GraphicsShader::Initialize(ID3D12Device* device)
-	{
-	}
-
-	void GraphicsShader::Shutdown()
-	{
-		for (const auto& render_item : m_render_items)
-			render_item->Shutdown();
-	}
-
-	void GraphicsShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
-	{
-		for (const auto& render_item : m_render_items)
-			render_item->Update(device, command_list);
-	}
-
-	void GraphicsShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list)
-	{
-		for (const auto& render_item : m_render_items)
-			render_item->Draw(command_list);
-	}
-
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateShader(ID3DBlob** shader_blob)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateShader(ID3DBlob** shader_blob) const
 	{
 		return D3D12_SHADER_BYTECODE{ nullptr, 0 };
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateDomainShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateDomainShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE GraphicsShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{ 
+		return CreateShader(shader_blob);
+	}
+
+	D3D12_SHADER_BYTECODE GraphicsShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CreateShader(shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE GraphicsShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
-	{
-		return CreateShader(shader_blob);
-	}
-
-	std::vector<D3D12_INPUT_ELEMENT_DESC> GraphicsShader::CreateInputLayout(eRenderLevelType level_type, int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> GraphicsShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
 		return std::vector<D3D12_INPUT_ELEMENT_DESC>();
 	}
 
-	D3D12_RASTERIZER_DESC GraphicsShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index)
+	D3D12_RASTERIZER_DESC GraphicsShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index) const
 	{
 		return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_BLEND_DESC GraphicsShader::CreateBlendState(eRenderLevelType level_type, int pso_index)
+	D3D12_BLEND_DESC GraphicsShader::CreateBlendState(eRenderLevelType level_type, int pso_index) const
 	{
 		return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_DEPTH_STENCIL_DESC GraphicsShader::CreateDepthStencilState(eRenderLevelType level_type, int pso_index)
+	D3D12_DEPTH_STENCIL_DESC GraphicsShader::CreateDepthStencilState(eRenderLevelType level_type, int pso_index) const
 	{
 		return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	}
 
-	D3D12_STREAM_OUTPUT_DESC GraphicsShader::CreateStreamOutputState(eRenderLevelType level_type, int pso_index)
+	D3D12_STREAM_OUTPUT_DESC GraphicsShader::CreateStreamOutputState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_STREAM_OUTPUT_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D12_STREAM_OUTPUT_DESC));
@@ -95,7 +73,7 @@ namespace client_fw
 		return desc;
 	}
 
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE GraphicsShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index)
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE GraphicsShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
 	{
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	}
@@ -142,7 +120,32 @@ namespace client_fw
 		return true;
 	}
 
-	bool GraphicsShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
+	MeshShader::MeshShader(const std::string& name)
+		: GraphicsShader(name)
+	{
+	}
+
+	void MeshShader::Initialize(ID3D12Device* device)
+	{
+	}
+
+	void MeshShader::Shutdown()
+	{
+	}
+
+	void MeshShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		for (const auto& render_item : m_render_items)
+			render_item->Update(device, command_list);
+	}
+
+	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
+	{
+		for (const auto& render_item : m_render_items)
+			render_item->Draw(command_list);
+	}
+
+	bool MeshShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 
@@ -152,7 +155,7 @@ namespace client_fw
 		}
 		else
 		{
-			SPtr<RenderItem> render_item = CreateSPtr<RenderItem>(mesh_comp->GetMesh());	 //수정 필요
+			SPtr<MeshRenderItem> render_item = CreateSPtr<MeshRenderItem>(mesh_comp->GetMesh());
 			render_item->Initialize(device);
 			render_item->RegisterMeshComponent(mesh_comp);
 			m_render_items_map.insert({ path, render_item });
@@ -162,7 +165,7 @@ namespace client_fw
 		return true;
 	}
 
-	void GraphicsShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void MeshShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 

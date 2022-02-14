@@ -1,17 +1,19 @@
 #include "stdafx.h"
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/primitive/vertex.h"
 #include "client/asset/bone/skeleton.h"
 #include "client/asset/mesh/vertex.h"
 #include "client/asset/mesh/index.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material.h"
 #include "client/physics/core/bounding_mesh.h"
+#include "client/physics/collision/mesh_bounding_tree.h"
 
 namespace client_fw
 {
-	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& path, const std::string& extension)
+	SPtr<Mesh> MeshLoader::LoadMesh(const std::string& path, const std::string& extension) const
 	{
 		SPtr<Mesh> mesh = nullptr;
 
@@ -36,7 +38,7 @@ namespace client_fw
 		std::vector<UINT> normal_indices;
 	};
 
-	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& path, const std::string& extension)
+	SPtr<StaticMesh> MeshLoader::LoadObj(const std::string& path, const std::string& extension) const
 	{
 		std::ifstream obj_file(path);
 		
@@ -51,19 +53,6 @@ namespace client_fw
 
 		UINT lod = 0;
 		SPtr<StaticMesh> mesh = CreateSPtr<StaticMesh>();
-
-		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
-
-		auto UpdateMaxMin([&max_pos, &min_pos](const Vec3& pos) {
-			max_pos.x = max(max_pos.x, pos.x);
-			max_pos.y = max(max_pos.y, pos.y);
-			max_pos.z = max(max_pos.z, pos.z);
-
-			min_pos.x = min(min_pos.x, pos.x);
-			min_pos.y = min(min_pos.y, pos.y);
-			min_pos.z = min(min_pos.z, pos.z);
-			});
 
 		while (lod < 4)
 		{
@@ -99,10 +88,7 @@ namespace client_fw
 				}
 				case HashCode("v"):
 					ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-
 					temp_vec.z *= -1.0f;
-					if(lod == 0)
-						UpdateMaxMin(temp_vec);
 					positions.emplace_back(std::move(temp_vec));
 					break;
 				case HashCode("vt"):
@@ -170,38 +156,65 @@ namespace client_fw
 			for (const auto& data : combine_data)
 				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
-			std::vector<TextureLightVertex> vertices(vertex_count);
+			std::vector<TextureLightVertex> vertices;
+			vertices.reserve(vertex_count);
+			std::vector<Triangle> triangles;
+			triangles.reserve(vertex_count / 3);
 
 			vertex_count = 0;
 			for (const auto& data : combine_data)
 			{
-				UINT count = static_cast<UINT>(data.pos_indices.size());
+				UINT count = 0;
+				for (size_t i = 0; i < data.pos_indices.size() / 3; ++i)
+				{
+					size_t index = i * 3;
+
+					Vec3 v1 = positions[data.pos_indices[index + 2]];
+					Vec3 v2 = positions[data.pos_indices[index + 1]];
+					Vec3 v3 = positions[data.pos_indices[index]];
+
+					Vec3 normal = vec3::Cross(v3 - v1, v2 - v1, true);
+					if (normal == vec3::ZERO) continue;
+
+					triangles.emplace_back(Triangle{ v1, v2, v3, normal });
+
+					for (INT j = 2; j >= 0; --j)
+					{
+						TextureLightVertex vertex;
+						vertex.SetPosition(positions[data.pos_indices[index + j]]);
+						vertex.SetTexCoord(tex_coords[data.tex_indices[index + j]]);
+						vertex.SetNormal(normals[data.normal_indices[index + j]]);
+						vertices.emplace_back(std::move(vertex));
+					}			
+
+					count += 3;
+				}
+
 				mesh->AddInstanceInfo(lod, { count, vertex_count });
 				mesh->AddMaterial(lod, std::move(materials[data.mtl_name]));
-
-				for (UINT i = 0; i < count; ++i)
-				{
-					UINT index = i + vertex_count;
-					if (index % 3 == 0)
-						index += 2;
-					else if (index % 3 == 2)
-						index -= 2;
-
-					vertices[index].SetPosition(positions[data.pos_indices[i]]);
-					vertices[index].SetTexCoord(tex_coords[data.tex_indices[i]]);
-					vertices[index].SetNormal(normals[data.normal_indices[i]]);
-				}
 
 				vertex_count += count;
 			}
 
-			const UINT vertices_size = vertex_count * sizeof(TextureLightVertex);
-			if (mesh->CreateVertexBufferBlob(lod, vertices_size) == false)
+			const auto& vertex_info = mesh->GetVertexInfo(lod);
+			if(vertex_info->CreateVertexBlob<TextureLightVertex>(vertex_count)==false)
 			{
 				LOG_ERROR("Could not create blob for vertex");
 				return nullptr;
 			}
-			CopyMemory(mesh->GetVertexBufferBlob(lod)->GetBufferPointer(), vertices.data(), vertices_size);
+			vertex_info->CopyData(vertices.data(), vertex_count);
+
+			if (lod == 0)
+			{
+#ifdef SHOW_TREE_INFO
+				LOG_INFO("Triangle Tree : {0}", path);
+#endif // SHOW_TREE_INFO
+				BOrientedBox box = BOrientedBox(std::move(positions));
+				mesh->SetOrientBox(box);
+				auto bounding_tree = CreateSPtr<KDTree>();
+				bounding_tree->Initialize(box, triangles);
+				mesh->SetBoundingTree(std::move(bounding_tree));
+			}
 
 			++lod;
 			std::string lod_path = parent_path + "/" + stem + "_lod" + std::to_string(lod) + extension;
@@ -210,12 +223,6 @@ namespace client_fw
 			if (obj_file.is_open() == false)
 				break;
 		}
-
-		Vec3 center = max_pos + min_pos;
-		Vec3 extents = (max_pos - min_pos) * 0.5f;
-		extents.x = abs(extents.x), extents.y = abs(extents.y), extents.z = abs(extents.z);
-
-		mesh->SetOrientBox(BOrientedBox{ center, extents });
 
 		return mesh;
 	}

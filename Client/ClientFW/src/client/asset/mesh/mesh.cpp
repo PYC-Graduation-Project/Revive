@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/mesh/vertex.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/primitive/vertex.h"
+#include "client/asset/material/material.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
+#include "client/object/component/mesh/core/mesh_component.h"
 
 namespace client_fw
 {
-	Mesh::Mesh()
+	Mesh::Mesh() : Primitive()
 	{
+		m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	}
 
 	Mesh::~Mesh()
@@ -31,56 +33,35 @@ namespace client_fw
 		if (lod == m_lod_count)
 		{
 			m_lod_mesh_counts.emplace_back(0);
-			m_vertex_buffer_blobs.emplace_back(ComPtr<ID3DBlob>());
-			m_vertex_buffers.emplace_back(ComPtr<ID3D12Resource>());
-			m_vertex_upload_buffers.emplace_back(ComPtr<ID3D12Resource>());
-			m_vertex_buffer_views.emplace_back(D3D12_VERTEX_BUFFER_VIEW());
-			m_index_buffer_blobs.emplace_back(ComPtr<ID3DBlob>());
-			m_index_buffers.emplace_back(ComPtr<ID3D12Resource>());
-			m_index_upload_buffers.emplace_back(ComPtr<ID3D12Resource>());
-			m_index_buffer_views.emplace_back(D3D12_INDEX_BUFFER_VIEW());
+			m_vertex_infos.emplace_back(CreateSPtr<VertexInfo>());
+			m_index_infos.emplace_back(CreateSPtr<IndexInfo>());
 
+			m_instance_info.emplace_back(std::vector<InstanceInfo>());
 			m_materials.emplace_back(std::vector<SPtr<Material>>());
 
 			++m_lod_count;
 		}
 	}
 
+	void Mesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
+	{
+		if (lod < m_lod_count)
+			m_instance_info.at(lod).emplace_back(std::move(info));
+	}
+
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		for (UINT i = 0; i < m_lod_count; ++i)
 		{
-			auto vertices = reinterpret_cast<TextureLightVertex*>(m_vertex_buffer_blobs.at(i)->GetBufferPointer());
-			auto vertices_size = static_cast<UINT>(m_vertex_buffer_blobs.at(i)->GetBufferSize());
-
-			m_vertex_buffers.at(i) = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
-				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffers.at(i));
-
-			m_vertex_buffer_views.at(i).BufferLocation = m_vertex_buffers.at(i)->GetGPUVirtualAddress();
-			m_vertex_buffer_views.at(i).SizeInBytes = vertices_size;
-			m_vertex_buffer_views.at(i).StrideInBytes = sizeof(TextureLightVertex);
-
-			if (m_vertex_buffers.at(i) == nullptr)
+			if (m_vertex_infos.at(i)->Initialize<TextureLightVertex>(device, command_list) == false)
 			{
 				LOG_ERROR("Could not create vertex buffer : {0}", m_asset_info.name);
 				return false;
 			}
 
-			if (m_index_buffer_blobs.at(i) != nullptr)
+			if (m_is_draw_index)
 			{
-				m_is_draw_index = true;
-
-				auto indices = reinterpret_cast<UINT*>(m_index_buffer_blobs.at(i)->GetBufferPointer());
-				auto indices_size = static_cast<UINT>(m_index_buffer_blobs.at(i)->GetBufferSize());
-
-				m_index_buffers.at(i) = D3DUtil::CreateDefaultBuffer(device, command_list, indices, indices_size,
-					D3D12_RESOURCE_STATE_INDEX_BUFFER, m_index_upload_buffers.at(i));
-
-				m_index_buffer_views.at(i).BufferLocation = m_index_buffers.at(i)->GetGPUVirtualAddress();
-				m_index_buffer_views.at(i).Format = DXGI_FORMAT_R32_UINT;
-				m_index_buffer_views.at(i).SizeInBytes = indices_size;
-
-				if (m_index_buffers.at(i) == nullptr)
+				if (m_index_infos.at(i)->Initialize(device, command_list) == false)
 				{
 					LOG_ERROR("Could not create index buffer : {0}", m_asset_info.name);
 					return false;
@@ -97,16 +78,17 @@ namespace client_fw
 		return true;
 	}
 
-	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list)
+	void StaticMesh::PreDraw(ID3D12GraphicsCommandList* command_list) const
 	{
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 	}
 
-	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod)
+	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
 	{
-		command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_views.at(lod));
+		m_vertex_infos.at(lod)->Draw(command_list);
 		if (m_is_draw_index)
-			command_list->IASetIndexBuffer(&m_index_buffer_views.at(lod));
+			m_index_infos.at(lod)->Draw(command_list);
+			
 
 		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
 		{
@@ -119,55 +101,6 @@ namespace client_fw
 				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
 		}
 	}
-
-	void StaticMesh::CreateDataForLodMesh(UINT lod)
-	{
-		if (lod == m_lod_count)
-		{
-			Mesh::CreateDataForLodMesh(lod);
-			m_instance_info.push_back(std::vector<InstanceInfo>());
-		}
-	}
-
-	ComPtr<ID3DBlob> Mesh::GetVertexBufferBlob(UINT lod)
-	{
-		if (lod < m_lod_count)
-			return m_vertex_buffer_blobs.at(lod);
-		else
-		{
-			LOG_ERROR("{0}-lod index out of range : {1}", m_asset_info.name, lod);
-			return nullptr;
-		}
-	}
-
-	bool Mesh::CreateVertexBufferBlob(UINT lod, UINT size)
-	{
-		return SUCCEEDED(D3DCreateBlob(size, m_vertex_buffer_blobs.at(lod).GetAddressOf()));
-	}
-
-	ComPtr<ID3DBlob> Mesh::GetIndexBufferBlob(UINT lod)
-	{
-		if (lod < m_lod_count)
-			return m_index_buffer_blobs.at(lod);
-		else
-		{
-			LOG_ERROR("{0}-lod index out of range : {1}", m_asset_info.name, lod);
-			return nullptr;
-		}
-	}
-
-	bool Mesh::CreateIndexBufferBlob(UINT lod, UINT size)
-	{
-		return SUCCEEDED(D3DCreateBlob(size, m_index_buffer_blobs.at(lod).GetAddressOf()));
-	}
-
-	void StaticMesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
-	{
-		if (lod < m_lod_count)
-			m_instance_info.at(lod).emplace_back(std::move(info));
-	}
-
-	
 
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{

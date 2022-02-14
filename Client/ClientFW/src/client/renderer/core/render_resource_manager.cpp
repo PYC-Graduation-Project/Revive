@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
@@ -37,7 +37,7 @@ namespace client_fw
 		m_ready_meshes.clear();
 	}
 
-	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		if (m_material_data->GetResource() != nullptr)
 			command_list->SetGraphicsRootShaderResourceView(3, m_material_data->GetResource()->GetGPUVirtualAddress());
@@ -69,7 +69,7 @@ namespace client_fw
 
 	void RenderResourceManager::CreateMaterialResource(ID3D12Device* device)
 	{
-		m_material_data->CreateResource(device, m_num_of_material_data +
+		m_material_data->CreateAndCopyResource(device, m_num_of_material_data +
 			static_cast<UINT>(m_ready_materials.size()));
 	}
 

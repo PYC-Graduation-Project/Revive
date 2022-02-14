@@ -1,0 +1,112 @@
+#pragma once
+#include "client/util/d3d_util.h"
+#include "client/util/upload_buffer.h"
+#include "client/asset/primitive/vertex.h"
+
+namespace client_fw
+{
+	class VertexInfo
+	{
+	public:
+		VertexInfo() = default;
+
+		template <class VertexType>
+		bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+		{
+			auto vertices = static_cast<VertexType*>(m_vertex_buffer_blob->GetBufferPointer());
+			auto vertices_size = static_cast<UINT>(m_vertex_buffer_blob->GetBufferSize());
+
+			m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
+				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
+
+			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
+			m_vertex_buffer_view.SizeInBytes = vertices_size;
+			m_vertex_buffer_view.StrideInBytes = sizeof(VertexType);
+
+			return (m_vertex_buffer != nullptr);
+		}
+
+		void Draw(ID3D12GraphicsCommandList* command_list) const
+		{
+			command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_view);
+		}
+
+		template <class VertexType>
+		bool CreateVertexBlob(SIZE_T count)
+		{
+			return SUCCEEDED(D3DCreateBlob(sizeof(VertexType) * count, m_vertex_buffer_blob.GetAddressOf()));
+		}
+
+		template <class VertexType>
+		void CopyData(VertexType* vertices, size_t count)
+		{
+			CopyMemory(m_vertex_buffer_blob->GetBufferPointer(), vertices, sizeof(VertexType) * count);
+		}
+
+	private:
+		ComPtr<ID3DBlob> m_vertex_buffer_blob;
+		ComPtr<ID3D12Resource> m_vertex_buffer;
+		ComPtr<ID3D12Resource> m_vertex_upload_buffer;
+
+		UINT m_slot = 0;
+		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
+
+	public:
+		template <class VertexType>
+		VertexType* GetVertices() const { return static_cast<VertexType*>(m_vertex_buffer_blob->GetBufferPointer()); }
+
+		template <class VertexType>
+		UINT GetVertexCount() const { return static_cast<UINT>(m_vertex_buffer_blob->GetBufferSize() / sizeof(VertexType)); }
+	};
+
+	class IndexInfo
+	{
+	public:
+		IndexInfo() = default;
+
+		bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Draw(ID3D12GraphicsCommandList* command_list) const;
+		bool CreateIndexBlob(SIZE_T count);
+		void CopyData(UINT* indices, size_t count);
+
+	private:
+		ComPtr<ID3DBlob> m_index_buffer_blob;
+		ComPtr<ID3D12Resource> m_index_buffer;
+		ComPtr<ID3D12Resource> m_index_upload_buffer;
+
+		D3D12_INDEX_BUFFER_VIEW m_index_buffer_view;
+
+	public:
+		UINT* GetIndices() const { return static_cast<UINT*>(m_index_buffer_blob->GetBufferPointer()); }
+		UINT GetVertexCount() const { return static_cast<UINT>(m_index_buffer_blob->GetBufferSize() / sizeof(UINT)); }
+	};
+
+	class UploadVertexInfo
+	{
+	public:
+		UploadVertexInfo();
+
+		
+
+	private:
+
+	};
+
+	class Primitive
+	{
+	public:
+		Primitive() = default;
+		virtual ~Primitive() = default;
+
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
+		virtual void Shutdown() = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod = 0) const = 0;
+
+	protected:
+		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	public:
+		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
+	};
+}
+

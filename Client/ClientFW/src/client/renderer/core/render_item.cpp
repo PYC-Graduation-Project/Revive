@@ -9,27 +9,27 @@
 
 namespace client_fw
 {
-	RenderItem::RenderItem(const SPtr<Mesh>& mesh)
+	MeshRenderItem::MeshRenderItem(const SPtr<Mesh>& mesh)
 		: m_mesh(mesh)
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
 	}
 
-	RenderItem::~RenderItem()
+	MeshRenderItem::~MeshRenderItem()
 	{
 	}
 
-	void RenderItem::Initialize(ID3D12Device* device)
+	void MeshRenderItem::Initialize(ID3D12Device* device)
 	{
 	}
 
-	void RenderItem::Shutdown()
+	void MeshRenderItem::Shutdown()
 	{
 		m_instance_data->Shutdown();
 	}
 
-	void RenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		if (m_mesh_comp_data.empty() == false)
 		{
@@ -42,12 +42,11 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::Draw(ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		UpdateResourcesBeforeDraw();
-
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
+			UpdateResourcesBeforeDraw();
 			
 			m_mesh->PreDraw(command_list);
 
@@ -67,22 +66,21 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::CreateResources(ID3D12Device* device)
+	void MeshRenderItem::CreateResources(ID3D12Device* device)
 	{
 		//LOG_INFO(m_num_of_instance_data);
 		m_instance_data->CreateResource(device, m_num_of_instance_data);
 	}
 
-	void RenderItem::UpdateResources()
+	void MeshRenderItem::UpdateResources()
 	{
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
 			const auto& mesh_comp = mesh_data.mesh_comp;
-			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner != nullptr && (owner->IsUpdatedWorldMatrix() || mesh_data.is_need_update))
+			if (mesh_comp->IsUpdatedWorldMatrix() || mesh_data.is_need_update)
 			{
-				Mat4 world_matrix = owner->GetWorldMatrix();
+				Mat4 world_matrix = mesh_comp->GetWorldMatrix();
 				mesh_data.world_transpose = mat4::Transpose(world_matrix);
 				mesh_data.world_inverse = mat4::InverseVec(world_matrix);
 				mesh_data.is_need_update = false;
@@ -90,7 +88,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::UpdateResourcesBeforeDraw()
+	void MeshRenderItem::UpdateResourcesBeforeDraw()
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_index_of_lod_instance_data[0] = m_mesh->GetLODMeshCount(0);
@@ -103,9 +101,8 @@ namespace client_fw
 		for (auto& mesh_data : m_mesh_comp_data)
 		{
 			const auto& mesh_comp = mesh_data.mesh_comp;
-			const auto& owner = mesh_comp->GetOwner().lock();
 
-			if (owner != nullptr && mesh_comp->IsVisible())
+			if (mesh_comp->IsVisible())
 			{
 				UINT lod = mesh_comp->GetLevelOfDetail();
 
@@ -117,10 +114,8 @@ namespace client_fw
 		}
 	}
 
-	void RenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		const auto& owner = mesh_comp->GetOwner().lock();
-
 		MeshComponentData data;
 		data.mesh_comp = mesh_comp;
 		data.mesh_comp->SetInstanceIndex(static_cast<UINT>(m_mesh_comp_data.size()));
@@ -141,7 +136,7 @@ namespace client_fw
 		
 	}
 
-	void RenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		UINT index = mesh_comp->GetInstanceIndex();
 

@@ -21,7 +21,8 @@ namespace render_test
 		SPtr<class PlayerController> m_player_controller;
 
 	public:
-		virtual SPtr<MeshOctree> CreateMeshOctree() const override;
+		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
+		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 	};
 
 }

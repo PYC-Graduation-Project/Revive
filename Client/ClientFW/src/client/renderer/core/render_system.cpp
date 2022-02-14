@@ -6,6 +6,7 @@
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/util/camera_component.h"
 
@@ -69,7 +70,7 @@ namespace client_fw
 		}
 	}
 
-	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list)
+	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
@@ -113,23 +114,46 @@ namespace client_fw
 		}
 	}
 
-	bool RenderSystem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	bool RenderSystem::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
-
 		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
 		{
 			LOG_WARN("Could not find shader : {0}", shader_name);
 			return false;
 		}
 
-		return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
+		switch (render_comp->GetRenderType())
+		{
+		case eRenderType::kMesh:
+		{
+			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
+			m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
+			return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
+		}
+		default:
+			break;
+		}
+
+		return false;
 	}
 
-	void RenderSystem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	void RenderSystem::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
 		if (m_graphics_shaders.find(shader_name) != m_graphics_shaders.cend())
-			m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
+		{
+			switch (render_comp->GetRenderType())
+			{
+			case eRenderType::kMesh:
+			{	
+				const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
+				m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+			
 	}
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)

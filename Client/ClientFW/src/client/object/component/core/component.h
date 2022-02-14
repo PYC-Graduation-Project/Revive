@@ -12,13 +12,13 @@ namespace client_fw
 		virtual ~Component() = default;
 
 	public:
-		bool InitializeComponent();
+		virtual bool InitializeComponent();
 		virtual bool Initialize() override { return true; }
 
-		void ShutdownComponent();
+		virtual void ShutdownComponent();
 		virtual void Shutdown() override {}
 
-		void UpdateComponent(float delta_time);
+		virtual void UpdateComponent(float delta_time);
 		virtual void Update(float delta_time) override {}
 
 		virtual void UpdateWorldMatrix() {}

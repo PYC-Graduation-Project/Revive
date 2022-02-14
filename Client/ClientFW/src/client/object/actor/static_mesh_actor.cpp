@@ -12,8 +12,10 @@ namespace client_fw
 
 	bool StaticMeshActor::Initialize()
 	{
-		m_static_mesh_component->SetMesh(m_mesh_path);
-		return AttachComponent(m_static_mesh_component);
+		bool ret = true;
+		ret &= m_static_mesh_component->SetMesh(m_mesh_path);
+		ret &= AttachComponent(m_static_mesh_component);
+		return ret;
 	}
 
 	void StaticMeshActor::Shutdown()

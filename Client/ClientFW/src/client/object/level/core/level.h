@@ -6,7 +6,8 @@ namespace client_fw
 	class Actor;
 	class ActorManager;
 	struct EventKeyInfo;
-	class MeshOctree;
+	class VisualOctree;
+	class CollisionOctree;
 
 	enum class eLevelState
 	{
@@ -28,7 +29,7 @@ namespace client_fw
 		void UpdateLevel(float delta_time);
 		virtual void Update(float delta_time) override {}
 
-		void SpawnActor(const SPtr<Actor>& actor);
+		void SpawnActor(const SPtr<Actor>& actor) const;
 
 	protected:
 		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -55,7 +56,8 @@ namespace client_fw
 		void SetRuntime() { m_is_runtime_level = true; }
 		bool IsRuntime() const { return m_is_runtime_level; }
 
-		virtual SPtr<MeshOctree> CreateMeshOctree() const;
+		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const;
+		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const;
 	};
 }
 

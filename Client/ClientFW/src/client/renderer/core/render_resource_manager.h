@@ -22,7 +22,7 @@ namespace client_fw
 
 		void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void Draw(ID3D12GraphicsCommandList* command_list);
+		void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		void RegisterMesh(const SPtr<Mesh>& mesh);
 

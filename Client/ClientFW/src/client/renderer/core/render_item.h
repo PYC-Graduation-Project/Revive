@@ -20,11 +20,11 @@ namespace client_fw
 		Mat4 world_inverse;
 	};
 
-	class RenderItem final
+	class MeshRenderItem final
 	{
 	public:
-		RenderItem(const SPtr<Mesh>& mesh);
-		~RenderItem();
+		MeshRenderItem(const SPtr<Mesh>& mesh);
+		~MeshRenderItem();
 
 		void Initialize(ID3D12Device* device);
 		void Shutdown();

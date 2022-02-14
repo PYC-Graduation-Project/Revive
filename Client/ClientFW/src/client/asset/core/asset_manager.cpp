@@ -4,8 +4,8 @@
 #include "client/asset/core/asset.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/mesh/mesh_loader.h"
-#include "client/asset/mesh/material.h"
-#include "client/asset/mesh/material_loader.h"
+#include "client/asset/material/material.h"
+#include "client/asset/material/material_loader.h"
 
 namespace client_fw
 {

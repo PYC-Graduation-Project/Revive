@@ -23,7 +23,7 @@ namespace client_fw
 		m_camera_data->Shutdown();
 	}
 
-	void GraphicsSuperRootSignature::Draw(ID3D12GraphicsCommandList* command_list)
+	void GraphicsSuperRootSignature::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		command_list->SetGraphicsRootSignature(m_root_signature.Get());
 	}
@@ -71,7 +71,7 @@ namespace client_fw
 		RSCameraData camera_data;
 		camera_data.view_matrix = mat4::Transpose(camera_comp->GetViewMatrix());
 		camera_data.projection_matrix = mat4::Transpose(camera_comp->GetProjectionMatrix());
-		camera_data.camera_position = camera_comp->GetOwner().lock()->GetPosition();
+		camera_data.camera_position = camera_comp->GetWorldPosition();
 
 		m_camera_data->CopyData(0, camera_data);
 

@@ -12,7 +12,6 @@ namespace client_fw
 	{
 		UpdateWorldMatrix();
 		bool ret = Initialize();
-		UpdateWorldMatrix();
 		return ret;
 	}
 

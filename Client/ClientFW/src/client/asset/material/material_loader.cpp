@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "client/asset/mesh/material_loader.h"
-#include "client/asset/mesh/material.h"
+#include "client/asset/material/material_loader.h"
+#include "client/asset/material/material.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 
 namespace client_fw
 {
-	std::map<std::string, SPtr<Material>> MaterialLoader::LoadMaterials(const std::string& path, const std::string& extension)
+	std::map<std::string, SPtr<Material>> MaterialLoader::LoadMaterials(const std::string& path, const std::string& extension) const
 	{
 		std::map<std::string, SPtr<Material>> materials;
 
@@ -26,7 +26,7 @@ namespace client_fw
 		return materials;
 	}
 
-	std::map<std::string, SPtr<Material>> MaterialLoader::LoadMtl(const std::string& path, const std::string& parent_path, const std::string& extension)
+	std::map<std::string, SPtr<Material>> MaterialLoader::LoadMtl(const std::string& path, const std::string& parent_path, const std::string& extension) const
 	{
 		std::ifstream mtl_file(path);
 

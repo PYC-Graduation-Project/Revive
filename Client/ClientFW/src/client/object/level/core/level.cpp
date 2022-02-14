@@ -3,7 +3,7 @@
 #include "client/object/actor/core/actor_manager.h"
 #include "client/object/actor/core/actor.h"
 #include "client/input/input.h"
-#include "client/util/octree/mesh_octree.h"
+#include "client/util/octree/octree.h"
 
 namespace client_fw
 {
@@ -40,7 +40,7 @@ namespace client_fw
 		m_actor_manager->Update(delta_time);
 	}
 
-	void Level::SpawnActor(const SPtr<Actor>& actor)
+	void Level::SpawnActor(const SPtr<Actor>& actor) const
 	{
 		if (IsRuntime())
 		{
@@ -80,8 +80,17 @@ namespace client_fw
 		m_registered_input_event.push_back(name);
 	}
 
-	SPtr<MeshOctree> Level::CreateMeshOctree() const
+	std::vector<SPtr<VisualOctree>> Level::CreateVisualOctrees() const
 	{
-		return CreateSPtr<MeshOctree>(0.0f, vec3::ZERO, 0);
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f, vec3::ZERO, 0));
+		return visual_octrees;
+	}
+
+	std::vector<SPtr<CollisionOctree>> Level::CreateCollisionOctrees() const
+	{
+		std::vector<SPtr<CollisionOctree>> octrees;
+		octrees.emplace_back(CreateSPtr<CollisionOctree>(10000.0f, vec3::ZERO, 0));
+		return octrees;
 	}
 }

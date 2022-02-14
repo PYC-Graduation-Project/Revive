@@ -1,5 +1,5 @@
 #pragma once
-#include "client/object/component/core/component.h"
+#include "client/object/component/core/scene_component.h"
 #include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
@@ -29,7 +29,7 @@ namespace client_fw
 		float height;
 	};
 
-	class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
+	class CameraComponent : public SceneComponent
 	{
 	public:
 		CameraComponent(const std::string& name = "camera component",
@@ -64,7 +64,7 @@ namespace client_fw
 		BFrustum m_bounding_frustum;
 
 	public:
-		void SetOwnerController(const WPtr<Actor>& owner) { m_owner_controller = owner; }
+		void SetOwnerController(const WPtr<Actor>& owner);
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
@@ -78,6 +78,9 @@ namespace client_fw
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+
+	protected:
+		SPtr<CameraComponent> SharedFromThis();
 	};
 }
 

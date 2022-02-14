@@ -17,7 +17,11 @@ namespace event_test
 		virtual void Update(float delta_time);
 
 	public:
-		virtual SPtr<MeshOctree> CreateMeshOctree() const override;
+		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
+		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
+
+	private:
+		Vec3 m_spawn_pos;
 	};
 }
 
