@@ -1,5 +1,6 @@
 #include <include/client_core.h>
 #include <client/object/component/mesh/static_mesh_component.h>
+#include <client/object/component/render/box_component.h>
 #include "move_cube.h"
 
 namespace event_test
@@ -13,6 +14,7 @@ namespace event_test
 	{
 		bool ret = StaticMeshActor::Initialize();
 		m_first_pos = GetPosition();
+		AttachComponent(CreateSPtr<BoxComponent>(Vec3(100.f, 100.f, 100.f)));
 		return ret;
 	}
 

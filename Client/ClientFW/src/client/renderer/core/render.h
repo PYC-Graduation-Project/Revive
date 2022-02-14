@@ -17,7 +17,7 @@ namespace client_fw
 
 	enum class eShaderType
 	{
-		kOpaqueMesh,
+		kOpaqueMesh, kShapeBox,
 	};
 
 	enum class eKindOfRenderLevel

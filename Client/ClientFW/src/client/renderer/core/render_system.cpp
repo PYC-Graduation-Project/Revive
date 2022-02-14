@@ -5,9 +5,11 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
+#include "client/renderer/shader/box_shape_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/render/shape_component.h"
 #include "client/object/component/util/camera_component.h"
 
 namespace client_fw
@@ -36,6 +38,8 @@ namespace client_fw
 
 		RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
+		RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
+		//RegisterGraphicsShader<>
 
 		return true;
 	}
@@ -129,6 +133,11 @@ namespace client_fw
 			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
 			m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
 			return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
+		}
+		case eRenderType::kShape:
+		{
+			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterShapeComponent(m_device, shape_comp);
 		}
 		default:
 			break;

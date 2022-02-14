@@ -46,6 +46,8 @@ namespace client_fw
 		{
 		case eShaderType::kOpaqueMesh:
 			return "opaque mesh";
+		case eShaderType::kShapeBox:
+			return "shape box";
 		default:
 			return "unknown";
 		}

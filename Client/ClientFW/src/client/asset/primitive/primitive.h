@@ -84,12 +84,53 @@ namespace client_fw
 	class UploadVertexInfo
 	{
 	public:
-		UploadVertexInfo();
+		UploadVertexInfo() = default;
 
+		template <class VertexType>
+		bool CreateResource(ID3D12Device* device, UINT num_of_data)
+		{
+			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data, &m_vertex_mapped_data);
+
+			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
+			m_vertex_buffer_view.SizeInBytes = sizeof(VertexType) * num_of_data;
+			m_vertex_buffer_view.StrideInBytes = sizeof(VertexType);
+
+			return (m_vertex_buffer != nullptr);
+		}
 		
+		void Shutdown()
+		{
+			if (m_vertex_buffer != nullptr)
+			{
+				m_vertex_buffer->Unmap(0, nullptr);
+			}
+			m_vertex_buffer = nullptr;
+			m_vertex_mapped_data = nullptr;
+		}
+
+		void Draw(ID3D12GraphicsCommandList* command_list) const
+		{
+			command_list->IASetVertexBuffers(m_slot, 1, &m_vertex_buffer_view);
+		}
+
+		template <class VertexType>
+		void CopyData(VertexType* vertices, size_t count)
+		{
+			memcpy(m_vertex_mapped_data, vertices, sizeof(VertexType) * count);
+		}
+
+		template <class VertexType>
+		void CopyData(const VertexType& data, UINT index)
+		{
+			memcpy(&m_vertex_mapped_data[index * sizeof(VertexType), &data, sizeof(VertexType)]);
+		}
 
 	private:
-
+		ComPtr<ID3D12Resource> m_vertex_buffer;
+		BYTE* m_vertex_mapped_data;
+		UINT m_slot = 0;
+		
+		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 	};
 
 	class Primitive

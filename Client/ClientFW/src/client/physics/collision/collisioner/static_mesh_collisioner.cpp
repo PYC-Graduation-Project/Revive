@@ -1,43 +1,45 @@
 #include "stdafx.h"
-#include "client/physics/collision/collisioner.h"
-#include "client/object/component/core/scene_component.h"
-#include "client/object/component/mesh/static_mesh_component.h"
-#include "client/asset/primitive/vertex.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/primitive/vertex.h"
+#include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 #include "client/object/component/mesh/static_mesh_component.h"
+#include "client/object/component/render/box_component.h"
 #include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
-	Collisioner::Collisioner(const WPtr<SceneComponent>& owner, eMeshCollisionType type)
-		: m_owner(owner), m_type(type)
-	{
-	}
-
 	StaticMeshCollisioner::StaticMeshCollisioner(const WPtr<StaticMeshComponent>& owner)
 		: Collisioner(owner, eMeshCollisionType::kStaticMesh)
 	{
 	}
 
-	bool StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
+	void StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
 	{
 		switch (other->GetCollisioner()->GetMeshCollisionType())
 		{
-		case client_fw::eMeshCollisionType::kStaticMesh:
+		case eMeshCollisionType::kStaticMesh:
 		{
 			const auto& mesh1 = std::static_pointer_cast<StaticMeshComponent>(GetOwner());
 			const auto& mesh2 = std::static_pointer_cast<StaticMeshComponent>(other->GetCollisioner()->GetOwner());
-			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex, 
+			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex,
 				mesh2, mesh2->GetCollisioner()->GetCollisionInfo().complex);
+			break;
+		}
+		case eMeshCollisionType::kBox:
+		{
+			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
+			{
+				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());
+			}
 			break;
 		}
 		default:
 			break;
 		}
-		return false;
 	}
 
-	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1, 
+	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
 		const SPtr<StaticMeshComponent>& mesh2, eCollisionComplex complex2)
 	{
 		if (mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox()))

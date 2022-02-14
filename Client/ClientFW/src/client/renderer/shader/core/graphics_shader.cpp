@@ -120,6 +120,28 @@ namespace client_fw
 		return true;
 	}
 
+	bool GraphicsShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
+	{
+		LOG_WARN("Could not supported mesh component at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	{
+		LOG_WARN("Could not supported mesh component at {0}", m_name);
+	}
+
+	bool GraphicsShader::RegisterShapeComponent(ID3D12Device* device, const SPtr<ShapeComponent>& shape_comp)
+	{
+		LOG_WARN("Could not supported shape component at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp)
+	{
+		LOG_WARN("Could not supported shape component at {0}", m_name);
+	}
+
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{
@@ -173,6 +195,48 @@ namespace client_fw
 		{
 			m_render_items_map[path]->UnregisterMeshComponent(mesh_comp);
 		}
+	}
+
+	ShapeShader::ShapeShader(const std::string& name)
+		: GraphicsShader(name)
+	{
+	}
+
+	void ShapeShader::Initialize(ID3D12Device* device)
+	{
+	}
+
+	void ShapeShader::Shutdown()
+	{
+	}
+
+	void ShapeShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list)
+	{
+	}
+
+	void ShapeShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
+	{
+	}
+
+	D3D12_RASTERIZER_DESC ShapeShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index) const
+	{
+		D3D12_RASTERIZER_DESC desc = GraphicsShader::CreateRasterizerState(level_type, pso_index);
+		desc.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		return desc;
+	}
+
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE ShapeShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	}
+
+	bool ShapeShader::RegisterShapeComponent(ID3D12Device* device, const SPtr<ShapeComponent>& shape_comp)
+	{
+		return true;
+	}
+
+	void ShapeShader::UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp)
+	{
 	}
 
 }
