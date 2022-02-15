@@ -15,7 +15,7 @@ struct VS_DIFFUSE_OUT
 VS_DIFFUSE_OUT VSDiffuse(VS_DIFFUSE_IN input, uint instance_id : SV_InstanceID)
 {
     VS_DIFFUSE_OUT output;
-    output.position = mul(float4(input.position, 1.0f), g_instance_datas[instance_id].world);
+    output.position = mul(float4(input.position, 1.0f), g_instance_data[instance_id].world);
     output.position.z = instance_id / 100.0f + 0.01f;
     
     float f = instance_id % 20.0f / 40.0f + 0.5f;

@@ -21,6 +21,9 @@ namespace client_fw
 	class PhysicsWorld;
 
 	class AssetManager;
+	class MeshLoader;
+	class MaterialLoader;
+	class TextureLoader;
 
 	class Application
 	{
@@ -32,7 +35,7 @@ namespace client_fw
 		Application& operator=(const Application&) = delete;
 
 		virtual bool Initialize();
-		virtual void InitializeAssetManager();
+		void InitializeAssetManager();
 		virtual void Shutdown();
 		void Run();
 
@@ -75,6 +78,11 @@ namespace client_fw
 		inline static Application* GetApplication() { return s_instance; }
 		eAppState GetAppState() { return m_app_state; }
 		void SetAppState(eAppState app_state) { m_app_state = app_state; }
+
+	private:
+		virtual UPtr<MeshLoader> CreateMeshLoader() const;
+		virtual UPtr<MaterialLoader> CreateMaterialLoader() const;
+		virtual UPtr<TextureLoader> CreateTextureLoader() const;
 
 	public:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

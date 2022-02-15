@@ -12,6 +12,7 @@
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/material/material_loader.h"
+#include "client/asset/texture/texture_loader.h"
 
 namespace client_fw
 {
@@ -76,7 +77,8 @@ namespace client_fw
 
 	void Application::InitializeAssetManager()
 	{
-		m_asset_manager->Initialize(CreateUPtr<MeshLoader>(), CreateUPtr<MaterialLoader>());
+		m_asset_manager->Initialize(std::move(CreateMeshLoader()),
+			std::move(CreateMaterialLoader()), std::move(CreateTextureLoader()));
 	}
 
 	void Application::Shutdown()
@@ -221,6 +223,21 @@ namespace client_fw
 		std::wstring title = m_app_name;
 		title += L" (FPS : " + std::to_wstring(fps) + L")";
 		SetWindowTextW(m_window->hWnd, title.c_str());
+	}
+
+	UPtr<MeshLoader> Application::CreateMeshLoader() const
+	{
+		return CreateUPtr<MeshLoader>();
+	}
+
+	UPtr<MaterialLoader> Application::CreateMaterialLoader() const
+	{
+		return CreateUPtr<MaterialLoader>();
+	}
+
+	UPtr<TextureLoader> Application::CreateTextureLoader() const
+	{
+		return CreateUPtr<TextureLoader>();
 	}
 
 	LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

@@ -34,14 +34,16 @@ namespace client_fw
 	{
 		m_device = device;
 
-		m_graphics_super_root_signature->Initialize(device, command_list);
+		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
 
-		RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
-		RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
-		RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		//RegisterGraphicsShader<>
 
-		return true;
+		ret &= m_render_asset_manager->Initialize(device);
+
+		return ret;
 	}
 
 	void RenderSystem::Shutdown()
