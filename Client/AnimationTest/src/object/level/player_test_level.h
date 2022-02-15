@@ -1,7 +1,7 @@
 #pragma once
 #include "client/object/level/core/level.h"
 
-namespace animation_test
+namespace anim_test
 {
 	using namespace client_fw;
 
@@ -20,7 +20,8 @@ namespace animation_test
 		SPtr<class DefaultPawn> m_player;
 		SPtr<class PlayerController> m_player_controller;
 	public:
-		virtual SPtr<MeshOctree> CreateMeshOctree() const override;
+		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
+		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 	};
 
 }

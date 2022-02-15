@@ -88,9 +88,9 @@ namespace client_fw
 		void SetBoundingTree(SPtr<KDTree>&& tree) { m_bounding_tree = std::move(tree); }
 	
 	};
-}
-	
-	struct BoneData {
+
+	struct BoneData
+	{
 		std::vector<std::string> bone_names;
 		std::vector<Mat4> bone_offsets;
 		std::vector<IVec4> bone_indices;
@@ -105,31 +105,27 @@ namespace client_fw
 		virtual ~SkeletalMesh() = default;
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) override;
-		virtual void CreateDataForLodMesh(UINT lod) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const override;
 
-		
-		
+
+
+
 	private:
-		SPtr<Skeleton> m_skeleton ;
+		SPtr<Skeleton> m_skeleton;
 
-		SPtr<BoneData> m_bone_data ;
+		SPtr<BoneData> m_bone_data;
 
-		std::vector<std::vector<InstanceInfo>> m_instance_info;
 
 	public:
 		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
-		
-		void SetBoneData(const SPtr<BoneData>& bone_data) { m_bone_data = bone_data; }
 
+		void SetBoneData(const SPtr<BoneData>& bone_data) { m_bone_data = bone_data; }
+	
 		//void AddBoneName(const std::string& name);
 		//void AddBoneOffset(const Mat4& bone_offset);
 		//void AddBoneIndex(const IVec4& bone_index);
 		//void AddBoneWeight(const Vec4& bone_weight);
-
-
-		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
 
 	};
 }

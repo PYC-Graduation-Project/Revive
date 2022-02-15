@@ -26,19 +26,19 @@ namespace client_fw
 
 		RevLoader() = default;
 
-		virtual SPtr<Mesh> LoadMesh(const std::string& path, const std::string& extension) override;
-		virtual SPtr<SkeletalMesh> LoadRev(const std::string& path, const std::string& extension);
+		virtual SPtr<Mesh> LoadMesh(const std::string& path, const std::string& extension)  const override;
+		virtual SPtr<SkeletalMesh> LoadRev(const std::string& path, const std::string& extension) const;
 
 		//애니메이션과 계층구조 형태의 파일(rev파일)을 읽음
 
 		//true반환시 메시정보를 전부 읽었고 Animation 정보를 읽을 준비가 됬다는 것을 의미함
-		bool LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh);
+		bool LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh, const std::string& path) const;
 
 		//void LoadMeshFromFile(FILE* rev_file, SPtr<Mesh>&& mesh);
-		void LoadMeshFromRevFile(FILE* rev_file, MeshData& mesh_data);
-		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data);
+		void LoadMeshFromRevFile(FILE* rev_file, MeshData& mesh_data) const;
+		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data) const;
 
-		int ReadStringFromFile(FILE* file, std::string* word);
+		int ReadStringFromFile(FILE* file, std::string* word) const;
 	};
 	//int ReadFromFile(FILE* file, std::stringstream* word);
 

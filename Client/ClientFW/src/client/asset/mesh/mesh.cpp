@@ -102,32 +102,61 @@ namespace client_fw
 		}
 	}
 
+	
+
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		std::cout << "초기화합니다" << std::endl;
-		return false;
-	}
-
-	void SkeletalMesh::PreDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		std::cout << "미리그립니다" << std::endl;
-
-	}
-
-	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod)
-	{
-	}
-
-	void SkeletalMesh::CreateDataForLodMesh(UINT lod)
-	{
-		if (lod == m_lod_count)
+		for (UINT i = 0; i < m_lod_count; ++i)
 		{
-			Mesh::CreateDataForLodMesh(lod);
-			m_instance_info.push_back(std::vector<InstanceInfo>());
+			if (m_vertex_infos.at(i)->Initialize<TextureLightVertex>(device, command_list) == false)
+			{
+				LOG_ERROR("Could not create vertex buffer : {0}", m_asset_info.name);
+				return false;
+			}
+
+			if (m_is_draw_index)
+			{
+				if (m_index_infos.at(i)->Initialize(device, command_list) == false)
+				{
+					LOG_ERROR("Could not create index buffer : {0}", m_asset_info.name);
+					return false;
+				}
+			}
+
+			m_material_index_data.emplace_back(CreateUPtr<UploadBuffer<RSMaterialIndexData>>(true));
+			UINT mat_size = static_cast<UINT>(m_materials.at(i).size());
+			m_material_index_data.at(i)->CreateResource(device, mat_size);
+			for (UINT index = 0; index < mat_size; ++index)
+				m_material_index_data.at(i)->CopyData(index, RSMaterialIndexData{ m_materials.at(i)[index]->GetResourceIndex() });
+		}
+
+		return true;
+	}
+
+	void SkeletalMesh::PreDraw(ID3D12GraphicsCommandList* command_list) const
+	{
+		command_list->IASetPrimitiveTopology(m_primitive_topology);
+
+	}
+
+	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
+	{
+		m_vertex_infos.at(lod)->Draw(command_list);
+		if (m_is_draw_index)
+			m_index_infos.at(lod)->Draw(command_list);
+
+
+		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
+		{
+			command_list->SetGraphicsRootConstantBufferView(0, m_material_index_data.at(lod)->GetResource()->GetGPUVirtualAddress() +
+				mat_index * m_material_index_data.at(lod)->GetByteSize());
+			const auto& [count, start_location] = m_instance_info.at(lod)[mat_index];
+			if (m_is_draw_index)
+				command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
+			else
+				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
 		}
 	}
-
-	
 
 	/*void SkeletalMesh::AddBoneName(const std::string& name)
 	{
@@ -150,10 +179,6 @@ namespace client_fw
 		m_bone_data.bone_weights.emplace_back(std::move(bone_weight));
 	}*/
 
-	void SkeletalMesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
-	{
-		if (lod < m_lod_count)
-			m_instance_info.at(lod).emplace_back(std::move(info));
-	}
+	
 	
 }

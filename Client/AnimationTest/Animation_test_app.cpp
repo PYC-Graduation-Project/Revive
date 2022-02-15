@@ -2,12 +2,12 @@
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
 #include <client/asset/mesh/mesh_loader.h>
-#include <client/asset/mesh/material_loader.h>
+#include <client/asset/material/material_loader.h>
 #include <client/asset/core/asset_manager.h>
 #include "object/level/player_test_level.h"
 using namespace client_fw;
 
-namespace animation_test
+namespace anim_test
 {
 	class AnimationTestApp : public client_fw::Application
 	{
@@ -43,5 +43,5 @@ namespace animation_test
 
 client_fw::UPtr<client_fw::Application> client_fw::CreateApplication()
 {
-	return client_fw::CreateUPtr<animation_test::AnimationTestApp>();
+	return client_fw::CreateUPtr<anim_test::AnimationTestApp>();
 }
