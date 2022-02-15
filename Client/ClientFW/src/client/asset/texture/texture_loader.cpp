@@ -2,6 +2,7 @@
 #include "client/asset/texture/texture.h"
 #include "client/asset/texture/texture_loader.h"
 #include "client/util/dds_texture_loader12.h"
+#include "client/util/wic_texture_loader12.h"
 
 namespace client_fw
 {
@@ -14,6 +15,9 @@ namespace client_fw
 			switch (HashCode(extension.c_str()))
 			{
 			case HashCode(".dds"):
+			case HashCode(".png"):
+			case HashCode(".jpg"):
+			case HashCode(".bmp"):
 				texture = CreateSPtr<Texture>();
 				break;
 			default:
@@ -40,6 +44,11 @@ namespace client_fw
 		{
 		case HashCode(".dds"):
 			texture = TextureCreator::LoadTextureFromDDSFile(device, command_list, w_path, texture_upload_heap);
+			break;
+		case HashCode(".png"):
+		case HashCode(".jpg"):
+		case HashCode(".bmp"):
+			texture = TextureCreator::LoadTextureFromWICFile(device, command_list, w_path, texture_upload_heap);
 			break;
 		default:
 			break;
@@ -75,6 +84,38 @@ namespace client_fw
 
 		UpdateSubresources(command_list, texture.Get(), texture_upload_heap.Get(),
 			0, 0, num_sub_resources, sub_resources.data());
+
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(),
+			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		return texture;
+	}
+
+	ComPtr<ID3D12Resource> TextureCreator::LoadTextureFromWICFile(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, const std::wstring& path, ComPtr<ID3D12Resource>& texture_upload_heap)
+	{
+		ComPtr<ID3D12Resource> texture;
+
+		UPtr<uint8_t[]> wic_data;
+		D3D12_SUBRESOURCE_DATA sub_resource;
+
+		if (FAILED(LoadWICTextureFromFile(device, path.c_str(), texture.GetAddressOf(), wic_data, sub_resource)))
+		{
+			LOG_ERROR(L"Could not load dds texture : [{0}]", path);
+			return nullptr;
+		}
+
+		const UINT64 upload_buffer_size = GetRequiredIntermediateSize(texture.Get(), 0, 1);
+
+		if (FAILED(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(upload_buffer_size),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&texture_upload_heap))))
+		{
+			LOG_ERROR("Could not create committed resource");
+			return nullptr;
+		}
+
+		UpdateSubresources(command_list, texture.Get(), texture_upload_heap.Get(),
+			0, 0, 1, &sub_resource);
 
 		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));

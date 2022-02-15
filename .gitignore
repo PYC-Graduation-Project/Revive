@@ -400,6 +400,7 @@ MigrationBackup/
 **Client/bin/
 !Client/vendor/premake/bin/
 Client/bin-int/
+Client/Contents/
 
 # PYC files
 *.log
