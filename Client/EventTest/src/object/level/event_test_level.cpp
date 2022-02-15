@@ -44,10 +44,10 @@ namespace event_test
 		sphere->SetPosition(Vec3{ -1000.0f, 60.0f, 1000.0f });
 		sphere->SetScale(0.5f);
 
-	/*	sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
+		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3{ 1500.0f, 0.0f, 1500.0f });
-		sphere->SetScale(200.0f);*/
+		sphere->SetScale(200.0f);
 
 		auto cube = CreateSPtr<RotatingCube>();
 		SpawnActor(cube);

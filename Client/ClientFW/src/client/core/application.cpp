@@ -195,8 +195,10 @@ namespace client_fw
 		int posX = (GetSystemMetrics(SM_CXSCREEN) == m_window->width) ? 0 : (GetSystemMetrics(SM_CXSCREEN) - m_window->width) / 2;
 		int posY = (GetSystemMetrics(SM_CYSCREEN) == m_window->height) ? 0 : (GetSystemMetrics(SM_CYSCREEN) - m_window->height) / 2;
 
+		DWORD dw_style = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+
 		m_window->hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_app_name.c_str(), m_app_name.c_str(),
-			WS_OVERLAPPEDWINDOW, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
+			dw_style, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
 
 		if (m_window->hWnd == nullptr)
 			return false;
