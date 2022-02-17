@@ -6,7 +6,8 @@ namespace client_fw
 	class StaticMesh;
 	class Skeleton;
 	class SkeletalMesh;
-	
+	class Material;
+
 	class MeshLoader
 	{
 	public:
@@ -39,8 +40,12 @@ namespace client_fw
 		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data) const;
 
 		int ReadStringFromFile(FILE* file, std::string* word) const;
+
+		//마테리얼을 로드하는게아닌 생성임, 따라서 Material_Loader에 정의하지 않음,또한 여기서만 사용함
+		std::map<std::string, SPtr<Material>> CreateRevMaterial(const std::string& mtl_name, const std::string& parent_path) const;
+
 	};
-	//int ReadFromFile(FILE* file, std::stringstream* word);
+	
 
 }
 
