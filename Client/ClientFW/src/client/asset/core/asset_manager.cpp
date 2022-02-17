@@ -6,6 +6,8 @@
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/material/material.h"
 #include "client/asset/material/material_loader.h"
+#include "client/asset/texture/texture.h"
+#include "client/asset/texture/texture_loader.h"
 
 namespace client_fw
 {
@@ -20,10 +22,12 @@ namespace client_fw
 	{
 	}
 
-	void AssetManager::Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader, bool level_cache)
+	void AssetManager::Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader,
+		UPtr<TextureLoader>&& texture_loader, bool level_cache)
 	{
 		m_mesh_loader = std::move(mesh_loader);
 		m_material_loader = std::move(material_loader);
+		m_texture_loader = std::move(texture_loader);
 		m_is_level_cache = level_cache;
 	}
 
@@ -76,13 +80,13 @@ namespace client_fw
 				SaveAsset(eAssetType::kMesh, stem, path, extension, asset);
 		}
 
-		return (asset == nullptr) ? nullptr : std::reinterpret_pointer_cast<Mesh>(asset);
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Mesh>(asset);
 	}
 
 	SPtr<Material> AssetManager::LoadMaterial(const std::string& mtl_path)
 	{
 		auto asset = LoadAsset(eAssetType::kMaterial, mtl_path);
-		return (asset == nullptr) ? nullptr : std::reinterpret_pointer_cast<Material>(asset);
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Material>(asset);
 	}
 
 	std::map<std::string, SPtr<Material>> AssetManager::LoadMaterials(const std::string& path)
@@ -94,6 +98,25 @@ namespace client_fw
 			m_asset_caches[eAssetType::kMaterial].insert({ material->GetPath(), material });
 
 		return materials;
+	}
+
+	SPtr<Texture> AssetManager::LoadTexture(const std::string& path)
+	{
+		auto asset = LoadAsset(eAssetType::kTexture, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			asset = m_texture_loader->LoadTexture(path, extension);
+
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kTexture, stem, path, extension, asset);
+			}
+		}
+
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Texture>(asset);
 	}
 
 	namespace file_help

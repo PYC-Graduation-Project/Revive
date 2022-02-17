@@ -39,10 +39,10 @@ namespace event_test
 		//sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		//SpawnActor(sphere);
 		//sphere->SetPosition(Vec3{ 300.0f, 30.0f, 1000.0f });
-		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/monkey.obj");
+		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
 		SpawnActor(sphere);
-		sphere->SetPosition(Vec3{ 500.0f, 60.0f, 2000.0f });
-		sphere->SetScale(10.0f);
+		sphere->SetPosition(Vec3{ -1000.0f, 60.0f, 1000.0f });
+		sphere->SetScale(0.5f);
 
 		sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/penguin.obj");
 		SpawnActor(sphere);
@@ -59,12 +59,12 @@ namespace event_test
 
 		auto move_cube = CreateSPtr<MoveCube>();
 		SpawnActor(move_cube);
-		move_cube->SetPosition(Vec3{ 0.0f, 0.0f, 500.0f });
-		m_spawn_pos = Vec3(0.0f, 0.0f, 600.0f);
+		move_cube->SetPosition(Vec3{ 0.0f, 0.0f, 2500.0f });
+		m_spawn_pos = Vec3(0.0f, 0.0f, 2600.0f);
 
-		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
+	/*	auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });
+		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });*/
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);

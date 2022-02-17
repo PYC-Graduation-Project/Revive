@@ -13,10 +13,11 @@ namespace client_fw
 	D3D12_SHADER_BYTECODE Shader::CompileShader(std::wstring_view file_name, std::string_view entry_point,
 		std::string_view version, ID3DBlob** shader_blob) const
 	{
-		UINT compile_flags = D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES;
+		UINT compile_flags = 0; 
 #ifdef _DEBUG
 		compile_flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
+		compile_flags |= D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES;
 
 		//std::wstring file_path = file_name.data();
 		

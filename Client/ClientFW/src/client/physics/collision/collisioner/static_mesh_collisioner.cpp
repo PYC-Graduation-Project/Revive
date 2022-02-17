@@ -1,43 +1,55 @@
 #include "stdafx.h"
-#include "client/physics/collision/collisioner.h"
-#include "client/object/component/core/scene_component.h"
-#include "client/object/component/mesh/static_mesh_component.h"
-#include "client/asset/primitive/vertex.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/primitive/vertex.h"
+#include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 #include "client/object/component/mesh/static_mesh_component.h"
+#include "client/object/component/render/box_component.h"
 #include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
-	Collisioner::Collisioner(const WPtr<SceneComponent>& owner, eMeshCollisionType type)
-		: m_owner(owner), m_type(type)
-	{
-	}
-
 	StaticMeshCollisioner::StaticMeshCollisioner(const WPtr<StaticMeshComponent>& owner)
 		: Collisioner(owner, eMeshCollisionType::kStaticMesh)
 	{
 	}
 
-	bool StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
+	void StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
 	{
 		switch (other->GetCollisioner()->GetMeshCollisionType())
 		{
-		case client_fw::eMeshCollisionType::kStaticMesh:
+		case eMeshCollisionType::kStaticMesh:
 		{
 			const auto& mesh1 = std::static_pointer_cast<StaticMeshComponent>(GetOwner());
 			const auto& mesh2 = std::static_pointer_cast<StaticMeshComponent>(other->GetCollisioner()->GetOwner());
-			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex, 
+			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex,
 				mesh2, mesh2->GetCollisioner()->GetCollisionInfo().complex);
+			break;
+		}
+		case eMeshCollisionType::kBox:
+		{
+			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
+			{
+				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());
+			}
+			break;
+		}
+		case eMeshCollisionType::kSphere:
+		{
+			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
+			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
+			{
+				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());
+			}
 			break;
 		}
 		default:
 			break;
 		}
-		return false;
 	}
 
-	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1, 
+	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
 		const SPtr<StaticMeshComponent>& mesh2, eCollisionComplex complex2)
 	{
 		if (mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox()))
@@ -49,12 +61,10 @@ namespace client_fw
 			m_tri_count = 0;
 			switch (complex1)
 			{
-			case eCollisionComplex::kMedium:
 			case eCollisionComplex::kHigh:
 			{
 				switch (complex2)
 				{
-				case eCollisionComplex::kMedium:
 				case eCollisionComplex::kHigh:
 				{
 					BOrientedBox box2;
@@ -82,7 +92,6 @@ namespace client_fw
 			{
 				switch (complex2)
 				{
-				case eCollisionComplex::kMedium:
 				case eCollisionComplex::kHigh:
 				{
 					if (CheckCollision(*mesh1->GetOrientedBox(), mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode()))
@@ -141,15 +150,6 @@ namespace client_fw
 			{
 				//B가 A를 포함하는데 B가 leaf node인 경우는 이미 더이상 탐색 할 필요가 없다.
 				return true;
-				/*if (node1->child0_id == -1)
-					return CheckTriangleCollision(mat1, mesh1, node1, mat2, mesh2, node2);
-				else
-				{
-					if (CheckCollision(mat1, tree1, tree1->GetNode(node1->child0_id), mesh1, mat2, tree2, node2, mesh2, box2))
-						return true;
-					if (CheckCollision(mat1, tree1, tree1->GetNode(node1->child1_id), mesh1, mat2, tree2, node2, mesh2, box2))
-						return true;
-				}*/
 			}
 			else
 			{
@@ -172,39 +172,34 @@ namespace client_fw
 	bool StaticMeshCollisioner::CheckTriangleCollision(const Mat4& mat1, const SPtr<StaticMeshComponent>& mesh1, const SPtr<KDTreeNode>& node1, const Mat4& mat2,
 		const SPtr<StaticMeshComponent>& mesh2, const SPtr<KDTreeNode>& node2)
 	{
-		//둘다 Complex가 High인 경우만 검출한다. 둘중 하나가 Medium인 경우는 Box끼리의 검출만 한다.
-		if (mesh1->GetCollisioner()->GetCollisionInfo().complex == eCollisionComplex::kHigh &&
-			mesh2->GetCollisioner()->GetCollisionInfo().complex == eCollisionComplex::kHigh)
+		if (node1->triangle_indices.empty() || node2->triangle_indices.empty())
 		{
-			if (node1->triangle_indices.empty() == false && node2->triangle_indices.empty() == false)
-			{
-				auto vertices1 = mesh1->GetStaticMesh()->GetVertices(0);
-				auto vertices2 = mesh2->GetStaticMesh()->GetVertices(0);
-
-				for (size_t i1 : node1->triangle_indices)
-				{
-					Vec3 v1(vertices1[i1 * 3 + 0].GetPosition());
-					Vec3 v2(vertices1[i1 * 3 + 1].GetPosition());
-					Vec3 v3(vertices1[i1 * 3 + 2].GetPosition());
-					v1.TransformCoord(mat1), v2.TransformCoord(mat1), v3.TransformCoord(mat1);
-
-					for (size_t i2 : node2->triangle_indices)
-					{
-						Vec3 v4(vertices2[i2 * 3 + 0].GetPosition());
-						Vec3 v5(vertices2[i2 * 3 + 1].GetPosition());
-						Vec3 v6(vertices2[i2 * 3 + 2].GetPosition());
-						v4.TransformCoord(mat2), v5.TransformCoord(mat2), v6.TransformCoord(mat2);
-
-						++m_tri_count;
-						if (triangle_test::Intersect(v1, v2, v3, v4, v5, v6))
-						{
-							return true;
-						}
-					}
-				}
-			}
 			return false;
 		}
-		return true;
+		auto vertices1 = mesh1->GetStaticMesh()->GetVertices(0);
+		auto vertices2 = mesh2->GetStaticMesh()->GetVertices(0);
+
+		for (size_t i1 : node1->triangle_indices)
+		{
+			Vec3 v1(vertices1[i1 * 3 + 0].GetPosition());
+			Vec3 v2(vertices1[i1 * 3 + 1].GetPosition());
+			Vec3 v3(vertices1[i1 * 3 + 2].GetPosition());
+			v1.TransformCoord(mat1), v2.TransformCoord(mat1), v3.TransformCoord(mat1);
+
+			for (size_t i2 : node2->triangle_indices)
+			{
+				Vec3 v4(vertices2[i2 * 3 + 0].GetPosition());
+				Vec3 v5(vertices2[i2 * 3 + 1].GetPosition());
+				Vec3 v6(vertices2[i2 * 3 + 2].GetPosition());
+				v4.TransformCoord(mat2), v5.TransformCoord(mat2), v6.TransformCoord(mat2);
+
+				++m_tri_count;
+				if (triangle_test::Intersect(v1, v2, v3, v4, v5, v6))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

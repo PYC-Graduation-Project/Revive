@@ -7,7 +7,7 @@ namespace client_fw
 
 	enum class eRenderType
 	{
-		kMesh,
+		kMesh, kShape
 	};
 
 	class RenderComponent : public SceneComponent

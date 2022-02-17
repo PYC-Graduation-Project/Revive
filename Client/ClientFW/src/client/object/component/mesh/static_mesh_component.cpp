@@ -3,7 +3,7 @@
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/renderer/core/render.h"
-#include "client/physics/collision/collisioner.h"
+#include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 
 namespace client_fw
 {

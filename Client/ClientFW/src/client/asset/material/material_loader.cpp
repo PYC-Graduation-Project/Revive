@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/asset/material/material_loader.h"
 #include "client/asset/material/material.h"
+#include "client/asset/texture/texture.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 
@@ -41,7 +42,7 @@ namespace client_fw
 			std::stringstream ss;
 			std::string line;
 			std::string prefix;
-			std::string material_name;
+			std::string temp_name;
 
 			Vec4 temp_vec;
 
@@ -70,18 +71,19 @@ namespace client_fw
 				case HashCode("newmtl"):
 				{
 					AddMaterial();
-					ss >> material_name;
-					std::string mtl_path = parent_path + "/" + material_name + extension;
+					ss >> temp_name;
+					std::string mtl_path = parent_path + "/" + temp_name + extension;
 					material = AssetStore::LoadMaterial(mtl_path);
 					if (material == nullptr)
 					{
 						material = CreateSPtr<Material>();
-						material->SetAssetInfo({ material_name, mtl_path, extension });
+						material->SetAssetInfo({ temp_name, mtl_path, extension });
 						is_new_mtl = true;
 					}
 					break;
 				}
 				case HashCode("Kd"):
+				{
 					if (is_new_mtl)
 					{
 						ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
@@ -89,6 +91,22 @@ namespace client_fw
 						material->SetBaseColor(temp_vec);
 					}
 					break;
+				}
+				case HashCode("map_Kd"):
+				{
+					if (is_new_mtl)
+					{
+						ss >> temp_name;
+						std::string texture_path = parent_path + "/" + temp_name;
+						SPtr<Texture> diffuse_texture = AssetStore::LoadTexture(texture_path);
+						if (diffuse_texture != nullptr)
+						{
+							diffuse_texture->SetTextureType(eTextureType::kDiffuse);
+							material->SetDiffuseTexture(diffuse_texture);
+						}
+					}
+					break;
+				}
 				default:
 					break;
 				}

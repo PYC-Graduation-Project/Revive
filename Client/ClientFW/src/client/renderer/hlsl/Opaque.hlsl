@@ -8,10 +8,14 @@ struct InstanceData
 struct MaterialData
 {
     float4 base_color;
+    int diffuse_texture_index;
 };
 
-StructuredBuffer<InstanceData> g_instance_datas : register(t0, space0);
-StructuredBuffer<MaterialData> g_material_datas : register(t1, space0);
+StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
+StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
+Texture2D g_texture_data[] : register(t2, space0);
+
+SamplerState g_sampler_point_wrap : register(s0);
 
 cbuffer cbMaterialIndexData : register(b0, space0)
 {
@@ -44,7 +48,7 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
 {
     VS_OPAQUE_MESH_OUT output;
     
-    InstanceData i_data = g_instance_datas[instance_id];
+    InstanceData i_data = g_instance_data[instance_id];
     
     float4 position = mul(float4(input.position, 1.0f), i_data.world);
     output.position = position.xyz;
@@ -56,8 +60,16 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
     return output;
 }
 
-//[earlydepthstencil]
+[earlydepthstencil]
 float4 PSOpaqueMesh(VS_OPAQUE_MESH_OUT input) : SV_TARGET
 {
-    return g_material_datas[g_material_index].base_color;
+    MaterialData material_data = g_material_data[g_material_index];
+    if(material_data.diffuse_texture_index >= 0)
+    {
+        return g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);
+    }
+    else
+    {
+        return g_material_data[g_material_index].base_color;
+    }
 }

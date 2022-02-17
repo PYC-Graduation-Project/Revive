@@ -3,7 +3,7 @@
 #include "client/physics/collision/collision_checker.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/util/octree/octree.h"
-#include "client/physics/collision/collisioner.h"
+#include "client/physics/collision/collisioner/collisioner.h"
 
 namespace client_fw
 {
@@ -28,18 +28,25 @@ namespace client_fw
 			{
 				for (size_t i = 0; i < node->movable_scene_components.size(); ++i)
 				{
-					const auto& mesh = node->movable_scene_components[i];
+					const auto& comp = node->movable_scene_components[i];
 					
 					for (size_t j = i + 1; j < node->movable_scene_components.size(); ++j)
 					{
-						if (mesh->GetCollisioner() != nullptr && node->movable_scene_components[j]->GetCollisioner() != nullptr)
-							mesh->GetCollisioner()->CheckCollisionWithOtherComponent(node->movable_scene_components[j]);
+						const auto& other = node->movable_scene_components[j];
+						if (comp->GetCollisioner() != nullptr && other->GetCollisioner() != nullptr &&
+							comp->GetOwner().lock() != other->GetOwner().lock())
+						{
+							comp->GetCollisioner()->CheckCollisionWithOtherComponent(other);
+						}
 					}
 
-					for (const auto& static_mesh : node->static_scene_components)
+					for (const auto& static_comp : node->static_scene_components)
 					{
-						if (mesh->GetCollisioner() != nullptr && static_mesh->GetCollisioner() != nullptr)
-							mesh->GetCollisioner()->CheckCollisionWithOtherComponent(static_mesh);
+						if (comp->GetCollisioner() != nullptr && static_comp->GetCollisioner() != nullptr &&
+							comp->GetOwner().lock() != static_comp->GetOwner().lock())
+						{
+							comp->GetCollisioner()->CheckCollisionWithOtherComponent(static_comp);
+						}
 					}
 				}
 			}
