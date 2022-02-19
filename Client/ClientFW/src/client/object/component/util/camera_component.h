@@ -5,6 +5,7 @@
 namespace client_fw
 {
 	class Actor;
+	class RenderTexture;
 
 	enum class eProjectionMode
 	{
@@ -16,6 +17,8 @@ namespace client_fw
 		kActive, kPaused
 	};
 
+	//아마 Light는 LightComponent에 넣을 것 같다.
+	//일단 Light를 넣을 때 다시 생각해 볼 생각이라 수정은 하지 않겠다.
 	enum class eCameraUsage
 	{
 		kBasic, kLight,
@@ -23,10 +26,10 @@ namespace client_fw
 
 	struct Viewport
 	{
-		float left;
-		float top;
-		float width;
-		float height;
+		LONG left;
+		LONG top;
+		LONG width;
+		LONG height;
 	};
 
 	class CameraComponent : public SceneComponent
@@ -40,7 +43,7 @@ namespace client_fw
 		virtual void Shutdown() override;
 
 		virtual void UpdateWorldMatrix() override;
-		virtual void UpdateViewport(float left, float top, float width, float height);
+		virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -48,6 +51,7 @@ namespace client_fw
 		void UnregisterFromRenderSystem();
 
 	protected:
+		static CameraComponent* s_main_camera;
 		WPtr<Actor> m_owner_controller;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
@@ -64,11 +68,14 @@ namespace client_fw
 		BFrustum m_bounding_frustum;
 
 	public:
+		bool IsMainCamera() { return s_main_camera == this; }
+		void SetMainCamera();
 		void SetOwnerController(const WPtr<Actor>& owner);
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
+		const Viewport& GetViewport() const { return m_viewport; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;
@@ -79,8 +86,16 @@ namespace client_fw
 		void SetFarZ(float far_z) { m_far_z = far_z; }
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
 
+	private:
+		SPtr<RenderTexture> m_render_texture;
+
+	public:
+		const SPtr<RenderTexture>& GetRenderTexture() const { return m_render_texture; }
+		void SetRenderTexture(const SPtr<RenderTexture>& texture) { m_render_texture = texture; }
+
 	protected:
 		SPtr<CameraComponent> SharedFromThis();
+
 	};
 }
 

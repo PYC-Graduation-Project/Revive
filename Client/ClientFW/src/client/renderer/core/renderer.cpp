@@ -92,18 +92,20 @@ namespace client_fw
 
 		m_render_system->Update(m_device.Get(), m_command_list.Get());
 
-		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
-			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
 		m_command_list->RSSetViewports(1, &m_viewport);
 		m_command_list->RSSetScissorRects(1, &m_scissor_rect);
+
+		m_render_system->Draw(m_command_list.Get());
+
+		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
+			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 		m_command_list->ClearRenderTargetView(m_rtv_cpu_handles[m_cur_swapchain_buffer], Colors::Black, 0, nullptr);
 		m_command_list->ClearDepthStencilView(m_dsv_cpu_handles, 
 			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		m_command_list->OMSetRenderTargets(1, &m_rtv_cpu_handles[m_cur_swapchain_buffer], true, &m_dsv_cpu_handles);
 
-		m_render_system->Draw(m_command_list.Get());
+		m_render_system->DrawUI(m_command_list.Get());
 
 		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));

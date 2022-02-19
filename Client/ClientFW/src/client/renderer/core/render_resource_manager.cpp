@@ -8,8 +8,11 @@
 
 namespace client_fw
 {
+	RenderResourceManager* RenderResourceManager::s_render_resource_manager = nullptr;
+
 	RenderResourceManager::RenderResourceManager()
 	{
+		s_render_resource_manager = this;
 		m_material_data = CreateUPtr<UploadBuffer<RSMaterialData>>();
 	}
 
@@ -20,7 +23,7 @@ namespace client_fw
 	bool RenderResourceManager::Initialize(ID3D12Device* device)
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC texture_heap_desc;
-		texture_heap_desc.NumDescriptors = 1024;
+		texture_heap_desc.NumDescriptors = 8192;
 		texture_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		texture_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		texture_heap_desc.NodeMask = 0;
@@ -43,12 +46,7 @@ namespace client_fw
 
 	void RenderResourceManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		if (m_ready_textures.empty() == false)
-		{
-			CreateTextureResource(device);
-			UpdateTextureResource(device, command_list);
-			m_ready_textures.clear();
-		}
+		UpdateTextureResource(device, command_list);
 
 		if (m_ready_materials.empty() == false)
 		{
@@ -92,10 +90,25 @@ namespace client_fw
 	{
 		if (texture != nullptr)
 		{
-			if (m_initialized_assets.find(texture->GetPath()) == m_initialized_assets.cend())
+			switch (texture->GetTextureType())
 			{
-				m_initialized_assets.insert(texture->GetPath());
-				m_ready_textures.push_back(texture);
+			case eTextureType::kExternal:
+			{
+				const auto& external_texture = std::static_pointer_cast<ExternalTexture>(texture);
+				if (m_initialized_assets.find(external_texture->GetPath()) == m_initialized_assets.cend())
+				{
+					m_initialized_assets.insert(external_texture->GetPath());
+					m_ready_external_textures.push_back(external_texture);
+				}
+				break;
+			}
+			case eTextureType::kRedner:
+			{
+				m_ready_render_textures.push_back(std::static_pointer_cast<RenderTexture>(texture));
+				break;
+			}
+			default:
+				break;
 			}
 		}
 	}
@@ -134,10 +147,6 @@ namespace client_fw
 		}
 	}
 
-	void RenderResourceManager::CreateTextureResource(ID3D12Device* device)
-	{
-	}
-
 	void RenderResourceManager::UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
@@ -145,7 +154,7 @@ namespace client_fw
 
 		cpu_handle.Offset(m_num_of_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
-		for (const auto& texture : m_ready_textures)
+		for (const auto& texture : m_ready_external_textures)
 		{
 			texture->Initialize(device, command_list);
 			
@@ -158,5 +167,31 @@ namespace client_fw
 
 			LOG_INFO(texture->GetPath());
 		}
+
+		m_ready_external_textures.clear();
+
+		for (const auto& texture : m_ready_render_textures)
+		{
+			//Level이 재생성 할 때 마다 새로운 Camera가 생기고,
+			//그에 따른 ResourceView도 생기니까 낭비가 있다.
+			//그래서 방법은 여러가지인데
+			//Level마다 초기화 (Asset도 다시 Load해야함)
+			//이 데이터를 넣는 구간을 따로 지정해서 그 부분만 초기화 한다.
+			//일단은 RTT를 하는 것이 목표이기 때문에 현재로서는 낭비를 하고 들어가겠다.
+			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
+			{
+				device->CreateShaderResourceView(texture->GetGBufferTexture(i),
+					&TextureCreator::GetShaderResourceViewDesc(texture), cpu_handle);
+				texture->SetResourceIndex(m_num_of_texture_data++);
+				cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+			}
+
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDesc(texture), cpu_handle);
+			texture->SetResourceIndex(m_num_of_texture_data++);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		}
+
+		m_ready_render_textures.clear();
 	}
 }

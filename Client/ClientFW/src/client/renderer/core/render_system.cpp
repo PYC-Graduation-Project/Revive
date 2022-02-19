@@ -4,13 +4,18 @@
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
+#include "client/renderer/renderlevel/ui_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
+#include "client/renderer/shader/main_camera_ui_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/renderer/core/camera_manager.h"
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/util/camera_component.h"
+#include "client/renderer/core/mesh_visualizer.h"
+#include "client/asset/texture/texture.h"
 
 namespace client_fw
 {
@@ -21,9 +26,11 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics} };
+		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics},
+		{eRenderLevelType::kUI, eKindOfRenderLevel::kGraphics} };
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
+		m_camera_manager = CreateUPtr<CameraManager>();
 	}
 
 	RenderSystem::~RenderSystem()
@@ -37,9 +44,10 @@ namespace client_fw
 		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
-		//RegisterGraphicsShader<>
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kUI);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -60,6 +68,7 @@ namespace client_fw
 	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		m_render_asset_manager->Update(device, command_list);
+		m_camera_manager->Update(device, command_list);
 
 		for (const auto& [level_name, kind] : m_render_level_order)
 		{
@@ -78,33 +87,47 @@ namespace client_fw
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
+		//지금 이 부분은 Shadow나 Compute가 생길 경우 많이 바뀔 부분이다.
+		//일단은 Opaque정도만 신경써서 코딩을 하였다.
+		//지금으로서는 능력 부족으로 정확한 예측은 커녕 50%의 예측도 불가능하다.
+
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
 
-		for (const auto& [level_name, kind] : m_render_level_order)
+		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			switch (kind)
+			const auto& cameras = m_camera_manager->GetCameras(eCameraUsage::kBasic);
+
+			for (const auto& camera : cameras)
 			{
-			case eKindOfRenderLevel::kGraphics:
-				m_graphics_render_levels.at(level_name)->Draw(command_list, m_basic_cameras);
-				break;
-			case eKindOfRenderLevel::kDeferred:
-				break;
-			case eKindOfRenderLevel::kCompute:
-				break;
+				if (camera->GetCameraState() == eCameraState::kActive)
+				{
+					m_graphics_super_root_signature->SetCameraResource(command_list, camera);
+					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+
+					camera->GetRenderTexture()->PreDraw(command_list);
+					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list);
+					camera->GetRenderTexture()->PostDraw(command_list);
+				}
 			}
 		}
+		
+	}
+
+	void RenderSystem::DrawUI(ID3D12GraphicsCommandList* command_list) const
+	{
+		if (m_camera_manager->GetMainCamera() != nullptr)
+		{
+			m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
+		}
+
 	}
 
 	void RenderSystem::UpdateViewport()
 	{
 		const auto& window = m_window.lock();
-		for (const auto& camera : m_basic_cameras)
-		{
-			camera->UpdateViewport(static_cast<float>(window->rect.left),
-				static_cast<float>(window->rect.top), static_cast<float>(window->width),
-				static_cast<float>(window->height));
-		}
+		m_camera_manager->UpdateMainCameraViewport(window->rect.left,
+			window->rect.top, window->width, window->height);
 	}
 
 	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type)
@@ -169,37 +192,28 @@ namespace client_fw
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		const auto& window = m_window.lock();
-		switch (camera_comp->GetCameraUsage())
-		{
-		case eCameraUsage::kBasic:
-			m_basic_cameras.push_back(camera_comp);
-			camera_comp->UpdateViewport(static_cast<float>(window->rect.left), 
-				static_cast<float>(window->rect.top), static_cast<float>(window->width),
-				static_cast<float>(window->height));
-			break;
-		case eCameraUsage::kLight:
-			break;
-		}
-		return true;
+		return m_camera_manager->RegisterCameraComponent(camera_comp);
 	}
 
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		switch (camera_comp->GetCameraUsage())
+		m_camera_manager->UnregisterCameraComponent(camera_comp);
+	}
+
+	void RenderSystem::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	{
+		const auto& window = m_window.lock();
+		m_camera_manager->SetMainCamera(camera_comp);
+		m_camera_manager->UpdateMainCameraViewport(window->rect.left,
+			window->rect.top, window->width, window->height);
+	}
+
+	ID3D12Resource* RenderSystem::GetResource()
+	{
+		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-		case eCameraUsage::kBasic:
-		{
-			auto iter = std::find(m_basic_cameras.begin(), m_basic_cameras.end(), camera_comp);
-			if (iter != m_basic_cameras.end())
-			{
-				std::iter_swap(iter, m_basic_cameras.end() - 1);
-				m_basic_cameras.pop_back();
-			}
-			break;
+			return m_camera_manager->GetMainCamera()->GetRenderTexture()->GetResource();
 		}
-		case eCameraUsage::kLight:
-			break;
-		}
-	}			
+		return nullptr;
+	}
 }

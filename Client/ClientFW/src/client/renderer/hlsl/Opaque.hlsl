@@ -13,7 +13,7 @@ struct MaterialData
 
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
 StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
-Texture2D g_texture_data[] : register(t2, space0);
+Texture2D g_texture_data[] : register(t0, space1);
 
 SamplerState g_sampler_point_wrap : register(s0);
 

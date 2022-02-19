@@ -5,6 +5,8 @@ namespace client_fw
 	class Mesh;
 	class Material;
 	class Texture;
+	class ExternalTexture;
+	class RenderTexture;
 	enum class eTextureType;
 	template<class T> class UploadBuffer;
 
@@ -36,15 +38,17 @@ namespace client_fw
 		void CreateMaterialResource(ID3D12Device* device);
 		void UpdateMaterialResource();
 
-		void CreateTextureResource(ID3D12Device* device);
 		void UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 
 	private:
+		static RenderResourceManager* s_render_resource_manager;
+
 		std::unordered_set<std::string> m_initialized_assets; //Level Load Asset시스템을 사용하면, 이것도 초기화 해줘야 한다. 
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;
 		std::vector<SPtr<Material>> m_ready_materials;
-		std::vector<SPtr<Texture>> m_ready_textures;
+		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
+		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
 
 	private:
 		UINT m_num_of_material_data = 0;
@@ -52,6 +56,8 @@ namespace client_fw
 		UINT m_num_of_texture_data;
 		ComPtr<ID3D12DescriptorHeap> m_texture_desciptor_heap;
 
+	public:
+		static RenderResourceManager& GetRenderResourceManager() { return *s_render_resource_manager; }
 	};
 }
 

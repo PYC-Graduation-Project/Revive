@@ -10,9 +10,11 @@ namespace client_fw
 	class CameraComponent;
 
 
+	//현재 전략은 Opaque -> Defferd -> Transperent -> Compute -> UI
+	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque
+		kOpaque, kUI
 	};
 
 	enum class eShaderType
@@ -41,6 +43,7 @@ namespace client_fw
 
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
+		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
 
 	public:
 		static std::string ConvertRenderLevelType(eRenderLevelType type);

@@ -30,6 +30,11 @@ namespace client_fw
 		s_render_system->UnregisterCameraComponent(camera_comp);
 	}
 
+	void Render::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	{
+		s_render_system->SetMainCamera(camera_comp);
+	}
+
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)
 	{
 		switch (type)

@@ -14,9 +14,6 @@ namespace client_fw
 		GraphicsShader(const std::string& name);
 		virtual ~GraphicsShader() = default;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const = 0;
-
 	public:
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)  const= 0;
 		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const;
@@ -58,8 +55,8 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override final;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const override final;
+		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
@@ -78,8 +75,8 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list) override final;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const override final;
+		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list);
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual D3D12_RASTERIZER_DESC CreateRasterizerState(eRenderLevelType level_type, int pso_index) const override;
 

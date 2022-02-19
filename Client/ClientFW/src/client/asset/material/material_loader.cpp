@@ -98,12 +98,9 @@ namespace client_fw
 					{
 						ss >> temp_name;
 						std::string texture_path = parent_path + "/" + temp_name;
-						SPtr<Texture> diffuse_texture = AssetStore::LoadTexture(texture_path);
+						SPtr<ExternalTexture> diffuse_texture = AssetStore::LoadTexture(texture_path);
 						if (diffuse_texture != nullptr)
-						{
-							diffuse_texture->SetTextureType(eTextureType::kDiffuse);
 							material->SetDiffuseTexture(diffuse_texture);
-						}
 					}
 					break;
 				}

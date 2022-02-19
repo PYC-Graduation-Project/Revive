@@ -28,6 +28,7 @@ namespace client_fw
 				m_camera_component->SetActive();
 				bool ret = m_controlled_pawn->AttachComponent(m_camera_component);
 				m_camera_component->SetOwnerController(shared_from_this());
+				m_camera_component->SetMainCamera();
 				return ret;
 			}
 			return true;

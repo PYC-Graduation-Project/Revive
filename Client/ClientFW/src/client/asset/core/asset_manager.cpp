@@ -100,7 +100,7 @@ namespace client_fw
 		return materials;
 	}
 
-	SPtr<Texture> AssetManager::LoadTexture(const std::string& path)
+	SPtr<ExternalTexture> AssetManager::LoadTexture(const std::string& path)
 	{
 		auto asset = LoadAsset(eAssetType::kTexture, path);
 		if (asset == nullptr)
@@ -116,7 +116,7 @@ namespace client_fw
 			}
 		}
 
-		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Texture>(asset);
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalTexture>(asset);
 	}
 
 	namespace file_help

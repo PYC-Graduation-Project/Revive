@@ -11,6 +11,7 @@ namespace client_fw
 	class CameraComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
+	class CameraManager;
 
 	class RenderSystem final
 	{
@@ -26,6 +27,7 @@ namespace client_fw
 
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
+		void DrawUI(ID3D12GraphicsCommandList* command_list) const;
 
 		void UpdateViewport();
 
@@ -37,7 +39,7 @@ namespace client_fw
 				std::make_pair(level_type, eKindOfRenderLevel::kGraphics))
 				!= m_render_level_order.cend())
 			{
-				m_graphics_render_levels[level_type] = CreateSPtr<T>(level_type, m_graphics_super_root_signature);
+				m_graphics_render_levels[level_type] = CreateSPtr<T>(m_graphics_super_root_signature);
 				m_graphics_render_levels[level_type]->Initialize(m_device);
 				return true;
 			}
@@ -73,6 +75,7 @@ namespace client_fw
 		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
+		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
 
 	private:
 		WPtr<Window> m_window;
@@ -85,11 +88,12 @@ namespace client_fw
 		std::vector<std::pair<eRenderLevelType, eKindOfRenderLevel>> m_render_level_order;
 		std::set<std::string> m_added_shaders;
 
-		std::vector<SPtr<CameraComponent>> m_basic_cameras;
-
 		UPtr<RenderResourceManager> m_render_asset_manager;
+		UPtr<CameraManager> m_camera_manager;
+
 
 	public:
+		ID3D12Resource* GetResource();
 		ID3D12Device* GetDevice() const { return m_device; }
 	};
 }

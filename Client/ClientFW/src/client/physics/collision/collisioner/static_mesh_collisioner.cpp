@@ -29,8 +29,8 @@ namespace client_fw
 		{
 			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
 			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
+			/*	LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());*/
 			}
 			break;
 		}
@@ -39,8 +39,8 @@ namespace client_fw
 			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
 			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
 			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
+			/*	LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());*/
 			}
 			break;
 		}
@@ -73,7 +73,7 @@ namespace client_fw
 					if (CheckCollision(mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode(), mesh1,
 						mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode(), mesh2, box2))
 					{
-						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
@@ -81,7 +81,7 @@ namespace client_fw
 				{
 					if (CheckCollision(*mesh2->GetOrientedBox(), mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode()))
 					{
-						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
@@ -96,13 +96,13 @@ namespace client_fw
 				{
 					if (CheckCollision(*mesh1->GetOrientedBox(), mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode()))
 					{
-						LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					}
 					break;
 				}
 				case eCollisionComplex::kLow:
 				{
-					LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+					//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 					break;
 				}
 				}

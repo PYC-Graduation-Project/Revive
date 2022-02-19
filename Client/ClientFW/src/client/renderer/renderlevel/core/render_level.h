@@ -40,15 +40,10 @@ namespace client_fw
 
 		virtual void Shutdown();
 		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras) const;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		bool RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader);
 		void UnregisterGraphicsShader(const SPtr<GraphicsShader>& graphics_shader);
-
-	protected:
-		//virtual void UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) {}
-		//virtual void SetRootCommonResource(ID3D12GraphicsCommandList* command_list) {}
-		virtual void SetRootCameraResource(ID3D12GraphicsCommandList* command_list, const SPtr<CameraComponent>& camera);
 
 	private:
 		SPtr<GraphicsSuperRootSignature> m_graphics_root_signature;

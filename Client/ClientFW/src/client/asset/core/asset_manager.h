@@ -7,12 +7,13 @@ namespace client_fw
 	class MeshLoader;
 	class Material;
 	class MaterialLoader;
-	class Texture;
+	class ExternalTexture;
 	class TextureLoader;
+	class RenderTexture;
 
 	enum class eAssetType
 	{
-		kMesh, kMaterial, kTexture
+		kMesh, kMaterial, kTexture, kRenderTexture,
 	};
 
 	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
@@ -53,9 +54,7 @@ namespace client_fw
 		SPtr<Mesh> LoadMesh(const std::string& path);
 		SPtr<Material> LoadMaterial(const std::string& mtl_path);
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
-		SPtr<Texture> LoadTexture(const std::string& path);
-
-
+		SPtr<ExternalTexture> LoadTexture(const std::string& path);
 	};
 
 	namespace file_help

@@ -19,8 +19,8 @@ namespace client_fw
 		{
 			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
 			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
+				/*LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());*/
 			}
 			break;
 		}
@@ -29,8 +29,8 @@ namespace client_fw
 			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
 			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
 			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
+				/*LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
+					other->GetOwner().lock()->GetName());*/
 			}
 			break;
 		}
