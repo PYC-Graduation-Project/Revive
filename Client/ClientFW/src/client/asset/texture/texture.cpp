@@ -87,13 +87,11 @@ namespace client_fw
 
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
 
-		m_gbuffer_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_D24_UNORM_S8_UINT, size, 1,
-			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
-		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_D24_UNORM_S8_UINT, size, 1,
+		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
-		dsv_heap_desc.NumDescriptors = 2;
+		dsv_heap_desc.NumDescriptors = 1;
 		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 		dsv_heap_desc.NodeMask = 0;
@@ -110,9 +108,6 @@ namespace client_fw
 		dsv_desc.Texture2D.MipSlice = 0;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
-		device->CreateDepthStencilView(m_gbuffer_dsv_texture.Get(), &dsv_desc, dsv_heap_handle);
-		m_gbuffer_dsv_cpu_handle = dsv_heap_handle;
-		dsv_heap_handle.Offset(1, D3DUtil::s_dsv_descirptor_increment_size);
 		device->CreateDepthStencilView(m_dsv_texture.Get(), &dsv_desc, dsv_heap_handle);
 		m_dsv_cpu_handle = dsv_heap_handle;
 
@@ -133,8 +128,8 @@ namespace client_fw
 			command_list->ClearRenderTargetView(m_gbuffer_rtv_cpu_handles[i], Colors::Black, 0, nullptr);
 		}
 
-		command_list->ClearDepthStencilView(m_gbuffer_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		command_list->OMSetRenderTargets(m_num_of_gbuffer_texture, m_gbuffer_rtv_cpu_handles.data(), FALSE, &m_gbuffer_dsv_cpu_handle);
+		//command_list->ClearDepthStencilView(m_gbuffer_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		//command_list->OMSetRenderTargets(m_num_of_gbuffer_texture, m_gbuffer_rtv_cpu_handles.data(), FALSE, &m_gbuffer_dsv_cpu_handle);
 	}
 
 	void RenderTexture::GBufferPostDraw(ID3D12GraphicsCommandList* command_list)
@@ -163,9 +158,36 @@ namespace client_fw
 			m_texture_resource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
 
-	ID3D12Resource* RenderTexture::GetGBufferTexture(UINT index)
+	ID3D12Resource* RenderTexture::GetGBufferTexture(UINT buffer_index) const
 	{
-		return (index < m_num_of_gbuffer_texture) ? m_gbuffer_textures[index].Get() : nullptr;
+		if (buffer_index < m_num_of_gbuffer_texture)
+			return m_gbuffer_textures[buffer_index].Get();
+		else
+		{
+			LOG_WARN("Out of range of texture GBuffer Resource");
+			return nullptr;
+		}
 	}
+
+	UINT RenderTexture::GetGBufferResourceIndex(UINT buffer_index) const
+	{
+		if (buffer_index < m_num_of_gbuffer_texture)
+			return m_gbuffer_texture_resource_indices[buffer_index];
+		else
+		{
+			LOG_WARN("Out of range of texture GBuffer Index");
+			return 0;
+		}
+	}
+
+	void RenderTexture::SetGBufferResourceIndex(UINT buffer_index, UINT resource_index)
+	{
+		if (buffer_index < m_num_of_gbuffer_texture)
+			m_gbuffer_texture_resource_indices[buffer_index] = resource_index;
+		else
+			LOG_WARN("Out of range of texture GBuffer Index");
+	}
+
+
 
 }

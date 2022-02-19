@@ -155,10 +155,10 @@ namespace client_fw
 		return texture;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDesc(const SPtr<Texture>& texture)
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDesc(const ComPtr<ID3D12Resource>& texture_resource)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
-		D3D12_RESOURCE_DESC resource_desc = texture->GetResource()->GetDesc();
+		D3D12_RESOURCE_DESC resource_desc = texture_resource->GetDesc();
 
 		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		view_desc.Format = resource_desc.Format;
@@ -197,6 +197,21 @@ namespace client_fw
 			break;
 		}
 		}
+
+		return view_desc;
+	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescForDSV(const ComPtr<ID3D12Resource>& dsv_resource)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
+
+		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view_desc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		view_desc.Texture2D.MostDetailedMip = 0;
+		view_desc.Texture2D.MipLevels = 1;
+		view_desc.Texture2D.ResourceMinLODClamp = 0.0f;
+		view_desc.Texture2D.PlaneSlice = 0;
 
 		return view_desc;
 	}
