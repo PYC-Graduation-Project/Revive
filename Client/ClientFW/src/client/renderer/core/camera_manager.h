@@ -12,6 +12,8 @@ namespace client_fw
 		Mat4 view_matrix;
 		Mat4 projection_matrix;
 		Vec3 camera_position;
+		float padding0;
+		XMUINT4 gbuffer_texture_indices;
 	};
 
 	class CameraManager final
@@ -26,7 +28,11 @@ namespace client_fw
 		void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void UpdateMainCameraViewport(LONG left, LONG top, LONG width, LONG height);
-		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void(ID3D12GraphicsCommandList*)>&& function);
+
+		void Draw(ID3D12GraphicsCommandList* command_list, 
+			std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
+			std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function,
+			std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function);
 
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);

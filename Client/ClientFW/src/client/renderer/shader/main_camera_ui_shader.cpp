@@ -52,7 +52,7 @@ namespace client_fw
 	}
 	D3D12_SHADER_BYTECODE MainCameraUIShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "VSRenderMainUI", "vs_5_1", shader_blob);
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "VSRenderTexture", "vs_5_1", shader_blob);
 	}
 
 	D3D12_SHADER_BYTECODE MainCameraUIShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const

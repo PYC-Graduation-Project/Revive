@@ -4,9 +4,11 @@
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
+#include "client/renderer/renderlevel/deferred_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
+#include "client/renderer/shader/deferred_shader.h"
 #include "client/renderer/shader/main_camera_ui_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
@@ -24,8 +26,9 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics},
-		{eRenderLevelType::kUI, eKindOfRenderLevel::kGraphics} };
+		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics}, 
+			{eRenderLevelType::kDeferred, eKindOfRenderLevel::kGraphics},
+			{eRenderLevelType::kUI, eKindOfRenderLevel::kGraphics} };
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 		m_camera_manager = CreateUPtr<CameraManager>();
@@ -42,9 +45,11 @@ namespace client_fw
 		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kUI);
 
 		ret &= m_render_asset_manager->Initialize(device);
@@ -77,8 +82,6 @@ namespace client_fw
 			case eKindOfRenderLevel::kGraphics:
 				m_graphics_render_levels.at(level_name)->Update(device, command_list);
 				break;
-			case eKindOfRenderLevel::kDeferred:
-				break;
 			case eKindOfRenderLevel::kCompute:
 				break;
 			}
@@ -96,9 +99,17 @@ namespace client_fw
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_camera_manager->Draw(command_list, [this](ID3D12GraphicsCommandList* command_list)
+			m_camera_manager->Draw(command_list,
+				[this](ID3D12GraphicsCommandList* command_list)
 				{
-					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list); 
+					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
 				});
 		}
 		

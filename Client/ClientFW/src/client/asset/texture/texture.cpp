@@ -79,6 +79,7 @@ namespace client_fw
 			rtv_desc.Format = gbuffer_rtv_formats[i];
 			device->CreateRenderTargetView(m_gbuffer_textures[i].Get(), &rtv_desc, rtv_heap_handle);
 			m_gbuffer_rtv_cpu_handles.push_back(rtv_heap_handle);
+			m_gbuffer_texture_resource_indices.push_back(0);
 			rtv_heap_handle.Offset(1, D3DUtil::s_rtv_descirptor_increment_size);
 		}
 		rtv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -128,8 +129,8 @@ namespace client_fw
 			command_list->ClearRenderTargetView(m_gbuffer_rtv_cpu_handles[i], Colors::Black, 0, nullptr);
 		}
 
-		//command_list->ClearDepthStencilView(m_gbuffer_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		//command_list->OMSetRenderTargets(m_num_of_gbuffer_texture, m_gbuffer_rtv_cpu_handles.data(), FALSE, &m_gbuffer_dsv_cpu_handle);
+		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		command_list->OMSetRenderTargets(m_num_of_gbuffer_texture, m_gbuffer_rtv_cpu_handles.data(), FALSE, &m_dsv_cpu_handle);
 	}
 
 	void RenderTexture::GBufferPostDraw(ID3D12GraphicsCommandList* command_list)
@@ -148,8 +149,7 @@ namespace client_fw
 
 		FLOAT clear_value[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		command_list->ClearRenderTargetView(m_rtv_cpu_handle, clear_value, 0, nullptr);
-		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		command_list->OMSetRenderTargets(1, &m_rtv_cpu_handle, true, &m_dsv_cpu_handle);
+		command_list->OMSetRenderTargets(1, &m_rtv_cpu_handle, true, nullptr);
 	}
 
 	void RenderTexture::PostDraw(ID3D12GraphicsCommandList* command_list)

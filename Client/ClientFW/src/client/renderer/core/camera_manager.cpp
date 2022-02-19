@@ -46,7 +46,7 @@ namespace client_fw
 				//임시로 rtv_format은 이렇게 저장하자.
 				//어떻게 OpaqueRenderLevel(일단은 Opaque만 GBuffer를 사용하기 때문에)과 맞출지 생각하자.
 				camera->GetRenderTexture()->Initialize(device, command_list,
-					{}, size);
+					{ DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM }, size);
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
 				m_cameras[eCameraUsage::kBasic].push_back(camera);
@@ -66,7 +66,10 @@ namespace client_fw
 			m_main_camera->UpdateViewport(left, top, width, height);
 	}
 
-	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list, std::function<void(ID3D12GraphicsCommandList*)>&& function)
+	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list,
+		std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
+		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function, 
+		std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function)
 	{
 		UINT index = 0;
 
@@ -78,8 +81,12 @@ namespace client_fw
 					index * m_camera_data->GetByteSize());
 				MeshVisualizer::UpdateVisibilityFromCamera(camera);
 
+				camera->GetRenderTexture()->GBufferPreDraw(command_list);
+				before_deferred_function(command_list);
+				camera->GetRenderTexture()->GBufferPostDraw(command_list);
+
 				camera->GetRenderTexture()->PreDraw(command_list);
-				function(command_list);
+				deferred_function(command_list);
 				camera->GetRenderTexture()->PostDraw(command_list);
 			}
 			++index;
@@ -115,9 +122,14 @@ namespace client_fw
 		UINT index = 0;
 		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
 		{
+			const auto& render_texture = camera->GetRenderTexture();
+
 			camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
 			camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
 			camera_data.camera_position = camera->GetWorldPosition();
+			camera_data.gbuffer_texture_indices = XMUINT4(
+				render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
+				0, render_texture->GetDSVResourceIndex());
 			m_camera_data->CopyData(index, camera_data);
 			++index;
 		}

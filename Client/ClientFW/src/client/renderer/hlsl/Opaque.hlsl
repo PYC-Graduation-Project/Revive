@@ -1,3 +1,5 @@
+#ifndef __OPAQUE_HLSL__
+#define __OPAQUE_HLSL__
 
 struct InstanceData
 {
@@ -27,7 +29,15 @@ cbuffer cbCameraData : register(b1, space0)
     matrix g_view;
     matrix g_projection;
     float3 g_camera_pos;
+    float g_padding0;
+    uint4 g_gbuffer_texture_indices;
 }
+
+struct PS_GBUFFER_OUTPUT
+{
+    float4 base_color : SV_TARGET0;
+    float4 normal : SV_TARGET1;
+};
 
 struct VS_OPAQUE_MESH_IN
 {
@@ -53,7 +63,7 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
     float4 position = mul(float4(input.position, 1.0f), i_data.world);
     output.position = position.xyz;
     output.sv_position = mul(mul(position, g_view), g_projection);
-    output.normal = mul(input.normal, (float3x3)i_data.world);
+    output.normal = mul(input.normal, (float3x3)i_data.world_inverse_transpose);
     output.normal = normalize(output.normal);
     output.uv = input.uv;
     
@@ -61,15 +71,23 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
 }
 
 [earlydepthstencil]
-float4 PSOpaqueMesh(VS_OPAQUE_MESH_OUT input) : SV_TARGET
+PS_GBUFFER_OUTPUT PSOpaqueMesh(VS_OPAQUE_MESH_OUT input)
 {
+    PS_GBUFFER_OUTPUT output;
+    
     MaterialData material_data = g_material_data[g_material_index];
     if(material_data.diffuse_texture_index >= 0)
     {
-        return g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);
+        output.base_color = g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);
     }
     else
     {
-        return g_material_data[g_material_index].base_color;
+        output.base_color = g_material_data[g_material_index].base_color;
     }
+    
+    output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    
+    return output;
 }
+
+#endif // __OPAQUE_HLSL__
