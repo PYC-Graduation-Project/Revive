@@ -91,9 +91,7 @@ namespace client_fw
 		UPtr<RenderResourceManager> m_render_asset_manager;
 		UPtr<CameraManager> m_camera_manager;
 
-
 	public:
-		ID3D12Resource* GetResource();
 		ID3D12Device* GetDevice() const { return m_device; }
 	};
 }

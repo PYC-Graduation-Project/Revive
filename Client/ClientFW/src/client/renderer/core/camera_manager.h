@@ -5,6 +5,15 @@ namespace client_fw
 	enum class eCameraUsage;
 	class CameraComponent;
 
+	template<class T> class UploadBuffer;
+
+	struct RSCameraData
+	{
+		Mat4 view_matrix;
+		Mat4 projection_matrix;
+		Vec3 camera_position;
+	};
+
 	class CameraManager final
 	{
 	public:
@@ -14,11 +23,18 @@ namespace client_fw
 		CameraManager(const CameraManager&) = delete;
 		CameraManager& operator=(const CameraManager&) = delete;
 
+		void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void UpdateMainCameraViewport(LONG left, LONG top, LONG width, LONG height);
+		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void(ID3D12GraphicsCommandList*)>&& function);
 
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
+
+	private:
+		void CreateCameraResource(ID3D12Device* device);
+		void UpdateCameraResource();
+		void UpdateCameraResourceBeforeDraw();
 
 	private:
 		static CameraManager* s_camera_manager;
@@ -27,6 +43,7 @@ namespace client_fw
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_cameras;
 		SPtr<CameraComponent> m_ready_main_camera;
 		SPtr<CameraComponent> m_main_camera;
+		UPtr<UploadBuffer<RSCameraData>> m_camera_data;
 
 	public:
 		static CameraManager& GetCameraManager() { return *s_camera_manager; }

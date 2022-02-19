@@ -14,8 +14,6 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/util/camera_component.h"
-#include "client/renderer/core/mesh_visualizer.h"
-#include "client/asset/texture/texture.h"
 
 namespace client_fw
 {
@@ -61,6 +59,8 @@ namespace client_fw
 		for (const auto& [name, shader] : m_graphics_shaders)
 			shader->Shutdown();
 		m_graphics_super_root_signature->Shutdown();
+		m_render_asset_manager->Shutdown();
+		m_camera_manager->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
 	}
@@ -96,20 +96,10 @@ namespace client_fw
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			const auto& cameras = m_camera_manager->GetCameras(eCameraUsage::kBasic);
-
-			for (const auto& camera : cameras)
-			{
-				if (camera->GetCameraState() == eCameraState::kActive)
+			m_camera_manager->Draw(command_list, [this](ID3D12GraphicsCommandList* command_list)
 				{
-					m_graphics_super_root_signature->SetCameraResource(command_list, camera);
-					MeshVisualizer::UpdateVisibilityFromCamera(camera);
-
-					camera->GetRenderTexture()->PreDraw(command_list);
-					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list);
-					camera->GetRenderTexture()->PostDraw(command_list);
-				}
-			}
+					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list); 
+				});
 		}
 		
 	}
@@ -120,7 +110,6 @@ namespace client_fw
 		{
 			m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
 		}
-
 	}
 
 	void RenderSystem::UpdateViewport()
@@ -206,14 +195,5 @@ namespace client_fw
 		m_camera_manager->SetMainCamera(camera_comp);
 		m_camera_manager->UpdateMainCameraViewport(window->rect.left,
 			window->rect.top, window->width, window->height);
-	}
-
-	ID3D12Resource* RenderSystem::GetResource()
-	{
-		if (m_camera_manager->GetMainCamera() != nullptr)
-		{
-			return m_camera_manager->GetMainCamera()->GetRenderTexture()->GetResource();
-		}
-		return nullptr;
 	}
 }
