@@ -1,9 +1,72 @@
 #include "pch.h"
 #include "moveobj_manager.h"
 #include"enemy.h"
+
 using namespace std;
 
 
+
+void MoveObjManager::InitLua(const char* script_name, int obj_id)
+{
+	Enemy* en = GetEnemy(obj_id);
+	lua_State*L = en->GetLua();
+	L = luaL_newstate();
+	luaL_openlibs(L);
+	int error = luaL_loadfile(L, script_name) ||
+		lua_pcall(L, 0, 0, 0);
+	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
+
+	lua_getglobal(L, "initializEnemy");
+	lua_pushnumber(L, en->GetID());
+	lua_pushnumber(L, en->GetPosX());
+	lua_pushnumber(L, en->GetPosY());
+	lua_pushnumber(L, en->GetPosZ());
+	lua_pushnumber(L, en->GetHP());
+	lua_pushnumber(L, en->GetDamge());
+	lua_pushnumber(L, (int)en->GetType());
+	error = lua_pcall(L, 7, 0, 0);
+	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
+	
+	//RegisterAPI( L);
+}
+
+//void MoveObjManager::RegisterAPI(lua_State* L)
+//{
+//
+//	lua_register(L, "API_get_x", API_get_x);
+//	lua_register(L, "API_get_y", API_get_y);
+//	lua_register(L, "API_get_z", API_get_z);
+//}
+
+int MoveObjManager::API_get_x(lua_State* L)
+{
+	int user_id =
+		(int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+	float x = m_moveobj_arr[user_id]->GetPosX();
+	lua_pushnumber(L, x);
+	return 1;
+}
+
+int MoveObjManager::API_get_y(lua_State* L)
+{
+	int user_id =
+		(int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+	float y = m_moveobj_arr[user_id]->GetPosY();
+	lua_pushnumber(L, y);
+	return 1;
+}
+
+int MoveObjManager::API_get_z(lua_State* L)
+{
+	int user_id =
+		(int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+	float z = m_moveobj_arr[user_id]->GetPosZ();
+	lua_pushnumber(L, z);
+	return 1;
+}
 
 int MoveObjManager::GetNewID()
 {

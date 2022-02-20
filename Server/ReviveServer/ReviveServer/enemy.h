@@ -14,9 +14,10 @@ public:
     };
     
 
-    void InitLua(const char* script_name);
+    //void InitLua(const char* script_name);
     void InitEnemy(OBJ_TYPE type, int room_id, float max_hp, Vector3& pos, float damage);
-    void RegisterAPI();
+    //void RegisterAPI();
+    lua_State* GetLua() { return L; }
     std::atomic_bool in_use = false;
 private:
     lua_State* L;

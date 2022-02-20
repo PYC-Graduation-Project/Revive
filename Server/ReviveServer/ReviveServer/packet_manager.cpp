@@ -373,30 +373,36 @@ void PacketManager::StartGame(int room_id)
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), SKULL_HP, pos, PLAYER_DAMAGE);
-			e->InitLua("enemy_sordier.lua");
+			m_moveobj_manager->InitLua("enemy_sordier.lua",e->GetID());
 			
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), SKULLKING_HP, pos, PLAYER_DAMAGE);
-			e->InitLua("enemy_king.lua");
+			m_moveobj_manager->InitLua("enemy_king.lua",e->GetID());
 		}
 	}
 
 	
-	//주위객체 정보 보내주기, 플레이어에게 플레이어 포함
+	//주위객체 정보 보내주기는 event로 
+	//플레이어에게 플레이어 보내주기
 	for (auto c_id : room->GetObjList())
 	{
 		if (false == m_moveobj_manager->IsPlayer(c_id))
-			continue;
-		pl = m_moveobj_manager->GetPlayer(c_id);
-		for (auto obj : room->GetObjList())
 		{
-			if (c_id == obj)continue;//자기에게 자기가는 필요한가? 클라송수신쪽에서 확인하기
-			SendPutObjPacket(c_id, obj, m_moveobj_manager->GetMoveObj(obj)->GetType());
+			SetTimerEvent(c_id, c_id, EVENT_TYPE::EVENT_NPC_SPAWN, 30000);
+			continue;
+		}
+		pl = m_moveobj_manager->GetPlayer(c_id);
+		SendPutObjPacket(c_id, c_id, m_moveobj_manager->GetMoveObj(c_id)->GetType());//자기자신
+		for (int i=0; i<room->GetMaxUser(); ++i)
+		{
+			if (c_id == room->GetObjList()[i])continue;
+			SendPutObjPacket(c_id, room->GetObjList()[i], m_moveobj_manager->GetMoveObj(room->GetObjList()[i])->GetType());
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
+	
 }
 
 
