@@ -100,7 +100,7 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 	cl->DoRecv();
 }
 
-void PacketManager::UpdateObjMove()
+void PacketManager::UpdateObjMove()//일단 보류
 {
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -288,7 +288,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	pl->SetMatchUserSize(packet->user_num);
 	pl->is_matching = true;
 	Player* other_pl = NULL;
-	unordered_set<int>match_list;
+	vector<int>match_list;
 	//유저 검사 해서 매칭해주는 함수 구현-> 일단 코딩하고 함수화 하자
 	//match_list.insert(c_id);
 	for (int i = 0; i < MAX_USER; ++i)
@@ -300,7 +300,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			continue;
 		if (pl->GetMatchUserSize() != other_pl->GetMatchUserSize())
 			continue;
-		match_list.insert(i);
+		match_list.push_back(i);
 
 	}
 	if (match_list.size() == pl->GetMatchUserSize())
@@ -336,7 +336,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			if (false == e->in_use)
 			{
 				e->in_use = true;
-				match_list.insert(e->GetID());
+				match_list.push_back(e->GetID());
 			}
 			
 		}
@@ -355,20 +355,26 @@ void PacketManager::StartGame(int room_id)
 	Room*room=m_room_manager->GetRoom(room_id);
 	//맵 오브젝트 정보는 보내줄 필요없음
 	//npc와 player 초기화 및 보내주기
-	int cnt = 1;
+	
 	Enemy* e = NULL;
+	Player* pl = NULL;
 	Vector3 pos = Vector3(0.0f, 0.0f, 0.0f);//npc 초기화용 위치 추후수정
-	for (auto a : room->GetObjList())
+	vector<int>obj_list{ room->GetObjList().begin(),room->GetObjList().end() };
+	for (int i=0; i<obj_list.size(); ++i )
 	{
-		if (m_moveobj_manager->IsPlayer(a))
+		if (i<room->GetMaxUser())
+		{
+			pl = m_moveobj_manager->GetPlayer(obj_list[i]);
+			//여기서 초기위치 설정
 			continue;
-		e = m_moveobj_manager->GetEnemy(a);
-		if (cnt <= room->GetMaxUser() * SORDIER_PER_USER)
+		}
+		e = m_moveobj_manager->GetEnemy(obj_list[i]);
+		if (i<room->GetMaxUser() * SORDIER_PER_USER)
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), SKULL_HP, pos, PLAYER_DAMAGE);
 			e->InitLua("enemy_sordier.lua");
-			cnt++;
+			
 		}
 		else
 		{
@@ -377,7 +383,7 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 
-	Player* pl = NULL;
+	
 	//주위객체 정보 보내주기, 플레이어에게 플레이어 포함
 	for (auto c_id : room->GetObjList())
 	{
@@ -386,7 +392,7 @@ void PacketManager::StartGame(int room_id)
 		pl = m_moveobj_manager->GetPlayer(c_id);
 		for (auto obj : room->GetObjList())
 		{
-			if (c_id == obj)continue;
+			if (c_id == obj)continue;//자기에게 자기가는 필요한가? 클라송수신쪽에서 확인하기
 			SendPutObjPacket(c_id, obj, m_moveobj_manager->GetMoveObj(obj)->GetType());
 		}
 	}

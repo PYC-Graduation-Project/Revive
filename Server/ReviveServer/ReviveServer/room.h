@@ -1,5 +1,5 @@
 #pragma once
-#include<unordered_set>
+#include<vector>
 #include<mutex>
 #include<atomic>
 class Room
@@ -22,7 +22,7 @@ public:
 	void SetState(bool val) { is_ingame = val; }
 
 	
-	std::unordered_set<int>& GetObjList()
+	std::vector<int>& GetObjList()
 	{
 		return m_obj_list;
 	}
@@ -32,7 +32,7 @@ private:
 	std::atomic_bool is_ingame = false;
 	int max_npc;
 	std::mutex m_obj_lock;
-	std::unordered_set<int>m_obj_list;
+	std::vector<int>m_obj_list;
 
 };
 
