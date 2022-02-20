@@ -158,26 +158,6 @@ namespace client_fw
 		}
 	}
 
-	/*void SkeletalMesh::AddBoneName(const std::string& name)
-	{
-		m_bone_data.bone_names.emplace_back(std::move(name));
-	}
-
-	void SkeletalMesh::AddBoneOffset(const Mat4& bone_offset)
-	{
-		m_bone_data.bone_offsets.emplace_back(std::move(bone_offset));
-	}
-
-	void SkeletalMesh::AddBoneIndex(const IVec4& bone_index)
-	{
-		m_bone_data.bone_indices.emplace_back(std::move(bone_index));
-
-	}
-
-	void SkeletalMesh::AddBoneWeight(const Vec4& bone_weight)
-	{
-		m_bone_data.bone_weights.emplace_back(std::move(bone_weight));
-	}*/
 
 	
 	

@@ -6,6 +6,7 @@
 #include "client/asset/material/material.h"
 #include "client/asset/texture/texture.h"
 #include "client/asset/mesh/index.h"
+#include "client/asset/animation/animation_sequence.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/material/material.h"
@@ -287,7 +288,7 @@ namespace client_fw
 			});
 
 		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
-		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
+		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>(); //nullptr로 바꿔볼까
 
 		std::stringstream ss;
 		std::string line;
@@ -295,20 +296,17 @@ namespace client_fw
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
+			if (prefix.compare("</Animation>") == false) break;
 
 			switch (HashCode(prefix.c_str()))
 			{
 			case HashCode("<Hierarchy>"):
 				LoadFrameHierArchy(rev_file, skeleton, s_mesh, path);
 				s_mesh->SetSkeleton(skeleton);
-				return s_mesh;
-
-
+				//return s_mesh;
 				break;
 			case HashCode("<Animation>"):
-
-				break;
-			case HashCode("</Animation>"):
+				AssetStore::LoadAnimation(rev_file,s_mesh->GetSkeleton(),path);
 				break;
 			default:
 				break;
@@ -405,7 +403,7 @@ namespace client_fw
 							case HashCode("<AlbedoMap>:"):
 								ReadStringFromFile(rev_file, &texture_name); //W_HEAD_00_violet +확장자 붙힌채로 읽기
 								mtl_names.push_back({ texture_name });
-								materials = CreateRevMaterial(texture_name ,file_help::GetParentPathFromPath(path));
+								materials = CreateRevMaterial(texture_name, file_help::GetParentPathFromPath(path));
 								break;
 							}
 						}
@@ -800,6 +798,115 @@ namespace client_fw
 		}
 	}
 
+	SPtr<AnimationSequence> RevLoader::LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton) const
+	{
+		SPtr<AnimationSequence> anim_seq = CreateSPtr<AnimationSequence>();
+		std::string prefix;
+
+		float start_time;
+		float end_time;
+
+		float weight;
+		int animated_bone_count;
+		std::vector<std::vector<SPtr<AnimationCurve>>> anim_curves;
+		std::vector<SPtr<Skeleton>> cache_skeleton;
+
+		int temp_int;
+		float temp_float;
+
+		ReadStringFromFile(file, &prefix); //"<AnimationSets>"
+		fread(&temp_int, sizeof(int), 1, file); //animation_sets_count : 0
+
+		ReadStringFromFile(file, &prefix); //"<AnimationSet>"
+		fread(&temp_int, sizeof(int), 1, file); //animation_set_count : 1
+
+		//AnimationSequence Load
+		ReadStringFromFile(file, &(anim_seq->anim_name));
+
+		fread(&start_time, sizeof(float), 1, file);
+		fread(&end_time, sizeof(float), 1, file);
+		
+
+		ReadStringFromFile(file, &prefix); //"<AnimationLayers>"
+		fread(&temp_int, sizeof(int), 1, file); //animation_layers_count : 1
+		ReadStringFromFile(file, &prefix); //"<AnimationLayer>"
+		fread(&temp_int, sizeof(int), 1, file); //animation_layer_count : 0
+
+		//AnimationTrack
+		fread(&animated_bone_count, sizeof(int), 1, file); 
+		fread(&weight, sizeof(float), 1, file);
+
+		SPtr<AnimationTrack> anim_track = CreateSPtr<AnimationTrack>();
+		anim_track->InitialIze(animated_bone_count,weight);
+	
+
+		for (int i = 0; i < animated_bone_count; ++i)
+		{
+			ReadStringFromFile(file, &prefix);
+			switch (HashCode(prefix.c_str()))
+			{
+			case HashCode("<AnimationCurve>:"):
+				fread(&temp_int, sizeof(int), 1, file); //curve_node_index == i
+				
+				ReadStringFromFile(file, &prefix); //bone_name
+				cache_skeleton.push_back(skeleton->FindBone(prefix));
+
+				//AnimationCurve
+				std::vector<SPtr<AnimationCurve>> curve(9);
+				while (ReadStringFromFile(file, &prefix))
+					{
+						if (prefix.compare("</AnimationCurve>") == false) break;
+
+						switch (HashCode(prefix.c_str()))
+						{ //0 : TX 1 : TY ... 8 : SZ 번호에 맞춰서
+						case HashCode("<TX>:"):
+							curve[0] = LoadKeyValue(file);
+							break;
+						case HashCode("<TY>:"):
+							curve[1] = LoadKeyValue(file);
+							break;
+						case HashCode("<TZ>:"):
+							curve[2] = LoadKeyValue(file);
+							break;
+						case HashCode("<RX>:"):
+							curve[3] = LoadKeyValue(file);
+							break;
+						case HashCode("<RY>:"):
+							curve[4] = LoadKeyValue(file);
+							break;
+						case HashCode("<RZ>:"):
+							curve[5] = LoadKeyValue(file);
+							break;
+						case HashCode("<SX>:"):
+							curve[6] = LoadKeyValue(file);
+							break;
+						case HashCode("<SY>:"):
+							curve[7] = LoadKeyValue(file);
+							break;
+						case HashCode("<SZ>:"):
+							curve[8] = LoadKeyValue(file);
+							break;
+
+						}
+					}
+
+				anim_curves.emplace_back(std::move(curve));
+				//end
+				break;
+			}
+		}
+		anim_track->SetAnimationCurves(anim_curves);
+		//end
+		anim_seq->SetAnimationTrack(anim_track);
+		anim_seq->SetDefaultTime(start_time, end_time);
+		ReadStringFromFile(file, &prefix); //"</AnimationLayer>"
+		ReadStringFromFile(file, &prefix); //"</AnimationLayers>"
+		ReadStringFromFile(file, &prefix); //"<AnimationSet>"
+		ReadStringFromFile(file, &prefix); //"<AnimationSets>"
+
+		return anim_seq;
+	}
+
 	int RevLoader::ReadStringFromFile(FILE* file, std::string* word) const
 	{
 		word->clear();
@@ -838,7 +945,7 @@ namespace client_fw
 			is_new_mtl = true;
 			material->SetBaseColor(Vec4(0.3f, 0.3f, 0.3f, 1.0f)); //베이스컬러 회색
 
-			std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서확장자를 적도록 변경할예정
+			std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서 확장자를 적도록 변경할예정
 			SPtr<Texture> diffuse_texture = AssetStore::LoadTexture(texture_path);
 			if (diffuse_texture != nullptr)
 			{

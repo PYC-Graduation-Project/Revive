@@ -118,6 +118,8 @@ namespace client_fw
 
 
 	public:
+		const SPtr<Skeleton>& GetSkeleton() { return m_skeleton; }
+
 		void SetSkeleton(SPtr<Skeleton>& skeleton) { m_skeleton = skeleton; }
 
 		void SetBoneData(const SPtr<BoneData>& bone_data) { m_bone_data = bone_data; }

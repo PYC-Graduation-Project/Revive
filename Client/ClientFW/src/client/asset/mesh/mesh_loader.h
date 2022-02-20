@@ -7,6 +7,7 @@ namespace client_fw
 	class Skeleton;
 	class SkeletalMesh;
 	class Material;
+	class AnimationSequence;
 
 	class MeshLoader
 	{
@@ -38,6 +39,9 @@ namespace client_fw
 		//void LoadMeshFromFile(FILE* rev_file, SPtr<Mesh>&& mesh);
 		void LoadMeshFromRevFile(FILE* rev_file, MeshData& mesh_data) const;
 		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data) const;
+
+		//메시가 기존에 있는거면 저장된거 찾아서 전달해야함
+		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>& skeleton) const;
 
 		int ReadStringFromFile(FILE* file, std::string* word) const;
 

@@ -1,7 +1,7 @@
 #pragma once
 namespace client_fw
 {
-	class Skeleton //나중에 한번더 정리해야할듯
+	class Skeleton : public std::enable_shared_from_this<Skeleton>//나중에 한번더 정리해야할듯
 	{
 	public:
 		Skeleton() = default;
@@ -31,6 +31,7 @@ namespace client_fw
 
 		void SetToParent(const Mat4& to_parent) { m_to_parent = to_parent; }
 
+		const SPtr<Skeleton>& FindBone(const std::string& bone_name);
 	};
 }
 
