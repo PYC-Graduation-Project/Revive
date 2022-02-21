@@ -76,14 +76,12 @@ namespace client_fw
 
 	void RenderResourceManager::RegisterMesh(const SPtr<Mesh>& mesh)
 	{
-		if (m_initialized_assets.find(mesh->GetPath()) == m_initialized_assets.cend())
-		{
-			m_initialized_assets.insert(mesh->GetPath());
-			m_ready_meshes.push_back(mesh);
-			
-			for (UINT i = 0; i < mesh->GetLODCount(); ++i)
-				RegisterMaterials(mesh->GetMaterials(i));
-		}
+		m_ready_meshes.push_back(mesh);
+	}
+
+	void RenderResourceManager::RegisterMaterial(const SPtr<Material>& material)
+	{
+		m_ready_materials.push_back(material);
 	}
 
 	void RenderResourceManager::RegisterTexture(const SPtr<Texture>& texture)
@@ -94,12 +92,7 @@ namespace client_fw
 			{
 			case eTextureType::kExternal:
 			{
-				const auto& external_texture = std::static_pointer_cast<ExternalTexture>(texture);
-				if (m_initialized_assets.find(external_texture->GetPath()) == m_initialized_assets.cend())
-				{
-					m_initialized_assets.insert(external_texture->GetPath());
-					m_ready_external_textures.push_back(external_texture);
-				}
+				m_ready_external_textures.push_back(std::static_pointer_cast<ExternalTexture>(texture));
 				break;
 			}
 			case eTextureType::kRedner:
@@ -109,20 +102,6 @@ namespace client_fw
 			}
 			default:
 				break;
-			}
-		}
-	}
-
-	void RenderResourceManager::RegisterMaterials(const std::vector<SPtr<Material>>& materials)
-	{
-		for (const auto& material : materials)
-		{
-			if (m_initialized_assets.find(material->GetPath()) == m_initialized_assets.cend())
-			{
-				m_initialized_assets.insert(material->GetPath());
-				m_ready_materials.push_back(material);
-
-				RegisterTexture(material->GetDiffuseTexture());
 			}
 		}
 	}
@@ -178,6 +157,8 @@ namespace client_fw
 			//Level마다 초기화 (Asset도 다시 Load해야함)
 			//이 데이터를 넣는 구간을 따로 지정해서 그 부분만 초기화 한다.
 			//일단은 RTT를 하는 것이 목표이기 때문에 현재로서는 낭비를 하고 들어가겠다.
+			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM });
+
 			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
 			{
 				device->CreateShaderResourceView(texture->GetGBufferTexture(i),

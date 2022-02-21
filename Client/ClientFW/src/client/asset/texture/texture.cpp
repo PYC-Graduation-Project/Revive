@@ -34,13 +34,18 @@ namespace client_fw
 		return (m_texture_resource != nullptr);
 	}
 
-	RenderTexture::RenderTexture()
+	RenderTexture::RenderTexture(const IVec2& size)
 		: Texture(eTextureType::kRedner)
+		, m_texture_size(size)
+	{
+	}
+
+	RenderTexture::~RenderTexture()
 	{
 	}
 
 	bool RenderTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
-		const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats, const IVec2& size)
+		const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats)
 	{
 		m_num_of_gbuffer_texture = static_cast<UINT>(gbuffer_rtv_formats.size());
 
@@ -49,12 +54,12 @@ namespace client_fw
 		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
 		{
 			rtv_clear_value.Format = gbuffer_rtv_formats[i];
-			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], size, 0,
+			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 0,
 				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
 		}
 
 		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, size, 0,
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 0,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
 
 		D3D12_DESCRIPTOR_HEAP_DESC rtv_heap_desc;
@@ -88,7 +93,7 @@ namespace client_fw
 
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
 
-		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, size, 1,
+		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;

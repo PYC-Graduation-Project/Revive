@@ -31,10 +31,10 @@ namespace client_fw
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		void RegisterMesh(const SPtr<Mesh>& mesh);
+		void RegisterMaterial(const SPtr<Material>& material);
 		void RegisterTexture(const SPtr<Texture>& texture);
 
 	private:
-		void RegisterMaterials(const std::vector<SPtr<Material>>& materials);
 		void CreateMaterialResource(ID3D12Device* device);
 		void UpdateMaterialResource();
 
@@ -42,8 +42,6 @@ namespace client_fw
 
 	private:
 		static RenderResourceManager* s_render_resource_manager;
-
-		std::unordered_set<std::string> m_initialized_assets; //Level Load Asset시스템을 사용하면, 이것도 초기화 해줘야 한다. 
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;
 		std::vector<SPtr<Material>> m_ready_materials;

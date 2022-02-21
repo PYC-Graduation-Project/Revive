@@ -8,6 +8,7 @@
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture.h"
 #include "client/asset/texture/texture_loader.h"
+#include "client/renderer/core/render_resource_manager.h"
 
 namespace client_fw
 {
@@ -77,7 +78,10 @@ namespace client_fw
 			std::string extension = file_help::GetExtentionFromPath(path);
 			asset = m_mesh_loader->LoadMesh(path, extension);
 			if (asset != nullptr)
+			{
 				SaveAsset(eAssetType::kMesh, stem, path, extension, asset);
+				RenderResourceManager::GetRenderResourceManager().RegisterMesh(std::static_pointer_cast<Mesh>(asset));
+			}
 		}
 
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Mesh>(asset);
@@ -95,8 +99,15 @@ namespace client_fw
 		std::map<std::string, SPtr<Material>> materials = m_material_loader->LoadMaterials(path, extension);
 
 		for (const auto& [name, material] : materials)
-			m_asset_caches[eAssetType::kMaterial].insert({ material->GetPath(), material });
-
+		{
+			if (m_asset_caches[eAssetType::kMaterial].find(material->GetPath()) ==
+				m_asset_caches[eAssetType::kMaterial].cend())
+			{
+				m_asset_caches[eAssetType::kMaterial].insert({ material->GetPath(), material });
+				RenderResourceManager::GetRenderResourceManager().RegisterMaterial(material);
+			}
+		}
+			
 		return materials;
 	}
 
@@ -113,6 +124,7 @@ namespace client_fw
 			{
 				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
 				SaveAsset(eAssetType::kTexture, stem, path, extension, asset);
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(std::static_pointer_cast<ExternalTexture>(asset));
 			}
 		}
 

@@ -74,8 +74,8 @@ namespace client_fw
 
 	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		m_render_asset_manager->Update(device, command_list);
 		m_camera_manager->Update(device, command_list);
+		m_render_asset_manager->Update(device, command_list);
 
 		for (const auto& [level_name, kind] : m_render_level_order)
 		{
@@ -159,7 +159,6 @@ namespace client_fw
 		case eRenderType::kMesh:
 		{
 			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
-			m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
 			return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
 		}
 		case eRenderType::kShape:
@@ -203,12 +202,7 @@ namespace client_fw
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		if (m_camera_manager->RegisterCameraComponent(camera_comp))
-		{
-			//m_render_asset_manager->RegisterTexture(camera_comp->GetRenderTexture());
-			return true;
-		}
-		return false;
+		return m_camera_manager->RegisterCameraComponent(camera_comp);
 	}
 
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)

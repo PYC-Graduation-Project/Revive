@@ -44,11 +44,11 @@ namespace client_fw
 	class RenderTexture : public Texture
 	{
 	public:
-		RenderTexture();
-		virtual ~RenderTexture() = default;
+		RenderTexture(const IVec2& size);
+		virtual ~RenderTexture();
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, 
-			const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats, const IVec2& size);
+			const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats);
 		virtual bool Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		virtual void GBufferPreDraw(ID3D12GraphicsCommandList* command_list);
 		virtual void GBufferPostDraw(ID3D12GraphicsCommandList* command_list);
@@ -56,6 +56,7 @@ namespace client_fw
 		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 	private:
+		IVec2 m_texture_size;
 		UINT m_num_of_gbuffer_texture;
 		std::vector<ComPtr<ID3D12Resource>> m_gbuffer_textures;
 		ComPtr<ID3D12DescriptorHeap> m_rtv_descriptor_heap;
@@ -69,6 +70,7 @@ namespace client_fw
 		UINT m_dsv_texture_resource_index;
 		
 	public:
+		const IVec2& GetTextureSize() const { return m_texture_size; }
 		UINT GetNumOfGBufferTexture() const { return m_num_of_gbuffer_texture; }
 		ID3D12Resource* GetGBufferTexture(UINT buffer_index) const;
 		UINT GetGBufferResourceIndex(UINT buffer_index) const;

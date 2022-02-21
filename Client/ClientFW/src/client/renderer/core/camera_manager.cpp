@@ -35,19 +35,21 @@ namespace client_fw
 			m_ready_main_camera = nullptr;
 		}
 
+		UpdateCameraResource();
+
 		if (m_ready_cameras[eCameraUsage::kBasic].empty() == false)
 		{
 			for (const auto& camera : m_ready_cameras[eCameraUsage::kBasic])
 			{
 				IVec2 size = IVec2(camera->GetViewport().width, camera->GetViewport().height);
 
-				camera->SetRenderTexture(CreateSPtr<RenderTexture>());
+				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
 				//임시로 rtv_format은 이렇게 저장하자.
 				//어떻게 OpaqueRenderLevel(일단은 Opaque만 GBuffer를 사용하기 때문에)과 맞출지 생각하자.
-				camera->GetRenderTexture()->Initialize(device, command_list,
-					{ DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM }, size);
-				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
+			/*	camera->GetRenderTexture()->Initialize(device, command_list,
+					{ DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM });*/
 
 				m_cameras[eCameraUsage::kBasic].push_back(camera);
 			}
@@ -55,7 +57,6 @@ namespace client_fw
 
 			CreateCameraResource(device);
 		}
-		UpdateCameraResource();
 	}
 
 	void CameraManager::UpdateMainCameraViewport(LONG left, LONG top, LONG width, LONG height)
