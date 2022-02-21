@@ -1,6 +1,5 @@
 #pragma once
 #include "client/object/core/base_object_manager.h"
-#include <stack>
 
 namespace client_fw
 {

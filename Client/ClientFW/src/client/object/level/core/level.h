@@ -5,6 +5,8 @@ namespace client_fw
 {
 	class Actor;
 	class ActorManager;
+	class UserInterface;
+	class UserInterfaceManager;
 	struct EventKeyInfo;
 	class VisualOctree;
 	class CollisionOctree;
@@ -30,6 +32,7 @@ namespace client_fw
 		virtual void Update(float delta_time) override {}
 
 		void SpawnActor(const SPtr<Actor>& actor) const;
+		void SpawnUserInterface(const SPtr<UserInterface>& ui) const;
 
 	protected:
 		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -47,6 +50,7 @@ namespace client_fw
 	private:
 		std::vector<std::string> m_registered_input_event;
 		UPtr<ActorManager> m_actor_manager;
+		UPtr<UserInterfaceManager> m_user_interface_manager;
 		bool m_is_runtime_level;
 
 	public:

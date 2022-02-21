@@ -2,7 +2,7 @@
 #include "client/renderer/shader/core/graphics_shader.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/core/render_level.h"
-#include "client/renderer/core/render_item.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/util/d3d_util.h"

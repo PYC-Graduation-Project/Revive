@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "client/renderer/core/render_item.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
 #include "client/renderer/core/render.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"

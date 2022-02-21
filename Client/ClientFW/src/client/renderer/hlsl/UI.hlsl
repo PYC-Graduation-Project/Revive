@@ -37,4 +37,71 @@ float4 PSRenderMainUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 
 }
 
+struct VS_UI_INPUT
+{
+    float2 position : POSITION;
+    float2 size : SIZE;
+    uint texture_index : TEXINDEX;
+};
+
+struct VS_UI_OUTPUT
+{
+    float2 center : POSITION;
+    float2 size : SIZE;
+    uint texture_index : TEXINDEX;
+};
+
+struct GS_UI_OUTPUT
+{
+    float4 sv_position : SV_POSITION;
+    float2 uv : TEXCOORD;
+    uint texture_index : TEXINDEX;
+};
+
+VS_UI_OUTPUT VSRenderUI(VS_UI_INPUT input)
+{
+    VS_UI_OUTPUT output;
+    
+    output.center = input.position;
+    output.size = input.size;
+    output.texture_index = input.texture_index;
+    
+    return input;
+}
+
+static float2 s_ui_uvs[4] = { float2(0.0f, 1.0f), float2(0.0f, 0.0f), float2(1.0f, 1.0f), float2(1.0f, 0.0f) };
+
+[maxvertexcount(4)]
+void GSRenderUI(point VS_UI_OUTPUT input[1], inout TriangleStream<GS_UI_OUTPUT> out_stream)
+{
+    float2 vertices[4];
+    
+    float half_width = input[0].size.x * 0.5f;
+    float half_height = input[0].size.y * 0.5f;
+    
+    vertices[0] = float2(input[0].center.x - half_width, input[0].center.y - half_height);
+    vertices[1] = float2(input[0].center.x - half_width, input[0].center.y + half_height);
+    vertices[2] = float2(input[0].center.x + half_width, input[0].center.y - half_height);
+    vertices[3] = float2(input[0].center.x + half_width, input[0].center.y + half_height);
+    
+    GS_UI_OUTPUT output;
+    
+    output.texture_index = input[0].texture_index;
+    for (int i = 0; i < 4; ++i)
+    {
+        output.sv_position = mul(float4(vertices[i], 0.0f, 1.0f), g_projection);
+        output.sv_position.z = 0.0f;
+        output.uv = s_ui_uvs[i];
+        
+        out_stream.Append(output);
+    }
+}
+
+float4 PSRenderUI(GS_UI_OUTPUT input) : SV_TARGET
+{
+    return float4(1.0f, 0.0f, 1.0f, 1.0f);
+    
+    return g_texture_data[input.texture_index].Sample(g_sampler_point_wrap, input.uv);
+}
+
 #endif // __UI_HLSL__

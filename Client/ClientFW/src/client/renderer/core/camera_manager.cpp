@@ -75,10 +75,14 @@ namespace client_fw
 
 		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
 		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
+
 			if (camera->GetCameraState() == eCameraState::kActive)
 			{
-				command_list->SetGraphicsRootConstantBufferView(2, m_camera_data->GetResource()->GetGPUVirtualAddress() +
-					index * m_camera_data->GetByteSize());
+				gpu_address = m_camera_data->GetResource()->GetGPUVirtualAddress() +
+					index * m_camera_data->GetByteSize();
+
+				command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
 				MeshVisualizer::UpdateVisibilityFromCamera(camera);
 
 				camera->GetRenderTexture()->GBufferPreDraw(command_list);
@@ -91,6 +95,12 @@ namespace client_fw
 			}
 			++index;
 		}
+	}
+
+	void CameraManager::DrawMainCameraForUI(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->SetGraphicsRootConstantBufferView(2, m_camera_data->GetResource()->GetGPUVirtualAddress() +
+			m_cameras[eCameraUsage::kBasic].size() * m_camera_data->GetByteSize());
 	}
 
 	bool CameraManager::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
@@ -113,7 +123,7 @@ namespace client_fw
 
 	void CameraManager::CreateCameraResource(ID3D12Device* device)
 	{
-		m_camera_data->CreateResource(device, static_cast<UINT>(m_cameras.size()));
+		m_camera_data->CreateResource(device, static_cast<UINT>(m_cameras.size()) + 1);
 	}
 
 	void CameraManager::UpdateCameraResource()
@@ -131,6 +141,13 @@ namespace client_fw
 				render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
 				0, render_texture->GetDSVResourceIndex());
 			m_camera_data->CopyData(index, camera_data);
+
+			if (camera == m_main_camera)
+			{
+				camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
+				m_camera_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+			}
+
 			++index;
 		}
 	}

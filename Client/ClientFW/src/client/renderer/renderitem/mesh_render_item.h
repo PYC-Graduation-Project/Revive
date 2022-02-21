@@ -40,7 +40,7 @@ namespace client_fw
 		void UpdateResources();
 		void UpdateResourcesBeforeDraw();
 
-	protected:
+	private:
 		bool m_is_need_resource_create = false;
 		SPtr<Mesh> m_mesh;
 		std::vector<UINT> m_index_of_lod_instance_data;

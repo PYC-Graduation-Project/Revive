@@ -64,4 +64,23 @@ namespace client_fw
 		Vec3 m_right;
 		Vec3 m_up;
 	};
+
+	class UIVertex
+	{
+	public:
+		UIVertex();
+		UIVertex(const Vec2& position, const Vec2& size, UINT index);
+
+		const Vec2& GetPosition() const { return m_position; }
+		void SetPosition(const Vec2& position) { m_position = position; }
+		const Vec2& GetSize() const { return m_size; }
+		void SetSize(const Vec2& size) { m_size = size; }
+		UINT GetTextureResourceIndex() const { return m_texture_resource_index; }
+		void SetTextureResourceIndex(UINT index) { m_texture_resource_index = index; }
+
+	protected:
+		Vec2 m_position;
+		Vec2 m_size;
+		UINT m_texture_resource_index;
+	};
 }

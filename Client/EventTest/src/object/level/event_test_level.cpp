@@ -4,6 +4,7 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
+#include <client/object/ui/image_ui.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
@@ -65,6 +66,10 @@ namespace event_test
 	/*	auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });*/
+
+		auto test_image = CreateSPtr<ImageUI>("Test image");
+		SpawnUserInterface(test_image);
+		test_image->SetTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);

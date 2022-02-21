@@ -32,6 +32,8 @@ namespace client_fw
 			const void* init_data, UINT byte_size, D3D12_RESOURCE_STATES resource_state, ComPtr<ID3D12Resource>& upload_buffer);
 
 		static ComPtr<ID3D12Resource> CreateUploadBuffer(ID3D12Device* device, UINT byte_size, BYTE** mapped_data);
+		static ComPtr<ID3D12Resource> CreateUploadBuffer(ID3D12Device* device, UINT byte_size, 
+			D3D12_RESOURCE_STATES resource_state, BYTE** mapped_data);
 	};
 }
 

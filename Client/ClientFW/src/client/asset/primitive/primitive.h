@@ -89,7 +89,10 @@ namespace client_fw
 		template <class VertexType>
 		bool CreateResource(ID3D12Device* device, UINT num_of_data)
 		{
-			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data, &m_vertex_mapped_data);
+			Shutdown();
+
+			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data,
+				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_vertex_mapped_data);
 
 			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
 			m_vertex_buffer_view.SizeInBytes = sizeof(VertexType) * num_of_data;
@@ -122,7 +125,7 @@ namespace client_fw
 		template <class VertexType>
 		void CopyData(const VertexType& data, UINT index)
 		{
-			memcpy(&m_vertex_mapped_data[index * sizeof(VertexType), &data, sizeof(VertexType)]);
+			memcpy(&m_vertex_mapped_data[index * sizeof(VertexType)], &data, sizeof(VertexType));
 		}
 
 	private:

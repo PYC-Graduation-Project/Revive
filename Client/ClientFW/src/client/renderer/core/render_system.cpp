@@ -10,6 +10,7 @@
 #include "client/renderer/shader/box_shape_shader.h"
 #include "client/renderer/shader/deferred_shader.h"
 #include "client/renderer/shader/main_camera_ui_shader.h"
+#include "client/renderer/shader/ui_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
 #include "client/object/component/core/render_component.h"
@@ -51,6 +52,7 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kUI);
+		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -119,6 +121,7 @@ namespace client_fw
 	{
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
+			m_camera_manager->DrawMainCameraForUI(command_list);
 			m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
 		}
 	}
@@ -173,26 +176,39 @@ namespace client_fw
 
 	void RenderSystem::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		if (m_graphics_shaders.find(shader_name) != m_graphics_shaders.cend())
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
 		{
-			switch (render_comp->GetRenderType())
-			{
-			case eRenderType::kMesh:
-			{	
-				const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
-				m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
-				break;
-			}
-			default:
-				break;
-			}
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return;
 		}
-			
+
+		switch (render_comp->GetRenderType())
+		{
+		case eRenderType::kMesh:
+		{
+			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
+			break;
+		}
+		case eRenderType::kShape:
+		{
+			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterShapeComponent(shape_comp);
+			break;
+		}
+		default:
+			break;
+		}
 	}
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		return m_camera_manager->RegisterCameraComponent(camera_comp);
+		if (m_camera_manager->RegisterCameraComponent(camera_comp))
+		{
+			//m_render_asset_manager->RegisterTexture(camera_comp->GetRenderTexture());
+			return true;
+		}
+		return false;
 	}
 
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)

@@ -45,4 +45,16 @@ namespace client_fw
 		, m_forward(forward), m_right(right), m_up(up)
 	{
 	}
+
+	UIVertex::UIVertex()
+		: m_position(vec2::ZERO), m_size(Vec2(100.f, 100.f))
+		, m_texture_resource_index(0)
+	{
+	}
+
+	UIVertex::UIVertex(const Vec2& position, const Vec2& size, UINT index)
+		: m_position(position), m_size(size)
+		, m_texture_resource_index(index)
+	{
+	}
 }
