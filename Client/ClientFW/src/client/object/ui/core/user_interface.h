@@ -19,14 +19,13 @@ namespace client_fw
 	public:
 		virtual bool Initialize() override { return true; }
 		virtual void Shutdown() override {}
-		virtual void Update(float delta_time) override {}
+		virtual void Update(float delta_time) override;
 
 	protected:
 		std::string m_name;
 		eUIState m_ui_state;
 		Vec2 m_position;
 		Vec2 m_size;
-		bool m_is_updated_transform = true;
 		SPtr<Texture> m_texture;
 
 	public:
@@ -38,7 +37,6 @@ namespace client_fw
 		void SetPosition(const Vec2& position);
 		const Vec2& GetSize() const { return m_size; }
 		void SetSize(const Vec2& size);
-		bool IsUpdatedTransform() const { return m_is_updated_transform; }
 		const SPtr<Texture> GetTexture() const { return m_texture; }
 		void SetTexture(const SPtr<Texture>& texture);
 	};

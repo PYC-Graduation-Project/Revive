@@ -119,6 +119,8 @@ namespace client_fw
 		{
 			std::iter_swap(iter, cameras.end() - 1);
 			cameras.pop_back();
+			if (camera_comp == m_main_camera)
+				m_main_camera = nullptr;
 		}
 	}
 

@@ -35,27 +35,14 @@ namespace client_fw
 		template <class T>
 		bool RegisterGraphicsRenderLevel(eRenderLevelType level_type)
 		{
-			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(),
-				std::make_pair(level_type, eKindOfRenderLevel::kGraphics))
-				!= m_render_level_order.cend())
-			{
-				m_graphics_render_levels[level_type] = CreateSPtr<T>(m_graphics_super_root_signature);
-				m_graphics_render_levels[level_type]->Initialize(m_device);
-				return true;
-			}
-			else
-			{
-				LOG_WARN("Could not find {0} from render system", Render::ConvertRenderLevelType(level_type));
-				return false;
-			}
+			m_graphics_render_levels[level_type] = CreateSPtr<T>(m_graphics_super_root_signature);
+			return m_graphics_render_levels[level_type]->Initialize(m_device);
 		}
 
 		template <class T>
 		bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type, bool is_custom = false)
 		{
-			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(), 
-				std::make_pair(level_type, eKindOfRenderLevel::kGraphics))
-				!= m_render_level_order.cend())
+			if (m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
 			{
 				m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
 				m_graphics_shaders[shader_name]->Initialize(m_device);
@@ -85,7 +72,6 @@ namespace client_fw
 		std::map<eRenderLevelType, SPtr<GraphicsRenderLevel>> m_graphics_render_levels;
 		std::map<std::string, SPtr<GraphicsShader>> m_graphics_shaders;
 
-		std::vector<std::pair<eRenderLevelType, eKindOfRenderLevel>> m_render_level_order;
 		std::set<std::string> m_added_shaders;
 
 		UPtr<RenderResourceManager> m_render_asset_manager;

@@ -14,16 +14,18 @@ namespace client_fw
 	{
 	}
 
+	void UserInterface::Update(float delta_time)
+	{
+	}
+
 	void UserInterface::SetPosition(const Vec2& position)
 	{
 		m_position = position;
-		m_is_updated_transform = true;
 	}
 
 	void UserInterface::SetSize(const Vec2& size)
 	{
 		m_size = size;
-		m_is_updated_transform = true;
 	}
 
 	void UserInterface::SetTexture(const SPtr<Texture>& texture)

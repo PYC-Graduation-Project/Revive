@@ -6,8 +6,6 @@
 
 namespace client_fw
 {
-	CameraComponent* CameraComponent::s_main_camera = nullptr;
-
 	CameraComponent::CameraComponent(const std::string& name, eCameraUsage usage)
 		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
@@ -85,7 +83,6 @@ namespace client_fw
 
 	void CameraComponent::SetMainCamera()
 	{
-		s_main_camera = this;
 		Render::SetMainCamera(SharedFromThis());
 	}
 

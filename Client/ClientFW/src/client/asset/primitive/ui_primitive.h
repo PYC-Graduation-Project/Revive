@@ -16,11 +16,10 @@ namespace client_fw
 		virtual void Shutdown() override;
 		virtual void Update(ID3D12Device * device, UINT num_of_data);
 		virtual void UpdateUIVertices(const std::vector<UIVertex>& vertices);
-		virtual void Draw(ID3D12GraphicsCommandList * command_list, UINT lod = 0) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const override;
 
 	protected:
 		SPtr<UploadVertexInfo> m_vertex_info;
-		UINT m_num_of_vertex = 0;
 	};
 }
 

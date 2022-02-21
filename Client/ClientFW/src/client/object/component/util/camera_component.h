@@ -51,7 +51,6 @@ namespace client_fw
 		void UnregisterFromRenderSystem();
 
 	protected:
-		static CameraComponent* s_main_camera;
 		WPtr<Actor> m_owner_controller;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
@@ -68,7 +67,6 @@ namespace client_fw
 		BFrustum m_bounding_frustum;
 
 	public:
-		bool IsMainCamera() { return s_main_camera == this; }
 		void SetMainCamera();
 		void SetOwnerController(const WPtr<Actor>& owner);
 		eCameraState GetCameraState() const { return m_camera_state; }

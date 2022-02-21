@@ -22,6 +22,7 @@ namespace event_test
 
 	private:
 		Vec3 m_spawn_pos;
+		Vec2 m_spawn_ui_pos;
 	};
 }
 

@@ -27,9 +27,6 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics}, 
-			{eRenderLevelType::kDeferred, eKindOfRenderLevel::kGraphics},
-			{eRenderLevelType::kUI, eKindOfRenderLevel::kGraphics} };
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 		m_camera_manager = CreateUPtr<CameraManager>();
@@ -77,16 +74,12 @@ namespace client_fw
 		m_camera_manager->Update(device, command_list);
 		m_render_asset_manager->Update(device, command_list);
 
-		for (const auto& [level_name, kind] : m_render_level_order)
+		m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device, command_list);
+		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device, command_list);
+
+		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			switch (kind)
-			{
-			case eKindOfRenderLevel::kGraphics:
-				m_graphics_render_levels.at(level_name)->Update(device, command_list);
-				break;
-			case eKindOfRenderLevel::kCompute:
-				break;
-			}
+			m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device, command_list);
 		}
 	}
 

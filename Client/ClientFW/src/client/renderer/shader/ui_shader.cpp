@@ -3,6 +3,7 @@
 #include "client/renderer/renderitem/ui_render_item.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/renderlevel/core/render_level.h"
+#include "client/renderer/core/camera_manager.h"
 
 namespace client_fw
 {
@@ -27,7 +28,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
-			m_render_item->Update(device, command_list);
+			m_render_item->Update(device, command_list, CameraManager::GetCameraManager().GetMainCamera());
 			break;
 		default:
 			break;

@@ -26,6 +26,7 @@ namespace client_fw
 			switch ((*ui)->GetUIState())
 			{
 			case eUIState::kActive:
+				(*ui)->Update(delta_time);
 				break;
 			case eUIState::kDead:
 				(*ui)->Shutdown();

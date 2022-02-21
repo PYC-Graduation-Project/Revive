@@ -28,12 +28,9 @@ namespace client_fw
 	void MainCameraUIShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
 		const auto& main_camera = CameraManager::GetCameraManager().GetMainCamera();
-		if (main_camera != nullptr)
-		{
-			m_texture_index_data->CopyData(0, RSUITextureIndexData{
-			CameraManager::GetCameraManager().GetMainCamera()->GetRenderTexture()->GetResourceIndex()
-				});
-		}
+		m_texture_index_data->CopyData(0, RSUITextureIndexData{
+		CameraManager::GetCameraManager().GetMainCamera()->GetRenderTexture()->GetResourceIndex()
+			});
 	}
 
 	void MainCameraUIShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
