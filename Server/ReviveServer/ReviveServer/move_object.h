@@ -27,7 +27,10 @@ public:
 	Vector3 GetUpVec()const { return m_up; }
 	
 	int GetRoomID()const { return m_room_id; }
+	bool GetIsActive()const { return m_is_active; }
 
+
+	void SetIsActive(bool val) { m_is_active = val; }
 	void SetRightVec(const Vector3& val) { m_right = val; }
 	void SetLookVec(const Vector3& val) { m_look = val; }
 	void SetUpVec(const Vector3& val) { m_up = val; }

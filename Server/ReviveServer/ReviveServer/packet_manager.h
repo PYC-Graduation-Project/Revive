@@ -9,7 +9,7 @@ class RoomManager;
 class PacketManager
 {
 public:
-	PacketManager() = default;
+	PacketManager();
 	~PacketManager() = default;
 	
 	void Init();
@@ -18,7 +18,7 @@ public:
 	void ProcessRecv(int, EXP_OVER*, DWORD);
 	
 	void UpdateObjMove();
-
+	void SpawnEnemy(int room_id);
 
 	void SendMovePacket(int c_id, int mover);
 	void SendLoginFailPacket(int c_id, int reason);

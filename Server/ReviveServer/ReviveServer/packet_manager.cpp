@@ -7,12 +7,17 @@
 #include"enemy.h"
 using namespace std;
 
-void PacketManager::Init()
+PacketManager::PacketManager()
 {
 	m_moveobj_manager = new MoveObjManager;
+	m_room_manager = new RoomManager;
+}
+
+void PacketManager::Init()
+{
+	
 	m_moveobj_manager->InitPlayer();
 	m_moveobj_manager->InitNPC();
-	m_room_manager = new RoomManager;
 	m_room_manager->InitRoom();
 	m_db = new DB;
 	m_db->Init();
@@ -100,6 +105,9 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 	cl->DoRecv();
 }
 
+
+
+
 void PacketManager::UpdateObjMove()//일단 보류
 {
 	for (int i = 0; i < MAX_USER; ++i)
@@ -112,6 +120,50 @@ void PacketManager::UpdateObjMove()//일단 보류
 	}
 	SetTimerEvent(0, 0, EVENT_TYPE::EVENT_PLAYER_MOVE, 10);
 }
+
+void PacketManager::SpawnEnemy(int room_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	int curr_round = room->GetRound();
+	int sordier_num = room->GetMaxUser() * ( curr_round + 1);
+	int king_num = room->GetMaxUser() * curr_round;
+	Enemy* enemy = NULL;
+	unordered_set<int>enemy_list;
+	for (auto e_id : room->GetObjList())
+	{
+		if (enemy_list.size() == sordier_num + king_num)
+			break;
+		if (true == m_moveobj_manager->IsPlayer(e_id))
+			continue;
+		Enemy* enemy = m_moveobj_manager->GetEnemy(e_id);
+		if (true == enemy->GetIsActive())
+			continue;
+		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
+		{
+			enemy->SetIsActive(true);
+			enemy_list.insert(e_id);
+			
+		}
+		else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
+			enemy->SetIsActive(true);
+			enemy_list.insert(e_id);
+		}
+
+	}
+
+	for (int i = 0; i < room->GetMaxUser(); ++i)
+	{
+		for (auto& en : enemy_list)
+		{
+			enemy = m_moveobj_manager->GetEnemy(en);
+			SendPutObjPacket(room->GetObjList()[i], en, enemy->GetType());
+		}
+	}
+
+}
+
+
+
 
 void PacketManager::SendMovePacket(int c_id, int mover)
 {
@@ -389,10 +441,8 @@ void PacketManager::StartGame(int room_id)
 	for (auto c_id : room->GetObjList())
 	{
 		if (false == m_moveobj_manager->IsPlayer(c_id))
-		{
-			SetTimerEvent(c_id, c_id, EVENT_TYPE::EVENT_NPC_SPAWN, 30000);
 			continue;
-		}
+	
 		pl = m_moveobj_manager->GetPlayer(c_id);
 		SendPutObjPacket(c_id, c_id, m_moveobj_manager->GetMoveObj(c_id)->GetType());//자기자신
 		for (int i=0; i<room->GetMaxUser(); ++i)
@@ -402,7 +452,7 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	
+	SetTimerEvent(room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000);
 }
 
 

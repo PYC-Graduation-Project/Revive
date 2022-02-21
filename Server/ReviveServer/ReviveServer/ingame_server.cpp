@@ -30,7 +30,9 @@ void InGameServer::OnEvent(EXP_OVER* exp_over)
 	switch (exp_over->_comp_op)
 	{
 	case COMP_OP::OP_NPC_SPAWN: {
-		//패키지매니저 스폰 함수 만들기
+		m_PacketManager->SpawnEnemy(exp_over->target_id);
+		delete exp_over;
+		break;
 	}
 	case COMP_OP::OP_PLAYER_MOVE: {
 		m_PacketManager->UpdateObjMove();
@@ -81,6 +83,7 @@ void InGameServer::ProcessEvent(timer_event& ev)
 	case EVENT_TYPE::EVENT_NPC_SPAWN:
 	{
 		ex_over->_comp_op = COMP_OP::OP_NPC_SPAWN;
+		ex_over->target_id = ev.target_id;
 		break;
 	}
 	case EVENT_TYPE::EVENT_PLAYER_MOVE: {

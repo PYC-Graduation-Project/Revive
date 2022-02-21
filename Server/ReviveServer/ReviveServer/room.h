@@ -18,6 +18,7 @@ public:
 	int GetRoomID() { return room_id; }
 	int GetMaxUser() { return max_user; }
 	int GetMaxEnemy() { return max_npc; }
+	int GetRound() { return curr_round; }
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
 
@@ -31,6 +32,7 @@ private:
 	int max_user;
 	std::atomic_bool is_ingame = false;
 	int max_npc;
+	int curr_round;
 	std::mutex m_obj_lock;
 	std::vector<int>m_obj_list;
 
