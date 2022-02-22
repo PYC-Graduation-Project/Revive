@@ -12,7 +12,7 @@ namespace client_fw
 		Mat4 view_matrix;
 		Mat4 projection_matrix;
 		Vec3 camera_position;
-		float padding0;
+		UINT final_texture_index;
 		XMUINT4 gbuffer_texture_indices;
 	};
 

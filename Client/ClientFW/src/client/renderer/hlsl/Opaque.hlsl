@@ -29,7 +29,7 @@ cbuffer cbCameraData : register(b1, space0)
     matrix g_view;
     matrix g_projection;
     float3 g_camera_pos;
-    float g_padding0;
+    uint g_final_texture_index;
     uint4 g_gbuffer_texture_indices;
 }
 

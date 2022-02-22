@@ -5,11 +5,6 @@ namespace client_fw
 {
 	template<class T> class UploadBuffer;
 
-	struct RSUITextureIndexData
-	{
-		UINT texture_index;
-	};
-
 	class MainCameraUIShader : public GraphicsShader
 	{
 	public:
@@ -28,9 +23,6 @@ namespace client_fw
 		D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(eRenderLevelType level_type, int pso_index) const override;
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
-
-	private:
-		UPtr<UploadBuffer<RSUITextureIndexData>> m_texture_index_data;
 	};
 
 }

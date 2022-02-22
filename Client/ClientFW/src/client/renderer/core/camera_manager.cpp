@@ -140,6 +140,7 @@ namespace client_fw
 			camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
 			camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
 			camera_data.camera_position = camera->GetWorldPosition();
+			camera_data.final_texture_index = render_texture->GetResourceIndex();
 			camera_data.gbuffer_texture_indices = XMUINT4(
 				render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
 				0, render_texture->GetDSVResourceIndex());

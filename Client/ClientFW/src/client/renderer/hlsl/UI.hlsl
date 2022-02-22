@@ -3,11 +3,6 @@
 #ifndef __UI_HLSL__
 #define __UI_HLSL__
 
-cbuffer cbUITextureIndexData : register(b10, space0)
-{
-    uint g_ui_texture_index;
-};
-
 struct VS_RENDER_TEXTURE_OUTPUT
 {
     float4 sv_position : SV_POSITION;
@@ -33,7 +28,7 @@ VS_RENDER_TEXTURE_OUTPUT VSRenderTexture(uint vertex_id : SV_VertexID)
 float4 PSRenderMainUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 {
     //юс╫ц
-    return g_texture_data[g_ui_texture_index].Sample(g_sampler_point_wrap, input.uv);
+    return g_texture_data[g_final_texture_index].Sample(g_sampler_point_wrap, input.uv);
 
 }
 
