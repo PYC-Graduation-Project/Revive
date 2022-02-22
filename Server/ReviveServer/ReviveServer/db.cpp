@@ -104,10 +104,15 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 		}
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 		{
-			
+			//wstring comp_id{ reinterpret_cast<wchar_t*>(m_id) };
+			//if (comp_id.length() == 0) ret = LOGINFAIL_TYPE::NO_ID;
 			if (cb_id == 0) ret = LOGINFAIL_TYPE::NO_ID;
 			else if (false == CompWcMC(reinterpret_cast<wchar_t*>(m_password), password))
 					ret = LOGINFAIL_TYPE::WRONG_PASSWORD;
+		}
+		if (retcode == SQL_NO_DATA)
+		{
+			ret = LOGINFAIL_TYPE::NO_ID;
 		}
 
 

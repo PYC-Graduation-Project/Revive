@@ -11,6 +11,8 @@ PacketManager::PacketManager()
 {
 	m_moveobj_manager = new MoveObjManager;
 	m_room_manager = new RoomManager;
+	m_db = new DB;
+	m_db2 = new DB;
 }
 
 void PacketManager::Init()
@@ -19,9 +21,9 @@ void PacketManager::Init()
 	m_moveobj_manager->InitPlayer();
 	m_moveobj_manager->InitNPC();
 	m_room_manager->InitRoom();
-	m_db = new DB;
+	
 	m_db->Init();
-	m_db2 = new DB;
+	
 	m_db2->Init();
 }
 
@@ -235,6 +237,26 @@ void PacketManager::SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type)
 	packet.z = m_moveobj_manager->GetMoveObj(obj_id)->GetPosZ();
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
+
+void PacketManager::SendObjInfo(int c_id, int obj_id)
+{
+	sc_packet_obj_info packet;
+	MoveObj *obj= m_moveobj_manager->GetMoveObj(obj_id);
+	packet.id = obj_id;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_OBJ_INFO;
+	packet.damage = obj->GetDamge();
+	packet.maxhp = obj->GetHP();
+	strcpy_s(packet.name, obj->GetName());
+	packet.object_type = (char)obj->GetType();
+	packet.x = obj->GetPosX();
+	packet.y = obj->GetPosY();
+	packet.z = obj->GetPosZ();
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+
+
 
 timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds)
 {
@@ -470,7 +492,6 @@ void PacketManager::DBThread()
 		ProcessDBTask(dt);
 	}
 }
-
 void PacketManager::ProcessDBTask(db_task& dt)
 {
 	LOGINFAIL_TYPE ret=m_db->CheckLoginData(dt.user_id, dt.user_password);
@@ -479,6 +500,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 	{
 	case DB_TASK_TYPE::SIGN_IN:
 	{
+		ret = m_db->CheckLoginData(dt.user_id, dt.user_password);
 		if (ret == LOGINFAIL_TYPE::OK)
 		{
 			//접속꽉찬거는 accept 쪽에서 보내기주기
@@ -490,6 +512,8 @@ void PacketManager::ProcessDBTask(db_task& dt)
 			}
 			else
 				pl->state_lock.unlock();
+			strcpy_s(pl->GetName(),MAX_NAME_SIZE ,dt.user_id);
+			strcpy_s(pl->GetPassword(), MAX_NAME_SIZE, dt.user_password);
 			//여기오면 성공패킷 보내주기
 			SendSignInOK(pl->GetID());
 		}
@@ -502,7 +526,8 @@ void PacketManager::ProcessDBTask(db_task& dt)
 	}
 	case DB_TASK_TYPE::SIGN_UP:
 	{
-		if (ret == LOGINFAIL_TYPE::OK || ret == LOGINFAIL_TYPE::WRONG_PASSWORD)
+		ret = m_db->CheckLoginData(dt.user_id, dt.user_password);
+		if (ret == LOGINFAIL_TYPE::NO_ID || ret == LOGINFAIL_TYPE::WRONG_PASSWORD)
 		{
 			m_db2->SaveData(dt.user_id, dt.user_password);
 			SendSignUpOK(dt.obj_id);

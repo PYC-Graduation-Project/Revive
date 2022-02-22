@@ -28,7 +28,7 @@ public:
 	
 	int GetRoomID()const { return m_room_id; }
 	bool GetIsActive()const { return m_is_active; }
-
+	char* GetName() { return m_name; }
 
 	void SetIsActive(bool val) { m_is_active = val; }
 	void SetRightVec(const Vector3& val) { m_right = val; }
@@ -47,7 +47,7 @@ protected:
 	int m_room_id;
 	float m_damage;
 	float m_hp, m_maxhp;
-	
+	char m_name[MAX_NAME_SIZE + 1];
 	Vector3 m_right, m_look, m_up;
 	Vector3 m_origin_pos;
 };

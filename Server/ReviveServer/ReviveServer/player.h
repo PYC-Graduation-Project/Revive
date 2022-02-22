@@ -23,7 +23,7 @@ private:
     SOCKET  m_socket;
     int		m_last_move_time;
     STATE m_state;
-    char m_name[MAX_NAME_SIZE + 1];
+    
     char m_password[MAX_PASSWORD_SIZE + 1];
     short m_mach_user_size = 0;
 public:
@@ -36,7 +36,7 @@ public:
     void DoSend(int num_bytes, void* mess);
     SOCKET& GetSock() { return m_socket; }
     void Init(SOCKET&);
-    char* GetName() { return m_name; }
+    
     char* GetPassword() { return m_password; }
     short GetMatchUserSize() { return m_mach_user_size; }
     void SetMatchUserSize(short val) { m_mach_user_size = val; }
