@@ -33,6 +33,8 @@ namespace client_fw
 		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
 		{
 			m_octree_manager->UnregisterOctrees();
+			for (const auto& event : m_level_close_events)
+				event();
 			m_cur_level->ShutdownLevel();
 			m_cur_level = nullptr;
 		}
@@ -88,5 +90,10 @@ namespace client_fw
 			m_cur_level->SpawnActor(actor);
 		else
 			LOG_WARN("Could not create \"{0}\" : current level is nullptr", actor->GetName());
+	}
+
+	void LevelManager::AddLevelCloseEvent(const std::function<void()>& function)
+	{
+		m_level_close_events.push_back(function);
 	}
 }

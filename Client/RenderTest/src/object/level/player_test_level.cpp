@@ -57,8 +57,8 @@ namespace render_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-		/*
-		static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		
+		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
@@ -67,7 +67,7 @@ namespace render_test
 
 		if (time >= 0.016f && count <= 40000)
 		{
-			for (int i = 0; i < 10; ++i)
+			for (int i = 0; i < 30; ++i)
 			{
 				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructable, "../Contents/police.obj");
 				SpawnActor(police);

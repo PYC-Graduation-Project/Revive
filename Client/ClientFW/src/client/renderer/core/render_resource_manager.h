@@ -2,6 +2,9 @@
 
 namespace client_fw
 {
+#define START_INDEX_EXTERNAL_TEXTURE	0
+#define START_INDEX_RENDER_TEXTURE		8192
+
 	class Mesh;
 	class Material;
 	class Texture;
@@ -51,7 +54,9 @@ namespace client_fw
 	private:
 		UINT m_num_of_material_data = 0;
 		UPtr<UploadBuffer<RSMaterialData>> m_material_data;
-		UINT m_num_of_texture_data;
+
+		UINT m_num_of_external_texture_data = START_INDEX_EXTERNAL_TEXTURE;
+		UINT m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
 		ComPtr<ID3D12DescriptorHeap> m_texture_desciptor_heap;
 
 	public:
