@@ -6,8 +6,21 @@
 namespace client_fw
 {
 	ImageUI::ImageUI(const std::string& name)
-		: UserInterface(name)
+		: UserInterface(name, 1)
 	{
+		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
+	}
+
+	void ImageUI::SetPosition(const Vec2& position)
+	{
+		UserInterface::SetPosition(position);
+		m_normal_texture->SetPosition(vec2::ZERO);
+	}
+
+	void ImageUI::SetSize(const Vec2& size)
+	{
+		UserInterface::SetSize(size);
+		m_normal_texture->SetSize(size);
 	}
 
 	void ImageUI::SetTexture(const std::string& path)
@@ -21,6 +34,7 @@ namespace client_fw
 
 	void ImageUI::SetTexture(const SPtr<Texture>& texture)
 	{
-		m_texture = texture;
+		m_normal_texture->SetTexture(texture);
+		SetVisibleTexture(m_normal_texture, 0);
 	}
 }

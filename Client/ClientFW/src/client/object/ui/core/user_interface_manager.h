@@ -22,10 +22,12 @@ namespace client_fw
 	private:
 		static UserInterfaceManager* s_ui_manager;
 		std::vector<SPtr<UserInterface>> m_user_interfaces;
+		UINT m_num_of_visible_texture = 0;
 
 	public:
 		static UserInterfaceManager* GetUIManager() { return s_ui_manager; }
 		const std::vector<SPtr<UserInterface>>& GetUserInterfaces() const { return m_user_interfaces; }
+		UINT GetNumOfVisibleTexture() const { return m_num_of_visible_texture; }
 	};
 }
 

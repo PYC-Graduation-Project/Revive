@@ -19,32 +19,32 @@ namespace client_fw
 
 	void UserInterfaceManager::Update(float delta_time)
 	{
-		int dead_count = 0;
-
-		for (auto ui = m_user_interfaces.rbegin(); ui != m_user_interfaces.rend(); ++ui)
+		for (auto ui = m_user_interfaces.cbegin(); ui != m_user_interfaces.cend();)
 		{
 			switch ((*ui)->GetUIState())
 			{
 			case eUIState::kActive:
 				(*ui)->Update(delta_time);
+				++ui;
+				break;
+			case eUIState::kHide:
+				++ui;
 				break;
 			case eUIState::kDead:
+				m_num_of_visible_texture -= (*ui)->GetNumOfVisibleTexture();
+				ui = m_user_interfaces.erase(ui);
 				(*ui)->Shutdown();
-				std::iter_swap(ui, m_user_interfaces.rbegin() + dead_count);
-				++dead_count;
 				break;
 			default:
 				break;
 			}
 		}
-
-		while (dead_count--)
-			m_user_interfaces.pop_back();
 	}
 	bool UserInterfaceManager::RegisterUserInterface(const SPtr<UserInterface>& ui)
 	{
 		if (ui->Initialize())
 		{
+			m_num_of_visible_texture += ui->GetNumOfVisibleTexture();
 			m_user_interfaces.push_back(ui);
 			return true;
 		}

@@ -74,6 +74,16 @@ namespace client_fw
 		return input_element_descs;
 	}
 
+	D3D12_BLEND_DESC UIShader::CreateBlendState(eRenderLevelType level_type, int pso_index) const
+	{
+		D3D12_BLEND_DESC desc = GraphicsShader::CreateBlendState(level_type, pso_index);
+		desc.AlphaToCoverageEnable = TRUE;
+		desc.RenderTarget[0].BlendEnable = true;
+		desc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		return desc;
+	}
+
 	D3D12_DEPTH_STENCIL_DESC UIShader::CreateDepthStencilState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_DEPTH_STENCIL_DESC desc = GraphicsShader::CreateDepthStencilState(level_type, pso_index);

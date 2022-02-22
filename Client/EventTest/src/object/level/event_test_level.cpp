@@ -69,7 +69,8 @@ namespace event_test
 
 		auto test_image = CreateSPtr<ImageUI>("Test image");
 		SpawnUserInterface(test_image);
-		test_image->SetTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
+		test_image->SetTexture("../Contents/hp_background.dds");
+		test_image->SetSize(Vec2(256.f, 32.f));
 		m_spawn_ui_pos = vec2::ZERO;
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
@@ -86,11 +87,17 @@ namespace event_test
 
 		RegisterPressedEvent("spawn test image", { EventKeyInfo{eKey::kU} },
 			[this]()->bool {
-				auto test_image = CreateSPtr<ImageUI>("Test image");
-				SpawnUserInterface(test_image);
-				test_image->SetTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
-				m_spawn_ui_pos += Vec2(50.0f, 50.0f);
-				test_image->SetPosition(m_spawn_ui_pos);
+				for (UINT i = 0; i < 100; ++i)
+				{
+					auto test_image = CreateSPtr<ImageUI>("Test image");
+					SpawnUserInterface(test_image);
+					test_image->SetTexture("../Contents/hp_background.dds");
+					test_image->SetSize(Vec2(256.f, 32.f));
+					m_spawn_ui_pos += Vec2(10.0f, 0.0f);
+					test_image->SetPosition(m_spawn_ui_pos);
+				}
+				m_spawn_ui_pos += Vec2(-1000.0f, 10.0f);
+			
 				return true;
 			});
 

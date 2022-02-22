@@ -4,10 +4,11 @@
 
 namespace client_fw
 {
-	UserInterface::UserInterface(const std::string& name)
+	UserInterface::UserInterface(const std::string& name, size_t num_of_visible_texture)
 		: m_name(name), m_ui_state(eUIState::kActive)
 		, m_position(vec2::ZERO) , m_size(Vec2(100.f, 100.f))
 	{
+		m_visible_textures.resize(num_of_visible_texture);
 	}
 
 	UserInterface::~UserInterface()
@@ -18,17 +19,11 @@ namespace client_fw
 	{
 	}
 
-	void UserInterface::SetPosition(const Vec2& position)
+	void UserInterface::SetVisibleTexture(const SPtr<UITexture>& texture, UINT index)
 	{
-		m_position = position;
-	}
-
-	void UserInterface::SetSize(const Vec2& size)
-	{
-		m_size = size;
-	}
-
-	void UserInterface::SetTexture(const SPtr<Texture>& texture)
-	{
+		if (index < m_visible_textures.size())
+		{
+			m_visible_textures[index] = texture;
+		}
 	}
 }
