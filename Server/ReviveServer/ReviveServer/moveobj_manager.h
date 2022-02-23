@@ -2,7 +2,7 @@
 #include<array>
 #include"player.h"
 #include<unordered_set>
-class Enemy;
+#include"enemy.h"
 class MoveObjManager
 {
 public:
@@ -16,8 +16,8 @@ public:
 		
 	}
 	Enemy* GetEnemy(int id) {
-		Enemy* e = ((Enemy*)(m_moveobj_arr[id]));
-		return e;
+		//Enemy* e = ;
+		return ((Enemy*)(m_moveobj_arr[id]));
 	}
 	MoveObj* GetMoveObj(int id) { return m_moveobj_arr[id]; }
 	bool IsPlayer(int id) { return (id >= 0) && (id < MAX_USER); }

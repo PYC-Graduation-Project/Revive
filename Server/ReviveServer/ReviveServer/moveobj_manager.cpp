@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "moveobj_manager.h"
-#include"enemy.h"
+
 
 using namespace std;
 
@@ -12,6 +12,7 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	lua_State*L = en->GetLua();
 	L = luaL_newstate();
 	luaL_openlibs(L);
+	
 	int error = luaL_loadfile(L, script_name) ||
 		lua_pcall(L, 0, 0, 0);
 	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
@@ -123,8 +124,8 @@ void MoveObjManager::InitPlayer()
 
 void MoveObjManager::InitNPC()
 {
-	for (int i = NPC_ID_START; i <= NPC_ID_START; ++i)
-		m_moveobj_arr[i] = new Enemy;
+	for (int i = NPC_ID_START; i <= NPC_ID_END; ++i)
+		m_moveobj_arr[i] = new Enemy(i);
 }
 
 void MoveObjManager::DestroyObject()

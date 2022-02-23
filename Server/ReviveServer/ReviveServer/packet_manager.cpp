@@ -401,12 +401,16 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		
 		room->Init(pl->GetMatchUserSize());
 		//빈 npc 검사
+		Enemy* e = NULL;
 		for (int i = NPC_ID_START; i <= NPC_ID_END; ++i)
 		{
 			if (match_list.size()-pl->GetMatchUserSize() == room->GetMaxEnemy())
 				break;
-			Enemy *e=m_moveobj_manager->GetEnemy(i);
-			if (false == e->in_use)
+	
+			e=m_moveobj_manager->GetEnemy(i);
+			
+			int a = 1;
+			if (!e->in_use)
 			{
 				e->in_use = true;
 				match_list.push_back(e->GetID());
@@ -475,7 +479,7 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	SetTimerEvent(room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000);
+	SetTimerEvent(room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000);
 }
 
 

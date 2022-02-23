@@ -7,7 +7,9 @@ class Enemy :
     public MoveObj
 {
 public:
-    Enemy() = default;
+    Enemy(int i) :in_use(false),L(NULL){
+        m_id = i;
+    };
     ~Enemy() 
     {
         lua_close(L);
@@ -19,7 +21,7 @@ public:
         float max_hp, Vector3& pos, float damage,const char* name);
     //void RegisterAPI();
     lua_State* GetLua() { return L; }
-    std::atomic_bool in_use = false;
+    std::atomic_bool in_use;
 private:
     lua_State* L;
     std::mutex lua_lock;

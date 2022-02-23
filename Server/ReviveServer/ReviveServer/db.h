@@ -12,7 +12,7 @@ public:
 	bool Init();
 	LOGINFAIL_TYPE SaveData(char*,char*);
 	LOGINFAIL_TYPE CheckLoginData( char* name, char* password);
-	bool CompWcMC(wchar_t*, char*);
+	bool CompWcMc(wchar_t*, char*);
 private:
 	
 	void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);

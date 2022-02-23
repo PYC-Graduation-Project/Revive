@@ -109,7 +109,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 			//wstring comp_id{ reinterpret_cast<wchar_t*>(m_id) };
 			//if (comp_id.length() == 0) ret = LOGINFAIL_TYPE::NO_ID;
 			if (cb_id == 0) ret = LOGINFAIL_TYPE::NO_ID;
-			else if (false == CompWcMC(reinterpret_cast<wchar_t*>(m_password), password))
+			else if (false == CompWcMc(reinterpret_cast<wchar_t*>(m_password), password))
 					ret = LOGINFAIL_TYPE::WRONG_PASSWORD;
 		}
 		if (retcode == SQL_NO_DATA)
@@ -133,7 +133,7 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 	return ret;
 }
 
-bool DB::CompWcMC(wchar_t*wc, char*mc)
+bool DB::CompWcMc(wchar_t*wc, char*mc)
 {
 	wstring comp_wc{ wc };
 	comp_wc.erase(remove(comp_wc.begin(), comp_wc.end(), ' '), comp_wc.end());

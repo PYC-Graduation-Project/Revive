@@ -40,6 +40,7 @@ public:
 	void JoinDBThread();
 private:
 	MoveObjManager* m_moveobj_manager;
+	
 	RoomManager* m_room_manager;
 	DB* m_db;
 	DB* m_db2;

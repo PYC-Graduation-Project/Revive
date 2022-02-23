@@ -7,6 +7,7 @@ public:
 		m_type = OBJ_TYPE::OT_MAPOBJ;
 		m_pos = Vector3(0.0f, 0.0f, 0.0f);
 	};
+	
 	virtual ~Object() = default;
 
 
