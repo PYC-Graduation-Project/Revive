@@ -76,7 +76,9 @@ LOGINFAIL_TYPE DB::SaveData(char*name,char*password)
 		ret = LOGINFAIL_TYPE::DB_ERROR;
 	}
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		SQLCancel(hstmt);
+		//SQLCancel(hstmt);
+		SQLCloseCursor(hstmt);
+		SQLFreeStmt(hstmt, SQL_UNBIND);
 	}
 	return ret;
 }
@@ -113,6 +115,8 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 		if (retcode == SQL_NO_DATA)
 		{
 			ret = LOGINFAIL_TYPE::NO_ID;
+			SQLCloseCursor(hstmt);
+			SQLFreeStmt(hstmt, SQL_UNBIND);
 		}
 
 
@@ -122,8 +126,9 @@ LOGINFAIL_TYPE DB::CheckLoginData(char* name, char* password)
 		ret = LOGINFAIL_TYPE::DB_ERROR;
 	}
 	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		SQLCancel(hstmt);
-		
+		//SQLCancel(hstmt);
+		SQLCloseCursor(hstmt);
+		SQLFreeStmt(hstmt, SQL_UNBIND);
 	}
 	return ret;
 }

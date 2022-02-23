@@ -495,7 +495,7 @@ void PacketManager::DBThread()
 }
 void PacketManager::ProcessDBTask(db_task& dt)
 {
-	LOGINFAIL_TYPE ret=m_db->CheckLoginData(dt.user_id, dt.user_password);
+	LOGINFAIL_TYPE ret;//m_db->CheckLoginData(dt.user_id, dt.user_password);
 	Player* pl = m_moveobj_manager->GetPlayer(dt.obj_id);
 	switch (dt.dt)
 	{

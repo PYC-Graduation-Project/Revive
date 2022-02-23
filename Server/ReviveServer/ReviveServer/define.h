@@ -98,8 +98,3 @@ struct db_task {
 	char user_password[MAX_PASSWORD_SIZE];
 };
 
-Vector3 PLAYER_SPAWN_POINT[3]{ 
-	{2350.0f,0.0f,3150.0f},
-	{2450.0f,0.0f,3150.0f},
-	{2400.0f,0.0f,3150.0f}
-};
