@@ -47,7 +47,9 @@ protected:
 	int m_room_id;
 	float m_damage;
 	float m_hp, m_maxhp;
+	
 	char m_name[MAX_NAME_SIZE + 1];
+
 	Vector3 m_right, m_look, m_up;
 	Vector3 m_origin_pos;
 };

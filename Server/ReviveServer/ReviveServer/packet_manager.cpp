@@ -157,11 +157,10 @@ void PacketManager::SpawnEnemy(int room_id)
 	{
 		for (auto& en : enemy_list)
 		{
-			enemy = m_moveobj_manager->GetEnemy(en);
-			SendPutObjPacket(room->GetObjList()[i], en, enemy->GetType());
+			SendObjInfo(room->GetObjList()[i], en);
 		}
 	}
-
+	cout << "round" << curr_round << "Wave Start" << endl;
 }
 
 
@@ -439,20 +438,22 @@ void PacketManager::StartGame(int room_id)
 		if (i<room->GetMaxUser())
 		{
 			pl = m_moveobj_manager->GetPlayer(obj_list[i]);
-			//여기서 초기위치 설정
+			pl->SetPos(PLAYER_SPAWN_POINT[i]);
 			continue;
 		}
 		e = m_moveobj_manager->GetEnemy(obj_list[i]);
 		if (i<room->GetMaxUser() * SORDIER_PER_USER)
 		{
 			
-			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), SKULL_HP, pos, PLAYER_DAMAGE);
+			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
+				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
 			m_moveobj_manager->InitLua("enemy_sordier.lua",e->GetID());
 			
 		}
 		else
 		{
-			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), SKULLKING_HP, pos, PLAYER_DAMAGE);
+			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
+				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
 			m_moveobj_manager->InitLua("enemy_king.lua",e->GetID());
 		}
 	}
@@ -466,11 +467,11 @@ void PacketManager::StartGame(int room_id)
 			continue;
 	
 		pl = m_moveobj_manager->GetPlayer(c_id);
-		SendPutObjPacket(c_id, c_id, m_moveobj_manager->GetMoveObj(c_id)->GetType());//자기자신
+		SendObjInfo(c_id, c_id);//자기자신
 		for (int i=0; i<room->GetMaxUser(); ++i)
 		{
 			if (c_id == room->GetObjList()[i])continue;
-			SendPutObjPacket(c_id, room->GetObjList()[i], m_moveobj_manager->GetMoveObj(room->GetObjList()[i])->GetType());
+			SendObjInfo(c_id, room->GetObjList()[i]);
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
