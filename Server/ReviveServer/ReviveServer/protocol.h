@@ -52,6 +52,11 @@ const char SC_PACKET_STATUS_CHANGE = 8;
 const char SC_PACKET_MATCHING = 9;
 const char SC_PACKET_OBJ_INFO = 10;
 
+
+
+
+
+
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;
@@ -136,7 +141,7 @@ struct sc_packet_obj_info {
 	float damage;
 	float x, y, z;
 	char object_type;
-	char name[MAX_NAME_SIZE];
+	char name[MAX_NAME_SIZE+2];
 };
 
 struct sc_packet_put_object {

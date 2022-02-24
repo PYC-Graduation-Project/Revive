@@ -37,6 +37,7 @@ enum class OBJ_TYPE
 	OT_NPC_SKULLKING
 };
 
+
 enum class LOGINFAIL_TYPE {
 	OK,
 	DB_ERROR,

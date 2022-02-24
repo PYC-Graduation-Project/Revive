@@ -247,7 +247,7 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.damage = obj->GetDamge();
 	packet.maxhp = obj->GetHP();
 	strcpy_s(packet.name, obj->GetName());
-	packet.object_type = (char)obj->GetType();
+	packet.object_type = static_cast<char>(obj->GetType());
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
 	packet.z = obj->GetPosZ();
@@ -479,7 +479,8 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	SetTimerEvent(room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000);
+	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
+		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));
 }
 
 
@@ -548,6 +549,45 @@ void PacketManager::ProcessDBTask(db_task& dt)
 void PacketManager::JoinDBThread()
 {
 	db_thread.join();
+}
+
+void PacketManager::ProcessTimer(HANDLE hiocp)
+{
+	while (true) {
+		while (true) {
+			timer_event ev;
+			if (!m_timer_queue.try_pop(ev))continue;
+			auto start_t = chrono::system_clock::now();
+			if (ev.start_time <= start_t) {
+				ProcessEvent(hiocp,ev);
+			}
+			else {
+				m_timer_queue.push(ev);
+				break;
+			}
+		}
+
+		this_thread::sleep_for(10ms);
+	}
+}
+
+void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
+{
+	EXP_OVER* ex_over = new EXP_OVER;
+	switch (ev.ev) {
+	case EVENT_TYPE::EVENT_NPC_SPAWN:
+	{
+		ex_over->_comp_op = COMP_OP::OP_NPC_SPAWN;
+		ex_over->target_id = ev.target_id;
+		break;
+	}
+	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
+		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
+		break;
+	}
+	}
+
+	PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 }
 void PacketManager::CreateDBThread()
 {

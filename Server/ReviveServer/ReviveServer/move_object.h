@@ -43,7 +43,7 @@ public:
 
 	void SetOriginPos(const Vector3& val) { m_origin_pos = val; }
 protected:
-	std::atomic_bool m_is_active = true; //죽어있는지 살아있는지
+	std::atomic_bool m_is_active = false; //죽어있는지 살아있는지
 	int m_room_id;
 	float m_damage;
 	float m_hp, m_maxhp;

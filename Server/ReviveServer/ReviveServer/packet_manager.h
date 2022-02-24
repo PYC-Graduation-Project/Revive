@@ -2,7 +2,7 @@
 #include"define.h"
 #include<concurrent_queue.h>
 #include<thread>
-
+#include<concurrent_priority_queue.h>
 class MoveObjManager;
 class DB;
 class RoomManager;
@@ -38,14 +38,23 @@ public:
 	void DBThread();
 	void ProcessDBTask(db_task& dt);
 	void JoinDBThread();
+
+	void ProcessTimer(HANDLE hiocp);
+	void ProcessEvent(HANDLE hiocp, timer_event& ev);
+
 private:
 	MoveObjManager* m_moveobj_manager;
 	
 	RoomManager* m_room_manager;
 	DB* m_db;
 	DB* m_db2;
+
+	concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
 	concurrency::concurrent_queue<db_task>m_db_queue;
+	
 	std::thread db_thread;
+
+
 	Vector3 PLAYER_SPAWN_POINT[3]{
 	{2350.0f,0.0f,3150.0f},
 	{2450.0f,0.0f,3150.0f},
@@ -57,6 +66,7 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
+	
 
 	void StartGame(int room_id);
 };
