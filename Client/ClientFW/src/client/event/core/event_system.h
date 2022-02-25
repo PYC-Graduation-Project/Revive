@@ -1,34 +1,39 @@
 #pragma once
-#include "client/event/event_system.h"
 
 namespace client_fw
 {
     struct Window;
     class InputManager;
     class InputEventManager;
+    class UIEventManager;
 
-    class InputEventSystem final : public IEventSystem
+    class EventSystem final
     {
     public:
-        InputEventSystem(const WPtr<Window>& window);
-        virtual ~InputEventSystem();
+        EventSystem(const WPtr<Window>& window);
+        virtual ~EventSystem();
 
-        InputEventSystem(const InputEventSystem&) = delete;
-        InputEventSystem& operator=(const InputEventSystem&) = delete;
+        EventSystem(const EventSystem&) = delete;
+        EventSystem& operator=(const EventSystem&) = delete;
 
-        virtual void ExecuteEvent() override;
+        void ExecuteEvent();
 
     public:
         void ChangeInputState(UINT message, WPARAM wParam, LPARAM lParam);
 
     private:
+        static EventSystem* s_event_system;
         UPtr<InputManager> m_input_manager;
         UPtr<InputEventManager> m_input_event_manager;
+        UPtr<UIEventManager> m_ui_event_manager;
 
     public:
+        static EventSystem& GetEventSystem() { return *s_event_system; }
         const UPtr<InputManager>& GetInputManager() const { return m_input_manager; }
         const UPtr<InputEventManager>& GetInputEventManager() const { return m_input_event_manager; }
+        const UPtr<UIEventManager>& GetUIEventManager() const { return m_ui_event_manager; }
     };
-
 }
+
+
 

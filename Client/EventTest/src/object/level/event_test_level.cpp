@@ -5,6 +5,7 @@
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
 #include <client/object/ui/image_ui.h>
+#include <client/object/ui/button_ui.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
@@ -73,6 +74,12 @@ namespace event_test
 		test_image->SetSize(Vec2(256.f, 32.f));
 		m_spawn_ui_pos = vec2::ZERO;
 
+		auto test_button = CreateSPtr<ButtonUI>("Test button");
+		SpawnUserInterface(test_button);
+		test_button->SetNormalTexture("../Contents/Penguin_Texture.dds");
+		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
+		test_button->SetPosition(Vec2(400.0f, 400.0f));
+
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
 
@@ -82,6 +89,17 @@ namespace event_test
 				SpawnActor(move_cube);
 				move_cube->SetPosition(m_spawn_pos);
 				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
+				m_move_cube_queue.push(move_cube);
+				return true;
+			});
+
+		RegisterPressedEvent("kill movable actor", { EventKeyInfo{eKey::kO} },
+			[this]()->bool {
+				if (m_move_cube_queue.empty() == false)
+				{
+					m_move_cube_queue.front()->SetActorState(eActorState::kDead);
+					m_move_cube_queue.pop();
+				}
 				return true;
 			});
 

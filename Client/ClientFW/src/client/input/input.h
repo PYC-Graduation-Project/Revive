@@ -3,7 +3,7 @@
 namespace client_fw
 {
 	class IVec2;
-	class InputEventSystem;
+	class EventSystem;
 
 	enum class eKey
 	{
@@ -176,10 +176,6 @@ namespace client_fw
 		static void UnregisterInputEvent(const std::string& name);
 
 		static eInputMode GetInputMode();
-		static void SetInputMode(eInputMode input_mode);
-
-	private:
-		friend InputEventSystem;
-		static InputEventSystem* s_input_event_system;
+		static void SetInputMode(eInputMode input_mode);		
 	};
 }

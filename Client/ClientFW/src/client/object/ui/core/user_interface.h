@@ -31,7 +31,7 @@ namespace client_fw
 		void SetTexture(const SPtr<Texture>& texture) { m_texture = texture; }
 	};
 
-	class UserInterface : public IBaseObject
+	class UserInterface : public IBaseObject, public std::enable_shared_from_this<UserInterface>
 	{
 	protected:
 		UserInterface(const std::string& name, size_t num_of_visible_texture);
@@ -47,6 +47,7 @@ namespace client_fw
 		eUIState m_ui_state;
 		Vec2 m_position;
 		Vec2 m_size;
+		bool m_is_hovered = false;
 
 	private:
 		std::vector<SPtr<UITexture>> m_visible_textures;
@@ -63,6 +64,8 @@ namespace client_fw
 
 		UINT GetNumOfVisibleTexture() const { return static_cast<UINT>(m_visible_textures.size()); }
 		const std::vector<SPtr<UITexture>> GetVisibleTextures() const { return m_visible_textures; }
+
+		bool IsHovered() const;
 
 	protected:
 		void SetVisibleTexture(const SPtr<UITexture>& texture, UINT index);

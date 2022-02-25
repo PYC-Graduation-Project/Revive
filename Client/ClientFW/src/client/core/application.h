@@ -13,7 +13,7 @@ namespace client_fw
 	class Timer;
 	class Renderer;
 
-	class InputEventSystem;
+	class EventSystem;
 	struct EventKeyInfo;
 	class LevelManager;
 	class LevelLoader;
@@ -68,7 +68,7 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
-		UPtr<InputEventSystem> m_input_event_system;
+		UPtr<EventSystem> m_event_system;
 		UPtr<LevelManager> m_level_manager;
 		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;

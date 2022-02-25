@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/ui/core/user_interface.h"
 #include "client/renderer/core/render.h"
+#include "client/input/input.h"
 
 namespace client_fw
 {
@@ -17,6 +18,13 @@ namespace client_fw
 
 	void UserInterface::Update(float delta_time)
 	{
+	}
+
+	bool UserInterface::IsHovered() const
+	{
+		Vec2 pos = Vec2(static_cast<float>(Input::GetMousePosition().x),
+			static_cast<float>(Input::GetMousePosition().y));
+		return (pos >= m_position && pos <= m_position + m_size);
 	}
 
 	void UserInterface::SetVisibleTexture(const SPtr<UITexture>& texture, UINT index)

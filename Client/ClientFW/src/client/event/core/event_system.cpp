@@ -1,33 +1,34 @@
 #include "stdafx.h"
 #include "client/core/window.h"
-#include "client/input/input.h"
+#include "client/event/core/event_system.h"
+#include "client/event/inputevent/input_event_manager.h"
+#include "client/event/uievent/ui_event_manager.h"
 #include "client/input/input_manager.h"
-#include "client/event/inputevent//input_event_system.h"
-#include "client/event/inputevent//input_event_manager.h"
-
 
 namespace client_fw
 {
-	InputEventSystem* Input::s_input_event_system = nullptr;
+	EventSystem* EventSystem::s_event_system = nullptr;
 
-	InputEventSystem::InputEventSystem(const WPtr<Window>& window)
+	EventSystem::EventSystem(const WPtr<Window>& window)
 	{
-		Input::s_input_event_system = this;
+		EventSystem::s_event_system = this;
 		m_input_manager = CreateUPtr<InputManager>(window);
 		m_input_event_manager = CreateUPtr<InputEventManager>();
+		m_ui_event_manager = CreateUPtr<UIEventManager>();
 	}
 
-	InputEventSystem::~InputEventSystem()
+	EventSystem::~EventSystem()
 	{
 	}
 
-	void InputEventSystem::ExecuteEvent()
+	void EventSystem::ExecuteEvent()
 	{
 		m_input_event_manager->ExecuteEvent();
+		m_ui_event_manager->ExecuteEvent();
 		m_input_manager->Update();
 	}
 
-	void InputEventSystem::ChangeInputState(UINT message, WPARAM wParam, LPARAM lParam)
+	void EventSystem::ChangeInputState(UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		switch (message)
 		{

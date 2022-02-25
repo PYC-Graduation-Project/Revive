@@ -3,7 +3,7 @@
 #include "client/core/window.h"
 #include "client/core/timer.h"
 #include "client/input/input.h"
-#include "client/event/inputevent/input_event_system.h"
+#include "client/event/core/event_system.h"
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
@@ -27,7 +27,7 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
-		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
+		m_event_system = CreateUPtr<EventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
 		m_physics_world = CreateUPtr<PhysicsWorld>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
@@ -113,7 +113,7 @@ namespace client_fw
 
 	void Application::ProcessInput()
 	{
-		m_input_event_system->ExecuteEvent();
+		m_event_system->ExecuteEvent();
 	}
 
 	void Application::Update(float delta_time)
@@ -247,7 +247,7 @@ namespace client_fw
 		LRESULT result = NULL;
 
 		const auto& app = Application::GetApplication();
-		const auto& input_system = app->m_input_event_system;
+		const auto& input_system = app->m_event_system;
 
 		switch (message)
 		{

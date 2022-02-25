@@ -14,7 +14,7 @@ namespace client_fw
 	{
 	}
 
-	void InputEventManager::ExecuteEvent() const
+	void InputEventManager::ExecuteEvent()
 	{
 		ExecuteEvents(m_actor_events, eInputMode::kGameOnly);
 		ExecuteEvents(m_level_events, eInputMode::kGameOnly);

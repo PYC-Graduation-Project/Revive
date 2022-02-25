@@ -1,5 +1,5 @@
 #pragma once
-#include "client/event/event_info.h"
+#include "client/event/core/event_info.h"
 
 namespace client_fw
 {

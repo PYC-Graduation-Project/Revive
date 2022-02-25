@@ -1,9 +1,10 @@
 #pragma once
-#include "client/event/event_manager.h"
+#include "client/event/core/event_manager.h"
 
 namespace client_fw
 {
 	class InputEventInfo;
+	enum class eInputOwnerType;
 	enum class eInputMode;
 
 	class InputEventManager final : public IEventManager
@@ -15,7 +16,7 @@ namespace client_fw
 		InputEventManager(const InputEventManager&) = delete;
 		InputEventManager& operator=(const InputEventManager&) = delete;
 
-		virtual void ExecuteEvent() const override;
+		virtual void ExecuteEvent() override;
 
 	private:
 		void ExecuteEvents(const std::vector<UPtr<InputEventInfo>>& events, eInputMode mode) const;

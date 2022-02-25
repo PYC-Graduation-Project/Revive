@@ -9,6 +9,7 @@ namespace client_fw
 		: UserInterface(name, 1)
 	{
 		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
+		SetVisibleTexture(m_normal_texture, 0);
 	}
 
 	void ImageUI::SetPosition(const Vec2& position)
@@ -35,6 +36,5 @@ namespace client_fw
 	void ImageUI::SetTexture(const SPtr<Texture>& texture)
 	{
 		m_normal_texture->SetTexture(texture);
-		SetVisibleTexture(m_normal_texture, 0);
 	}
 }

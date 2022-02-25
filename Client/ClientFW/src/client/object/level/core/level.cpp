@@ -40,8 +40,8 @@ namespace client_fw
 	{
 		Update(delta_time);
 
-		m_actor_manager->Update(delta_time);
 		m_user_interface_manager->Update(delta_time);
+		m_actor_manager->Update(delta_time);
 	}
 
 	void Level::SpawnActor(const SPtr<Actor>& actor) const
