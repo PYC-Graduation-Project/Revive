@@ -63,7 +63,7 @@ namespace anim_test
 	{
 		//test_mesh->Update(delta_time);
 		
-		static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
@@ -95,7 +95,7 @@ namespace anim_test
 			}
 
 			time -= 0.016f;
-		}
+		}*/
 	}
 
 	std::vector<SPtr<VisualOctree>> PlayerTestLevel::CreateVisualOctrees() const

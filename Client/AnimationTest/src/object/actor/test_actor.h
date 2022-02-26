@@ -16,10 +16,12 @@ namespace anim_test
 		virtual ~TestActor() = default;
 
 		virtual bool Initialize() override;
+		virtual void Update(float delta_time) override;
 		virtual void Shutdown() override;
 
 	protected:
 		std::string m_mesh_path;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
+
 	};
 }

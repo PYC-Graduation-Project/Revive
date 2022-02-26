@@ -59,6 +59,7 @@ namespace client_fw
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		SPtr<Texture> LoadTexture(const std::string& path);
 		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>&skeleton, const std::string& path);
+		SPtr<AnimationSequence> LoadAnimation(const std::string& path);
 
 	};
 

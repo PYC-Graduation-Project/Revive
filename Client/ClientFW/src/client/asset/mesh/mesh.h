@@ -98,6 +98,11 @@ namespace client_fw
 		std::vector<BOrientedBox> oriented_boxes;
 	};
 
+	struct AnimationData //AnimationData
+	{
+		std::array<Mat4, 128> mat128;
+	};
+
 	class SkeletalMesh : public Mesh
 	{
 	public:
@@ -109,13 +114,29 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const override;
 
 
-
-
 	private:
 		SPtr<Skeleton> m_skeleton;
+		std::vector<SPtr<Skeleton>> m_cache_skeleton;
 
 		SPtr<BoneData> m_bone_data;
 
+		std::vector<UPtr<UploadBuffer<IVec4>>> m_bone_index_data;
+		std::vector<UPtr<UploadBuffer<Vec4>>> m_bone_weight_data;
+
+		ComPtr<ID3D12Resource> m_bone_index_buffer;
+		ComPtr<ID3D12Resource> m_bone_index_upload_buffer;
+
+		D3D12_VERTEX_BUFFER_VIEW m_bone_index_buffer_view;
+		
+		ComPtr<ID3D12Resource> m_bone_weight_buffer;
+		ComPtr<ID3D12Resource> m_bone_weight_upload_buffer;
+
+		D3D12_VERTEX_BUFFER_VIEW m_bone_weight_buffer_view;
+
+		std::vector<UPtr<UploadBuffer<AnimationData>>> m_bone_offset_data;
+		std::vector<UPtr<UploadBuffer<AnimationData>>> m_bone_trans_data;
+		bool m_is_need_init_offset = false;
+		void UpdateBoneTransform() const;
 
 	public:
 		const SPtr<Skeleton>& GetSkeleton() { return m_skeleton; }
@@ -124,10 +145,7 @@ namespace client_fw
 
 		void SetBoneData(const SPtr<BoneData>& bone_data) { m_bone_data = bone_data; }
 	
-		//void AddBoneName(const std::string& name);
-		//void AddBoneOffset(const Mat4& bone_offset);
-		//void AddBoneIndex(const IVec4& bone_index);
-		//void AddBoneWeight(const Vec4& bone_weight);
-
+		void SetAnimatedSkeleton(const std::vector<SPtr<Skeleton>>& animated_skeleton) {m_cache_skeleton = animated_skeleton;}
+		
 	};
 }

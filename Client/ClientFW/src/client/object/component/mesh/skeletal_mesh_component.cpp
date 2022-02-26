@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#include "client/asset/animation/animation_sequence.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/bone/skeleton.h"
 #include "client/renderer/core/render.h"
 #include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 
@@ -15,6 +17,14 @@ namespace client_fw
 	bool SkeletalMeshComponent::Initialize()
 	{
 		return MeshComponent::Initialize();
+	}
+	void SkeletalMeshComponent::Update(float delta_time)
+	{
+		if (m_anim && GetSkeletalMesh()->GetSkeleton())
+		{
+			m_anim->AnimToPlay(delta_time*1.0f,m_looping); //speed
+			GetSkeletalMesh()->GetSkeleton()->UpdateTransform(mat4::IDENTITY);
+		}
 	}
 	void SkeletalMeshComponent::Shutdown()
 	{
@@ -33,6 +43,11 @@ namespace client_fw
 			return false;
 		}
 		return true;
+	}
+	void SkeletalMeshComponent::SetAnimation(const std::string& path)
+	{
+		m_anim = AssetStore::LoadAnimation(path);
+		GetSkeletalMesh()->SetAnimatedSkeleton(m_anim->GetAnimatedSkeleton());
 	}
 	UPtr<Collisioner> SkeletalMeshComponent::CreateCollisioner()
 	{

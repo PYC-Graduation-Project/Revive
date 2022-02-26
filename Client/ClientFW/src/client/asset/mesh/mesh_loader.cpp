@@ -294,8 +294,7 @@ namespace client_fw
 		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
 		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
 		skeleton->SetBoneName("Root");
-		SPtr<Skeleton> child = CreateSPtr<Skeleton>();
-		skeleton->SetChild(child);
+		
 
 		//정보를 모으는 벡터들은 재귀함수 바깥쪽에 있어야 한다
 		std::vector<MeshData> mesh_data;
@@ -319,6 +318,8 @@ namespace client_fw
 				{
 					if (prefix.compare("<Frame>:") == false)
 					{
+						SPtr<Skeleton> child = CreateSPtr<Skeleton>();
+						skeleton->SetChild(child);
 						LoadFrameHierArchy(rev_file, child, s_mesh, mesh_data, path);
 					}
 					else if ("</Hierarchy>")
@@ -329,7 +330,7 @@ namespace client_fw
 				}
 				
 				s_mesh->SetSkeleton(skeleton);
-				return s_mesh;
+				//return s_mesh;
 				break;
 			case HashCode("<Animation>"):
 				AssetStore::LoadAnimation(rev_file, s_mesh->GetSkeleton(), path);
@@ -945,7 +946,7 @@ namespace client_fw
 			}
 		}
 		anim_track->SetAnimationCurves(anim_curves);
-		//anim_track->SetCacheSkel(cache_skeleton);
+		anim_track->SetCacheSkel(cache_skeleton);
 		//end
 		anim_seq->SetAnimationTrack(anim_track);
 		anim_seq->SetDefaultTime(start_time, end_time);

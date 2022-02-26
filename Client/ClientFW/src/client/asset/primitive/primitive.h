@@ -49,9 +49,9 @@ namespace client_fw
 		ComPtr<ID3D12Resource> m_vertex_upload_buffer;
 
 		UINT m_slot = 0;
-		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 
 	public:
+		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 		template <class VertexType>
 		VertexType* GetVertices() const { return static_cast<VertexType*>(m_vertex_buffer_blob->GetBufferPointer()); }
 

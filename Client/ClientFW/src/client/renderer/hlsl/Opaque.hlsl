@@ -117,10 +117,10 @@ VS_DIFFUSE_OUT VSDiffuse(VS_DIFFUSE_IN input, uint instance_id : SV_InstanceID)
 	{
 		vertex_to_bone_world +=  weight[i] * mul(g_bone_offsets[input.indices[i]],g_bone_trans[input.indices[i]]);
 	}
-	float4 position = mul(float4(input.position, 1.0f), i_data.world);
+	//float4 position = mul(float4(input.position, 1.0f), i_data.world);
 	//float4 position = mul(mul(float4(input.position, 1.0f), i_data.world), vertex_to_bone_world);
 	//float4 position = mul(float4(input.position, 1.0f), vertex_to_bone_world);
-	//float4 position = mul(mul(float4(input.position, 1.0f), vertex_to_bone_world), i_data.world);
+	float4 position = mul(mul(float4(input.position, 1.0f), vertex_to_bone_world), i_data.world);
 	//float4 position = float4(input.position, 1.0f);
 	output.position = position.xyz;
 	output.sv_position = mul(mul(position, g_view), g_projection);

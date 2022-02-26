@@ -56,9 +56,7 @@ namespace client_fw
 	public:
 		UINT m_mesh_count = 0;
 		bool is_single_mesh = true;
-		//SPtr<BoneData> m_bone_data = CreateSPtr<BoneData>();
-		//SPtr<MeshData> m_mesh_data = CreateSPtr<MeshData>();
-
+		
 		//원래는 Frame이나 Frame == Bone 취급한다
 		//fbx에서는 frame != Bone
 	};
