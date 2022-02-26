@@ -9,22 +9,24 @@ namespace client_fw
 		: m_input_mode(eInputMode::kGameOnly)
 	{
 	}
-
+	
 	InputEventManager::~InputEventManager()
 	{
 	}
 
 	void InputEventManager::ExecuteEvent()
 	{
-		ExecuteEvents(m_actor_events, eInputMode::kGameOnly);
-		ExecuteEvents(m_level_events, eInputMode::kGameOnly);
-		ExecuteEvents(m_pawn_events, eInputMode::kGameOnly);
-		ExecuteEvents(m_application_events, eInputMode::kUIOnly);
+		ExecuteEvents(m_actor_events, { eInputMode::kGameOnly });
+		ExecuteEvents(m_player_controller_events, { eInputMode::kGameOnly });
+		ExecuteEvents(m_level_events, { eInputMode::kGameOnly });
+		ExecuteEvents(m_pawn_events, { eInputMode::kGameOnly });
+		ExecuteEvents(m_application_events, { eInputMode::kUIOnly, eInputMode::kGameOnly });
 	}
 
-	void InputEventManager::ExecuteEvents(const std::vector<UPtr<InputEventInfo>>& events, eInputMode mode) const
+	void InputEventManager::ExecuteEvents(const std::vector<UPtr<InputEventInfo>>& events, std::vector<eInputMode>&& modes) const
 	{
-		if (m_input_mode == eInputMode::kUIAndGame || m_input_mode == mode)
+		if (m_input_mode == eInputMode::kUIAndGame ||
+			std::any_of(modes.cbegin(), modes.cend(), [this](eInputMode mode) { return mode == m_input_mode; }))
 		{
 			for (const auto& event : events)
 				event->ExecuteEvent();
@@ -62,6 +64,9 @@ namespace client_fw
 			case eInputOwnerType::kPawn:
 				m_pawn_events.emplace_back(std::move(event_info));
 				break;
+			case eInputOwnerType::kPlayerController:
+				m_player_controller_events.emplace_back(std::move(event_info));
+				break;
 			default:
 				break;
 			}
@@ -94,6 +99,8 @@ namespace client_fw
 			case eInputOwnerType::kPawn:
 				DeleteEvent(m_pawn_events, name);
 				break;
+			case eInputOwnerType::kPlayerController:
+				DeleteEvent(m_player_controller_events, name);
 			default:
 				break;
 			}

@@ -58,4 +58,31 @@ namespace client_fw
 	{
 		m_roll_speed = math::ToRadian(value * m_roll_speed_scale);
 	}
+
+	void PlayerController::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
+		const std::function<bool()>& func, bool consumption)
+	{
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterPressedEvent(event_name, std::move(keys),
+			func, consumption, eInputOwnerType::kPlayerController))
+			RegisterInputEvent(event_name);
+	}
+
+	void PlayerController::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys, 
+		const std::function<bool()>& func, bool consumption)
+	{
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterReleasedEvent(event_name, std::move(keys),
+			func, consumption, eInputOwnerType::kPlayerController))
+			RegisterInputEvent(event_name);
+	}
+
+	void PlayerController::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys, 
+		const std::function<bool(float)>& func, bool consumption)
+	{
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterAxisEvent(event_name, std::move(keys),
+			func, consumption, eInputOwnerType::kPlayerController))
+			RegisterInputEvent(event_name);
+	}
 }

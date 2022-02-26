@@ -3,6 +3,7 @@
 #include "client/event/core/event_system.h"
 #include "client/event/inputevent/input_event_manager.h"
 #include "client/event/uievent/ui_event_manager.h"
+#include "client/input/input.h"
 #include "client/input/input_manager.h"
 
 namespace client_fw
@@ -23,8 +24,13 @@ namespace client_fw
 
 	void EventSystem::ExecuteEvent()
 	{
-		m_input_event_manager->ExecuteEvent();
-		m_ui_event_manager->ExecuteEvent();
+		eInputMode mode = Input::GetInputMode();
+		if (mode != eInputMode::kInActive)
+		{
+			m_input_event_manager->ExecuteEvent();
+			if (mode != eInputMode::kGameOnly)
+				m_ui_event_manager->ExecuteEvent();
+		}
 		m_input_manager->Update();
 	}
 

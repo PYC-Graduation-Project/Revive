@@ -15,6 +15,7 @@ namespace client_fw
 
 	void UIEventManager::ExecuteEvent()
 	{
+
 		UINT dead_count = 0;
 
 		for (auto ui_iter = m_ui_events.rbegin(); ui_iter != m_ui_events.rend(); ++ui_iter)

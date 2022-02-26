@@ -110,6 +110,27 @@ namespace client_fw
 
 	void Input::SetInputMode(eInputMode input_mode)
 	{
+		switch (input_mode)
+		{
+		case client_fw::eInputMode::kUIOnly:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kUIAndGame:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kGameOnly:
+			Input::SetHideCursor(true);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kInActive:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(false);
+			break;
+		default:
+			break;
+		}
 		EventSystem::GetEventSystem().GetInputEventManager()->SetInputMode(input_mode);
 	}
 }

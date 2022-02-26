@@ -144,7 +144,7 @@ namespace client_fw
 
 	enum class eInputOwnerType
 	{
-		kApplication, kLevel, kActor, kPawn,
+		kApplication, kLevel, kActor, kPawn, kPlayerController,
 	};
 
 	class Input final

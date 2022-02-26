@@ -271,16 +271,12 @@ namespace client_fw
 			{
 			case WA_ACTIVE:
 			case WA_CLICKACTIVE:
-				Input::SetClipCursor(s_clip);
-				Input::SetHideCursor(s_hide);
 				Input::SetInputMode(s_input_mode);
 				break;
 			case WA_INACTIVE:
 				s_clip = Input::IsClipCursor();
 				s_hide = Input::IsHideCursor();
 				s_input_mode = Input::GetInputMode();
-				Input::SetHideCursor(false);
-				Input::SetClipCursor(false);
 				Input::SetInputMode(eInputMode::kInActive);
 				break;
 			}

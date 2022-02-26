@@ -80,8 +80,7 @@ namespace event_test
 		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
 		test_button->SetPosition(Vec2(400.0f, 400.0f));
 
-		Input::SetInputMode(eInputMode::kUIAndGame);
-		Input::SetHideCursor(true);
+		Input::SetInputMode(eInputMode::kGameOnly);
 
 		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
 			[this]()->bool {
@@ -124,8 +123,6 @@ namespace event_test
 
 	void EventTestLevel::Shutdown()
 	{
-		Input::SetHideCursor(false);
-		Input::SetClipCursor(false);
 		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
