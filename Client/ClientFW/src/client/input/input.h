@@ -177,5 +177,6 @@ namespace client_fw
 
 		static eInputMode GetInputMode();
 		static void SetInputMode(eInputMode input_mode);		
+		static void SetOnlyInputMode(eInputMode input_mode);		
 	};
 }

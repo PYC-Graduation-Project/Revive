@@ -8,6 +8,8 @@ namespace client_fw
 	public:
 		ImageUI(const std::string& name = "Image");
 
+		virtual bool Initialize() override;
+
 	public:
 		virtual void SetPosition(const Vec2& position) override;
 		virtual void SetSize(const Vec2& size) override;

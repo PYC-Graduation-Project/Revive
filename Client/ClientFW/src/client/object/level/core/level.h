@@ -8,6 +8,7 @@ namespace client_fw
 	class UserInterface;
 	class UserInterfaceManager;
 	struct EventKeyInfo;
+	struct AxisEventKeyInfo;
 	class VisualOctree;
 	class CollisionOctree;
 
@@ -39,6 +40,8 @@ namespace client_fw
 			const std::function<bool()>& func, bool consumption = true);
 		void RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
+		void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
+			const std::function<bool(float)>& func, bool consumption = true);
 
 	private:
 		void RegisterInputEvent(const std::string& name);

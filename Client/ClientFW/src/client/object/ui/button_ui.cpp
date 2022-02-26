@@ -15,11 +15,12 @@ namespace client_fw
 		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
 		m_hovered_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
 		m_pressed_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
-		SetVisibleTexture(m_normal_texture, 0);
 	}
 
 	bool ButtonUI::Initialize()
 	{
+		SetVisibleTexture(m_normal_texture, 0);
+
 		EventSystem::GetEventSystem().GetUIEventManager()->RegisterEvent(
 			CreateUPtr<UIEventInfo>(shared_from_this(), [this]()
 				{

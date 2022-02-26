@@ -73,15 +73,25 @@ namespace client_fw
 	void Level::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
-		if (Input::RegisterPressedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterPressedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
+			RegisterInputEvent(event_name);
 	}
 
 	void Level::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{
-		if(Input::RegisterReleasedEvent(name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
-			RegisterInputEvent(name);
+		std::string event_name = m_name + " : " + name;
+		if(Input::RegisterReleasedEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
+			RegisterInputEvent(event_name);
+	}
+
+	void Level::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys,
+		const std::function<bool(float)>& func, bool consumption)
+	{
+		std::string event_name = m_name + " : " + name;
+		if (Input::RegisterAxisEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
+			RegisterInputEvent(event_name);
 	}
 
 	void Level::RegisterInputEvent(const std::string& name)

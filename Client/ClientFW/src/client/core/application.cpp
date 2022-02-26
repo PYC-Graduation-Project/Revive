@@ -264,18 +264,16 @@ namespace client_fw
 			break;
 		case WM_ACTIVATE:
 		{
-			static bool s_clip = false;
-			static bool s_hide = false;
 			static eInputMode s_input_mode = eInputMode::kUIOnly;
 			switch (wParam)
 			{
 			case WA_ACTIVE:
+				Input::SetOnlyInputMode(s_input_mode);
+				break;
 			case WA_CLICKACTIVE:
 				Input::SetInputMode(s_input_mode);
 				break;
 			case WA_INACTIVE:
-				s_clip = Input::IsClipCursor();
-				s_hide = Input::IsHideCursor();
 				s_input_mode = Input::GetInputMode();
 				Input::SetInputMode(eInputMode::kInActive);
 				break;

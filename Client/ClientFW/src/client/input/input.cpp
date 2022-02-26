@@ -133,4 +133,9 @@ namespace client_fw
 		}
 		EventSystem::GetEventSystem().GetInputEventManager()->SetInputMode(input_mode);
 	}
+
+	void Input::SetOnlyInputMode(eInputMode input_mode)
+	{
+		EventSystem::GetEventSystem().GetInputEventManager()->SetInputMode(input_mode);
+	}
 }

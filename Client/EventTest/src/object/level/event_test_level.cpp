@@ -6,6 +6,7 @@
 #include <client/util/octree/octree.h>
 #include <client/object/ui/image_ui.h>
 #include <client/object/ui/button_ui.h>
+#include <client/object/ui/progress_bar_ui.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
@@ -80,6 +81,15 @@ namespace event_test
 		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
 		test_button->SetPosition(Vec2(400.0f, 400.0f));
 
+		auto test_progress = CreateSPtr<ProgressBarUI>("Test Progress Bar");
+		SpawnUserInterface(test_progress);
+		test_progress->SetBackgroundTexture("../Contents/hp_background.dds");
+		test_progress->SetFillTexture("../Contents/hp_bar.dds");
+		test_progress->SetPosition(Vec2(200.0f, 100.0f));
+		test_progress->SetSize(Vec2(256.f, 32.f));
+		test_progress->SetPercent(0.5f);
+
+
 		Input::SetInputMode(eInputMode::kGameOnly);
 
 		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
@@ -115,6 +125,12 @@ namespace event_test
 				}
 				m_spawn_ui_pos += Vec2(-1000.0f, 10.0f);
 			
+				return true;
+			});
+
+		RegisterAxisEvent("test progress bar percent", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
+			[test_progress](float axis)->bool {
+				test_progress->SetPercent(test_progress->GetPercent() + axis * 0.01f);
 				return true;
 			});
 

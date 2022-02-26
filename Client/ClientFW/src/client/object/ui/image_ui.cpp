@@ -9,7 +9,12 @@ namespace client_fw
 		: UserInterface(name, 1)
 	{
 		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
+	}
+
+	bool ImageUI::Initialize()
+	{
 		SetVisibleTexture(m_normal_texture, 0);
+		return true;
 	}
 
 	void ImageUI::SetPosition(const Vec2& position)

@@ -59,6 +59,11 @@ namespace client_fw
 					{
 						for (const auto& ui_texture : ui->GetVisibleTextures())
 						{
+
+							#ifdef _DEBUG
+							if (ui_texture == nullptr)
+								LOG_ERROR("Could not find ui texture : {0}", ui->GetName());
+							#endif
 							if (ui_texture->GetTexture() != nullptr)
 							{
 								Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
