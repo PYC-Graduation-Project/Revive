@@ -1,9 +1,10 @@
 #include <include/client_core.h>
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
+//#include <client/asset/core/asset_manager.h>
 #include <client/asset/mesh/mesh_loader.h>
-#include <client/asset/material/material_loader.h>
-#include <client/asset/core/asset_manager.h>
+//#include <client/asset/material/material_loader.h>
+//#include <client/asset/texture/texture_loader.h>
 #include "object/level/player_test_level.h"
 using namespace client_fw;
 
@@ -29,10 +30,11 @@ namespace anim_test
 				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
 			return result;
 		}
-		void InitializeAssetManager() override
+		UPtr<MeshLoader> CreateMeshLoader() const override
 		{
-			m_asset_manager->Initialize(CreateUPtr<RevLoader>(), CreateUPtr<MaterialLoader>());
+			return CreateUPtr<RevLoader>();
 		}
+		
 		void Shutdown() override
 		{
 			Application::Shutdown();

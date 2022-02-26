@@ -20,6 +20,8 @@ namespace anim_test
 		SPtr<class DefaultPawn> m_player;
 		SPtr<class PlayerController> m_player_controller;
 	public:
+		SPtr<class TestActor> test_mesh;
+
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 	};

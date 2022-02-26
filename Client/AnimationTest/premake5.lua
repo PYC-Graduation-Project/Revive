@@ -1,4 +1,4 @@
-project "AniamationTest"
+project "AnimationTest"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
