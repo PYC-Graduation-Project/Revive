@@ -37,6 +37,8 @@ struct VS_UI_INPUT
     float2 position : POSITION;
     float2 size : SIZE;
     uint texture_index : TEXINDEX;
+    float2 coordinate : TEXCOORD;
+    float2 tilling : TILLING;
 };
 
 struct GS_UI_OUTPUT
@@ -70,7 +72,7 @@ void GSRenderUI(point VS_UI_INPUT input[1], inout TriangleStream<GS_UI_OUTPUT> o
     {
         output.sv_position = mul(float4(vertices[i], 0.0f, 1.0f), g_projection);
         output.sv_position.z = 0.0f;
-        output.uv = s_ui_uvs[i];
+        output.uv = s_ui_uvs[i] * input[0].tilling + input[0].coordinate;
         
         out_stream.Append(output);
     }

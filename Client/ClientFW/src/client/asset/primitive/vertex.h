@@ -69,7 +69,8 @@ namespace client_fw
 	{
 	public:
 		UIVertex();
-		UIVertex(const Vec2& position, const Vec2& size, UINT index);
+		UIVertex(const Vec2& position, const Vec2& size, UINT index,
+			const Vec2& coordinate, const Vec2& tilling);
 
 		const Vec2& GetPosition() const { return m_position; }
 		void SetPosition(const Vec2& position) { m_position = position; }
@@ -77,10 +78,16 @@ namespace client_fw
 		void SetSize(const Vec2& size) { m_size = size; }
 		UINT GetTextureResourceIndex() const { return m_texture_resource_index; }
 		void SetTextureResourceIndex(UINT index) { m_texture_resource_index = index; }
+		const Vec2& GetCoordinate() const { return m_coordinate; }
+		void SetCoordinate(const Vec2& coord) { m_coordinate = coord; }
+		const Vec2& GetTilling() const { return m_tilling; }
+		void SetTilling(const Vec2& tilling) { m_tilling = tilling; }
 
 	protected:
 		Vec2 m_position;
 		Vec2 m_size;
 		UINT m_texture_resource_index;
+		Vec2 m_coordinate;
+		Vec2 m_tilling;
 	};
 }

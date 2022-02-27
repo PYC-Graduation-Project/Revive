@@ -68,7 +68,8 @@ namespace client_fw
 							{
 								Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
 									Vec2(-main_camera->GetViewport().width * 0.5f, main_camera->GetViewport().height * 0.5f);
-								vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex()));
+								vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex(),
+									ui_texture->GetCoordinate(), ui_texture->GetTilling()));
 							}
 						}
 					}

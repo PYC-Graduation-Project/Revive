@@ -71,5 +71,6 @@ namespace client_fw
 	void ProgressBarUI::SetFillTextureSize(const Vec2& size)
 	{
 		m_fill_texture->SetSize(Vec2(size.x * m_percent, size.y));
+		m_fill_texture->SetTilling(Vec2(m_percent, 1.0f));
 	}
 }

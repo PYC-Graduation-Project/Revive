@@ -49,12 +49,15 @@ namespace client_fw
 	UIVertex::UIVertex()
 		: m_position(vec2::ZERO), m_size(Vec2(100.f, 100.f))
 		, m_texture_resource_index(0)
+		, m_coordinate(vec2::ZERO), m_tilling(Vec2(1.f, 1.f))
 	{
 	}
 
-	UIVertex::UIVertex(const Vec2& position, const Vec2& size, UINT index)
+	UIVertex::UIVertex(const Vec2& position, const Vec2& size, UINT index,
+		const Vec2& coordinate, const Vec2& tilling)
 		: m_position(position), m_size(size)
 		, m_texture_resource_index(index)
+		, m_coordinate(coordinate), m_tilling(tilling)
 	{
 	}
 }
