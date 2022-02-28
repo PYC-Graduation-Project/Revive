@@ -90,4 +90,24 @@ namespace client_fw
 		Vec2 m_coordinate;
 		Vec2 m_tilling;
 	};
+
+	class BillboardVertex : public Vertex
+	{
+	public:
+		BillboardVertex();
+		BillboardVertex(const Vec3& position, const Vec2& size,
+			UINT index, const Vec2& coordinate);
+
+		const Vec2& GetSize() const { return m_size; }
+		void SetSize(const Vec2& size) { m_size = size; }
+		UINT GetResourceIndex() const { return m_resource_index; }
+		void SetResourceIndex(UINT index) { m_resource_index = index; }
+		const Vec2& GetCoordinate() const { return m_coordinate; }
+		void SetCoordinate(const Vec2& coord) { m_coordinate = coord; }
+
+	protected:
+		Vec2 m_size;
+		UINT m_resource_index;
+		Vec2 m_coordinate;
+	};
 }

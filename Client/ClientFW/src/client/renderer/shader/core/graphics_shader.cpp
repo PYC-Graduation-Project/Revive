@@ -142,6 +142,17 @@ namespace client_fw
 		LOG_WARN("Could not supported shape component at {0}", m_name);
 	}
 
+	bool GraphicsShader::RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp)
+	{
+		LOG_WARN("Could not supported billboard component at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	{
+		LOG_WARN("Could not supported billboard component at {0}", m_name);
+	}
+
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{

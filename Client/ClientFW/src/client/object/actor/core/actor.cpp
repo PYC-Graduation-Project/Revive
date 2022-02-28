@@ -71,6 +71,8 @@ namespace client_fw
 
 	bool Actor::AttachComponent(const SPtr<Component> comp)
 	{
+		if (GetActorState() == eActorState::kDead)
+			return false;
 		comp->SetOwner(weak_from_this());
 		return m_component_manager->RegisterComponent(comp);
 	}

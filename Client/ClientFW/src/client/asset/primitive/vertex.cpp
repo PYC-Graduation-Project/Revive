@@ -60,4 +60,18 @@ namespace client_fw
 		, m_coordinate(coordinate), m_tilling(tilling)
 	{
 	}
+
+	BillboardVertex::BillboardVertex()
+		: Vertex(), m_size(Vec2(100.0f, 100.0f))
+		, m_resource_index(0), m_coordinate(vec2::ZERO)
+	{
+	}
+
+	BillboardVertex::BillboardVertex(const Vec3& position, const Vec2& size,
+		UINT index, const Vec2& coordinate)
+		: Vertex(position), m_size(size)
+		, m_resource_index(index), m_coordinate(coordinate)
+	{
+	}
+
 }

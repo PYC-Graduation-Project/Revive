@@ -7,7 +7,7 @@ namespace client_fw
 
 	enum class eRenderType
 	{
-		kMesh, kShape
+		kMesh, kShape, kBillboard
 	};
 
 	class RenderComponent : public SceneComponent
@@ -33,6 +33,7 @@ namespace client_fw
 	protected:
 		eRenderType m_type;
 		bool m_visibility = false;
+		UINT m_render_item_index = 0;
 		std::string m_draw_shader_name;
 		std::vector<WPtr<VisualTreeNode>> m_visual_tree_node;
 
@@ -40,6 +41,8 @@ namespace client_fw
 		eRenderType GetRenderType() const { return m_type; }
 		bool IsVisible() const { return m_visibility; }
 		void SetVisiblity(bool value) { m_visibility = value; }
+		UINT GetRenderItemIndex() const { return m_render_item_index; }
+		void SetRenderItemIndex(UINT index) { m_render_item_index = index; }
 		void SetDrawShaderName(const std::string& shader_name) { m_draw_shader_name = shader_name; }
 		void AddVisualTreeNode(const WPtr<VisualTreeNode>& tree_node);
 		void ResetVisualTreeNode() { m_visual_tree_node.clear(); }

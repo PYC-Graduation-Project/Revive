@@ -11,11 +11,13 @@
 #include "client/renderer/shader/deferred_shader.h"
 #include "client/renderer/shader/main_camera_ui_shader.h"
 #include "client/renderer/shader/ui_shader.h"
+#include "client/renderer/shader/billboard_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
+#include "client/object/component/render/billboard_component.h"
 #include "client/object/component/util/camera_component.h"
 
 namespace client_fw
@@ -50,6 +52,7 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
+		ret &= RegisterGraphicsShader<BillboardShader>("billboard", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -156,8 +159,13 @@ namespace client_fw
 		}
 		case eRenderType::kShape:
 		{
-			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
+			const auto& shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterShapeComponent(m_device, shape_comp);
+		}
+		case eRenderType::kBillboard:
+		{
+			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterBillboardComponent(m_device, billboard_comp);
 		}
 		default:
 			break;
@@ -187,6 +195,11 @@ namespace client_fw
 			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
 			m_graphics_shaders.at(shader_name)->UnregisterShapeComponent(shape_comp);
 			break;
+		}
+		case eRenderType::kBillboard:
+		{
+			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterBillboardComponent(billboard_comp);
 		}
 		default:
 			break;

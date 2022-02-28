@@ -52,6 +52,7 @@ namespace client_fw
 			{
 			case eMobilityState::kStatic:
 				LOG_WARN("Static actor[{0}] cannot be spawned at runtime", actor->GetName());
+				actor->SetActorState(eActorState::kDead);
 				break;
 			case eMobilityState::kDestructable:
 			case eMobilityState::kMovable:

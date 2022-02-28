@@ -3,13 +3,13 @@
 
 namespace client_fw
 {
-	class UIRenderItem;
+	class BillboardRenderItem;
 
-	class UIShader : public GraphicsShader
+	class BillboardShader : public GraphicsShader
 	{
 	public:
-		UIShader(const std::string& name);
-		virtual ~UIShader() = default;
+		BillboardShader(const std::string& name);
+		virtual ~BillboardShader() = default;
 
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
@@ -23,14 +23,17 @@ namespace client_fw
 
 		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(eRenderLevelType level_type, int pso_index) const override;
 		virtual D3D12_BLEND_DESC CreateBlendState(eRenderLevelType level_type, int pso_index) const override;
-		virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(eRenderLevelType level_type, int pso_index) const override;
 
 		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const override;
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
 
+	public:
+		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp) override;
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+
 	private:
-		SPtr<UIRenderItem> m_render_item;
+		SPtr<BillboardRenderItem> m_billboard_render_item;
 	};
 }
 

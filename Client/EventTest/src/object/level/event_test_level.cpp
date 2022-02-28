@@ -7,6 +7,7 @@
 #include <client/object/ui/image_ui.h>
 #include <client/object/ui/button_ui.h>
 #include <client/object/ui/progress_bar_ui.h>
+#include <client/object/component/render/billboard_component.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
@@ -88,6 +89,14 @@ namespace event_test
 		test_progress->SetPosition(Vec2(200.0f, 100.0f));
 		test_progress->SetSize(Vec2(256.f, 32.f));
 		test_progress->SetPercent(0.5f);
+
+		auto test_billboard = CreateSPtr<Actor>(eMobilityState::kStatic, "Test Billboard");
+		SpawnActor(test_billboard);
+		test_billboard->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
+		auto billboard_comp = CreateSPtr<BillboardComponent>();
+		test_billboard->AttachComponent(billboard_comp);
+		billboard_comp->SetSize(Vec2(200.0f, 400.0f));
+		billboard_comp->SetTexture("../Contents/Tree_02.dds");
 
 
 		Input::SetInputMode(eInputMode::kGameOnly);

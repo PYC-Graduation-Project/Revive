@@ -53,6 +53,8 @@ namespace client_fw
 			return "opaque mesh";
 		case eShaderType::kShapeBox:
 			return "shape box";
+		case eShaderType::kBillboard:
+			return "billboard";
 		default:
 			return "unknown";
 		}
