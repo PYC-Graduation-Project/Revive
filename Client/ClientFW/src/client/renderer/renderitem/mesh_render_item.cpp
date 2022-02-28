@@ -118,7 +118,7 @@ namespace client_fw
 	{
 		MeshComponentData data;
 		data.mesh_comp = mesh_comp;
-		data.mesh_comp->SetInstanceIndex(static_cast<UINT>(m_mesh_comp_data.size()));
+		data.mesh_comp->SetRenderItemIndex(static_cast<UINT>(m_mesh_comp_data.size()));
 		data.is_need_update = true;
 
 		m_mesh_comp_data.emplace_back(std::move(data));
@@ -138,10 +138,10 @@ namespace client_fw
 
 	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		UINT index = mesh_comp->GetInstanceIndex();
+		UINT index = mesh_comp->GetRenderItemIndex();
 
 		std::swap(*(m_mesh_comp_data.begin() + index), *(m_mesh_comp_data.end() - 1));
-		m_mesh_comp_data[index].mesh_comp->SetInstanceIndex(index);
+		m_mesh_comp_data[index].mesh_comp->SetRenderItemIndex(index);
 		m_mesh_comp_data[index].is_need_update = true;
 
 		m_mesh_comp_data.pop_back();
