@@ -11,6 +11,7 @@
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
+#include "object/actor/billboard_actor.h"
 
 namespace event_test
 {
@@ -90,24 +91,20 @@ namespace event_test
 		test_progress->SetSize(Vec2(256.f, 32.f));
 		test_progress->SetPercent(0.5f);
 
-		auto test_billboard = CreateSPtr<Actor>(eMobilityState::kStatic, "Test Billboard");
+		auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kStatic, "../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), false);
 		SpawnActor(test_billboard);
 		test_billboard->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
-		auto billboard_comp = CreateSPtr<BillboardComponent>();
-		test_billboard->AttachComponent(billboard_comp);
-		billboard_comp->SetSize(Vec2(200.0f, 400.0f));
-		billboard_comp->SetTexture("../Contents/Tree_02.dds");
-
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 
 		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
 			[this]()->bool {
-				auto move_cube = CreateSPtr<MoveCube>();
-				SpawnActor(move_cube);
-				move_cube->SetPosition(m_spawn_pos);
+				auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kDestructable,
+					"../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), m_move_cube_queue.size() % 2);
+				SpawnActor(test_billboard);
+				test_billboard->SetPosition(m_spawn_pos);
 				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
-				m_move_cube_queue.push(move_cube);
+				m_move_cube_queue.push(test_billboard);
 				return true;
 			});
 

@@ -36,10 +36,19 @@ namespace client_fw
 		m_vertex_info->CopyData(vertices.data(), vertices.size());
 	}
 
-	void BillboardPrimitive::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const
+	void BillboardPrimitive::PreDraw(ID3D12GraphicsCommandList* command_list) const
 	{
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 		m_vertex_info->Draw(command_list);
+	}
+
+	void BillboardPrimitive::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const
+	{
 		command_list->DrawInstanced(num_of_vertex, 1, 0, 0);
+	}
+
+	void BillboardPrimitive::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex, UINT start_vertex_location) const
+	{
+		command_list->DrawInstanced(num_of_vertex, 1, start_vertex_location, 0);
 	}
 }

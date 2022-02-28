@@ -25,7 +25,7 @@ namespace event_test
 		Vec3 m_spawn_pos;
 		Vec2 m_spawn_ui_pos;
 
-		std::queue<SPtr<class MoveCube>> m_move_cube_queue;
+		std::queue<SPtr<class BillboardActor>> m_move_cube_queue;
 	};
 }
 

@@ -3,6 +3,7 @@
 #include "client/asset/texture/texture.h"
 #include "client/object/component/render/billboard_component.h"
 #include "client/renderer/core/render.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {

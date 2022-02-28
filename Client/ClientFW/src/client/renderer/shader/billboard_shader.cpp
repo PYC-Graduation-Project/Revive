@@ -39,8 +39,12 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
+			m_billboard_render_item->PreDraw(command_list);
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-			m_billboard_render_item->Draw(command_list);
+			m_billboard_render_item->Draw(command_list, eBillboardType::kTexture);
+			command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+			m_billboard_render_item->Draw(command_list, eBillboardType::kFixUpTexture);
+
 			break;
 		default:
 			break;
@@ -54,7 +58,15 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE BillboardShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "GSBillboard", "gs_5_1", shader_blob);
+		switch (pso_index)
+		{
+		case 0:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "GSBillboard", "gs_5_1", shader_blob);
+		case 1:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "GSFixUpBillboard", "gs_5_1", shader_blob);
+		default:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "GSBillboard", "gs_5_1", shader_blob);
+		}
 	}
 
 	D3D12_SHADER_BYTECODE BillboardShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
@@ -77,7 +89,7 @@ namespace client_fw
 	D3D12_BLEND_DESC BillboardShader::CreateBlendState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_BLEND_DESC desc = GraphicsShader::CreateBlendState(level_type, pso_index);
-		//desc.AlphaToCoverageEnable = TRUE;
+		desc.AlphaToCoverageEnable = TRUE;
 		desc.RenderTarget[0].BlendEnable = true;
 		desc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		desc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
@@ -96,7 +108,7 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kOpaque:
-			result &= CreatePipelineState(device, render_level, 1);
+			result &= CreatePipelineState(device, render_level, 2);
 			break;
 		default:
 			LOG_ERROR("Could not support {0} from {1}",

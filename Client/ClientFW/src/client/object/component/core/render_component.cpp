@@ -2,6 +2,7 @@
 #include "client/object/component/core/render_component.h"
 #include "client/renderer/core/render.h"
 #include "client/util/octree/octree_manager.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {

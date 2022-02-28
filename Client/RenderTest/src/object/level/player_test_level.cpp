@@ -42,7 +42,7 @@ namespace render_test
 
 		police->SetScale(0.2f);*/
 
-		Input::SetInputMode(eInputMode::kUIAndGame);
+		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
 
 		return true;
@@ -58,14 +58,14 @@ namespace render_test
 	void PlayerTestLevel::Update(float delta_time)
 	{
 		
-		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 40000)
+		if (time >= 0.016f && count <= 10000)
 		{
 			for (int i = 0; i < 30; ++i)
 			{
@@ -90,7 +90,7 @@ namespace render_test
 			}
 
 			time -= 0.016f;
-		}*/
+		}
 
 		/*if (count % 100 == 1)
 			LOG_INFO(count);*/

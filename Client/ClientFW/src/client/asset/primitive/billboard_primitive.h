@@ -16,7 +16,9 @@ namespace client_fw
 		virtual void Shutdown() override;
 		virtual void Update(ID3D12Device* device, UINT num_of_data);
 		virtual void UpdateBillboardVertices(const std::vector<BillboardVertex>& vertices);
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex, UINT start_vertex_location) const;
 
 	protected:
 		SPtr<UploadVertexInfo> m_vertex_info;
