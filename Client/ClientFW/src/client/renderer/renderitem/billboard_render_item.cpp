@@ -155,7 +155,8 @@ namespace client_fw
 		{
 			if (m_texture_billboard_components.empty() && m_material_billboard_components.empty())
 			{
-				m_num_of_billboard_data = 0;
+				m_num_of_billboard_data = 1;
+				m_is_need_resource_create = true;
 			}
 			else
 			{

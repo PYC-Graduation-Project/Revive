@@ -15,6 +15,13 @@ namespace client_fw
 	{
 		for (const auto& ui : m_user_interfaces)
 			ui->Shutdown();
+		s_ui_manager = nullptr;
+	}
+
+	void UserInterfaceManager::Reset()
+	{
+		for (const auto& ui : m_user_interfaces)
+			ui->SetUIState(eUIState::kDead);
 	}
 
 	void UserInterfaceManager::Update(float delta_time)
@@ -32,14 +39,15 @@ namespace client_fw
 				break;
 			case eUIState::kDead:
 				m_num_of_visible_texture -= (*ui)->GetNumOfVisibleTexture();
-				ui = m_user_interfaces.erase(ui);
 				(*ui)->Shutdown();
+				ui = m_user_interfaces.erase(ui);
 				break;
 			default:
 				break;
 			}
 		}
 	}
+
 	bool UserInterfaceManager::RegisterUserInterface(const SPtr<UserInterface>& ui)
 	{
 		if (ui->Initialize())

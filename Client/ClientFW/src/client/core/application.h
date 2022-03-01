@@ -18,6 +18,7 @@ namespace client_fw
 	class LevelManager;
 	class LevelLoader;
 	class Level;
+	class UserInterfaceManager;
 	class PhysicsWorld;
 
 	class AssetManager;
@@ -70,6 +71,7 @@ namespace client_fw
 		UPtr<Timer> m_timer;
 		UPtr<EventSystem> m_event_system;
 		UPtr<LevelManager> m_level_manager;
+		UPtr<UserInterfaceManager> m_user_interface_manager;
 		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;
 		UPtr<AssetManager> m_asset_manager;

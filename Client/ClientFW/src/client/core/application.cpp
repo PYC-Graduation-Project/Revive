@@ -7,6 +7,7 @@
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
+#include "client/object/ui/core/user_interface_manager.h"
 #include "client/physics/core/physics_world.h"
 #include "client/renderer/core/renderer.h"
 #include "client/asset/core/asset_manager.h"
@@ -29,6 +30,7 @@ namespace client_fw
 		m_timer = CreateUPtr<Timer>();
 		m_event_system = CreateUPtr<EventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
+		m_user_interface_manager = CreateUPtr<UserInterfaceManager>();
 		m_physics_world = CreateUPtr<PhysicsWorld>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 		m_asset_manager = CreateUPtr<AssetManager>();
@@ -84,6 +86,7 @@ namespace client_fw
 	void Application::Shutdown()
 	{
 		m_level_manager->Shutdown();
+		m_user_interface_manager->Shutdown();
 		m_physics_world->Shutdown();
 		m_renderer->Shutdown();
 	}
@@ -118,6 +121,7 @@ namespace client_fw
 
 	void Application::Update(float delta_time)
 	{
+		m_user_interface_manager->Update(delta_time);
 		m_level_manager->Update(delta_time);
 		m_physics_world->Update(delta_time);
 	}

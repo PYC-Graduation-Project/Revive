@@ -13,7 +13,6 @@ namespace client_fw
 		, m_is_runtime_level(false)
 	{
 		m_actor_manager = CreateUPtr<ActorManager>();
-		m_user_interface_manager = CreateUPtr<UserInterfaceManager>();
 	}
 
 	Level::~Level()
@@ -30,7 +29,7 @@ namespace client_fw
 		for (auto name : m_registered_input_event)
 			Input::UnregisterInputEvent(name);
 
-		m_user_interface_manager->Shutdown();
+		UserInterfaceManager::GetUIManager().Reset();
 		m_actor_manager->Shutdown();
 
 		Shutdown();
@@ -40,7 +39,6 @@ namespace client_fw
 	{
 		Update(delta_time);
 
-		m_user_interface_manager->Update(delta_time);
 		m_actor_manager->Update(delta_time);
 	}
 
@@ -68,7 +66,7 @@ namespace client_fw
 
 	void Level::SpawnUserInterface(const SPtr<UserInterface>& ui) const
 	{
-		m_user_interface_manager->RegisterUserInterface(ui);
+		UserInterfaceManager::GetUIManager().RegisterUserInterface(ui);
 	}
 
 	void Level::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

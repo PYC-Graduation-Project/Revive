@@ -16,6 +16,7 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
+		void Reset();
 
 		bool RegisterUserInterface(const SPtr<UserInterface>& ui);
 
@@ -25,7 +26,7 @@ namespace client_fw
 		UINT m_num_of_visible_texture = 0;
 
 	public:
-		static UserInterfaceManager* GetUIManager() { return s_ui_manager; }
+		static UserInterfaceManager& GetUIManager() { return *s_ui_manager; }
 		const std::vector<SPtr<UserInterface>>& GetUserInterfaces() const { return m_user_interfaces; }
 		UINT GetNumOfVisibleTexture() const { return m_num_of_visible_texture; }
 	};

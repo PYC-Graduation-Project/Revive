@@ -6,7 +6,6 @@ namespace client_fw
 	class Actor;
 	class ActorManager;
 	class UserInterface;
-	class UserInterfaceManager;
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
 	class VisualOctree;
@@ -53,7 +52,6 @@ namespace client_fw
 	private:
 		std::vector<std::string> m_registered_input_event;
 		UPtr<ActorManager> m_actor_manager;
-		UPtr<UserInterfaceManager> m_user_interface_manager;
 		bool m_is_runtime_level;
 
 	public:
