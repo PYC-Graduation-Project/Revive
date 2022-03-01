@@ -17,7 +17,7 @@ namespace client_fw
 		virtual void Shutdown() override;
 
 	private:
-		SPtr<AnimationSequence> m_anim = nullptr;
+		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		bool m_looping = true;
 	public:
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;

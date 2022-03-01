@@ -26,11 +26,13 @@ namespace client_fw
 
 	public:
 		const Mat4& GetWorld();
+		
+		const Mat4& GetTransposeWorld();
 
 		const SPtr<Skeleton>& GetParent() { return m_parent; }
 		const std::string& GetBoneName() { return m_bone_name; }
 
-		void UpdateTransform(const Mat4& to_parent);
+		void UpdateToParent(const Mat4& to_parent);
 
 		void SetChild(SPtr<Skeleton>& child);
 
@@ -38,7 +40,7 @@ namespace client_fw
 
 		void SetToParent(const Mat4& to_parent) { m_to_parent = to_parent; }
 
-		const SPtr<Skeleton>& FindBone(const std::string& m_bone_name);
+		const SPtr<Skeleton> FindBone(const std::string& m_bone_name);
 	};
 }
 

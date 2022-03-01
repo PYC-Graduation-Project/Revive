@@ -39,7 +39,7 @@ namespace client_fw
 		root_parameters[2].InitAsConstantBufferView(1, 0);
 		root_parameters[3].InitAsShaderResourceView(1, 0);
 		root_parameters[4].InitAsDescriptorTable(1, &descriptor_range[0]);
-		root_parameters[5].InitAsConstantBufferView(2, 0); //bone_offset, transform
+		root_parameters[5].InitAsConstantBufferView(2, 0); //bone_offset
 		root_parameters[6].InitAsConstantBufferView(3, 0); //bone_transform
 
 		std::array<CD3DX12_STATIC_SAMPLER_DESC, 1> static_samplers;

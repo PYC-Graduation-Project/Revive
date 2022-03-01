@@ -20,11 +20,14 @@ namespace client_fw
 	}
 	void SkeletalMeshComponent::Update(float delta_time)
 	{
-		if (m_anim && GetSkeletalMesh()->GetSkeleton())
+		if (m_anim_seq && GetSkeletalMesh()->GetSkeleton())
 		{
-			m_anim->AnimToPlay(delta_time*1.0f,m_looping); //speed
-			GetSkeletalMesh()->GetSkeleton()->UpdateTransform(mat4::IDENTITY);
+			m_anim_seq->AnimToPlay(delta_time,m_looping);
+			
+			GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+			//GetSkeletalMesh()->GetSkeleton()->UpdateToParent(GetWorldMatrix());
 		}
+		
 	}
 	void SkeletalMeshComponent::Shutdown()
 	{
@@ -46,8 +49,7 @@ namespace client_fw
 	}
 	void SkeletalMeshComponent::SetAnimation(const std::string& path)
 	{
-		m_anim = AssetStore::LoadAnimation(path);
-		GetSkeletalMesh()->SetAnimatedSkeleton(m_anim->GetAnimatedSkeleton());
+		m_anim_seq = AssetStore::LoadAnimation(path);
 	}
 	UPtr<Collisioner> SkeletalMeshComponent::CreateCollisioner()
 	{

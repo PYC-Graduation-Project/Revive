@@ -88,16 +88,16 @@ cbuffer cbBoneTransData : register(b3, space0)
 	float4x4 g_bone_trans[ANIMATION_BONES];
 }
 
-struct VS_DIFFUSE_IN
+struct VS_SKINNED_MESH_IN //¿Ã∏ßπŸ≤„
 {
 	float3 position : POSITION;
 	float2 uv : TEXCOORD;
 	float3 normal : NORMAL;
-	int4 indices : BONEINDEX;
 	float4 weights : BONEWEIGHT;
+	int4 indices : BONEINDEX;
 };
 
-struct VS_DIFFUSE_OUT
+struct VS_SKINNED_MESH_OUT
 {
 	float4 sv_position : SV_POSITION;
 	float3 position : POSITION;
@@ -106,38 +106,32 @@ struct VS_DIFFUSE_OUT
 };
 
 
-VS_DIFFUSE_OUT VSDiffuse(VS_DIFFUSE_IN input, uint instance_id : SV_InstanceID)
+VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : SV_InstanceID)
 {
-	VS_DIFFUSE_OUT output;
+	VS_SKINNED_MESH_OUT output;
 
 	InstanceData i_data = g_instance_data[instance_id];
 	float4x4 vertex_to_bone_world = (float4x4)0.0f;
-	float4 weight = float4(1.0f, 0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < 4; i++)
 	{
-		vertex_to_bone_world +=  weight[i] * mul(g_bone_offsets[input.indices[i]],g_bone_trans[input.indices[i]]);
+		vertex_to_bone_world +=  input.weights[i] * mul(g_bone_offsets[input.indices[i]],g_bone_trans[input.indices[i]]);
 	}
 	//float4 position = mul(float4(input.position, 1.0f), i_data.world);
-	//float4 position = mul(mul(float4(input.position, 1.0f), i_data.world), vertex_to_bone_world);
 	//float4 position = mul(float4(input.position, 1.0f), vertex_to_bone_world);
 	float4 position = mul(mul(float4(input.position, 1.0f), vertex_to_bone_world), i_data.world);
-	//float4 position = float4(input.position, 1.0f);
 	output.position = position.xyz;
 	output.sv_position = mul(mul(position, g_view), g_projection);
-	//.normal = mul(input.normal, (float3x3)i_data.world);
 	//output.normal = normalize(output.normal);
-	output.normal = float3(input.weights.xyz);
-	//output.position = mul(float4(input.position, 1.0f), g_instance_data[instance_id].world);
-	//output.position.z = instance_id / 100.0f + 0.01f;
+	output.normal = float3(input.indices.xxx);
 	output.uv = input.uv;
 
 	return output;
 }
 
-float4 PSDiffuse(VS_DIFFUSE_OUT input) : SV_TARGET
+float4 PSSkinnedMesh(VS_SKINNED_MESH_OUT input) : SV_TARGET
 {
 	MaterialData material_data = g_material_data[g_material_index];
-	//return float4(1.0f,0.0f,0.0f, 1.0f);
+	//return float4(input.normal, 1.0f);
 	if (material_data.diffuse_texture_index >= 0)
 	{
 		return g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);

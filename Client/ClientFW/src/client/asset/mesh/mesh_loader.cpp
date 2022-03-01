@@ -370,7 +370,7 @@ namespace client_fw
 			}*/
 		}
 
-		std::vector<TextureLightVertex> vertices(vertex_count);
+		std::vector<BoneVertex> vertices(vertex_count);
 		std::vector<UINT> indices(index_count);
 
 		vertex_count = 0;
@@ -386,6 +386,8 @@ namespace client_fw
 				vertices[index].SetPosition(data.positions[i]);
 				vertices[index].SetTexCoord(data.tex_coords[i]);
 				vertices[index].SetNormal(data.normals[i]);
+				vertices[index].SetBoneWeight(data.bone_data->bone_weights[i]);
+				vertices[index].SetBoneIndex(data.bone_data->bone_indices[i]);
 			}
 
 
@@ -421,10 +423,10 @@ namespace client_fw
 		//Blob연결
 
 		const auto& vertex_info = s_mesh->GetVertexInfo(lod);
-		if (vertex_info->CreateVertexBlob<TextureLightVertex>(vertex_count) == false)
+		if (vertex_info->CreateVertexBlob<BoneVertex>(vertex_count) == false)
 		{
 			LOG_ERROR("Could not create blob for vertex");
-			//return false;
+			return ;
 		}
 		vertex_info->CopyData(vertices.data(), vertex_count);
 
@@ -432,10 +434,9 @@ namespace client_fw
 		if (index_info->CreateIndexBlob(index_count) == false)
 		{
 			LOG_ERROR("Could not create blob for index");
-			//return false;
+			return ;
 		}
 		index_info->CopyData(indices.data(), index_count);
-		//return true;
 	}
 
 
@@ -460,28 +461,19 @@ namespace client_fw
 		int temp_int = 0;
 		Mat4 temp_mat4;
 		Vec3 temp_vec3;
-		//while + switch 문은 파일읽는데 적합하지않음 (재귀,탈출)
-		//while + if, for +if문이 더좋다.
 
 		fread(&n_frame, sizeof(int), 1, rev_file);
 		ReadStringFromFile(rev_file, &b_name); //bone name read
-		if (b_name.compare("Bip001_Footsteps") == false)
-		{
-			auto stri = prefix;
-		}
 		skeleton->SetBoneName(b_name);
 		UINT mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
 		auto& temp_data = mesh_data.at(mesh_index);
-		mesh_data.at(0).bone_data->bone_names.emplace_back(std::move(b_name));
+		//mesh_data.at(0).bone_data->bone_names.emplace_back(std::move(b_name));
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
-			auto hash_code = HashCode(prefix.c_str());
-			//if (prefix.compare("</Frame>") == false && skeleton->GetParent() != nullptr) return false;
-			//if (prefix.compare("</Hierarchy>") == false) break;
-			//if (prefix.compare("</Frame>") == false) return false;
+			//auto hash_code = HashCode(prefix.c_str());
 
-			if (HashCode("<Transform>:") == hash_code)
+			if (prefix.compare("<Transform>:") == 0)
 			{
 				//rev_file.read((char*)&temp_mat4, sizeof(Mat4));
 				fread(&temp_mat4, sizeof(Mat4), 1, rev_file);
@@ -495,12 +487,12 @@ namespace client_fw
 				fread(&skeleton->m_translation, sizeof(Vec3), 1, rev_file);
 			}
 
-			else if (HashCode("<Mesh>:") == hash_code) //일반 메쉬 (미처리)
+			else if (prefix.compare("<Mesh>:") == 0) //일반 메쉬 (미처리)
 			{
 				LoadMeshFromRevFile(rev_file, mesh_data);
 				AddMesh();
 			}
-			else if (HashCode("<SkinDeformations>:") == hash_code)
+			else if (prefix.compare("<SkinDeformations>:") == 0)
 			{
 				AddMesh();
 				if (m_mesh_count > 1) InitializeMeshData(mesh_data);
@@ -509,16 +501,15 @@ namespace client_fw
 				if (!prefix.compare("<Mesh>:"))
 				{
 					LoadMeshFromRevFile(rev_file, mesh_data);
-
 				}
 
 			}
-			else if (HashCode("<Materials>:") == hash_code)
+			else if (prefix.compare("<Materials>:") == 0)
 			{
 				fread(&material_count, sizeof(int), 1, rev_file);
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
-					if (!prefix.compare("</Materials>")) break;
+					if (prefix.compare("</Materials>") == 0) break;
 					switch (HashCode(prefix.c_str()))
 					{
 					case HashCode("<Material>:"):
@@ -532,7 +523,8 @@ namespace client_fw
 					}
 				}
 			}
-			else if (HashCode("<Children>:") == hash_code)
+
+			else if (prefix.compare("<Children>:") == 0)
 			{
 				//rev_file.read((char*)&n_childs, sizeof(int));
 				fread(&n_childs, sizeof(int), 1, rev_file);
@@ -541,7 +533,7 @@ namespace client_fw
 					for (int i = 0; i < n_childs; ++i)
 					{
 						ReadStringFromFile(rev_file, &prefix);
-						if (prefix.compare("<Frame>:") == false)
+						if (prefix.compare("<Frame>:") == 0)
 						{
 							SPtr<Skeleton> child = CreateSPtr<Skeleton>();
 							skeleton->SetChild(child);
@@ -553,7 +545,7 @@ namespace client_fw
 					}
 				}
 			}
-			else if (HashCode("</Frame>") == hash_code)
+			else if (prefix.compare("</Frame>") == 0)
 			{
 				if (skeleton->GetParent())return false; //한 프레임이 끝낫는데 부모가 있으면 루트가아니므로 재귀 탈출
 				else break;//루트 프레임이면 반복문을 탈출하고 읽은 정보를 저장한다.
@@ -689,7 +681,7 @@ namespace client_fw
 				//Polgon_count
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
-					if (prefix.compare("</Polygons>") == false)break;
+					if (prefix.compare("</Polygons>") == 0)break;
 					switch (HashCode(prefix.c_str()))
 					{
 					case HashCode("<SubIndices>:"):
@@ -705,7 +697,7 @@ namespace client_fw
 
 						while (ReadStringFromFile(rev_file, &prefix))
 						{
-							if (prefix.compare("</Polygons>") == false) break;
+							if (prefix.compare("</Polygons>") == 0) break;
 							switch (HashCode(prefix.c_str()))
 							{
 							case HashCode("<SubIndex>:"):
@@ -739,7 +731,7 @@ namespace client_fw
 					default:
 						break;
 					}
-					if (prefix.compare("</Polygons>") == false)break;
+					if (prefix.compare("</Polygons>") == 0)break;
 
 				}
 				break;
@@ -767,7 +759,7 @@ namespace client_fw
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
-			if (!prefix.compare("</SkinDeformations>")) break;
+			if (prefix.compare("</SkinDeformations>") == 0) break;
 
 			switch (HashCode(prefix.c_str()))
 			{
@@ -793,7 +785,7 @@ namespace client_fw
 					for (int i = 0; i < skinning_bone_count; ++i)
 					{
 						ReadStringFromFile(rev_file, &prefix);
-						//bone_data->bone_names.emplace_back(std::move(prefix));
+						bone_data->bone_names.emplace_back(std::move(prefix));
 					}
 				}
 				break;
@@ -896,7 +888,7 @@ namespace client_fw
 
 				ReadStringFromFile(file, &prefix); //bone_name
 				auto& temp_skel = skeleton->FindBone(prefix);
-				if (temp_skel)cache_skeleton.emplace_back(std::move(temp_skel));
+				if (temp_skel)cache_skeleton.push_back(temp_skel);
 				else
 				{
 					auto name_skel = prefix;
@@ -905,7 +897,7 @@ namespace client_fw
 				curve.resize(9);
 				while (ReadStringFromFile(file, &prefix))
 				{
-					if (prefix.compare("</AnimationCurve>") == false) break;
+					if (prefix.compare("</AnimationCurve>") == 0) break;
 
 					switch (HashCode(prefix.c_str()))
 					{ //0 : TX 1 : TY ... 8 : SZ 번호에 맞춰서

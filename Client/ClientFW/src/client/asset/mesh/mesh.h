@@ -98,9 +98,9 @@ namespace client_fw
 		std::vector<BOrientedBox> oriented_boxes;
 	};
 
-	struct AnimationData //AnimationData
+	struct AnimationData 
 	{
-		std::array<Mat4, 128> mat128;
+		std::array<Mat4, 128> animation_matrix;
 	};
 
 	class SkeletalMesh : public Mesh

@@ -33,16 +33,13 @@ namespace anim_test
 		//Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
 		//등록해도 작성한 셰이더코드로 안들어감 어떻게쓰는거지??
 		
-		auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/k.rev");
-		//auto skel2 = = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/k.rev");
-		//auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/c.rev");
+		auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel_run.rev");
+		////auto skel2 = = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/k.rev");
+		////auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/c.rev");
 		SpawnActor(skel);
 		skel->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 		skel->SetScale(Vec3(50.0f, 50.0f, 50.0f));
-		//skel->SetRotation(-1.5f, 3.0f, 0.0f);
-		//test_mesh = skel;
-		//gunner->IsUpdatedWorldMatrix();
-		//gunner->GetWorldMatrix
+		////skel->SetRotation(-1.5f, 3.0f, 0.0f);
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
@@ -61,24 +58,35 @@ namespace anim_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-		//test_mesh->Update(delta_time);
 		
-		/*static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 4000)
+		if (time >= 0.016f && count <= 3000)
 		{
 			for (int i = 0; i < 10; ++i)
 			{
-				auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/s.rev");
-				SpawnActor(police);
-				police->SetPosition(Vec3{ x, y, z });
-				police->SetScale(50.f);
-				++count;
+				if (i % 2 == 0)
+				{
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel_run.rev");
+					SpawnActor(police);
+					police->SetPosition(Vec3{ x, y, z });
+					police->SetScale(50.f);
+					++count;
+				}
+				else
+				{
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel_run.rev");
+					SpawnActor(police);
+					police->SetPosition(Vec3{ x, y, z });
+					police->SetScale(50.f);
+					++count;
+				}
+				
 
 				z += 100.0f;
 			}
@@ -95,7 +103,7 @@ namespace anim_test
 			}
 
 			time -= 0.016f;
-		}*/
+		}
 	}
 
 	std::vector<SPtr<VisualOctree>> PlayerTestLevel::CreateVisualOctrees() const
