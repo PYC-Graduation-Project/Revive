@@ -17,8 +17,12 @@ public:
 	void ProcessAccept(HANDLE ,SOCKET&,EXP_OVER*);
 	void ProcessRecv(int, EXP_OVER*, DWORD);
 	
+
+
 	void UpdateObjMove();
 	void SpawnEnemy(int room_id);
+	void DoEnemyMove(int room_id, int enemy_id);
+
 
 	void SendMovePacket(int c_id, int mover);
 	void SendLoginFailPacket(int c_id, int reason);

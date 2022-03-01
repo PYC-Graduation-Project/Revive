@@ -6,6 +6,17 @@ using namespace std;
 
 
 
+
+
+bool MoveObjManager::IsNear(int a, int b)
+{
+	Vector3 obj_a = m_moveobj_arr[a]->GetPos();
+	Vector3 obj_b = m_moveobj_arr[b]->GetPos();
+	if (FOV_RANGE < sqrt(pow(abs(obj_a.x - obj_b.x), 2) + pow(abs(obj_a.z - obj_b.z), 2)))
+		return false;
+	return true;
+}
+
 void MoveObjManager::InitLua(const char* script_name, int obj_id)
 {
 	Enemy* en = GetEnemy(obj_id);

@@ -46,7 +46,7 @@ protected:
 	std::atomic_bool m_is_active = false; //죽어있는지 살아있는지
 	int m_room_id;
 	float m_damage;
-	float m_hp, m_maxhp;
+	float m_hp, m_maxhp;                      
 	
 	char m_name[MAX_NAME_SIZE + 1];
 

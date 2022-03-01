@@ -77,7 +77,17 @@ public:
 	}
 
 #endif // 연산자 오버로딩
-
+	float VectorScale()
+	{
+		auto scale = sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
+		return scale;
+	}
+	Vector3 Normalrize()
+	{
+		float scale = VectorScale();
+		Vector3 nor{ x / scale,y / scale,z / scale };
+		return nor;
+	}
 };
 
 struct timer_event {

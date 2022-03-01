@@ -21,7 +21,7 @@ constexpr int  MAX_NPC = MAX_USER* NPC_PER_USER; //최대 npc 개수
 const float MAX_SPEED=10000; //추후 수정, 플레이어 이동 속도
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
-
+const float FOV_RANGE = 900.0f;
 
 const float SKULL_HP = 10 * PLAYER_DAMAGE;
 const float SKULLKING_HP = 20 * PLAYER_DAMAGE;

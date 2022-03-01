@@ -170,6 +170,31 @@ void PacketManager::SpawnEnemy(int room_id)
 	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
+void PacketManager::DoEnemyMove(int room_id, int enemy_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	Enemy* enemy = m_moveobj_manager->GetEnemy(enemy_id);
+	//방향벡터,이동계산 해주기
+	//충돌체크,A*적용하기
+	Vector3 npos = enemy->GetPos();
+	//타겟이 누군지에 따라서 계산 다르게 해주기
+	npos+=enemy->GetLookVec();
+	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
+	enemy->SetPos(npos);
+
+	for (int i = 0; i < room->GetMaxUser(); i++)
+	{
+		SendMovePacket(i, enemy_id);
+		if (true == m_moveobj_manager->IsNear(i, enemy_id))//이거는 시야범위안에 있는지 확인
+		{
+			//여기서 기지와 플레이어 거리 비교후
+			//플레이어가 더 가까우면 target_id 플레이어로
+			//아니면 기지 그대로
+		}
+	}
+
+}
+
 
 
 
