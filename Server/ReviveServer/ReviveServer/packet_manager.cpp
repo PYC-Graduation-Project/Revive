@@ -53,6 +53,10 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		ProcessMatching(c_id, p);
 		break;
 	}
+	case CS_PACKET_ROTATION: {
+		ProcessRotation(c_id, p);
+		break;
+	}
 	}
 }
 
@@ -358,9 +362,8 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 {
 	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
 	Player* cl = m_moveobj_manager->GetPlayer(c_id);
-	Vector3 pos{ cl->GetPosX(),cl->GetPosY(),cl->GetPosZ() };
-	Vector3 look{ cl->GetLookVec()};
-	Vector3 right{ cl->GetRightVec() };
+	Vector3 pos{ packet->x,packet->y,packet->z };
+	
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
@@ -392,6 +395,8 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	for (auto other_pl : room->GetObjList())
 	{
 		if (false == m_moveobj_manager->IsPlayer(other_pl))
+			continue;
+		if (c_id == other_pl)
 			continue;
 		SendMovePacket(other_pl, c_id);
 	}
@@ -434,6 +439,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		for (auto id : match_list)
 		{
 			Player* player = m_moveobj_manager->GetPlayer(id);
+			player->SetRoomID(r_id);
 			player->is_matching = false;
 			player->state_lock.lock();
 			player->SetState(STATE::ST_INGAME);
@@ -453,10 +459,10 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	
 			e=m_moveobj_manager->GetEnemy(i);
 			
-			int a = 1;
 			if (!e->in_use)
 			{
 				e->in_use = true;
+				e->SetRoomID(r_id);
 				match_list.push_back(e->GetID());
 			}
 			
@@ -469,6 +475,13 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	}
 	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
+}
+
+void PacketManager::ProcessRotation(int c_id, unsigned char* p)
+{
+	cs_packet_rotation* packet = reinterpret_cast<cs_packet_rotation*>(p);
+	
+
 }
 
 void PacketManager::StartGame(int room_id)

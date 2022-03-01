@@ -58,7 +58,7 @@ namespace client_fw
 			m_world_matrix *= mat4::CreateTranslation(m_position);
 
 			m_component_manager->UpdateWorldMatrix();
-
+			
 			m_is_updated_world_matrix = true;
 			m_update_world_matrix = false;
 		}

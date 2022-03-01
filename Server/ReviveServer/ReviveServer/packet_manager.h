@@ -80,7 +80,7 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
-	
+	void ProcessRotation(int c_id, unsigned char* p);
 
 	void StartGame(int room_id);
 };
