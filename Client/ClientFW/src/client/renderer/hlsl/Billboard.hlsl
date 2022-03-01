@@ -11,6 +11,13 @@ struct VS_BILLBOARD_INPUT
     float2 coordinate : TEXCOORD;
 };
 
+struct VS_MAT_BILLBOARD_INPUT
+{
+    float3 position : POSITION;
+    float2 size : SIZE;
+    uint resource_index : RSINDEX;
+};
+
 struct GS_BILLBOARD_OUTPUT
 {
     float4 sv_position : SV_POSITION;
@@ -20,6 +27,11 @@ struct GS_BILLBOARD_OUTPUT
 };
 
 VS_BILLBOARD_INPUT VSBillboard(VS_BILLBOARD_INPUT input)
+{
+    return input;
+}
+
+VS_MAT_BILLBOARD_INPUT VSMaterialBillboard(VS_MAT_BILLBOARD_INPUT input)
 {
     return input;
 }
@@ -60,6 +72,28 @@ void GSBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILL
     }
 }
 
+[maxvertexcount(4)]
+void GSMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILLBOARD_OUTPUT> out_stream)
+{
+    float3 look, right, up;
+    float4 vertices[4];
+    
+    GetBillboardConrers(input[0].position, input[0].size * 0.5f, vertices, look, right, up);
+    
+    GS_BILLBOARD_OUTPUT output;
+    
+    output.resource_index = input[0].resource_index;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.normal = look;
+        output.uv = s_billboard_uvs[i];
+        
+        out_stream.Append(output);
+    }
+}
+
 void GetFixUpBillboardConrers(float3 position, float2 size, out float4 vertices[4], out float3 look, out float3 right, out float3 up)
 {
     up = float3(0.0f, 1.0f, 0.0f);
@@ -94,14 +128,57 @@ void GSFixUpBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS
     }
 }
 
+[maxvertexcount(4)]
+void GSFixUpMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILLBOARD_OUTPUT> out_stream)
+{
+    float3 look, right, up;
+    float4 vertices[4];
+    
+    GetFixUpBillboardConrers(input[0].position, input[0].size * 0.5f, vertices, look, right, up);
+    
+    GS_BILLBOARD_OUTPUT output;
+    
+    output.resource_index = input[0].resource_index;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.normal = look;
+        output.uv = s_billboard_uvs[i];
+        
+        out_stream.Append(output);
+    }
+}
+
 PS_GBUFFER_OUTPUT PSBillboard(GS_BILLBOARD_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
     
-    float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
+    //float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
     
-    //clip(base_color.a - 0.33f);
-    output.base_color = base_color;
+    ////clip(base_color.a - 0.33f);
+    //output.base_color = base_color;
+    
+    output.base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
+    output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    
+    return output;
+}
+
+PS_GBUFFER_OUTPUT PSMaterialBillboard(GS_BILLBOARD_OUTPUT input)
+{
+    PS_GBUFFER_OUTPUT output;
+    
+    int diffuse_index = g_material_data[input.resource_index].diffuse_texture_index;
+    if(diffuse_index >= 0)
+    {
+        output.base_color = g_texture_data[diffuse_index].Sample(g_sampler_point_wrap, input.uv);
+    }
+    else
+    {
+        output.base_color = g_material_data[input.resource_index].base_color;
+    }
+    
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
     
     return output;

@@ -12,6 +12,7 @@
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
 #include "object/actor/billboard_actor.h"
+#include "object/actor/material_billboard_actor.h"
 
 namespace event_test
 {
@@ -117,6 +118,27 @@ namespace event_test
 				}
 				return true;
 			});
+
+		/*RegisterPressedEvent("spawn material billboard", { EventKeyInfo{eKey::kL} },
+			[this]()->bool {
+				auto test_mat_billboard = CreateSPtr<MaterialBillboardActor>(eMobilityState::kDestructable, 
+					"../Contents/Castle/SiegeRam_LOD0.mtl", Vec2(100.0f, 100.0f), m_mat_bb_queue.size() % 2);
+				SpawnActor(test_mat_billboard);
+				test_mat_billboard->SetPosition(m_spawn_pos);
+				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
+				m_mat_bb_queue.push(test_mat_billboard);
+				return true;
+			});
+
+		RegisterPressedEvent("kill movable actor", { EventKeyInfo{eKey::kK} },
+			[this]()->bool {
+				if (m_mat_bb_queue.empty() == false)
+				{
+					m_mat_bb_queue.front()->SetActorState(eActorState::kDead);
+					m_mat_bb_queue.pop();
+				}
+				return true;
+			});*/
 
 		RegisterPressedEvent("spawn test image", { EventKeyInfo{eKey::kU} },
 			[this]()->bool {

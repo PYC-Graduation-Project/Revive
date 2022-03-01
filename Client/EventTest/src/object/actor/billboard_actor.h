@@ -3,7 +3,7 @@
 
 namespace client_fw
 {
-	class BillboardComponent;
+	class TextureBillboardComponent;
 }
 
 namespace event_test
@@ -19,7 +19,7 @@ namespace event_test
 		virtual bool Initialize() override;
 
 	private:
-		SPtr<BillboardComponent>  m_billboard_component;
+		SPtr<TextureBillboardComponent>  m_billboard_component;
 		std::string m_path;
 		Vec2 m_size;
 		bool m_fix_up;

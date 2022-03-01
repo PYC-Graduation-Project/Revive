@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include <client/object/component/render/billboard_component.h>
+#include <client/object/component/render/texture_billboard_component.h>
 #include "billboard_actor.h"
 
 namespace event_test
@@ -9,7 +9,7 @@ namespace event_test
 		: Actor(mobility, "Billboard"), m_path(path)
 		, m_size(size), m_fix_up(fix_up)
 	{
-		m_billboard_component = CreateSPtr<BillboardComponent>();
+		m_billboard_component = CreateSPtr<TextureBillboardComponent>();
 	}
 
 	bool BillboardActor::Initialize()
