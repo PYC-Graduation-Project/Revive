@@ -31,6 +31,7 @@ public:
 
 
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
+	timer_event SetTimerEvent(int obj_id, int target_id,int room_id, EVENT_TYPE ev, int seconds);
 	void End();
 	void Disconnect(int c_id);
 
@@ -55,11 +56,20 @@ private:
 	std::thread db_thread;
 
 
-	Vector3 PLAYER_SPAWN_POINT[3]{
+	Vector3 PLAYER_SPAWN_POINT[3]{ //임시 하드코딩
 	{2350.0f,0.0f,3150.0f},
 	{2450.0f,0.0f,3150.0f},
 	{2400.0f,0.0f,3150.0f}
 	};
+	const float ENEMY_SPAWN_POINT[2][2]
+	{
+		{1800.f,10200.f},
+		{2700.f,10200.f}
+	};
+	//Spawn 1
+	//min : x=1800,z=10500 max: x=2100,z=10200
+	//Spawn 2
+	// min x=2700,z=10500, max=3000,z=10200
 	//나중에 개발
 	void ProcessSignIn (int c_id ,unsigned char *p);
 	void ProcessSignUp(int c_id, unsigned char* p);

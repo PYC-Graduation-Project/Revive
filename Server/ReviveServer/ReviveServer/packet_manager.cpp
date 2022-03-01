@@ -133,7 +133,7 @@ void PacketManager::SpawnEnemy(int room_id)
 	unordered_set<int>enemy_list;
 	for (auto e_id : room->GetObjList())
 	{
-		if (enemy_list.size() == sordier_num + king_num)
+		if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
 			break;
 		if (true == m_moveobj_manager->IsPlayer(e_id))
 			continue;
@@ -152,15 +152,22 @@ void PacketManager::SpawnEnemy(int room_id)
 		}
 
 	}
+	int spawn_idx = rand() % 2;
+	float x = ENEMY_SPAWN_POINT[spawn_idx][0];
+	float z = ENEMY_SPAWN_POINT[spawn_idx][1];
 
 	for (int i = 0; i < room->GetMaxUser(); ++i)
 	{
 		for (auto& en : enemy_list)
 		{
+			enemy = m_moveobj_manager->GetEnemy(en);
+			enemy->SetSpawnPoint(x + rand() % 300, z + rand() % 300);
 			SendObjInfo(room->GetObjList()[i], en);
+			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 1));
 		}
 	}
 	cout << "round" << curr_round << "Wave Start" << endl;
+	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
 
@@ -265,6 +272,18 @@ timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, EVENT_TYPE e
 	t.ev = ev;
 	t.start_time = chrono::system_clock::now() + (1ms * seconds);
 	return t;
+}
+
+timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, int room_id, EVENT_TYPE ev, int seconds)
+{
+	timer_event t;
+	t.obj_id = obj_id;
+	t.target_id = target_id;
+	t.room_id = room_id;
+	t.ev = ev;
+	t.start_time = chrono::system_clock::now() + (1ms * seconds);
+	return t;
+	
 }
 
 void PacketManager::End()
@@ -582,8 +601,13 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		break;
 	}
 	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
-		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
+		ex_over->_comp_op = COMP_OP::OP_PLAYER_MOVE;
 		break;
+	}
+	case EVENT_TYPE::EVENT_NPC_MOVE: {
+		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
+		ex_over->room_id = ev.room_id;
+		ex_over->target_id = ev.target_id;
 	}
 	}
 

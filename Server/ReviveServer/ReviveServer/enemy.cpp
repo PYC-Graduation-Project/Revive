@@ -15,4 +15,11 @@ void Enemy::InitEnemy(OBJ_TYPE type, int room_id,
 	strcpy_s(m_name, name);
 }
 
+void Enemy::SetSpawnPoint(float x, float z)
+{
+	Vector3 pos(x, 0.0f, z);
+	SetOriginPos(pos);
+	SetPos(pos);
+}
+
 

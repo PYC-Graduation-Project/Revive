@@ -29,6 +29,7 @@ public:
 	WSABUF		  _wsa_buf;
 	unsigned char _net_buf[BUFSIZE];
 	int target_id;
+	int room_id;
 public:
 	EXP_OVER(COMP_OP comp_op, char num_bytes, void* mess) : _comp_op(comp_op)
 	{

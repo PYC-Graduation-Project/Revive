@@ -39,6 +39,11 @@ void InGameServer::OnEvent(EXP_OVER* exp_over)
 		delete exp_over;
 		break;
 	}
+	case COMP_OP::OP_NPC_MOVE: {
+		m_PacketManager->DoEnemyMove(exp_over->room_id, exp_over->target_id);
+		delete exp_over;
+		break;
+	}
 	}
 }
 

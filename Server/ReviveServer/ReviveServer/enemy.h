@@ -19,6 +19,8 @@ public:
     //void InitLua(const char* script_name);
     void InitEnemy(OBJ_TYPE type, int room_id, 
         float max_hp, Vector3& pos, float damage,const char* name);
+    void SetSpawnPoint(float x,float z);
+
     //void RegisterAPI();
     lua_State* GetLua() { return L; }
     std::atomic_bool in_use;
