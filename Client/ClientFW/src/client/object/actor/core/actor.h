@@ -5,6 +5,7 @@ namespace client_fw
 {
 	class Component;
 	class ComponentManager;
+	class ActorPhysicsManager;
 
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
@@ -60,8 +61,10 @@ namespace client_fw
 	private:
 		std::vector<std::string> m_registered_input_event;
 		UPtr<ComponentManager> m_component_manager;
+		UPtr<ActorPhysicsManager> m_physics_manager;
 
 		Mat4 m_world_matrix;
+		Vec3 m_previous_position;
 		Vec3 m_position;
 		Quaternion m_rotation;
 		Vec3 m_scale;
@@ -74,8 +77,10 @@ namespace client_fw
 		eActorState GetActorState() const { return m_actor_state; }
 		void SetActorState(eActorState actor_state) { m_actor_state = actor_state; }
 		eMobilityState GetMobilityState() const { return m_mobility_state; }
+		const UPtr<ActorPhysicsManager>& GetPhysicsManager() const { return m_physics_manager; }
 
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
+		const Vec3& GetPreviousPosition() const { return m_previous_position; }
 		const Vec3& GetPosition() const { return m_position; }
 		void SetPosition(const Vec3& pos);
 		const Quaternion& GetRotation() const { return m_rotation; }

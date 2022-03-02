@@ -4,6 +4,7 @@
 #include "client/object/component/core/component.h"
 #include "client/object/component/core/component_manager.h"
 #include "client/input/input.h"
+#include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
 {
@@ -13,6 +14,10 @@ namespace client_fw
 		, m_position(vec3::ZERO), m_scale(Vec3(1.0f, 1.0f, 1.0f))
 	{
 		m_component_manager = CreateUPtr<ComponentManager>();
+		if (m_mobility_state == eMobilityState::kMovable)
+		{
+			m_physics_manager = CreateUPtr<ActorPhysicsManager>();
+		}
 	}
 
 	Actor::~Actor()
@@ -21,6 +26,9 @@ namespace client_fw
 
 	bool Actor::InitializeActor()
 	{
+		if (m_physics_manager != nullptr)
+			m_physics_manager->SetOwner(shared_from_this());
+
 		UpdateWorldMatrix();
 		bool ret = Initialize();
 		UpdateWorldMatrix();
@@ -39,9 +47,13 @@ namespace client_fw
 
 	void Actor::UpdateActor(float delta_time)
 	{
+		m_previous_position = m_position;
 		m_is_updated_world_matrix = false;
 
 		UpdateWorldMatrix();
+
+		if (m_physics_manager != nullptr && m_physics_manager->IsActive())
+			m_physics_manager->Update(delta_time);
 
 		m_component_manager->Update(delta_time);
 		Update(delta_time);

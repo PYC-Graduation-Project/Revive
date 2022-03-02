@@ -3,6 +3,7 @@
 #include "client/object/actor/core/actor.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/physics/collision/collisioner/collisioner.h"
+#include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
 {
@@ -125,6 +126,15 @@ namespace client_fw
 	UPtr<Collisioner> SceneComponent::CreateCollisioner()
 	{
 		return nullptr;
+	}
+
+	void SceneComponent::SetPhysics(bool value)
+	{
+		if (m_is_physics != value && m_collisioner != nullptr)
+		{
+			m_is_physics = value;
+			m_owner.lock()->GetPhysicsManager()->SetActive(m_is_physics);
+		}
 	}
 
 	void SceneComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)

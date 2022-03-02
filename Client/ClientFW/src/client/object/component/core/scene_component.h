@@ -43,6 +43,7 @@ namespace client_fw
 	protected:
 		SPtr<BOrientedBox> m_oriented_box;
 		UPtr<Collisioner> m_collisioner;
+		bool m_is_physics = false;
 
 	private:
 		std::vector<WPtr<CollisionTreeNode>> m_collision_tree_node;
@@ -72,6 +73,8 @@ namespace client_fw
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
 		const UPtr<Collisioner>& GetCollisioner() const { return m_collisioner; }
 		virtual UPtr<Collisioner> CreateCollisioner();
+		bool IsPhysics() const { return m_is_physics; }
+		void SetPhysics(bool value);
 		void AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node);
 		void ResetCollisionTreeNode() { m_collision_tree_node.clear(); }
 		const std::vector<WPtr<CollisionTreeNode>>& GetCollisionTreeNodes() const { return m_collision_tree_node; }

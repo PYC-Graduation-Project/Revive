@@ -67,7 +67,7 @@ namespace render_test
 
 		if (time >= 0.016f && count <= 10000)
 		{
-			for (int i = 0; i < 30; ++i)
+			for (int i = 0; i < 40; ++i)
 			{
 				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructable, "../Contents/police.obj");
 				SpawnActor(police);
