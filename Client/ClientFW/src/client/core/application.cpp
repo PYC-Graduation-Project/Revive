@@ -147,10 +147,10 @@ namespace client_fw
 	void Application::UpdateWindowRect()
 	{
 		GetWindowRect(m_window->hWnd, &m_window->rect);
-		if (m_renderer->UpdateViewport() == false)
+	/*	if (m_renderer->UpdateViewport() == false)
 		{
 			SetAppState(eAppState::kDead);
-		}
+		}*/
 	}
 
 	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -202,7 +202,7 @@ namespace client_fw
 		DWORD dw_style = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 
 		m_window->hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_app_name.c_str(), m_app_name.c_str(),
-			dw_style, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
+			WS_OVERLAPPEDWINDOW/*dw_style*/, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
 
 		if (m_window->hWnd == nullptr)
 			return false;

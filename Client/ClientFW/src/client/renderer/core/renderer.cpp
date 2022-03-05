@@ -33,6 +33,11 @@ namespace client_fw
 			LOG_ERROR("Could not create DX12 swapchain");
 			return false;
 		}
+		if (Create11Device() == false)
+		{
+			LOG_ERROR("Could not create DX11 device");
+			return false;
+		}
 		if (CreateRtvDsvHeaps() == false)
 		{
 			LOG_ERROR("Could not create DX12 heaps");
@@ -49,6 +54,21 @@ namespace client_fw
 			return false;
 		}
 		
+		if(FAILED((m_2d_device_context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_textBrush))))
+			return false;
+		if (FAILED(m_write_factory->CreateTextFormat(
+			L"±Ã¼­Ã¼",
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			50,
+			L"ko-kr",
+			&m_textFormat
+		)));
+		m_textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		m_textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
 		return true;
 	}
 
@@ -107,8 +127,8 @@ namespace client_fw
 
 		m_render_system->DrawUI(m_command_list.Get());
 
-		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	/*	m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));*/
 
 		if (FAILED(m_command_list->Close()))
 		{
@@ -118,6 +138,31 @@ namespace client_fw
 
 		ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
 		m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
+
+		m_dx11_on_12_device->AcquireWrappedResources(m_wrapped_back_buffers[m_cur_swapchain_buffer].GetAddressOf(), 1);
+
+		m_2d_device_context->SetTarget(m_2d_render_targets[m_cur_swapchain_buffer].Get());
+
+		D2D1_SIZE_F rtSize = m_2d_render_targets[m_cur_swapchain_buffer]->GetSize();
+		D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
+		WCHAR text[] = L"´Ù¶÷Áã Çå ÃÂ¹ÙÄû¿¡ Å¸°íÆÄ";
+
+		m_2d_device_context->BeginDraw();
+		m_2d_device_context->SetTransform(D2D1::Matrix3x2F::Identity());
+		m_2d_device_context->DrawText(
+			text,
+			_countof(text) - 1,
+			m_textFormat.Get(),
+			&textRect,
+			m_textBrush.Get()
+		);
+
+		m_2d_device_context->EndDraw();
+
+
+		m_dx11_on_12_device->ReleaseWrappedResources(m_wrapped_back_buffers[m_cur_swapchain_buffer].GetAddressOf(), 1);
+
+		m_dx11_device_context->Flush();
 
 		WaitForGpuCompelete();
 
@@ -152,8 +197,11 @@ namespace client_fw
 			ComPtr<ID3D12Debug> debug_controller;
 			result = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller));
 			if (FAILED(result)) return false;
+
 			debug_controller->EnableDebugLayer();
 			factory_flags |= DXGI_CREATE_FACTORY_DEBUG;
+			m_dx11_device_flags |= D3D11_CREATE_DEVICE_DEBUG;
+			m_d2d_factory_options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 		}
 #endif
 
@@ -220,6 +268,41 @@ namespace client_fw
 		return true;
 	}
 
+	bool Renderer::Create11Device()
+	{
+		ComPtr<ID3D11Device> dx11_device;
+		if (FAILED(D3D11On12CreateDevice(m_device.Get(), m_dx11_device_flags,
+			nullptr, 0, reinterpret_cast<IUnknown**>(m_command_queue.GetAddressOf()),
+			1, 0, &dx11_device, &m_dx11_device_context, nullptr)))
+		{
+			LOG_ERROR("Could not create 11On12 device");
+			return false;
+		}
+
+		if (FAILED(dx11_device.As(&m_dx11_on_12_device)))
+			return false;
+
+		D2D1_DEVICE_CONTEXT_OPTIONS device_options = D2D1_DEVICE_CONTEXT_OPTIONS_NONE;
+		if (FAILED(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3),
+			&m_d2d_factory_options, &m_2d_factory)))
+		{
+			LOG_ERROR("Could not create 2d factory");
+			return false;
+		}
+
+		ComPtr<IDXGIDevice> dxgi_device;
+		if (FAILED(m_dx11_on_12_device.As(&dxgi_device)))
+			return false;
+		if (FAILED(m_2d_factory->CreateDevice(dxgi_device.Get(), &m_2d_device)))
+			return false;
+		if (FAILED(m_2d_device->CreateDeviceContext(device_options, &m_2d_device_context)))
+			return false;
+		if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &m_write_factory)))
+			return false;
+
+		return true;
+	}
+
 	bool Renderer::CreateCommandObjects()
 	{
 		D3D12_COMMAND_QUEUE_DESC queue_desc = {};
@@ -254,7 +337,8 @@ namespace client_fw
 	{
 		const auto& window = m_window.lock();
 
-		m_swap_chain.Reset();
+		//¸¸¾à resize°¡ ÇÊ¿ä ¾ø´Â »óÅÂ¶ó¸é
+		/*m_swap_chain.Reset();
 
 		DXGI_SWAP_CHAIN_DESC sc_desc;
 		sc_desc.BufferDesc.Width = window->width;
@@ -275,7 +359,30 @@ namespace client_fw
 
 		if (FAILED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
 			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))))
+			return false;*/
+
+		DXGI_SWAP_CHAIN_DESC1 sc_desc = {};
+		sc_desc.BufferCount = s_swap_chain_buffer_count;
+		sc_desc.Width = window->width;
+		sc_desc.Height = window->height;
+		sc_desc.Format = m_rtv_format;
+		sc_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sc_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		sc_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+		sc_desc.SampleDesc.Count = 1;
+
+
+		ComPtr<IDXGISwapChain1> swap_chain;
+		if (FAILED(m_factory->CreateSwapChainForHwnd(m_command_queue.Get(), 
+			window->hWnd, &sc_desc, nullptr, nullptr, &swap_chain)))
 			return false;
+		if (FAILED(swap_chain.As(&m_swap_chain)))
+			return false;
+
+
+		m_factory->MakeWindowAssociation(window->hWnd, DXGI_MWA_NO_ALT_ENTER);
+		
+		
 
 		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
 		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
@@ -321,6 +428,17 @@ namespace client_fw
 
 	bool Renderer::CreateRenderTargetViews()
 	{
+		Vec2 dpi;
+#pragma warning(push)
+#pragma warning(disable : 4996)
+		m_2d_factory->GetDesktopDpi(&dpi.x, &dpi.y);
+#pragma warning(pop)
+
+		D2D1_BITMAP_PROPERTIES1 bitmap_properties = D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+			D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
+			dpi.x, dpi.y);
+
 		for (UINT i = 0; i < s_swap_chain_buffer_count; ++i)
 		{
 			if (FAILED(m_swap_chain->GetBuffer(i, IID_PPV_ARGS(&m_rtv_buffers[i]))))
@@ -330,6 +448,24 @@ namespace client_fw
 			}
 			D3DUtil::SetObjectName(m_rtv_buffers[i].Get(), "renderer_rtv_buffer" + std::to_string(i));
 			m_device->CreateRenderTargetView(m_rtv_buffers[i].Get(), nullptr, m_rtv_cpu_handles[i]);
+
+			D3D11_RESOURCE_FLAGS d3d11_flags = { D3D11_BIND_RENDER_TARGET };
+			if (FAILED(m_dx11_on_12_device->CreateWrappedResource(m_rtv_buffers[i].Get(),
+				&d3d11_flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT,
+				IID_PPV_ARGS(&m_wrapped_back_buffers[i]))))
+			{
+				LOG_ERROR("Could not create wrapped resource [{0}]", i);
+				return false;
+			}
+
+			ComPtr<IDXGISurface> surface;
+			if (FAILED(m_wrapped_back_buffers[i].As(&surface)))
+				return false;
+			if (FAILED(m_2d_device_context->CreateBitmapFromDxgiSurface(surface.Get(),
+				&bitmap_properties,	&m_2d_render_targets[i])))
+				return false;
+
+
 		}
 		return true;
 	}
