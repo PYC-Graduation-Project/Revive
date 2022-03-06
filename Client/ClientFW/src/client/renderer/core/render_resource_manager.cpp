@@ -104,6 +104,12 @@ namespace client_fw
 				m_ready_render_textures.push_back(std::static_pointer_cast<RenderTexture>(texture));
 				break;
 			}
+			case eTextureType::kRenderUI:
+			{
+				if(m_ready_render_ui_texture == nullptr)
+					m_ready_render_ui_texture = std::static_pointer_cast<RenderTextTexture>(texture);
+				break;
+			}
 			default:
 				break;
 			}
@@ -134,6 +140,17 @@ namespace client_fw
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		//D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
+
+		if (m_ready_render_ui_texture != nullptr)
+		{
+			const auto& texture = m_ready_render_ui_texture;
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
+
+			texture->SetResourceIndex(m_num_of_external_texture_data++);
+			//cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+			m_ready_render_ui_texture = nullptr;
+		}
 
 		cpu_handle.Offset(m_num_of_external_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 

@@ -8,6 +8,7 @@ namespace client_fw
 	class Mesh;
 	class Material;
 	class Texture;
+	class RenderTextTexture;
 	class ExternalTexture;
 	class RenderTexture;
 	enum class eTextureType;
@@ -48,6 +49,7 @@ namespace client_fw
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;
 		std::vector<SPtr<Material>> m_ready_materials;
+		SPtr<RenderTextTexture> m_ready_render_ui_texture;
 		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
 		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
 

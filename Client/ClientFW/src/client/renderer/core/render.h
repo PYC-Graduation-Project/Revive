@@ -14,7 +14,7 @@ namespace client_fw
 	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque, kDeferred, kUI
+		kOpaque, kDeferred, kUI, kFinalView
 	};
 
 	enum class eShaderType
@@ -46,6 +46,8 @@ namespace client_fw
 		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
 
 	public:
+		static Vec2 GetWindowSize();
+
 		static std::string ConvertRenderLevelType(eRenderLevelType type);
 		static std::string ConvertShaderType(eShaderType type);
 

@@ -29,7 +29,12 @@ float4 PSRenderMainUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 {
     //임시
     return g_texture_data[g_final_texture_index].Sample(g_sampler_point_wrap, input.uv);
+}
 
+float4 PSRenderTextUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
+{
+    //임시
+    return g_texture_data[0].Sample(g_sampler_point_wrap, input.uv);
 }
 
 struct VS_UI_INPUT

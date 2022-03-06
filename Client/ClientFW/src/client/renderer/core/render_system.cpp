@@ -5,6 +5,7 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/renderlevel/deferred_render_level.h"
+#include "client/renderer/renderlevel/final_view_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
@@ -46,11 +47,12 @@ namespace client_fw
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kUI);
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<BillboardShader>("billboard", eRenderLevelType::kOpaque);
 
@@ -82,8 +84,10 @@ namespace client_fw
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device, command_list);
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device, command_list);
 		}
+
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device, command_list);
 	}
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
@@ -113,13 +117,18 @@ namespace client_fw
 		
 	}
 
-	void RenderSystem::DrawUI(ID3D12GraphicsCommandList* command_list) const
+	void RenderSystem::DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const
 	{
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
 			m_camera_manager->DrawMainCameraForUI(command_list);
-			m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Draw(command_list);
 		}
+	}
+
+	void RenderSystem::DrawUI(ID3D12GraphicsCommandList* command_list) const
+	{
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
 	}
 
 	void RenderSystem::UpdateViewport()

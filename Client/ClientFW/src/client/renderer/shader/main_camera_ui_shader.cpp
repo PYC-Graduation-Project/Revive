@@ -28,7 +28,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case eRenderLevelType::kUI:
+		case eRenderLevelType::kFinalView:
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			command_list->DrawInstanced(6, 1, 0, 0);
@@ -60,7 +60,7 @@ namespace client_fw
 		
 		switch (render_level->GetRenderLevelType())
 		{
-		case eRenderLevelType::kUI:
+		case eRenderLevelType::kFinalView:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:

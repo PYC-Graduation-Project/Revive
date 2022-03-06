@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/core/window.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 
@@ -33,6 +34,12 @@ namespace client_fw
 	void Render::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
 	{
 		s_render_system->SetMainCamera(camera_comp);
+	}
+
+	Vec2 Render::GetWindowSize()
+	{
+		const auto& window = s_render_system->GetWindow();
+		return Vec2(static_cast<float>(window->width), static_cast<float>(window->height));
 	}
 
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)

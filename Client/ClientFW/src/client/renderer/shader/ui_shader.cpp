@@ -4,6 +4,7 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/renderlevel/core/render_level.h"
 #include "client/renderer/core/camera_manager.h"
+#include "client/renderer/core/text_render_system.h"
 
 namespace client_fw
 {
@@ -28,7 +29,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
-			m_render_item->Update(device, command_list, CameraManager::GetCameraManager().GetMainCamera());
+			m_render_item->Update(device, command_list, Render::GetWindowSize());
 			break;
 		default:
 			break;
@@ -42,6 +43,11 @@ namespace client_fw
 		case eRenderLevelType::kUI:
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			m_render_item->Draw(command_list);
+#ifdef __USE_DWRITE__
+			command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+			command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			command_list->DrawInstanced(6, 1, 0, 0);
+#endif // __USE_DWRITE__
 			break;
 		default:
 			break;
@@ -49,30 +55,46 @@ namespace client_fw
 	}
 	D3D12_SHADER_BYTECODE UIShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "VSRenderUI", "vs_5_1", shader_blob);
+		if(pso_index == 0)
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "VSRenderUI", "vs_5_1", shader_blob);
+		else
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "VSRenderTexture", "vs_5_1", shader_blob);
 	}
 
 	D3D12_SHADER_BYTECODE UIShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "GSRenderUI", "gs_5_1", shader_blob);
+		if (pso_index == 0)
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "GSRenderUI", "gs_5_1", shader_blob);
+		else
+			return GraphicsShader::CreateGeometryShader(shader_blob, level_type, pso_index);
 	}
 
 	D3D12_SHADER_BYTECODE UIShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "PSRenderUI", "ps_5_1", shader_blob);
+		if(pso_index == 0)
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "PSRenderUI", "ps_5_1", shader_blob);
+		else
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/UI.hlsl", "PSRenderTextUI", "ps_5_1", shader_blob);
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> UIShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
+		if (pso_index == 0)
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
 
-		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_UINT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[3] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[4] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_UINT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[3] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[4] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		return input_element_descs;
+			return input_element_descs;
+		}
+		else
+		{
+			return GraphicsShader::CreateInputLayout(level_type, pso_index);
+		}
 	}
 
 	D3D12_BLEND_DESC UIShader::CreateBlendState(eRenderLevelType level_type, int pso_index) const
@@ -94,7 +116,10 @@ namespace client_fw
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE UIShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
 	{
-		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+		if (pso_index == 0)
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+		else
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	}
 
 	bool UIShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
@@ -104,7 +129,7 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kUI:
-			result &= CreatePipelineState(device, render_level, 1);
+			result &= CreatePipelineState(device, render_level, 2);
 			break;
 		default:
 			LOG_ERROR("Could not support {0} from {1}",

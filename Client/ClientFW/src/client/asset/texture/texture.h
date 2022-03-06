@@ -5,7 +5,7 @@ namespace client_fw
 {
 	enum class eTextureType
 	{
-		kExternal, kRedner
+		kExternal, kRedner, kRenderUI
 	};
 
 	class Texture
@@ -15,6 +15,7 @@ namespace client_fw
 		virtual ~Texture();
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) { return true; }
+		virtual bool Initialize(ID3D12Device* device) { return true; }
 
 	protected:
 		eTextureType m_texture_type;
@@ -78,6 +79,26 @@ namespace client_fw
 		ID3D12Resource* GetDSVTexture() const { return m_dsv_texture.Get(); }
 		UINT GetDSVResourceIndex() const { return m_dsv_texture_resource_index; }
 		void SetDSVResourceIndex(UINT index) { m_dsv_texture_resource_index = index; }
+	};
+
+	class RenderTextTexture final : public Texture
+	{
+	public:
+		RenderTextTexture(const IVec2& size);
+		virtual ~RenderTextTexture() = default;
+
+		virtual bool Initialize(ID3D12Device* device) override;
+		bool Initialize2D(ID3D11On12Device* device, ID2D1DeviceContext2* device_context);
+
+	private:
+		IVec2 m_texture_size;
+		ComPtr<ID3D12DescriptorHeap> m_rtv_descriptor_heap;
+		ComPtr<ID3D11Resource> m_wrapped_render_target;
+		ComPtr<ID2D1Bitmap1> m_2d_render_target;
+
+	public:
+		ComPtr<ID3D11Resource> GetWrappedRenderTarget() const { return m_wrapped_render_target; }
+		ID2D1Bitmap1* Get2DRenderTarget() const { return m_2d_render_target.Get(); }
 	};
 }
 

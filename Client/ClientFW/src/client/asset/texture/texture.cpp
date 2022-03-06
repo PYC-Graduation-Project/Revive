@@ -54,12 +54,12 @@ namespace client_fw
 		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
 		{
 			rtv_clear_value.Format = gbuffer_rtv_formats[i];
-			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 0,
+			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1,
 				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
 		}
 
 		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 0,
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
 
 		D3D12_DESCRIPTOR_HEAP_DESC rtv_heap_desc;
@@ -193,6 +193,58 @@ namespace client_fw
 			LOG_WARN("Out of range of texture GBuffer Index");
 	}
 
+	RenderTextTexture::RenderTextTexture(const IVec2& size)
+		: Texture(eTextureType::kRenderUI), m_texture_size(size)
+	{
+	}
 
+	bool RenderTextTexture::Initialize(ID3D12Device* device)
+	{
+		D3D12_CLEAR_VALUE rtv_clear_value{ DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 0.0f} };
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM,
+			m_texture_size, 1, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_RENDER_TARGET, &rtv_clear_value);
+		m_texture_resource->SetName(L"Render UI Texture");
 
+		D3D12_DESCRIPTOR_HEAP_DESC rtv_heap_desc;
+		rtv_heap_desc.NumDescriptors = 1;
+		rtv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		rtv_heap_desc.NodeMask = 0;
+		if (FAILED(device->CreateDescriptorHeap(&rtv_heap_desc, IID_PPV_ARGS(&m_rtv_descriptor_heap))))
+		{
+			LOG_ERROR("Could not create RTV descriptor heap");
+			return false;
+		}
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_heap_handle(m_rtv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateRenderTargetView(m_texture_resource.Get(), nullptr, rtv_heap_handle);
+
+		return true;
+	}
+
+	bool RenderTextTexture::Initialize2D(ID3D11On12Device* device, ID2D1DeviceContext2* device_context)
+	{
+		D2D1_BITMAP_PROPERTIES1 bitmap_properties = D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+			D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED));
+
+		D3D11_RESOURCE_FLAGS d3d11_flags = { D3D11_BIND_RENDER_TARGET };
+		if (FAILED(device->CreateWrappedResource(m_texture_resource.Get(),
+			&d3d11_flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ,
+			IID_PPV_ARGS(&m_wrapped_render_target))))
+		{
+			LOG_ERROR("Could not create wrapped resource");
+			return false;
+		}
+
+		ComPtr<IDXGISurface> surface;
+		if (FAILED(m_wrapped_render_target.As(&surface)))
+			return false;
+		if (FAILED(device_context->CreateBitmapFromDxgiSurface(surface.Get(),
+			&bitmap_properties, &m_2d_render_target)))
+			return false;
+
+		return true;
+	}
 }

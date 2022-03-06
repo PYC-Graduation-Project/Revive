@@ -27,8 +27,8 @@ namespace client_fw
 		m_ui_primitive->Shutdown();
 	}
 
-	void UIRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
-		const SPtr<CameraComponent> main_camera)
+	void UIRenderItem::Update(ID3D12Device* device, 
+		ID3D12GraphicsCommandList* command_list, const Vec2& window_size)
 	{
 		const auto& ui_manager = UserInterfaceManager::GetUIManager();
 		const auto& user_interfaces = ui_manager.GetUserInterfaces();
@@ -64,7 +64,7 @@ namespace client_fw
 						if (ui_texture->GetTexture() != nullptr)
 						{
 							Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
-								Vec2(-main_camera->GetViewport().width * 0.5f, main_camera->GetViewport().height * 0.5f);
+								Vec2(window_size.x * -0.5f, window_size.y * 0.5f);
 							vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex(),
 								ui_texture->GetCoordinate(), ui_texture->GetTilling()));
 						}

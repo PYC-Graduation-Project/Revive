@@ -27,6 +27,7 @@ namespace client_fw
 
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
+		void DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const;
 		void DrawUI(ID3D12GraphicsCommandList* command_list) const;
 
 		void UpdateViewport();
@@ -76,8 +77,10 @@ namespace client_fw
 
 		UPtr<RenderResourceManager> m_render_asset_manager;
 		UPtr<CameraManager> m_camera_manager;
+		
 
 	public:
 		ID3D12Device* GetDevice() const { return m_device; }
+		SPtr<Window> GetWindow() const { return m_window.lock(); }
 	};
 }
