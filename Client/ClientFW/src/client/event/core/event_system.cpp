@@ -28,8 +28,7 @@ namespace client_fw
 		if (mode != eInputMode::kInActive)
 		{
 			m_input_event_manager->ExecuteEvent();
-			if (mode != eInputMode::kGameOnly)
-				m_ui_event_manager->ExecuteEvent();
+			m_ui_event_manager->ExecuteEvent();
 		}
 		m_input_manager->Update();
 	}

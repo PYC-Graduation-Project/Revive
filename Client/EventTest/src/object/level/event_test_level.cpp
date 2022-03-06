@@ -4,15 +4,13 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
-#include <client/object/ui/image_ui.h>
-#include <client/object/ui/button_ui.h>
-#include <client/object/ui/progress_bar_ui.h>
 #include <client/object/component/render/billboard_component.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
 #include "object/actor/billboard_actor.h"
 #include "object/actor/material_billboard_actor.h"
+#include "object/ui/event_test_ui_layer.h"
 
 namespace event_test
 {
@@ -72,29 +70,12 @@ namespace event_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });*/
 
-		auto test_image = CreateSPtr<ImageUI>("Test image");
-		SpawnUserInterface(test_image);
-		test_image->SetTexture("../Contents/hp_background.dds");
-		test_image->SetSize(Vec2(256.f, 32.f));
-		m_spawn_ui_pos = vec2::ZERO;
-
-		auto test_button = CreateSPtr<ButtonUI>("Test button");
-		SpawnUserInterface(test_button);
-		test_button->SetNormalTexture("../Contents/Penguin_Texture.dds");
-		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
-		test_button->SetPosition(Vec2(400.0f, 400.0f));
-
-		auto test_progress = CreateSPtr<ProgressBarUI>("Test Progress Bar");
-		SpawnUserInterface(test_progress);
-		test_progress->SetBackgroundTexture("../Contents/hp_background.dds");
-		test_progress->SetFillTexture("../Contents/hp_bar.dds");
-		test_progress->SetPosition(Vec2(200.0f, 100.0f));
-		test_progress->SetSize(Vec2(256.f, 32.f));
-		test_progress->SetPercent(0.5f);
-
 		auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kStatic, "../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), false);
 		SpawnActor(test_billboard);
 		test_billboard->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
+
+		auto event_test_ui_layer = CreateSPtr<EventTestUILayer>();
+		RegisterUILayer(event_test_ui_layer);
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 
@@ -139,28 +120,6 @@ namespace event_test
 				}
 				return true;
 			});*/
-
-		RegisterPressedEvent("spawn test image", { EventKeyInfo{eKey::kU} },
-			[this]()->bool {
-				for (UINT i = 0; i < 100; ++i)
-				{
-					auto test_image = CreateSPtr<ImageUI>("Test image");
-					SpawnUserInterface(test_image);
-					test_image->SetTexture("../Contents/hp_background.dds");
-					test_image->SetSize(Vec2(256.f, 32.f));
-					m_spawn_ui_pos += Vec2(10.0f, 0.0f);
-					test_image->SetPosition(m_spawn_ui_pos);
-				}
-				m_spawn_ui_pos += Vec2(-1000.0f, 10.0f);
-			
-				return true;
-			});
-
-		RegisterAxisEvent("test progress bar percent", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
-			[test_progress](float axis)->bool {
-				test_progress->SetPercent(test_progress->GetPercent() + axis * 0.01f);
-				return true;
-			});
 
 		return true;
 	}

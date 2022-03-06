@@ -64,11 +64,11 @@ namespace client_fw
 		}
 	}
 
-	void Level::SpawnUserInterface(const SPtr<UserInterface>& ui) const
+	void Level::RegisterUILayer(const SPtr<UserInterfaceLayer>& ui_layer) const
 	{
-		UserInterfaceManager::GetUIManager().RegisterUserInterface(ui);
+		UserInterfaceManager::GetUIManager().RegisterUserInterfaceLayer(ui_layer);
 	}
-
+	
 	void Level::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption)
 	{

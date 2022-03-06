@@ -1,14 +1,7 @@
 #pragma once
-#include "client/object/core/base_object.h"
-
 namespace client_fw
 {
 	class Texture;
-
-	enum class eUIState
-	{
-		kActive, kHide, kDead
-	};
 
 	class UITexture
 	{
@@ -39,20 +32,19 @@ namespace client_fw
 		void SetTexture(const SPtr<Texture>& texture) { m_texture = texture; }
 	};
 
-	class UserInterface : public IBaseObject, public std::enable_shared_from_this<UserInterface>
+	class UserInterface : public std::enable_shared_from_this<UserInterface>
 	{
 	protected:
 		UserInterface(const std::string& name, size_t num_of_visible_texture);
 		virtual ~UserInterface();
 
 	public:
-		virtual bool Initialize() override { return true; }
-		virtual void Shutdown() override {}
-		virtual void Update(float delta_time) override;
+		virtual bool Initialize() { return true; }
+		virtual void Shutdown() {}
 
 	protected:
 		std::string m_name;
-		eUIState m_ui_state;
+		bool m_is_visible;
 		Vec2 m_position;
 		Vec2 m_size;
 		bool m_is_hovered = false;
@@ -63,8 +55,8 @@ namespace client_fw
 	public:
 		const std::string& GetName() const { return m_name; }
 		void SetName(const std::string& name) { m_name = name; }
-		eUIState GetUIState() const { return m_ui_state; }
-		void SetUIState(eUIState state) { m_ui_state = state; }
+		bool IsVisible() const { return m_is_visible; }
+		void SetVisible(bool state) { m_is_visible = state; }
 		const Vec2& GetPosition() const { return m_position; }
 		virtual void SetPosition(const Vec2& position) { m_position = position; }
 		const Vec2& GetSize() const { return m_size; }

@@ -3,9 +3,9 @@
 
 namespace client_fw
 {
-	class UserInterface;
+	class UserInterfaceLayer;
 
-	class UserInterfaceManager : public IBaseObjectManager
+	class UserInterfaceManager
 	{
 	public:
 		UserInterfaceManager();
@@ -14,21 +14,20 @@ namespace client_fw
 		UserInterfaceManager(const UserInterfaceManager&) = delete;
 		UserInterfaceManager& operator=(const UserInterfaceManager&) = delete;
 
-		virtual void Shutdown() override;
-		virtual void Update(float delta_time) override;
+		virtual void Shutdown();
+		virtual void Update(float delta_time);
 		void Reset();
 
-		bool RegisterUserInterface(const SPtr<UserInterface>& ui);
+		bool RegisterUserInterfaceLayer(const SPtr<UserInterfaceLayer>& ui_layer);
 
 	private:
 		static UserInterfaceManager* s_ui_manager;
-		std::vector<SPtr<UserInterface>> m_user_interfaces;
-		UINT m_num_of_visible_texture = 0;
+		bool m_is_updated_ui_layers = false;
+		std::vector<SPtr<UserInterfaceLayer>> m_ui_layers;
 
 	public:
 		static UserInterfaceManager& GetUIManager() { return *s_ui_manager; }
-		const std::vector<SPtr<UserInterface>>& GetUserInterfaces() const { return m_user_interfaces; }
-		UINT GetNumOfVisibleTexture() const { return m_num_of_visible_texture; }
+		const std::vector<SPtr<UserInterfaceLayer>>& GetUILayers() const { return m_ui_layers; }
 	};
 }
 

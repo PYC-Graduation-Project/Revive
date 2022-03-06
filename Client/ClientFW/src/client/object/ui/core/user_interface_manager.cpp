@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/object/ui/core/user_interface_manager.h"
+#include "client/object/ui/core/user_interface_layer.h"
 #include "client/object/ui/core/user_interface.h"
 
 namespace client_fw
@@ -13,34 +14,29 @@ namespace client_fw
 
 	void UserInterfaceManager::Shutdown()
 	{
-		for (const auto& ui : m_user_interfaces)
-			ui->Shutdown();
 		s_ui_manager = nullptr;
 	}
 
 	void UserInterfaceManager::Reset()
 	{
-		for (const auto& ui : m_user_interfaces)
-			ui->SetUIState(eUIState::kDead);
+		for (const auto& layer : m_ui_layers)
+			layer->SetUILayerState(eUILayerState::kDead);
 	}
 
 	void UserInterfaceManager::Update(float delta_time)
 	{
-		for (auto ui = m_user_interfaces.cbegin(); ui != m_user_interfaces.cend();)
+		for (auto ui = m_ui_layers.cbegin(); ui != m_ui_layers.cend();)
 		{
-			switch ((*ui)->GetUIState())
+			switch ((*ui)->GetUILayerState())
 			{
-			case eUIState::kActive:
-				(*ui)->Update(delta_time);
+			case eUILayerState::kActive:
+			case eUILayerState::kHide:
+				(*ui)->UpdateUILayer(delta_time);
 				++ui;
 				break;
-			case eUIState::kHide:
-				++ui;
-				break;
-			case eUIState::kDead:
-				m_num_of_visible_texture -= (*ui)->GetNumOfVisibleTexture();
+			case eUILayerState::kDead:
 				(*ui)->Shutdown();
-				ui = m_user_interfaces.erase(ui);
+				ui = m_ui_layers.erase(ui);
 				break;
 			default:
 				break;
@@ -48,18 +44,17 @@ namespace client_fw
 		}
 	}
 
-	bool UserInterfaceManager::RegisterUserInterface(const SPtr<UserInterface>& ui)
+	bool UserInterfaceManager::RegisterUserInterfaceLayer(const SPtr<UserInterfaceLayer>& ui_layer)
 	{
-		if (ui->Initialize())
+		if (ui_layer->InitlaizeUILayer())
 		{
-			m_num_of_visible_texture += ui->GetNumOfVisibleTexture();
-			m_user_interfaces.push_back(ui);
+			m_ui_layers.push_back(ui_layer);
 			return true;
 		}
 		else
 		{
-			LOG_ERROR("Could not initialize user interface : {0}", ui->GetName());
-			ui->Shutdown();
+			LOG_ERROR("Could not initialize user interface layer : {0}", ui_layer->GetName());
+			ui_layer->ShutdownUILayer();
 			return false;
 		}
 	}

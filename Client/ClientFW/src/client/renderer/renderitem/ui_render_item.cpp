@@ -2,6 +2,7 @@
 #include "client/renderer/renderitem/ui_render_item.h"
 #include "client/asset/primitive/ui_primitive.h"
 #include "client/object/ui/core/user_interface_manager.h"
+#include "client/object/ui/core/user_interface_layer.h"
 #include "client/object/ui/core/user_interface.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/asset/texture/texture.h"
@@ -31,54 +32,63 @@ namespace client_fw
 		ID3D12GraphicsCommandList* command_list, const Vec2& window_size)
 	{
 		const auto& ui_manager = UserInterfaceManager::GetUIManager();
-		const auto& user_interfaces = ui_manager.GetUserInterfaces();
+		const auto& ui_layers = ui_manager.GetUILayers();
 
-		if (user_interfaces.empty() == false)
-		{
-			UINT num_of_user_interface_data = ui_manager.GetNumOfVisibleTexture();
+		UINT num_of_user_interface_data = 0;
 
-			if (m_size_of_user_interface_data < num_of_user_interface_data)
-			{
-				while (m_size_of_user_interface_data < num_of_user_interface_data)
-				{
-					if (m_size_of_user_interface_data == 0)
-						m_size_of_user_interface_data = 1;
-					else
-						m_size_of_user_interface_data = static_cast<UINT>(roundf(static_cast<float>(m_size_of_user_interface_data) * 1.5f));
-				}
-				m_ui_primitive->Update(device, m_size_of_user_interface_data);
-			}
-
-			std::vector<UIVertex> vertices;
-
-			for (const auto& ui : user_interfaces)
-			{
-				if (ui->GetUIState() == eUIState::kActive)
-				{
-					for (const auto& ui_texture : ui->GetVisibleTextures())
-					{
-#ifdef _DEBUG
-						if (ui_texture == nullptr)
-							LOG_ERROR("Could not find ui texture : {0}", ui->GetName());
-#endif
-						if (ui_texture->GetTexture() != nullptr)
-						{
-							Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
-								Vec2(window_size.x * -0.5f, window_size.y * 0.5f);
-							vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex(),
-								ui_texture->GetCoordinate(), ui_texture->GetTilling()));
-						}
-					}
-				}
-			}
-
-			m_num_of_draw_ui_data = static_cast<UINT>(vertices.size());
-			m_ui_primitive->UpdateUIVertices(vertices);
-		}
+		if (ui_layers.empty())
+			m_num_of_draw_ui_data = 0;
 		else
 		{
-			m_num_of_draw_ui_data = 0;
-			m_size_of_user_interface_data = 0;
+			if (ui_layers.size() != m_num_of_ui_layer)
+			{
+				for (const auto& ui_layer : ui_layers)
+				{
+					if (ui_layer->GetUILayerState() != eUILayerState::kDead)
+						num_of_user_interface_data += ui_layer->GetNumOfVisibleTexture();
+				}
+
+				m_ui_primitive->Update(device, num_of_user_interface_data);
+			}
+		}
+
+		m_num_of_ui_layer = ui_layers.size();
+
+		if (m_num_of_ui_layer > 0)
+		{
+			for (const auto& ui_layer : ui_layers)
+			{
+				if (ui_layer->GetUILayerState() == eUILayerState::kActive)
+				{
+					const auto& user_interfaces = ui_layer->GetUserInterfaces();
+
+					std::vector<UIVertex> vertices;
+
+					for (const auto& ui : user_interfaces)
+					{
+						if (ui->IsVisible())
+						{
+							for (const auto& ui_texture : ui->GetVisibleTextures())
+							{
+#ifdef _DEBUG
+								if (ui_texture == nullptr)
+									LOG_ERROR("Could not find ui texture : {0}", ui->GetName());
+#endif
+								if (ui_texture->GetTexture() != nullptr)
+								{
+									Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
+										Vec2(window_size.x * -0.5f, window_size.y * 0.5f);
+									vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex(),
+										ui_texture->GetCoordinate(), ui_texture->GetTilling()));
+								}
+							}
+						}
+					}
+
+					m_num_of_draw_ui_data = static_cast<UINT>(vertices.size());
+					m_ui_primitive->UpdateUIVertices(vertices);
+				}
+			}
 		}
 	}
 
