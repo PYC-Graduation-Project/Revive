@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "client/core/window.h"
-#include "client/renderer/core/text_render_system.h"
+#include "client/renderer/text/text_render_system.h"
 #include "client/asset/texture/texture.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/renderer/text/text_render_manager.h"
 
 namespace client_fw
 {
@@ -12,6 +13,7 @@ namespace client_fw
 #ifdef __USE_DWRITE__
 		const auto& w = window.lock();
 		m_render_ui_texture = CreateSPtr<RenderTextTexture>(IVec2(w->width, w->height));
+		m_text_render_manager = CreateUPtr<TextRenderManager>();
 #endif
 	}
 
@@ -39,21 +41,12 @@ namespace client_fw
 
 		m_2d_device_context->SetTarget(m_render_ui_texture->Get2DRenderTarget());
 
-		if (FAILED((m_2d_device_context->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_textBrush))))
+		if (m_text_render_manager->Initialize(m_write_factory.Get(), m_2d_device_context.Get()) == false)
+		{
+			LOG_ERROR("Could not initialize text render manager");
 			return false;
-		if (FAILED(m_write_factory->CreateTextFormat(
-			L"±Ã¼­Ã¼",
-			NULL,
-			DWRITE_FONT_WEIGHT_NORMAL,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			50,
-			L"ko-kr",
-			&m_textFormat
-		))) return false;
-			
-		m_textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-		m_textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		}
+
 #endif
 		return true;
 	}
@@ -111,34 +104,29 @@ namespace client_fw
 	{
 	}
 
-	void TextRenderSystem::Update(ID3D12Device* device)
-	{
-	}
-
-	void TextRenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
+	void TextRenderSystem::Update()
 	{
 #ifdef __USE_DWRITE__
+		m_text_render_manager->Update();
+#endif 
+	}
+
+	void TextRenderSystem::Draw() const
+	{
+#ifdef __USE_DWRITE__
+		
 		ID3D11Resource* resources[] = { m_render_ui_texture->GetWrappedRenderTarget().Get() };
 
 		m_dx11_on_12_device->AcquireWrappedResources(resources, _countof(resources));
 
-		D2D1_SIZE_F rtSize = m_render_ui_texture->Get2DRenderTarget()->GetSize();
-		D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
-		WCHAR text[] = L"´Ù¶÷Áã Çå ÃÂ¹ÙÄû¿¡ Å¸°íÆÄ";
-
 		m_2d_device_context->BeginDraw();
 		m_2d_device_context->Clear();
+
+		m_text_render_manager->Draw(m_2d_device_context.Get());
+
 		//m_2d_device_context->SetTransform(D2D1::Matrix3x2F::Identity());
-		m_2d_device_context->DrawText(
-			text,
-			_countof(text) - 1,
-			m_textFormat.Get(),
-			&textRect,
-			m_textBrush.Get()
-		);
-
+	
 		m_2d_device_context->EndDraw();
-
 
 		m_dx11_on_12_device->ReleaseWrappedResources(resources, _countof(resources));
 

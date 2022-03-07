@@ -4,7 +4,7 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/renderlevel/core/render_level.h"
 #include "client/renderer/core/camera_manager.h"
-#include "client/renderer/core/text_render_system.h"
+#include "client/renderer/text/text_render_system.h"
 
 namespace client_fw
 {

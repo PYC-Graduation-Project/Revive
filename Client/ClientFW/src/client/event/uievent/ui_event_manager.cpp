@@ -2,6 +2,7 @@
 #include "client/event/uievent/ui_event_manager.h"
 #include "client/event/uievent/ui_evevt_info.h"
 #include "client/object/ui/core/user_interface.h"
+#include "client/input/input.h"
 
 namespace client_fw
 {
@@ -15,20 +16,28 @@ namespace client_fw
 
 	void UIEventManager::ExecuteEvent()
 	{
-
+		bool is_execute_hovered_event = Input::GetInputMode() == eInputMode::kGameOnly;
 		UINT dead_count = 0;
 
-		for (auto ui_iter = m_ui_events.rbegin(); ui_iter != m_ui_events.rend(); ++ui_iter)
-		{
-			const auto& ui = *ui_iter;
+		//LOG_INFO(Input::GetMousePosition());
 
-			if (ui->GetOwnerUI() != nullptr)
+		for (auto event_iter = m_ui_events.rbegin(); event_iter != m_ui_events.rend(); ++event_iter)
+		{
+			const auto& event = *event_iter;
+
+			if (event->GetOwnerUI() != nullptr)
 			{
-				ui->ExecuteEvent();
+				if (is_execute_hovered_event == false && event->GetOwnerUI()->IsHovered())
+				{
+					event->ExecuteHoveredEvent();
+					is_execute_hovered_event = true;
+				}
+				else
+					event->ExecuteUnhoveredEvent();
 			}
 			else
 			{
-				std::iter_swap(ui_iter, m_ui_events.rbegin() + dead_count);
+				std::iter_swap(event_iter, m_ui_events.rbegin() + dead_count);
 				++dead_count;
 			}
 		}

@@ -24,6 +24,13 @@ namespace event_test
 		test_button->SetNormalTexture("../Contents/Penguin_Texture.dds");
 		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
 		test_button->SetPosition(Vec2(100.0f, 400.0f));
+		test_button->SetSize(Vec2(400.0f, 400.0f));
+
+		test_button = CreateSPtr<ButtonUI>("Test button2");
+		RegisterUserInterface(test_button);
+		test_button->SetNormalTexture("../Contents/Penguin_Texture.dds");
+		test_button->SetHoveredTexture("../Contents/Castle/SiegeRam_LOD0_Diffuse_Color.dds");
+		test_button->SetPosition(Vec2(200.0f, 500.0f));
 
 		auto test_progress = CreateSPtr<ProgressBarUI>("Test Progress Bar");
 		RegisterUserInterface(test_progress);

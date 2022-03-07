@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "client/renderer/core/renderer.h"
 #include "client/renderer/core/render_system.h"
-#include "client/renderer/core/text_render_system.h"
+#include "client/renderer/text/text_render_system.h"
 #include "client/core/window.h"
 #include "client/util/d3d_util.h"
 
@@ -99,9 +99,9 @@ namespace client_fw
 
 	bool Renderer::Render()
 	{
-		m_text_render_system->Update(m_device.Get());
-		m_text_render_system->Draw(m_command_list.Get());
-		
+		m_text_render_system->Update();
+		m_text_render_system->Draw();
+
 		if (FAILED(m_command_allocator->Reset()))
 		{
 			LOG_ERROR("Could not reset command allocator");
@@ -113,14 +113,12 @@ namespace client_fw
 			LOG_ERROR("Could not reset command list");
 			return false;
 		}
-
+		
 		m_render_system->Update(m_device.Get(), m_command_list.Get());
+		m_render_system->Draw(m_command_list.Get());
 
 		m_command_list->RSSetViewports(1, &m_viewport);
 		m_command_list->RSSetScissorRects(1, &m_scissor_rect);
-
-		m_render_system->Draw(m_command_list.Get());
-		
 
 		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
 			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));

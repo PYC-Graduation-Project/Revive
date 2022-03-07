@@ -134,8 +134,7 @@ namespace client_fw
 	void RenderSystem::UpdateViewport()
 	{
 		const auto& window = m_window.lock();
-		m_camera_manager->UpdateMainCameraViewport(window->rect.left,
-			window->rect.top, window->width, window->height);
+		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 
 	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type)
@@ -229,7 +228,6 @@ namespace client_fw
 	{
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);
-		m_camera_manager->UpdateMainCameraViewport(window->rect.left,
-			window->rect.top, window->width, window->height);
+		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 }

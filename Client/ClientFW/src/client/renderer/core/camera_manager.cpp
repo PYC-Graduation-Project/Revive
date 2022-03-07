@@ -59,12 +59,13 @@ namespace client_fw
 		}
 	}
 
-	void CameraManager::UpdateMainCameraViewport(LONG left, LONG top, LONG width, LONG height)
+	void CameraManager::UpdateMainCameraViewport(LONG width, LONG height)
 	{
+		//Resize (Texture 재생성)가 지원하지 않는 이상 무의미한 코드
 		if (m_ready_main_camera != nullptr)
-			m_ready_main_camera->UpdateViewport(left, top, width, height);
+			m_ready_main_camera->UpdateViewport(0, 0, width, height);
 		else if(m_main_camera != nullptr)
-			m_main_camera->UpdateViewport(left, top, width, height);
+			m_main_camera->UpdateViewport(0, 0, width, height);
 	}
 
 	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list,
@@ -82,6 +83,13 @@ namespace client_fw
 			{
 				gpu_address = m_camera_data->GetResource()->GetGPUVirtualAddress() +
 					index * m_camera_data->GetByteSize();
+
+				//일단 임시, 추후에 resize작업을 하게 되면 설정
+				const auto& cv = camera->GetRenderTexture()->GetTextureSize();
+				D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
+				D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
+				command_list->RSSetViewports(1, &view);
+				command_list->RSSetScissorRects(1, &scissor);
 
 				command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
 				MeshVisualizer::UpdateVisibilityFromCamera(camera);

@@ -6,8 +6,9 @@ namespace client_fw
 {
 	struct Window;
 	class RenderTextTexture;
+	class TextRenderManager;
 
-	class TextRenderSystem
+	class TextRenderSystem final
 	{
 	public:
 		TextRenderSystem(const WPtr<Window>& window);
@@ -19,11 +20,14 @@ namespace client_fw
 		bool Initialize(ID3D12Device* device, ID3D12CommandQueue* command_queue);
 		void Shutdown();
 
-		void Update(ID3D12Device* device);
-		void Draw(ID3D12GraphicsCommandList* command_list) const;
+		void Update();
+		void Draw() const;
 
 	private:
 		bool Create11Device(ID3D12Device* device, ID3D12CommandQueue* command_queue);
+
+	public:
+		ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const Vec4& color);
 
 	private:
 		WPtr<Window> m_window;
@@ -35,6 +39,8 @@ namespace client_fw
 		ComPtr<ID2D1Factory3> m_2d_factory;
 		ComPtr<ID2D1Device2> m_2d_device;
 		ComPtr<ID2D1DeviceContext2> m_2d_device_context;
+
+		UPtr<TextRenderManager> m_text_render_manager;
 
 		ComPtr<ID2D1SolidColorBrush> m_textBrush;
 		ComPtr<IDWriteTextFormat> m_textFormat;

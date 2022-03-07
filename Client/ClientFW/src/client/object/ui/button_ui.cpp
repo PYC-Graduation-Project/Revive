@@ -22,55 +22,54 @@ namespace client_fw
 		SetVisibleTexture(m_normal_texture, 0);
 
 		EventSystem::GetEventSystem().GetUIEventManager()->RegisterEvent(
-			CreateUPtr<UIEventInfo>(shared_from_this(), [this]()
+			CreateUPtr<UIEventInfo>(shared_from_this(),
+				[this]() {
+					if (m_button_state == eButtonState::kUnhovered)
+					{
+						m_button_state = eButtonState::kHovered;
+						SetVisibleTexture(m_hovered_texture, 0);
+						if (m_hovered_function != nullptr)
+							m_hovered_function();
+					}
+
+					if (Input::IsKeyPressed(eKey::kLButton) && Input::IsConsumedKey(eKey::kLButton) == false)
+					{
+						m_button_state = eButtonState::kPressed;
+						SetVisibleTexture(m_pressed_texture, 0);
+						if (m_pressed_function != nullptr)
+							m_pressed_function();
+					}
+					if (Input::IsKeyReleased(eKey::kLButton))
+					{
+						if (m_released_function != nullptr)
+							m_released_function();
+
+						if (m_button_state == eButtonState::kPressed)
+						{
+							if (m_clicked_function != nullptr)
+								m_clicked_function();
+						}
+
+						m_button_state = eButtonState::kHovered;
+						SetVisibleTexture(m_hovered_texture, 0);
+					}
+				},
+				[this]()
 				{
-					if (IsHovered())
+					if (m_button_state != eButtonState::kUnhovered)
 					{
-						if (m_button_state == eButtonState::kUnhovered)
+						if ((m_button_state != eButtonState::kPressed && Input::IsKeyPressed(eKey::kLButton) == false)
+							|| (m_button_state == eButtonState::kPressed && Input::IsKeyReleased(eKey::kLButton)))
 						{
-							m_button_state = eButtonState::kHovered;
-							SetVisibleTexture(m_hovered_texture, 0);
-							if (m_hovered_function != nullptr)
-								m_hovered_function();
-						}
-
-						if (Input::IsKeyPressed(eKey::kLButton))
-						{
-							m_button_state = eButtonState::kPressed;
-							SetVisibleTexture(m_pressed_texture, 0);
-							if (m_pressed_function != nullptr)
-								m_pressed_function();
-						}
-						if (Input::IsKeyReleased(eKey::kLButton))
-						{
-							if (m_released_function != nullptr)
-								m_released_function();
-
-							if (m_button_state == eButtonState::kPressed)
-							{
-								if (m_clicked_function != nullptr)
-									m_clicked_function();
-							}
-
-							m_button_state = eButtonState::kHovered;
-							SetVisibleTexture(m_hovered_texture, 0);
+							m_button_state = eButtonState::kUnhovered;
+							SetVisibleTexture(m_normal_texture, 0);
+							if (m_unhovered_function != nullptr)
+								m_unhovered_function();
 						}
 					}
-					else
-					{
-						if (m_button_state != eButtonState::kUnhovered)
-						{
-							if ((m_button_state != eButtonState::kPressed && Input::IsKeyPressed(eKey::kLButton) == false)
-								|| (m_button_state == eButtonState::kPressed && Input::IsKeyReleased(eKey::kLButton)))
-							{
-								m_button_state = eButtonState::kUnhovered;
-								SetVisibleTexture(m_normal_texture, 0);
-								if (m_unhovered_function != nullptr)
-									m_unhovered_function();
-							}
-						}
-					}
-				}));
+				}
+				));
+
 		return true;
 	}
 

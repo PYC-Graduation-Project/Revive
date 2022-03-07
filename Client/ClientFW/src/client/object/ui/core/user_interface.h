@@ -47,7 +47,6 @@ namespace client_fw
 		bool m_is_visible;
 		Vec2 m_position;
 		Vec2 m_size;
-		bool m_is_hovered = false;
 
 	private:
 		std::vector<SPtr<UITexture>> m_visible_textures;

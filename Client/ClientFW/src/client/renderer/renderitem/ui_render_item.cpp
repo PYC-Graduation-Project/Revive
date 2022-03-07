@@ -52,7 +52,7 @@ namespace client_fw
 			}
 		}
 
-		m_num_of_ui_layer = ui_layers.size();
+		m_num_of_ui_layer = static_cast<UINT>(ui_layers.size());
 
 		if (m_num_of_ui_layer > 0)
 		{

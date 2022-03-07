@@ -49,7 +49,7 @@ namespace client_fw
 		virtual bool InitializeWindow();
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
-		void UpdateWindowSize();
+		void UpdateWindowSize(LONG x, LONG y);
 		void UpdateWindowRect();
 
 	protected:

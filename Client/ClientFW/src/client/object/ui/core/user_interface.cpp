@@ -19,7 +19,7 @@ namespace client_fw
 	{
 		Vec2 pos = Vec2(static_cast<float>(Input::GetMousePosition().x),
 			static_cast<float>(Input::GetMousePosition().y));
-		return (Input::GetInputMode() != eInputMode::kGameOnly) && (pos >= m_position && pos <= m_position + m_size);
+		return (pos >= m_position && pos <= m_position + m_size);
 	}
 
 	void UserInterface::SetVisibleTexture(const SPtr<UITexture>& texture, UINT index)

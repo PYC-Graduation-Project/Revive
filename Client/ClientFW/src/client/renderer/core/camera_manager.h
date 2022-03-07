@@ -27,7 +27,7 @@ namespace client_fw
 
 		void Shutdown();
 		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void UpdateMainCameraViewport(LONG left, LONG top, LONG width, LONG height);
+		void UpdateMainCameraViewport(LONG width, LONG height);
 
 		void Draw(ID3D12GraphicsCommandList* command_list, 
 			std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,

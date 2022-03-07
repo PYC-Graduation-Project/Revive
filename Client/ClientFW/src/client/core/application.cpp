@@ -135,22 +135,24 @@ namespace client_fw
 		}
 	}
 
-	void Application::UpdateWindowSize()
+	void Application::UpdateWindowSize(LONG x, LONG y)
 	{
 		UpdateWindowRect();
-		m_window->width = m_window->rect.right - m_window->rect.left;
-		m_window->height = m_window->rect.bottom - m_window->rect.top;
+		m_window->width = x;
+		m_window->height = y;
 		m_window->mid_pos.x = m_window->width / 2;
 		m_window->mid_pos.y = m_window->height / 2;
+
+		//현재 사이즈를 키우려면 카메라, UI등의 텍스쳐도 재 생성이 필요하다.
+		if (m_renderer->UpdateViewport() == false)
+		{
+			SetAppState(eAppState::kDead);
+		}
 	}
 
 	void Application::UpdateWindowRect()
 	{
-		GetWindowRect(m_window->hWnd, &m_window->rect);
-	/*	if (m_renderer->UpdateViewport() == false)
-		{
-			SetAppState(eAppState::kDead);
-		}*/
+		GetWindowRect(m_window->hWnd, &m_window->rect);	
 	}
 
 	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -263,7 +265,7 @@ namespace client_fw
 			else if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
 			{
 				app->SetAppState(client_fw::eAppState::kActive);
-				app->UpdateWindowSize();
+				app->UpdateWindowSize(LOWORD(lParam), HIWORD(lParam));
 			}
 			break;
 		case WM_ACTIVATE:
