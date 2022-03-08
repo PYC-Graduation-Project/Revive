@@ -213,14 +213,14 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.x =p->GetPosX();
 	packet.y =p->GetPosY();
 	packet.z =p->GetPosZ();
-
-	packet.right_x = p->GetRightVec().x;
-	packet.right_y = p->GetRightVec().y;
-	packet.right_z = p->GetRightVec().z;
-
-	packet.look_x = p->GetLookVec().x;
-	packet.look_y = p->GetLookVec().y;
-	packet.look_z = p->GetLookVec().z;
+	//수정필요
+	//packet.right_x = p->GetRightVec().x;
+	//packet.right_y = p->GetRightVec().y;
+	//packet.right_z = p->GetRightVec().z;
+	//
+	//packet.look_x = p->GetLookVec().x;
+	//packet.look_y = p->GetLookVec().y;
+	//packet.look_z = p->GetLookVec().z;
 	
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
@@ -364,7 +364,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	Player* cl = m_moveobj_manager->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
 	
-	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
+	//Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
 	case 0://앞
@@ -390,16 +390,18 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}
 	}*/
 
-	cl->SetPos(pos);
-	std::cout << "Packetx :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
-	for (auto other_pl : room->GetObjList())
-	{
-		if (false == m_moveobj_manager->IsPlayer(other_pl))
-			continue;
-		if (c_id == other_pl)
-			continue;
-		SendMovePacket(other_pl, c_id);
-	}
+	//cl->SetPos(pos);
+	std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
+	std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
+		<< packet->r_z<< ", w : " << packet->r_w << endl;
+	//for (auto other_pl : room->GetObjList())
+	//{
+	//	if (false == m_moveobj_manager->IsPlayer(other_pl))
+	//		continue;
+	//	if (c_id == other_pl)
+	//		continue;
+	//	SendMovePacket(other_pl, c_id);
+	//}
 	
 }
 

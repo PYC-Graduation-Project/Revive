@@ -137,9 +137,8 @@ struct sc_packet_move {
 	unsigned char size;
 	char type;
 	int		id;
-	float  x, y, z;
-	float right_x, right_y, right_z;
-	float look_x, look_y, look_z;
+	float x, y, z;
+	float r_x, r_y, r_z, r_w;
 };
 struct sc_packet_rotation {
 	unsigned char size;

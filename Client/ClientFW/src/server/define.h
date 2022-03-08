@@ -4,9 +4,9 @@
 #include <MSWSock.h>
 #pragma comment (lib, "WS2_32.LIB")
 #pragma comment (lib, "MSWSock.LIB")
+#include <DirectXMath.h>
 
-
-#include"server/protocol.h"
+#include"protocol.h"
 const int BUFSIZE = 256;
 
 enum class COMP_OP {
