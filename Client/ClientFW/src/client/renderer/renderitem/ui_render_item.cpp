@@ -70,16 +70,19 @@ namespace client_fw
 						{
 							for (const auto& ui_texture : ui->GetVisibleTextures())
 							{
-#ifdef _DEBUG
 								if (ui_texture == nullptr)
-									LOG_ERROR("Could not find ui texture : {0}", ui->GetName());
-#endif
-								if (ui_texture->GetTexture() != nullptr)
+									LOG_WARN("Could not find ui texture : {0}", ui->GetName());
+								else
 								{
 									Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
 										Vec2(window_size.x * -0.5f, window_size.y * 0.5f);
-									vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), ui_texture->GetTexture()->GetResourceIndex(),
-										ui_texture->GetCoordinate(), ui_texture->GetTilling()));
+									INT resource_index = -1;
+
+									if (ui_texture->GetTexture() != nullptr)
+										resource_index = ui_texture->GetTexture()->GetResourceIndex();
+
+									vertices.emplace_back(UIVertex(new_position, ui_texture->GetSize(), resource_index,
+										ui_texture->GetBrushColor(), ui_texture->GetCoordinate(), ui_texture->GetTilling()));
 								}
 							}
 						}

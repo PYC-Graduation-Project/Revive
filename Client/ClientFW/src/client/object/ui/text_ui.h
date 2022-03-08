@@ -7,8 +7,10 @@ namespace client_fw
     class TextUI : public UserInterface
     {
     public:
-        TextUI(const std::string& name, const Vec2& size, const std::wstring& text);
-        TextUI(const std::string& name, const Vec2& size, const std::wstring& text, const Vec4& color);
+        TextUI(const std::string& name, const Vec2& size,
+            const std::wstring& text, size_t num_of_visible_texture = 1);
+        TextUI(const std::string& name, const Vec2& size,
+            const std::wstring& text, const Vec4& color, size_t num_of_visible_texture = 1);
 
         virtual bool Initialize() override;
         virtual void Update(float delta_time) override;

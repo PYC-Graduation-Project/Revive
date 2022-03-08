@@ -6,6 +6,27 @@
 
 namespace client_fw
 {
+	BrushColor::BrushColor(const Vec4& color)
+		: m_color(color)
+	{
+	}
+
+	bool operator<(const BrushColor& b1, const BrushColor& b2)
+	{
+		if (b1.GetColor().x == b2.GetColor().x)
+		{
+			if (b1.GetColor().y == b2.GetColor().y)
+			{
+				if (b1.GetColor().z == b2.GetColor().z)
+					return b1.GetColor().w < b2.GetColor().w;
+				else
+					return b1.GetColor().z < b2.GetColor().z;
+			}
+			return b1.GetColor().y < b2.GetColor().y;
+		}
+		return b1.GetColor().x < b2.GetColor().x;
+	}
+
 	TextFormat::TextFormat(const std::wstring& name, UINT size)
 		: m_font_name(name), m_font_size(size)
 	{
@@ -37,7 +58,7 @@ namespace client_fw
 
 	TextInfo::TextInfo(const IVec2& size, const Vec4& color, 
 		const TextFormat& format, const std::wstring& text)
-		: m_text(text), m_color(color)
+		: m_text(text), m_color(BrushColor(color))
 		, m_format(format)
 	{
 		m_text_texture = CreateSPtr<RenderTextTexture>(size);

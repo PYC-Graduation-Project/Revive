@@ -65,13 +65,14 @@ namespace client_fw
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> UIShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
+		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(6);
 
 		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 		input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_UINT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[3] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[4] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_SINT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[3] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[4] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+		input_element_descs[5] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 		return input_element_descs;
 	}
@@ -79,7 +80,7 @@ namespace client_fw
 	D3D12_BLEND_DESC UIShader::CreateBlendState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_BLEND_DESC desc = GraphicsShader::CreateBlendState(level_type, pso_index);
-		desc.AlphaToCoverageEnable = TRUE;
+		//desc.AlphaToCoverageEnable = TRUE;
 		desc.RenderTarget[0].BlendEnable = true;
 		desc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		desc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;

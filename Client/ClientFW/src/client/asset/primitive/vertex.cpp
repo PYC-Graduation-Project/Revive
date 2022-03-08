@@ -54,9 +54,9 @@ namespace client_fw
 	}
 
 	UIVertex::UIVertex(const Vec2& position, const Vec2& size, UINT index,
-		const Vec2& coordinate, const Vec2& tilling)
+		const Vec4& color, const Vec2& coordinate, const Vec2& tilling)
 		: m_position(position), m_size(size)
-		, m_texture_resource_index(index)
+		, m_texture_resource_index(index), m_color(color)
 		, m_coordinate(coordinate), m_tilling(tilling)
 	{
 	}

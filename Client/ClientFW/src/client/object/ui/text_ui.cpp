@@ -5,16 +5,18 @@
 
 namespace client_fw
 {
-	TextUI::TextUI(const std::string& name, const Vec2& size, const std::wstring& text)
-		: UserInterface(name, size, 1)
+	TextUI::TextUI(const std::string& name, const Vec2& size,
+		const std::wstring& text, size_t num_of_visible_texture)
+		: UserInterface(name, size, num_of_visible_texture)
 	{
 		m_text_info = CreateSPtr<TextInfo>(IVec2(size), Vec4(1.f, 1.f, 1.f, 1.f),
 			TextFormat(), text);
 		m_text_texture = CreateSPtr<UITexture>(m_position, size, m_text_info->GetTextTexture());
 	}
 
-	TextUI::TextUI(const std::string& name, const Vec2& size, const std::wstring& text, const Vec4& color)
-		: UserInterface(name, size, 1)
+	TextUI::TextUI(const std::string& name, const Vec2& size,
+		const std::wstring& text, const Vec4& color, size_t num_of_visible_texture)
+		: UserInterface(name, size, num_of_visible_texture)
 	{
 		m_text_info = CreateSPtr<TextInfo>(IVec2(size), color,
 			TextFormat(), text);

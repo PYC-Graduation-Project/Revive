@@ -2,6 +2,7 @@
 
 namespace client_fw
 {
+	class BrushColor;
 	class TextInfo;
 	class TextFormat;
 
@@ -22,7 +23,7 @@ namespace client_fw
 		void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 	private:
-		std::map<Vec4, ComPtr<ID2D1SolidColorBrush>> m_text_brushes;
+		std::map<BrushColor, ComPtr<ID2D1SolidColorBrush>> m_text_brushes;
 		std::map<TextFormat, ComPtr<IDWriteTextFormat>> m_text_formats;
 
 		std::vector<SPtr<TextInfo>> m_visit_texts;
@@ -30,7 +31,7 @@ namespace client_fw
 		std::vector<SPtr<TextInfo>> m_updating_texts;
 
 	public:
-		ComPtr<ID2D1SolidColorBrush> LoadTextBrush(ID2D1DeviceContext2* context, const Vec4& color);
+		ComPtr<ID2D1SolidColorBrush> LoadTextBrush(ID2D1DeviceContext2* context, const BrushColor& color);
 		ComPtr<IDWriteTextFormat> LoadTextFormat(IDWriteFactory* factory, const TextFormat& format);
 
 		void RegisterText(const SPtr<TextInfo>& info);

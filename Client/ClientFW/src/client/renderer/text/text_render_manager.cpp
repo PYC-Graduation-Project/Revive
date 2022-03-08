@@ -112,17 +112,19 @@ namespace client_fw
 		m_visit_texts.clear();
 	}
 
-	ComPtr<ID2D1SolidColorBrush> TextRenderManager::LoadTextBrush(ID2D1DeviceContext2* context, const Vec4& color)
+	ComPtr<ID2D1SolidColorBrush> TextRenderManager::LoadTextBrush(ID2D1DeviceContext2* context, const BrushColor& color)
 	{
+
 		ComPtr<ID2D1SolidColorBrush> brush;
-		auto iter = m_text_brushes.find(color);
+		auto iter = m_text_brushes.find(BrushColor(color));
 		if (iter != m_text_brushes.cend())
 			return iter->second.Get();
 		else
 		{
-			if (FAILED((context->CreateSolidColorBrush(D2D1::ColorF(color.x, color.y, color.z, color.w), &brush))))
+			const auto& brush_color = color.GetColor();
+			if (FAILED((context->CreateSolidColorBrush(D2D1::ColorF(brush_color.x, brush_color.y, brush_color.z, brush_color.w), &brush))))
 			{
-				LOG_ERROR("Could not create solid brush [{0}]", color);
+				LOG_ERROR("Could not create solid brush [{0}]", color.GetColor());
 				return false;
 			}
 			else

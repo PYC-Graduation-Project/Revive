@@ -7,14 +7,16 @@ namespace client_fw
 	{
 	public:
 		UITexture(const Vec2& position, const Vec2& size, const SPtr<Texture>& texture,
+			const Vec4& color = Vec4(1.f, 1.f, 1.f, 1.f),
 			const Vec2& coord = vec2::ZERO, const Vec2& tilling = Vec2(1.f, 1.f))
-			: m_position(position), m_size(size)
-			, m_texture(texture), m_coordinate(coord), m_tilling(tilling)
+			: m_position(position), m_size(size), m_texture(texture)
+			, m_brush_color(color), m_coordinate(coord), m_tilling(tilling)
 		{}
 
 	private:
 		Vec2 m_position;
 		Vec2 m_size;
+		Vec4 m_brush_color;
 		Vec2 m_coordinate;
 		Vec2 m_tilling;
 		SPtr<Texture> m_texture;
@@ -24,6 +26,9 @@ namespace client_fw
 		void SetPosition(const Vec2& position) { m_position = position; }
 		const Vec2& GetSize() const { return m_size; }
 		void SetSize(const Vec2& size) { m_size = size; }
+		const Vec4& GetBrushColor() const { return m_brush_color; }
+		void SetBrushColor(const Vec4& color) { m_brush_color = color; }
+		void SetBrushColor(float r, float g, float b, float a) { m_brush_color = Vec4(r, g, b, a); }
 		const Vec2& GetCoordinate() const { return m_coordinate; }
 		void SetCoordinate(const Vec2& coordinate) { m_coordinate = coordinate; }
 		const Vec2& GetTilling() const { return m_tilling; }

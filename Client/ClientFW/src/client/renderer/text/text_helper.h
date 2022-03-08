@@ -6,6 +6,21 @@ namespace client_fw
 	class TextRenderSystem;
 	class RenderTextTexture;
 
+	class BrushColor
+	{
+	public:
+		BrushColor(const Vec4& color);
+
+	private:
+		Vec4 m_color;
+		
+	public:
+		const Vec4& GetColor() const { return m_color; }
+		void SetColor(const Vec4& color) { m_color = color; }
+	};
+
+	bool operator<(const BrushColor& b1, const BrushColor& b2);
+
 	class TextFormat
 	{
 	public:
@@ -45,15 +60,15 @@ namespace client_fw
 
 	private:
 		std::wstring m_text;
-		Vec4 m_color;
+		BrushColor m_color;
 		TextFormat m_format;
 		SPtr<RenderTextTexture> m_text_texture;
 
 	public:
 		const std::wstring& GetText() const { return m_text; }
 		void SetText(const std::wstring& text) { m_text = text; }
-		const Vec4& GetColor() const { return m_color; }
-		void SetColor(const Vec4& color) { m_color = color; }
+		const BrushColor& GetColor() const { return m_color; }
+		void SetColor(const Vec4& color) { m_color = BrushColor(color); }
 		const TextFormat& GetTextFormat() const { return m_format; }
 		TextFormat& GetTextFormat() { return m_format; }
 

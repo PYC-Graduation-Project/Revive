@@ -31,17 +31,12 @@ float4 PSRenderMainUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
     return g_texture_data[g_final_texture_index].Sample(g_sampler_point_wrap, input.uv);
 }
 
-float4 PSRenderTextUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
-{
-    //юс╫ц
-    return g_texture_data[0].Sample(g_sampler_point_wrap, input.uv);
-}
-
 struct VS_UI_INPUT
 {
     float2 position : POSITION;
     float2 size : SIZE;
-    uint texture_index : TEXINDEX;
+    int texture_index : TEXINDEX;
+    float4 color : COLOR;
     float2 coordinate : TEXCOORD;
     float2 tilling : TILLING;
 };
@@ -50,7 +45,8 @@ struct GS_UI_OUTPUT
 {
     float4 sv_position : SV_POSITION;
     float2 uv : TEXCOORD;
-    uint texture_index : TEXINDEX;
+    int texture_index : TEXINDEX;
+    float4 color : COLOR;
 };
 
 VS_UI_INPUT VSRenderUI(VS_UI_INPUT input)
@@ -65,7 +61,7 @@ void GSRenderUI(point VS_UI_INPUT input[1], inout TriangleStream<GS_UI_OUTPUT> o
 {
     float2 vertices[4];
     
-    vertices[0] = float2(input[0].position.x,  input[0].position.y - input[0].size.y);
+    vertices[0] = float2(input[0].position.x, input[0].position.y - input[0].size.y);
     vertices[1] = float2(input[0].position.x, input[0].position.y);
     vertices[2] = float2(input[0].position.x + input[0].size.x, input[0].position.y - input[0].size.y);
     vertices[3] = float2(input[0].position.x + input[0].size.x, input[0].position.y);
@@ -73,6 +69,8 @@ void GSRenderUI(point VS_UI_INPUT input[1], inout TriangleStream<GS_UI_OUTPUT> o
     GS_UI_OUTPUT output;
     
     output.texture_index = input[0].texture_index;
+    output.color = input[0].color;
+
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(float4(vertices[i], 0.0f, 1.0f), g_projection);
@@ -85,7 +83,10 @@ void GSRenderUI(point VS_UI_INPUT input[1], inout TriangleStream<GS_UI_OUTPUT> o
 
 float4 PSRenderUI(GS_UI_OUTPUT input) : SV_TARGET
 {
-    return g_texture_data[input.texture_index].Sample(g_sampler_point_wrap, input.uv);
+    if (input.texture_index >= 0)
+        return g_texture_data[input.texture_index].Sample(g_sampler_point_wrap, input.uv) * input.color;
+    else
+        return input.color;
 }
 
 #endif // __UI_HLSL__
