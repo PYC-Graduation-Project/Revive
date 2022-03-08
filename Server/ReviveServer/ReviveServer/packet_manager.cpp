@@ -213,15 +213,10 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.x =p->GetPosX();
 	packet.y =p->GetPosY();
 	packet.z =p->GetPosZ();
-	//수정필요
-	//packet.right_x = p->GetRightVec().x;
-	//packet.right_y = p->GetRightVec().y;
-	//packet.right_z = p->GetRightVec().z;
-	//
-	//packet.look_x = p->GetLookVec().x;
-	//packet.look_y = p->GetLookVec().y;
-	//packet.look_z = p->GetLookVec().z;
-	
+	packet.r_x = p->GetRotation().x;
+	packet.r_y = p->GetRotation().y;
+	packet.r_z = p->GetRotation().z;
+	packet.r_w = p->GetRotation().w;
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
