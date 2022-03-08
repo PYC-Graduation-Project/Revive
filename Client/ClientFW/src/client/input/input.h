@@ -167,6 +167,10 @@ namespace client_fw
 		static void SetClipCursor(bool clip);
 		static bool IsClipCursor();
 
+		static void StartInputMethodEditor();
+		static void EndInputMethodEditor();
+		static void OnChangeTextFromIME(const std::function<void(wchar_t)>& function);
+
 		static bool RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption, eInputOwnerType type);
 		static bool RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

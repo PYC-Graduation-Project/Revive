@@ -5,18 +5,18 @@
 
 namespace client_fw
 {
-	InputManager::InputManager(const WPtr<Window>& window)
-		: m_window(window)
-	{
-	}
+    InputManager::InputManager(const WPtr<Window>& window)
+        : m_window(window)
+    {
+    }
 
     InputManager::~InputManager()
     {
     }
-     
+
     void InputManager::Update()
     {
-        m_key_states[ToUnderlying(EKeyState::kBefore)] = 
+        m_key_states[ToUnderlying(EKeyState::kBefore)] =
             m_key_states[ToUnderlying(EKeyState::kCur)];
 
         m_key_states[ToUnderlying(EKeyState::kConsumption)].reset();
@@ -37,7 +37,7 @@ namespace client_fw
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)];
         }
 
-	}
+    }
 
     bool InputManager::IsKeyHoldDown(UINT key) const
     {
@@ -88,7 +88,7 @@ namespace client_fw
     {
         if (hide)
         {
-            m_mouse_position[ToUnderlying(EMousePosState::kLastShow)] = 
+            m_mouse_position[ToUnderlying(EMousePosState::kLastShow)] =
                 m_mouse_position[ToUnderlying(EMousePosState::kCur)];
 
             POINT pos = m_window.lock()->mid_pos;
@@ -103,11 +103,11 @@ namespace client_fw
                 m_mouse_position[ToUnderlying(EMousePosState::kBefore)] =
                 m_mouse_position[ToUnderlying(EMousePosState::kLastShow)];
 
-            POINT pos = { 
+            POINT pos = {
                 m_mouse_position[ToUnderlying(EMousePosState::kLastShow)].x,
-                m_mouse_position[ToUnderlying(EMousePosState::kLastShow)].y 
+                m_mouse_position[ToUnderlying(EMousePosState::kLastShow)].y
             };
-           
+
             ClientToScreen(m_window.lock()->hWnd, &pos);
             SetCursorPos(pos.x, pos.y);
         }
@@ -132,16 +132,39 @@ namespace client_fw
         }
     }
 
-    void InputManager::ChangeKeyState(UINT message, WPARAM key, LPARAM flags)
-	{
-		bool pressed = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
-		m_key_states[ToUnderlying(EKeyState::kCur)].set(key, pressed);
-	}
+    void InputManager::StartInputMethodEditor()
+    {
+        if (m_himc == nullptr)
+        {
+            m_himc = ImmCreateContext();
+            ImmAssociateContext(m_window.lock()->hWnd, m_himc);
+        }
+    }
 
-	void InputManager::ChangeMouseState(int button, WPARAM wParam, int x, int y)
-	{
+    void InputManager::EndInputMethodEditor()
+    {
+        if (m_himc != nullptr)
+        {
+            ImmDestroyContext(m_himc);
+            m_himc = nullptr;
+        }
+    }
+
+    void InputManager::OnChangeTextFromIME(const std::function<void(wchar_t)>& function)
+    {
+        m_ime_function = function;
+    }
+
+    void InputManager::ChangeKeyState(UINT message, WPARAM key, LPARAM flags)
+    {
+        bool pressed = (message == WM_KEYDOWN || message == WM_SYSKEYDOWN);
+        m_key_states[ToUnderlying(EKeyState::kCur)].set(key, pressed);
+    }
+
+    void InputManager::ChangeMouseState(int button, WPARAM wParam, int x, int y)
+    {
         bool down = false;
-        HWND hWnd = m_window.lock()->hWnd;  
+        HWND hWnd = m_window.lock()->hWnd;
         eKey key;
 
         switch (button)
@@ -189,7 +212,13 @@ namespace client_fw
             }
             return;
         }
-        
+
         m_key_states[ToUnderlying(EKeyState::kCur)][ToUnderlying(key)] = down;
-	}
+    }
+
+    void InputManager::ChangeIMEText(WPARAM wParam, LPARAM lParam)
+    {
+        if (m_ime_function != nullptr)
+            m_ime_function(static_cast<wchar_t>(wParam));
+    }
 }

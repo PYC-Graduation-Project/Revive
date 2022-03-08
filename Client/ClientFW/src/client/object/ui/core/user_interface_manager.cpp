@@ -14,6 +14,8 @@ namespace client_fw
 
 	void UserInterfaceManager::Shutdown()
 	{
+		for (const auto& layer : m_ui_layers)
+			layer->Shutdown();
 		s_ui_manager = nullptr;
 	}
 

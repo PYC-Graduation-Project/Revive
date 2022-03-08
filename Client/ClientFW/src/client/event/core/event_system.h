@@ -19,7 +19,7 @@ namespace client_fw
         void ExecuteEvent();
 
     public:
-        void ChangeInputState(UINT message, WPARAM wParam, LPARAM lParam);
+        void ChangeInputState(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
     private:
         static EventSystem* s_event_system;

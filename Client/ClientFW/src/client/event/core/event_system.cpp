@@ -33,8 +33,10 @@ namespace client_fw
 		m_input_manager->Update();
 	}
 
-	void EventSystem::ChangeInputState(UINT message, WPARAM wParam, LPARAM lParam)
+	void EventSystem::ChangeInputState(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
+		static bool s_is_string_start = false;
+
 		switch (message)
 		{
 		case WM_KEYDOWN:
@@ -51,6 +53,14 @@ namespace client_fw
 		case WM_MBUTTONUP:
 		case WM_MOUSEMOVE:
 			m_input_manager->ChangeMouseState(message, wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
+		case WM_IME_COMPOSITION:
+			break;
+		case WM_IME_KEYUP:
+			m_input_manager->ChangeIMEText(wParam, lParam);
+			break;
+		case WM_CHAR:
+			m_input_manager->ChangeIMEText(wParam, lParam);
 			break;
 		}
 	}

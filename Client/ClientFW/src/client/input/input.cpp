@@ -74,6 +74,21 @@ namespace client_fw
 		return EventSystem::GetEventSystem().GetInputManager()->IsClipCursor();
 	}
 
+	void Input::StartInputMethodEditor()
+	{
+		EventSystem::GetEventSystem().GetInputManager()->StartInputMethodEditor();
+	}
+
+	void Input::EndInputMethodEditor()
+	{
+		EventSystem::GetEventSystem().GetInputManager()->EndInputMethodEditor();
+	}
+
+	void Input::OnChangeTextFromIME(const std::function<void(wchar_t)>& function)
+	{
+		EventSystem::GetEventSystem().GetInputManager()->OnChangeTextFromIME(function);
+	}
+
 	bool Input::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{

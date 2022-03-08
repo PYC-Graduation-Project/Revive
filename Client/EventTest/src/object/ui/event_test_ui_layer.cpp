@@ -2,7 +2,7 @@
 #include <client/object/ui/image_ui.h>
 #include <client/object/ui/button_ui.h>
 #include <client/object/ui/progress_bar_ui.h>
-//#include <client/object/ui/text_box_ui.h>
+#include <client/object/ui/text_box_ui.h>
 #include <client/object/ui/text_ui.h>
 #include "event_test_ui_layer.h"
 
@@ -19,7 +19,6 @@ namespace event_test
 		RegisterUserInterface(test_image);
 		test_image->SetTexture("../Contents/hp_background.dds");
 		test_image->SetSize(Vec2(256.f, 32.f));
-		//m_spawn_ui_pos = vec2::ZERO;
 
 		auto test_button = CreateSPtr<ButtonUI>("Test button");
 		RegisterUserInterface(test_button);
@@ -48,6 +47,11 @@ namespace event_test
 		test_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 		test_text->SetFontSize(60);
 		//test_text_box->SetSize(Vec2(600.f, 100.f));
+
+		auto test_text_box = CreateSPtr<TextBoxUI>("Test Text Box", Vec2(600.f, 100.f));
+		RegisterUserInterface(test_text_box);
+		test_text_box->SetPosition(Vec2(600.0f, 400.0f));
+		test_text_box->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 
 		/*RegisterAxisEvent("test progress bar percent", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
 			[test_progress](float axis)->bool {

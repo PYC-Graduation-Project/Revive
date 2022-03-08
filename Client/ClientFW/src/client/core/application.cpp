@@ -298,7 +298,7 @@ namespace client_fw
 			break;
 		}
 
-		input_system->ChangeInputState(message, wParam, lParam);
+		input_system->ChangeInputState(hWnd, message, wParam, lParam);
 
 		return result;
 	}

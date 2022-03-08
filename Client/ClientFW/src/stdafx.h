@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <windowsx.h>
+#pragma comment(lib, "imm32.lib")
 
 #include <wrl.h>
 #include <shellapi.h>
