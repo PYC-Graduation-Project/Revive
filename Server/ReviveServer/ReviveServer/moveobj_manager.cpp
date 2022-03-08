@@ -55,7 +55,7 @@ int MoveObjManager::API_get_x(lua_State* L)
 	int user_id =
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	float x = m_moveobj_arr[user_id]->GetPosX();
+	float x;
 	lua_pushnumber(L, x);
 	return 1;
 }
@@ -159,6 +159,7 @@ void MoveObjManager::DestroyObject()
 		if (obj)
 		{
 			delete obj;
+			obj = NULL;
 		}
 	}
 }

@@ -2,7 +2,7 @@
 #include "enemy.h"
 using namespace std;
 
-
+//기지 아이디= -1
 void Enemy::InitEnemy(OBJ_TYPE type, int room_id, 
 	float max_hp, Vector3& pos, float damage, const char*name)
 {

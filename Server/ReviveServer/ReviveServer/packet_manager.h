@@ -70,6 +70,8 @@ private:
 		{1800.f,10200.f},
 		{2700.f,10200.f}
 	};
+
+	Vector3 BASE_POINT{ 2400.0f,0.0f,2850.0f };
 	//Spawn 1
 	//min : x=1800,z=10500 max: x=2100,z=10200
 	//Spawn 2

@@ -2,6 +2,7 @@
 #include<vector>
 #include<mutex>
 #include<atomic>
+class Object;
 class Room
 {
 public:
@@ -35,7 +36,7 @@ private:
 	int curr_round;
 	std::mutex m_obj_lock;
 	std::vector<int>m_obj_list;
-
+	Object* m_base;//방초기화할때 생성
 };
 
 

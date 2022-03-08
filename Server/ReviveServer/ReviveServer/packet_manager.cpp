@@ -180,9 +180,21 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	Enemy* enemy = m_moveobj_manager->GetEnemy(enemy_id);
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
+	Vector3 nlook;
 	Vector3 npos = enemy->GetPos();
+	if (enemy->GetTargetId() == -1)//-1기지 아이디
+	{
+		Vector3 nlook = Vector3{ BASE_POINT - npos }.Normalrize();
+		//적 look벡터 설정
+	}
+	else
+	{
+		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
+		Vector3 nlook = Vector3{ m_moveobj_manager->GetPlayer(enemy->GetTargetId())->GetPos() - npos }.Normalrize();
+	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
-	npos+=enemy->GetLookVec();
+	npos+=(nlook* MAX_SPEED);
+	
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 	enemy->SetPos(npos);
 

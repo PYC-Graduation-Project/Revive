@@ -9,6 +9,7 @@ class Enemy :
 public:
     Enemy(int i) :in_use(false),L(NULL){
         m_id = i;
+        target_id = -1;
     };
     ~Enemy() 
     {
@@ -23,6 +24,8 @@ public:
     Vector3 GetLookVec() { return m_look; }
     //void RegisterAPI();
     lua_State* GetLua() { return L; }
+    const int GetTargetId()const { return target_id; }
+    void SetTargetId(const int val) { target_id = val; }
     std::atomic_bool in_use;
 private:
     lua_State* L;
