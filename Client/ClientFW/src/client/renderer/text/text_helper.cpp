@@ -50,6 +50,8 @@ namespace client_fw
 
 	void TextHelper::RegisterTextToTextManager(const SPtr<TextInfo>& info)
 	{
+#ifdef __USE_DWRITE__
 		s_render_system->GetTextRenderManager()->RegisterText(info);
+#endif
 	}
 }

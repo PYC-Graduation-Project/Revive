@@ -64,7 +64,7 @@ void GSBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILL
     
     for (int i = 0; i < 4; ++i)
     {
-        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.sv_position = mul(vertices[i], g_view_projection);
         output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
@@ -86,7 +86,7 @@ void GSMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout TriangleSt
     
     for (int i = 0; i < 4; ++i)
     {
-        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.sv_position = mul(vertices[i], g_view_projection);
         output.normal = look;
         output.uv = s_billboard_uvs[i];
         
@@ -120,7 +120,7 @@ void GSFixUpBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS
     
     for (int i = 0; i < 4; ++i)
     {
-        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.sv_position = mul(vertices[i], g_view_projection);
         output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
@@ -142,7 +142,7 @@ void GSFixUpMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout Trian
     
     for (int i = 0; i < 4; ++i)
     {
-        output.sv_position = mul(mul(vertices[i], g_view), g_projection);
+        output.sv_position = mul(vertices[i], g_view_projection);
         output.normal = look;
         output.uv = s_billboard_uvs[i];
         

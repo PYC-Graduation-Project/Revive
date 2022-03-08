@@ -46,11 +46,6 @@ namespace client_fw
 				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
-				//임시로 rtv_format은 이렇게 저장하자.
-				//어떻게 OpaqueRenderLevel(일단은 Opaque만 GBuffer를 사용하기 때문에)과 맞출지 생각하자.
-			/*	camera->GetRenderTexture()->Initialize(device, command_list,
-					{ DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM });*/
-
 				m_cameras[eCameraUsage::kBasic].push_back(camera);
 			}
 			m_ready_cameras[eCameraUsage::kBasic].clear();
@@ -147,6 +142,7 @@ namespace client_fw
 
 			camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
 			camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
+			camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
 			camera_data.camera_position = camera->GetWorldPosition();
 			camera_data.final_texture_index = render_texture->GetResourceIndex();
 			camera_data.gbuffer_texture_indices = XMUINT4(

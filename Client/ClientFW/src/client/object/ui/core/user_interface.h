@@ -45,7 +45,7 @@ namespace client_fw
 
 	protected:
 		std::string m_name;
-		bool m_is_visible;
+		bool m_is_visible = true;
 		Vec2 m_position;
 		Vec2 m_size;
 

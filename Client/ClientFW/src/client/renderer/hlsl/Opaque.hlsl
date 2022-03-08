@@ -28,6 +28,7 @@ cbuffer cbCameraData : register(b1, space0)
 {
     matrix g_view;
     matrix g_projection;
+    matrix g_view_projection;
     float3 g_camera_pos;
     uint g_final_texture_index;
     uint4 g_gbuffer_texture_indices;
@@ -62,7 +63,7 @@ VS_OPAQUE_MESH_OUT VSOpaqueMesh(VS_OPAQUE_MESH_IN input, uint instance_id : SV_I
     
     float4 position = mul(float4(input.position, 1.0f), i_data.world);
     output.position = position.xyz;
-    output.sv_position = mul(mul(position, g_view), g_projection);
+    output.sv_position = mul(position, g_view_projection);
     output.normal = mul(input.normal, (float3x3)i_data.world_inverse_transpose);
     output.normal = normalize(output.normal);
     output.uv = input.uv;
