@@ -11,7 +11,7 @@ namespace client_fw
 	class ButtonUI : public UserInterface
 	{
 	public:
-		ButtonUI(const std::string& name = "Button");
+		ButtonUI(const std::string& name = "Button", const Vec2& size = Vec2(128.f, 64.f));
 
 		virtual bool Initialize() override;
 

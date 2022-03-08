@@ -5,8 +5,8 @@
 
 namespace client_fw
 {
-	ImageUI::ImageUI(const std::string& name)
-		: UserInterface(name, 1)
+	ImageUI::ImageUI(const std::string& name, const Vec2& size)
+		: UserInterface(name, size, 1)
 	{
 		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
 	}

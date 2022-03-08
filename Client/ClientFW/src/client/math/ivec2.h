@@ -7,6 +7,7 @@ namespace client_fw
 	public:
 		explicit IVec2();
 		explicit IVec2(int x, int y);
+		explicit IVec2(const Vec2& vec);
 
 		IVec2& operator+=(const IVec2& rhs);
 		IVec2& operator-=(const IVec2& rhs);

@@ -11,7 +11,7 @@ namespace client_fw
 		: m_window(window)
 	{
 		m_render_system = CreateUPtr<RenderSystem>(window);
-		m_text_render_system = CreateUPtr<TextRenderSystem>(window);
+		m_text_render_system = CreateUPtr<TextRenderSystem>();
 	}
 
 	Renderer::~Renderer()
@@ -99,7 +99,7 @@ namespace client_fw
 
 	bool Renderer::Render()
 	{
-		m_text_render_system->Update();
+		m_text_render_system->Update(m_device.Get());
 		m_text_render_system->Draw();
 
 		if (FAILED(m_command_allocator->Reset()))
@@ -133,11 +133,7 @@ namespace client_fw
 
 		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-#ifdef __USE_DWRITE__
-		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_text_render_system->GetRenderUITexture(),
-			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-#endif // __USE_DWRITE__
+		m_text_render_system->PostDraw(m_command_list.Get());
 
 		if (FAILED(m_command_list->Close()))
 		{

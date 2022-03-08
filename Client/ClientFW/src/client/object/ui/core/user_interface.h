@@ -35,12 +35,13 @@ namespace client_fw
 	class UserInterface : public std::enable_shared_from_this<UserInterface>
 	{
 	protected:
-		UserInterface(const std::string& name, size_t num_of_visible_texture);
+		UserInterface(const std::string& name, const Vec2& size, size_t num_of_visible_texture);
 		virtual ~UserInterface();
 
 	public:
 		virtual bool Initialize() { return true; }
 		virtual void Shutdown() {}
+		virtual void Update(float delta_time) {}
 
 	protected:
 		std::string m_name;

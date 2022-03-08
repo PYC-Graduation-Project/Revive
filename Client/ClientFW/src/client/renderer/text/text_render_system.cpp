@@ -4,15 +4,16 @@
 #include "client/asset/texture/texture.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/text/text_render_manager.h"
+#include "client/renderer/text/text_helper.h"
 
 namespace client_fw
 {
-	TextRenderSystem::TextRenderSystem(const WPtr<Window>& window)
-		: m_window(window)
+	TextRenderSystem* TextHelper::s_render_system = nullptr;
+
+	TextRenderSystem::TextRenderSystem()
 	{
+		TextHelper::s_render_system = this;
 #ifdef __USE_DWRITE__
-		const auto& w = window.lock();
-		m_render_ui_texture = CreateSPtr<RenderTextTexture>(IVec2(w->width, w->height));
 		m_text_render_manager = CreateUPtr<TextRenderManager>();
 #endif
 	}
@@ -29,17 +30,6 @@ namespace client_fw
 			LOG_ERROR("Could not create DX11 device");
 			return false;
 		}
-
-		if (m_render_ui_texture->Initialize(device) == false ||
-			m_render_ui_texture->Initialize2D(m_dx11_on_12_device.Get(), m_2d_device_context.Get()) == false)
-		{
-			LOG_ERROR("Could not create render ui texture");
-			return false;
-		}
-
-		RenderResourceManager::GetRenderResourceManager().RegisterTexture(m_render_ui_texture);
-
-		m_2d_device_context->SetTarget(m_render_ui_texture->Get2DRenderTarget());
 
 		if (m_text_render_manager->Initialize(m_write_factory.Get(), m_2d_device_context.Get()) == false)
 		{
@@ -95,42 +85,31 @@ namespace client_fw
 		return true;
 	}
 
-	ID3D12Resource* TextRenderSystem::GetRenderUITexture() const
-	{
-		return m_render_ui_texture->GetResource();
-	}
-
 	void TextRenderSystem::Shutdown()
 	{
 	}
 
-	void TextRenderSystem::Update()
+	void TextRenderSystem::Update(ID3D12Device* device)
 	{
 #ifdef __USE_DWRITE__
-		m_text_render_manager->Update();
+		m_text_render_manager->Update(m_write_factory.Get(), device, m_dx11_on_12_device.Get(), m_2d_device_context.Get());
 #endif 
 	}
 
 	void TextRenderSystem::Draw() const
 	{
 #ifdef __USE_DWRITE__
+		if (m_text_render_manager->Draw(m_dx11_on_12_device.Get(), m_2d_device_context.Get()))
+		{
+			m_dx11_device_context->Flush();
 		
-		ID3D11Resource* resources[] = { m_render_ui_texture->GetWrappedRenderTarget().Get() };
-
-		m_dx11_on_12_device->AcquireWrappedResources(resources, _countof(resources));
-
-		m_2d_device_context->BeginDraw();
-		m_2d_device_context->Clear();
-
-		m_text_render_manager->Draw(m_2d_device_context.Get());
-
-		//m_2d_device_context->SetTransform(D2D1::Matrix3x2F::Identity());
-	
-		m_2d_device_context->EndDraw();
-
-		m_dx11_on_12_device->ReleaseWrappedResources(resources, _countof(resources));
-
-		m_dx11_device_context->Flush();
+		}
+#endif
+	}
+	void TextRenderSystem::PostDraw(ID3D12GraphicsCommandList* command_list) const
+	{
+#ifdef __USE_DWRITE__
+		m_text_render_manager->PostDraw(command_list);
 #endif
 	}
 }

@@ -26,6 +26,8 @@ namespace client_fw
 
 	void UserInterfaceLayer::UpdateUILayer(float delta_time)
 	{
+		for (const auto& ui : m_user_interfaces)
+			ui->Update(delta_time);
 		Update(delta_time);
 	}
 

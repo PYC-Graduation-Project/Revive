@@ -2,8 +2,9 @@
 
 namespace client_fw
 {
-#define START_INDEX_EXTERNAL_TEXTURE	0
-#define START_INDEX_RENDER_TEXTURE		8192
+#define START_INDEX_EXTERNAL_TEXTURE		0
+#define START_INDEX_RENDER_TEXTURE			8192
+#define START_INDEX_RENDER_TEXT_TEXTURE		11264
 
 	class Mesh;
 	class Material;
@@ -49,9 +50,9 @@ namespace client_fw
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;
 		std::vector<SPtr<Material>> m_ready_materials;
-		SPtr<RenderTextTexture> m_ready_render_ui_texture;
 		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
 		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
+		std::vector<SPtr<RenderTextTexture>> m_ready_render_text_texture;
 
 	private:
 		UINT m_num_of_material_data = 0;
@@ -59,6 +60,7 @@ namespace client_fw
 
 		UINT m_num_of_external_texture_data = START_INDEX_EXTERNAL_TEXTURE;
 		UINT m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
+		UINT m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;
 		ComPtr<ID3D12DescriptorHeap> m_texture_desciptor_heap;
 
 	public:

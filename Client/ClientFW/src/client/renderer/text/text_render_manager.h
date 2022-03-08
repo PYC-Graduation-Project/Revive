@@ -2,14 +2,8 @@
 
 namespace client_fw
 {
-	struct TextFormat
-	{
-		std::wstring name;
-		UINT font_size;
-		DWRITE_FONT_STYLE font_style;
-	};
-
-	bool operator<(const TextFormat& t1, const TextFormat& t2);
+	class TextInfo;
+	class TextFormat;
 
 	class TextRenderManager final
 	{
@@ -23,17 +17,23 @@ namespace client_fw
 		bool Initialize(IDWriteFactory* factory, ID2D1DeviceContext2* context);
 		void Shutdown();
 
-		void Update();
-		void Draw(ID2D1DeviceContext2* context);
+		void Update(IDWriteFactory* factory, ID3D12Device* device_12, ID3D11On12Device* device_11, ID2D1DeviceContext2* context);
+		bool Draw(ID3D11On12Device* device, ID2D1DeviceContext2* context) const;
+		void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 	private:
 		std::map<Vec4, ComPtr<ID2D1SolidColorBrush>> m_text_brushes;
 		std::map<TextFormat, ComPtr<IDWriteTextFormat>> m_text_formats;
 
+		std::vector<SPtr<TextInfo>> m_visit_texts;
+		std::vector<SPtr<TextInfo>> m_revisit_texts;
+		std::vector<SPtr<TextInfo>> m_updating_texts;
 
 	public:
 		ComPtr<ID2D1SolidColorBrush> LoadTextBrush(ID2D1DeviceContext2* context, const Vec4& color);
 		ComPtr<IDWriteTextFormat> LoadTextFormat(IDWriteFactory* factory, const TextFormat& format);
+
+		void RegisterText(const SPtr<TextInfo>& info);
 	};
 }
 

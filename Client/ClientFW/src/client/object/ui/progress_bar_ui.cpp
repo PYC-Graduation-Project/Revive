@@ -5,8 +5,8 @@
 
 namespace client_fw
 {
-	ProgressBarUI::ProgressBarUI(const std::string& name)
-		: UserInterface(name, 2)
+	ProgressBarUI::ProgressBarUI(const std::string& name, const Vec2& size)
+		: UserInterface(name, size, 2)
 	{
 		m_background_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
 		m_fill_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
@@ -23,8 +23,8 @@ namespace client_fw
 	void ProgressBarUI::SetPosition(const Vec2& position)
 	{
 		UserInterface::SetPosition(position);
-		m_background_texture->SetPosition(position);
-		m_fill_texture->SetPosition(position);
+		m_background_texture->SetPosition(vec2::ZERO);
+		m_fill_texture->SetPosition(vec2::ZERO);
 	}
 
 	void ProgressBarUI::SetSize(const Vec2& size)

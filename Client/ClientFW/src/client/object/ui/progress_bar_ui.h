@@ -6,7 +6,7 @@ namespace client_fw
 	class ProgressBarUI : public UserInterface
 	{
 	public:
-		ProgressBarUI(const std::string& name = "Progress bar");
+		ProgressBarUI(const std::string& name = "Progress bar", const Vec2& size = Vec2(256.f, 32.f));
 
 		virtual bool Initialize() override;
 

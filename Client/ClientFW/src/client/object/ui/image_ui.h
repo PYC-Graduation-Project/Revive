@@ -6,7 +6,7 @@ namespace client_fw
 	class ImageUI : public UserInterface
 	{
 	public:
-		ImageUI(const std::string& name = "Image");
+		ImageUI(const std::string& name = "Image", const Vec2& size = Vec2(128.f, 64.f));
 
 		virtual bool Initialize() override;
 

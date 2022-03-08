@@ -5,8 +5,8 @@
 
 namespace client_fw
 {
-	UserInterface::UserInterface(const std::string& name, size_t num_of_visible_texture)
-		: m_name(name), m_position(vec2::ZERO), m_size(Vec2(100.f, 100.f))
+	UserInterface::UserInterface(const std::string& name, const Vec2& size, size_t num_of_visible_texture)
+		: m_name(name), m_position(vec2::ZERO), m_size(size)
 	{
 		m_visible_textures.resize(num_of_visible_texture);
 	}

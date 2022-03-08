@@ -7,11 +7,12 @@ namespace client_fw
 	struct Window;
 	class RenderTextTexture;
 	class TextRenderManager;
+	class TextInfo;
 
 	class TextRenderSystem final
 	{
 	public:
-		TextRenderSystem(const WPtr<Window>& window);
+		TextRenderSystem();
 		~TextRenderSystem();
 
 		TextRenderSystem(const TextRenderSystem&) = delete;
@@ -20,19 +21,14 @@ namespace client_fw
 		bool Initialize(ID3D12Device* device, ID3D12CommandQueue* command_queue);
 		void Shutdown();
 
-		void Update();
+		void Update(ID3D12Device* device);
 		void Draw() const;
+		void PostDraw(ID3D12GraphicsCommandList* command_list) const;
 
 	private:
 		bool Create11Device(ID3D12Device* device, ID3D12CommandQueue* command_queue);
 
-	public:
-		ComPtr<ID2D1SolidColorBrush> CreateSolidColorBrush(const Vec4& color);
-
 	private:
-		WPtr<Window> m_window;
-		SPtr<RenderTextTexture> m_render_ui_texture;
-
 		ComPtr<ID3D11DeviceContext> m_dx11_device_context;
 		ComPtr<ID3D11On12Device> m_dx11_on_12_device;
 		ComPtr<IDWriteFactory> m_write_factory;
@@ -42,11 +38,8 @@ namespace client_fw
 
 		UPtr<TextRenderManager> m_text_render_manager;
 
-		ComPtr<ID2D1SolidColorBrush> m_textBrush;
-		ComPtr<IDWriteTextFormat> m_textFormat;
-
 	public:
-		ID3D12Resource* GetRenderUITexture() const;
+		const UPtr<TextRenderManager>& GetTextRenderManager() const { return m_text_render_manager; }
 	};
 }
 

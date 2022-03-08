@@ -9,8 +9,8 @@
 
 namespace client_fw
 {
-	ButtonUI::ButtonUI(const std::string& name)
-		: UserInterface(name, 1), m_button_state(eButtonState::kUnhovered)
+	ButtonUI::ButtonUI(const std::string& name, const Vec2& size)
+		: UserInterface(name, size, 1), m_button_state(eButtonState::kUnhovered)
 	{
 		m_normal_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);
 		m_hovered_texture = CreateSPtr<UITexture>(m_position, m_size, nullptr);

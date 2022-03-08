@@ -2,6 +2,8 @@
 #include <client/object/ui/image_ui.h>
 #include <client/object/ui/button_ui.h>
 #include <client/object/ui/progress_bar_ui.h>
+//#include <client/object/ui/text_box_ui.h>
+#include <client/object/ui/text_ui.h>
 #include "event_test_ui_layer.h"
 
 namespace event_test
@@ -39,6 +41,13 @@ namespace event_test
 		test_progress->SetPosition(Vec2(200.0f, 100.0f));
 		test_progress->SetSize(Vec2(256.f, 32.f));
 		test_progress->SetPercent(0.5f);
+
+		auto test_text = CreateSPtr<TextUI>("Test Text", Vec2(1000.f, 100.f), L"´Ù¶÷Áã Çå ÃÂ¹ÙÄû¿¡ Å¸°íÆÄ");
+		RegisterUserInterface(test_text);
+		test_text->SetPosition(Vec2(600.0f, 100.0f));
+		test_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
+		test_text->SetFontSize(60);
+		//test_text_box->SetSize(Vec2(600.f, 100.f));
 
 		/*RegisterAxisEvent("test progress bar percent", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
 			[test_progress](float axis)->bool {
