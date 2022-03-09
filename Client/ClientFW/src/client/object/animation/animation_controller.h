@@ -36,6 +36,15 @@ namespace client_fw
 		void SetIsRegistered(bool value) { m_is_registered = value; }
 
 	private:
+		float m_start_time;
+		float m_end_time;
+
+		float m_time_pos = 0.0f;
+
+		float m_animation_speed = 1.0f;
+
+		int m_prev_time_index = 0;
+
 		bool m_is_registered = false;
 		bool m_is_need_update = false;
 

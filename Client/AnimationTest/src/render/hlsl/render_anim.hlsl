@@ -28,12 +28,7 @@ VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : S
     float3 pos = float3(0.0f, 0.0f, 0.0f);
     float3 normal = float3(0.0f, 0.0f, 0.0f);
 	
-  //  for (int i = 0; i < 4; i++)
-  //  {
-  //      pos += input.weights[i] * mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[i]]).xyz;
-  //      normal += input.weights[i] * mul(input.normal, (float3x3) b_data.bone_trans[input.indices[i]]);
-		////vertex_to_bone_world +=  input.weights[i] * g_bone_offsets[input.indices[i]];
-  //  }
+
     pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
     normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[0]]) * input.weights[0];
 	pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
@@ -43,19 +38,13 @@ VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : S
 	pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
     normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[3]]) * input.weights[3];
 	
-    //float4x4 x1 = mul(g_bone_offsets[input.indices[0]], b_data.bone_trans[input.indices[0]]) * input.weights[0];
-    //float4x4 x2 = mul(g_bone_offsets[input.indices[1]], b_data.bone_trans[input.indices[1]]) * input.weights[1];
-    //float4x4 x3 = mul(g_bone_offsets[input.indices[2]], b_data.bone_trans[input.indices[2]]) * input.weights[2];
-    //float4x4 x4 = mul(g_bone_offsets[input.indices[3]], b_data.bone_trans[input.indices[3]]) * input.weights[3];
- //   float4x4 x1 = b_data.bone_trans[input.indices[0]] * input.weights[0];
- //   float4x4 x2 = b_data.bone_trans[input.indices[1]] * input.weights[1];
- //   float4x4 x3 = b_data.bone_trans[input.indices[2]] * input.weights[2];
- //   float4x4 x4 = b_data.bone_trans[input.indices[3]] * input.weights[3];
+    
+	//   float4x4 x1 = b_data.bone_trans[input.indices[0]] * input.weights[0];
+	//   float4x4 x2 = b_data.bone_trans[input.indices[1]] * input.weights[1];
+	//   float4x4 x3 = b_data.bone_trans[input.indices[2]] * input.weights[2];
+	//   float4x4 x4 = b_data.bone_trans[input.indices[3]] * input.weights[3];
 	//float4x4 vertex_to_bone_world = x1 + x2 + x3 + x4;
-	/*vertex_to_bone_world += mul(g_bone_offsets[input.indices[0]], b_data.bone_trans[input.indices[0]]) * input.weights[0];
-	vertex_to_bone_world += mul(g_bone_offsets[input.indices[1]], b_data.bone_trans[input.indices[1]]) *input.weights[1];
-	vertex_to_bone_world += mul(g_bone_offsets[input.indices[2]], b_data.bone_trans[input.indices[2]]) *input.weights[2];
-	vertex_to_bone_world += mul(g_bone_offsets[input.indices[3]], b_data.bone_trans[input.indices[3]]) *input.weights[3];*/
+	
 	//float4 position = mul(float4(input.position, 1.0f), i_data.world);
 	//float4 position = mul(float4(input.position, 1.0f), vertex_to_bone_world);
 	//float4 position = mul(mul(float4(input.position, 1.0f), vertex_to_bone_world), i_data.world);

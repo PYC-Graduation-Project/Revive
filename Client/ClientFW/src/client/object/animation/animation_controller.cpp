@@ -17,12 +17,24 @@ namespace client_fw
     void AnimationController::SetAnimation(const std::string& animation_path, const SPtr<Skeleton>& skeleton)
     {
         m_anim_seq = AssetStore::LoadAnimation(animation_path, skeleton);
-       
+        m_anim_seq->GetDefaultTime(m_start_time,m_end_time);
+        
     }
     void AnimationController::AnimToPlay(float delta_time, bool m_looping)
     {
         if (m_anim_seq) {
-            m_anim_seq->AnimToPlay(delta_time, m_looping);  
+            float time_pos = m_time_pos;
+            if (m_looping)
+            {
+                time_pos += delta_time * m_animation_speed;
+                if (time_pos < m_start_time) time_pos = m_start_time;
+                if (time_pos >= m_end_time)
+                {
+                    time_pos = m_start_time;
+                }
+                m_time_pos = time_pos;//애니메이션 콜백함수 사용시 쓸수도잇음,저장
+            }
+            m_anim_seq->AnimToPlay(m_prev_time_index,time_pos);
         }
 
     }
