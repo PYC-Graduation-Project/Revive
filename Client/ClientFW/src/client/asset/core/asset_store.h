@@ -17,7 +17,7 @@ namespace client_fw
 		static std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		static SPtr<Texture> LoadTexture(const std::string& path);
 		static SPtr<AnimationSequence> LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path);
-		static SPtr<AnimationSequence> LoadAnimation(const std::string& path);
+		static SPtr<AnimationSequence> LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton);
 	private:
 		friend AssetManager;
 		static AssetManager* s_asset_manager;

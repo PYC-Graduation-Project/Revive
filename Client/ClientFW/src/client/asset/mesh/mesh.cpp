@@ -103,7 +103,6 @@ namespace client_fw
 		}
 	}
 
-	
 
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
@@ -129,29 +128,6 @@ namespace client_fw
 			m_material_index_data.at(i)->CreateResource(device, mat_size);
 			for (UINT index = 0; index < mat_size; ++index)
 				m_material_index_data.at(i)->CopyData(index, RSMaterialIndexData{ m_materials.at(i)[index]->GetResourceIndex() });
-
-			AnimationData temp_data;
-			for (UINT i = 0; i < m_bone_data->bone_offsets.size(); ++i)
-			{
-				temp_data.animation_matrix.at(i) = m_bone_data->bone_offsets.at(i);
-			}
-			m_bone_offset_data.emplace_back(CreateUPtr<UploadBuffer<AnimationData>>(true));
-			m_bone_offset_data.at(i)->CreateResource(device, 128);
-			m_bone_offset_data.at(i)->CopyData(0, AnimationData{ temp_data.animation_matrix });
-
-			UINT trans_size = static_cast<UINT>(m_bone_data->bone_names.size());
-			m_cache_skeleton.resize(trans_size);
-			
-			SPtr<Skeleton> skel = nullptr;
-			
-			for (UINT i = 0; i < trans_size; ++i)
-			{
-				skel = m_skeleton->FindBone(m_bone_data->bone_names.at(i));
-				m_cache_skeleton.at(i) = skel;
-			}
-			m_bone_trans_data.emplace_back(CreateUPtr<UploadBuffer<AnimationData>>(true));
-			m_bone_trans_data.at(i)->CreateResource(device, 128);
-
 		}
 
 		return true;
@@ -166,13 +142,7 @@ namespace client_fw
 	{
 		m_vertex_infos.at(lod)->Draw(command_list);
 		if (m_is_draw_index)
-			m_index_infos.at(lod)->Draw(command_list);
-		
-		UpdateBoneTransform();
-		
-
-		command_list->SetGraphicsRootConstantBufferView(5, m_bone_offset_data.at(lod)->GetResource()->GetGPUVirtualAddress());
-		command_list->SetGraphicsRootConstantBufferView(6, m_bone_trans_data.at(lod)->GetResource()->GetGPUVirtualAddress());
+			m_index_infos.at(lod)->Draw(command_list);	
 
 		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
 		{
@@ -184,20 +154,6 @@ namespace client_fw
 			else
 				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
 		}
-	}
-
-	void SkeletalMesh::UpdateBoneTransform() const
-	{
-		AnimationData temp_data;
-
-		UINT trans_size = static_cast<UINT>(m_cache_skeleton.size());
-		for (UINT i = 0; i < trans_size; ++i)
-		{
-			
-			temp_data.animation_matrix.at(i) = m_cache_skeleton.at(i)->GetTransposeWorld();
-		}
-		m_bone_trans_data.at(0)->CopyData(0, AnimationData{ temp_data.animation_matrix });
-
 	}
 
 

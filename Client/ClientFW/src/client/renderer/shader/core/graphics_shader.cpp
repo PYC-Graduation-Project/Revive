@@ -4,6 +4,7 @@
 #include "client/renderer/renderlevel/core/render_level.h"
 #include "client/renderer/core/render_item.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/util/d3d_util.h"
 
@@ -142,6 +143,17 @@ namespace client_fw
 		LOG_WARN("Could not supported shape component at {0}", m_name);
 	}
 
+	bool GraphicsShader::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	{
+		LOG_WARN("Could not supported Animation Controller at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	{
+		LOG_WARN("Could not supported Animation Controller at {0}", m_name);
+	}
+
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{
@@ -194,6 +206,32 @@ namespace client_fw
 		if (m_render_items_map.find(path) != m_render_items_map.cend())
 		{
 			m_render_items_map[path]->UnregisterMeshComponent(mesh_comp);
+		}
+	}
+
+	bool MeshShader::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	{
+		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
+
+		if (m_render_items_map.find(path) != m_render_items_map.cend())
+		{
+			m_render_items_map[path]->RegisterAnimationController(skeletal_mesh_comp);
+		}
+		else
+		{
+			LOG_WARN("Animation Controller isn't initialized at SkeletalMesh");
+			return false;
+		}
+		return true;
+	}
+
+	void MeshShader::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	{
+		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
+
+		if (m_render_items_map.find(path) != m_render_items_map.cend())
+		{
+			m_render_items_map[path]->UnregisterAnimationController(skeletal_mesh_comp);
 		}
 	}
 

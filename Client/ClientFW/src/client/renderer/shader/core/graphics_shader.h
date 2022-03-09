@@ -6,6 +6,7 @@ namespace client_fw
 	class GraphicsRenderLevel;
 	class MeshComponent;
 	class ShapeComponent;
+	class SkeletalMeshComponent;
 	class MeshRenderItem;
 
 	class GraphicsShader : public Shader
@@ -45,7 +46,8 @@ namespace client_fw
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 		virtual bool RegisterShapeComponent(ID3D12Device* device, const SPtr<ShapeComponent>& shape_comp);
 		virtual void UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp);
-
+		virtual bool RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp);
+		virtual void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp);
 		//virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& comp) = 0;
 	};
 
@@ -63,6 +65,9 @@ namespace client_fw
 
 		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
+
+		virtual bool RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp) override final;
+		virtual void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp) override final;
 
 	private:
 		std::vector<SPtr<MeshRenderItem>> m_render_items;

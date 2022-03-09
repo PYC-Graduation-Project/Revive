@@ -4,6 +4,8 @@ namespace client_fw
 {
 	class Mesh;
 	class MeshComponent;
+	class SkeletalMeshComponent;
+	class AnimationController;
 	template<class T> class UploadBuffer;
 
 	struct RSInstanceData
@@ -20,9 +22,12 @@ namespace client_fw
 		Mat4 world_inverse;
 	};
 
+	struct AnimationData;
+
 	class MeshRenderItem final
 	{
 	public:
+		MeshRenderItem() = default;
 		MeshRenderItem(const SPtr<Mesh>& mesh);
 		~MeshRenderItem();
 
@@ -34,6 +39,8 @@ namespace client_fw
 
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
+		void RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
+		void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
 
 	private:
 		void CreateResources(ID3D12Device* device);
@@ -51,7 +58,14 @@ namespace client_fw
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
 
+		UINT m_num_of_instance_animation_controller = 0;
+		std::vector<SPtr<AnimationController>> m_animation_controllers;
+		UPtr<UploadBuffer<AnimationData>> m_bone_trans_data;
+
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
+
+		
 	};
+
 }

@@ -9,6 +9,7 @@ namespace client_fw
 	class GraphicsShader;
 	class RenderComponent;
 	class CameraComponent;
+	class SkeletalMeshComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
 
@@ -73,7 +74,8 @@ namespace client_fw
 		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
-
+		bool RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name);
+		void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name);
 	private:
 		WPtr<Window> m_window;
 		ID3D12Device* m_device;

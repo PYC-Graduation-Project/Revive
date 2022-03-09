@@ -2,8 +2,11 @@
 #include "client/renderer/core/render_item.h"
 #include "client/renderer/core/render.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/animation/animation_sequence.h"
+#include "client/object/animation/animation_controller.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 
@@ -14,6 +17,7 @@ namespace client_fw
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
+		m_bone_trans_data = CreateUPtr<UploadBuffer<AnimationData>>(false);
 	}
 
 	MeshRenderItem::~MeshRenderItem()
@@ -27,6 +31,7 @@ namespace client_fw
 	void MeshRenderItem::Shutdown()
 	{
 		m_instance_data->Shutdown();
+		m_bone_trans_data->Shutdown();
 	}
 
 	void MeshRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -47,8 +52,11 @@ namespace client_fw
 		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
 		{
 			UpdateResourcesBeforeDraw();
-			
+
 			m_mesh->PreDraw(command_list);
+
+			if (m_animation_controllers.empty() == false)
+				command_list->SetGraphicsRootShaderResourceView(5, m_bone_trans_data->GetResource()->GetGPUVirtualAddress());
 
 			for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
 			{
@@ -56,10 +64,9 @@ namespace client_fw
 				{
 					command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress() +
 						m_index_of_lod_instance_data[lod] * m_instance_data->GetByteSize());
-
 					m_mesh->Draw(command_list, lod);
 				}
-				
+
 			}
 
 			m_mesh->PostDraw(command_list);
@@ -70,6 +77,7 @@ namespace client_fw
 	{
 		//LOG_INFO(m_num_of_instance_data);
 		m_instance_data->CreateResource(device, m_num_of_instance_data);
+		m_bone_trans_data->CreateResource(device, m_num_of_instance_data);
 	}
 
 	void MeshRenderItem::UpdateResources()
@@ -96,6 +104,18 @@ namespace client_fw
 		{
 			m_index_of_lod_instance_data[lod] =
 				m_index_of_lod_instance_data[lod - 1] + m_mesh->GetLODMeshCount(static_cast<UINT>(lod));
+		}
+
+		m_num_of_instance_animation_controller = m_mesh->GetLODMeshCount(0);
+
+		for (auto& animation_controller : m_animation_controllers)
+		{
+			//if (animation_controller->IsVisible())
+			//{
+				m_bone_trans_data->CopyData(--m_num_of_instance_animation_controller,
+					AnimationData{ animation_controller->GetBoneTransformData() });
+			//}
+			if (m_num_of_instance_animation_controller <= 0) break;
 		}
 
 		for (auto& mesh_data : m_mesh_comp_data)
@@ -133,7 +153,7 @@ namespace client_fw
 			m_num_of_instance_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_instance_data) * 1.5f));
 			m_is_need_resource_create = true;
 		}
-		
+
 	}
 
 	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
@@ -150,7 +170,7 @@ namespace client_fw
 		UINT size = static_cast<UINT>(roundf(static_cast<float>(m_num_of_instance_data * 0.66f)));
 		if (size >= m_mesh_comp_data.size())
 		{
-			if(m_mesh_comp_data.empty())
+			if (m_mesh_comp_data.empty())
 			{
 				m_num_of_instance_data = 0;
 				m_instance_data->Shutdown();
@@ -162,5 +182,17 @@ namespace client_fw
 			}
 		}
 	}
-}
 
+	void MeshRenderItem::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component )
+	{
+		m_animation_controllers.emplace_back(skeletal_mesh_component->GetAnimationController());
+	}
+	void MeshRenderItem::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component)
+	{
+		//메시 데이터를 기준으로 삭제한다.
+		UINT index = skeletal_mesh_component->GetInstanceIndex();
+		std::swap(*(m_animation_controllers.begin() + index), *(m_animation_controllers.end() - 1));
+
+		m_animation_controllers.pop_back();
+	}
+}

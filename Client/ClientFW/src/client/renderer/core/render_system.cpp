@@ -11,6 +11,7 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/util/camera_component.h"
+#include <client/object/component/mesh/skeletal_mesh_component.h>
 
 namespace client_fw
 {
@@ -39,7 +40,6 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
-		//RegisterGraphicsShader<>
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -201,5 +201,14 @@ namespace client_fw
 		case eCameraUsage::kLight:
 			break;
 		}
-	}			
+	}
+	bool RenderSystem::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
+	{
+		return m_graphics_shaders.at(shader_name)->RegisterAnimationController(skeletal_mesh_comp);
+	}
+	void RenderSystem::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
+	{
+		return m_graphics_shaders.at(shader_name)->UnregisterAnimationController(skeletal_mesh_comp);
+
+	}
 }

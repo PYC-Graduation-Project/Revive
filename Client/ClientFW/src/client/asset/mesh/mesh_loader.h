@@ -30,13 +30,15 @@ namespace client_fw
 
 		virtual SPtr<Mesh> LoadMesh(const std::string& path, const std::string& extension)  const override;
 		virtual SPtr<SkeletalMesh> LoadRev(const std::string& path, const std::string& extension) const;
+		
+		FILE* LoadRevForAnimation(const std::string& path, const std::string& extension) const;
 
 		void SaveRevData(SPtr<SkeletalMesh>& s_mesh, const UINT& lod, std::vector<MeshData>& mesh_data) const;
 
 		//애니메이션과 계층구조 형태의 파일(rev파일)을 읽음
 
 		//true반환시 메시정보를 전부 읽었고 Animation 정보를 읽을 준비가 됬다는 것을 의미함
-		bool LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh, std::vector<MeshData>& mesh_data, const std::string& path) const;
+		bool LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, std::vector<MeshData>& mesh_data, const std::string& path) const;
 
 		void LoadMeshFromRevFile(FILE* rev_file, std::vector<MeshData>& mesh_data) const;
 		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data) const;

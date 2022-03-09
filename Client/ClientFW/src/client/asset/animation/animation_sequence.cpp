@@ -44,28 +44,77 @@ namespace client_fw
 		}
 	}
 
+	void AnimationTrack::SearchKeyFrame(float time_pos,const std::vector<KeyFrame>& key_frames)
+	{
+		for (int i = m_prev_time_index; i < (key_frames.size() - 1); ++i)
+		{
+			if ((key_frames[i].key_time <= time_pos) && (time_pos < key_frames[i + 1].key_time))
+			{
+				m_prev_time_index = i;
+				return;
+			}
+		}
+		m_prev_time_index = 0;
+
+	}
+
 	const Mat4& AnimationTrack::GetSRT(int bone_index, float time_pos, float weight)
 	{
 		auto temp_bone = m_animated_skeleton.at(bone_index);
-		Vec3 scale = temp_bone->m_scale;
+		/*Vec3 scale = temp_bone->m_scale;
 		Vec3 rotate = temp_bone->m_rotation;
-		Vec3 trans = temp_bone->m_translation;
+		Vec3 trans = temp_bone->m_translation;*/
 
 		auto& temp_curve = m_anim_curves.at(bone_index);
-		if (temp_curve.at(0)) trans.x = temp_curve.at(0)->GetValueByLerp(time_pos);
-		if (temp_curve.at(1)) trans.y = temp_curve.at(1)->GetValueByLerp(time_pos);
-		if (temp_curve.at(2)) trans.z = temp_curve.at(2)->GetValueByLerp(time_pos);
-		if (temp_curve.at(3)) rotate.x = temp_curve.at(3)->GetValueByLerp(time_pos);
-		if (temp_curve.at(4)) rotate.y = temp_curve.at(4)->GetValueByLerp(time_pos);
-		if (temp_curve.at(5)) rotate.z = temp_curve.at(5)->GetValueByLerp(time_pos);
-		if (temp_curve.at(6)) scale.x = temp_curve.at(6)->GetValueByLerp(time_pos);
-		if (temp_curve.at(7)) scale.y = temp_curve.at(7)->GetValueByLerp(time_pos);
-		if (temp_curve.at(8)) scale.z = temp_curve.at(8)->GetValueByLerp(time_pos);
+		auto& temp_key_frames = temp_curve[0]->m_key_frames;
+		int index = m_prev_time_index;
+		float t = 0.0f;
 		
-		Mat4 S = mat4::CreateScale(scale.x * weight, scale.y * weight, scale.z * weight);
+		SearchKeyFrame(time_pos, temp_key_frames);
+		
+		Vec3 lerp_trans;
+		Vec3 lerp_rotate;
+		Vec3 lerp_scale;
+		if (index < temp_key_frames.size() - 1)
+		{
+			Vec3 prev_trans{ temp_curve[0]->m_key_frames[index].key_value,temp_curve[1]->m_key_frames[index].key_value,temp_curve[2]->m_key_frames[index].key_value };
+			Vec3 prev_rotate{ temp_curve[3]->m_key_frames[index].key_value,temp_curve[4]->m_key_frames[index].key_value,temp_curve[5]->m_key_frames[index].key_value };
+			Vec3 prev_scale{ temp_curve[6]->m_key_frames[index].key_value,temp_curve[7]->m_key_frames[index].key_value,temp_curve[8]->m_key_frames[index].key_value };
+			Vec3 trans{ temp_curve[0]->m_key_frames[index + 1].key_value,temp_curve[1]->m_key_frames[index + 1].key_value,temp_curve[2]->m_key_frames[index + 1].key_value };
+			Vec3 rotate{ temp_curve[3]->m_key_frames[index + 1].key_value,temp_curve[4]->m_key_frames[index + 1].key_value,temp_curve[5]->m_key_frames[index + 1].key_value };
+			Vec3 scale{ temp_curve[6]->m_key_frames[index + 1].key_value,temp_curve[7]->m_key_frames[index + 1].key_value,temp_curve[8]->m_key_frames[index + 1].key_value };
+
+			t = (time_pos - temp_key_frames[index].key_time) / (temp_key_frames[index + 1].key_time - temp_key_frames[index].key_time);
+			lerp_trans = vec3::Lerp(prev_trans, trans, t);
+			lerp_rotate = vec3::Lerp(prev_rotate, rotate, t);
+			lerp_scale = vec3::Lerp(prev_scale, scale, t);
+		}
+		else
+		{
+			UINT size = static_cast<UINT>(temp_curve[0]->m_key_frames.size() - 1);
+			lerp_trans = Vec3{ temp_curve[0]->m_key_frames[size].key_value,temp_curve[1]->m_key_frames[size].key_value,temp_curve[2]->m_key_frames[size].key_value };
+			lerp_rotate = Vec3{ temp_curve[3]->m_key_frames[size].key_value,temp_curve[4]->m_key_frames[size].key_value,temp_curve[5]->m_key_frames[size].key_value };
+			lerp_scale = Vec3{ temp_curve[6]->m_key_frames[size].key_value,temp_curve[7]->m_key_frames[size].key_value,temp_curve[8]->m_key_frames[size].key_value };
+		}
+
+		/*if (temp_curve[0]) trans.x = temp_curve[0]->GetValueByLerp(m_prev_time_index,time_pos);
+		if (temp_curve[1]) trans.y = temp_curve[1]->GetValueByLerp(m_prev_time_index,time_pos);
+		if (temp_curve[2]) trans.z = temp_curve[2]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[3]) rotate.x = temp_curve[3]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[4]) rotate.y = temp_curve[4]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[5]) rotate.z = temp_curve[5]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[6]) scale.x = temp_curve[6]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[7]) scale.y = temp_curve[7]->GetValueByLerp(m_prev_time_index, time_pos);
+		if (temp_curve[8]) scale.z = temp_curve[8]->GetValueByLerp(m_prev_time_index, time_pos);*/
+
+		lerp_trans *= weight;
+		lerp_rotate *= weight;
+		lerp_scale *= weight;
+
+		Mat4 S = mat4::CreateScale(lerp_scale);
 		//Mat4 R = mat4::CreateRotationFromQuaternion(quat::CreateQuaternionFromRollPitchYaw(  rotate.x * weight,rotate.y * weight, rotate.z * weight));
-		Mat4 R = mat4::CreateRotationX(rotate.x * weight) * mat4::CreateRotationY(rotate.y * weight) * mat4::CreateRotationZ(rotate.z * weight);
-		Mat4 T = mat4::CreateTranslation(trans.x * weight, trans.y * weight, trans.z * weight);
+		Mat4 R = mat4::CreateRotationX(lerp_rotate.x) * mat4::CreateRotationY(lerp_rotate.y) * mat4::CreateRotationZ(lerp_rotate.z);
+		Mat4 T = mat4::CreateTranslation(lerp_trans);
 
 		Mat4 transform = S * R * T;
 
@@ -84,7 +133,7 @@ namespace client_fw
 
 		
 		for (auto& key_frame : key_frames)
-			fread(&(key_frame.key_time), sizeof(float), 1, file); //여기가 문제였다 같이 읽으면안됨 time 다읽고 value를 읽어야지
+			fread(&(key_frame.key_time), sizeof(float), 1, file);
 		for (auto& key_frame : key_frames)
 			fread(&(key_frame.key_value), sizeof(float), 1, file); 
 
@@ -93,16 +142,20 @@ namespace client_fw
 
 		return anim_curve;
 	}
-	float AnimationCurve::GetValueByLerp(float time_pos)
+	float AnimationCurve::GetValueByLerp(int prev_time_index, float time_pos)
 	{
-		for (int i = 0; i < (m_key_frames.size() - 1); ++i)
+		int index = prev_time_index;
+
+		if (index >= m_key_frames.size() - 1)
 		{
-			if ((m_key_frames.at(i).key_time <= time_pos) && (time_pos < m_key_frames.at(i + 1).key_time))
-			{
-				float t = (time_pos - m_key_frames.at(i).key_time) / (m_key_frames.at(i + 1).key_time - m_key_frames.at(i).key_time);
-				return(m_key_frames.at(i).key_value * (1.0f - t) + m_key_frames.at(i + 1).key_value * t);
-			}
+			return (m_key_frames[m_key_frames.size() - 1].key_value);
 		}
-		return (m_key_frames.at(m_key_frames.size() - 1).key_value);
+		else
+		{
+			float t = (time_pos - m_key_frames[index].key_time) / (m_key_frames[index + 1].key_time - m_key_frames[index].key_time);
+
+			return(m_key_frames[index].key_value * (1.0f - t) + m_key_frames[index + 1].key_value * t);
+		}
 	}
+	
 }

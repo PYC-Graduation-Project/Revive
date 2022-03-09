@@ -276,35 +276,17 @@ namespace client_fw
 		std::string parent_path = file_help::GetParentPathFromPath(path);
 		std::string stem = file_help::GetStemFromPath(path);
 
+		std::string prefix;
 
-
-		Vec3 max_pos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		Vec3 min_pos{ FLT_MAX, FLT_MAX, FLT_MAX };
-
-		auto UpdateMaxMin([&max_pos, &min_pos](const Vec3& pos) {
-			max_pos.x = max(max_pos.x, pos.x);
-			max_pos.y = max(max_pos.y, pos.y);
-			max_pos.z = max(max_pos.z, pos.z);
-
-			min_pos.x = min(min_pos.x, pos.x);
-			min_pos.y = min(min_pos.y, pos.y);
-			min_pos.z = min(min_pos.z, pos.z);
-			});
+		UINT lod = 0;
 
 		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
 		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
 		skeleton->SetBoneName("Root");
 		
-
 		//정보를 모으는 벡터들은 재귀함수 바깥쪽에 있어야 한다
 		std::vector<MeshData> mesh_data;
 		InitializeMeshData(mesh_data);
-
-		UINT lod = 0;
-
-		std::stringstream ss;
-		std::string line;
-		std::string prefix;
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
@@ -320,16 +302,17 @@ namespace client_fw
 					{
 						SPtr<Skeleton> child = CreateSPtr<Skeleton>();
 						skeleton->SetChild(child);
-						LoadFrameHierArchy(rev_file, child, s_mesh, mesh_data, path);
+						LoadFrameHierArchy(rev_file, child, mesh_data, path);
 					}
 					else if ("</Hierarchy>")
 					{
 						SaveRevData(s_mesh, lod, mesh_data);
+						s_mesh->SetSkeleton(skeleton);
+		
 						break;
 					}
 				}
 				
-				s_mesh->SetSkeleton(skeleton);
 				//return s_mesh;
 				break;
 			case HashCode("<Animation>"):
@@ -341,6 +324,59 @@ namespace client_fw
 		}
 
 		return s_mesh;
+	}
+
+	FILE* RevLoader::LoadRevForAnimation(const std::string& path, const std::string& extension) const
+	{
+		FILE* rev_file = NULL;
+		fopen_s(&rev_file, path.c_str(), "rb");
+		if (rev_file == NULL)
+		{
+			LOG_ERROR("Could not find path : [{0}]", path);
+			return nullptr;
+		}
+
+		std::string parent_path = file_help::GetParentPathFromPath(path);
+		std::string stem = file_help::GetStemFromPath(path);
+
+		std::string prefix;
+
+		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
+		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
+
+		//정보를 모으는 벡터들은 재귀함수 바깥쪽에 있어야 한다
+		std::vector<MeshData> mesh_data;
+		InitializeMeshData(mesh_data);
+
+		while (ReadStringFromFile(rev_file, &prefix))
+		{
+			if (prefix.compare("</Animation>") == false) break;
+
+			switch (HashCode(prefix.c_str()))
+			{
+			case HashCode("<Hierarchy>"):
+
+				while (ReadStringFromFile(rev_file, &prefix))
+				{
+					if (prefix.compare("<Frame>:") == false)
+					{
+						SPtr<Skeleton> child = CreateSPtr<Skeleton>();
+						LoadFrameHierArchy(rev_file, child, mesh_data, path);
+					}
+					else if ("</Hierarchy>")
+						break;
+				}
+				break;
+			case HashCode("<Animation>"):
+				return rev_file;
+				//AssetStore::LoadAnimation(rev_file, s_mesh->GetSkeleton(), path);
+				break;
+			default:
+				break;
+			}
+		}
+
+		return nullptr;
 	}
 
 	void RevLoader::SaveRevData(SPtr<SkeletalMesh>& s_mesh, const UINT& lod, std::vector<MeshData>& mesh_data) const
@@ -440,7 +476,7 @@ namespace client_fw
 	}
 
 
-	bool RevLoader::LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, SPtr<SkeletalMesh>& mesh, std::vector<MeshData>& mesh_data, const std::string& path) const
+	bool RevLoader::LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, std::vector<MeshData>& mesh_data, const std::string& path) const
 	{
 		std::string prefix;
 
@@ -465,7 +501,9 @@ namespace client_fw
 		fread(&n_frame, sizeof(int), 1, rev_file);
 		ReadStringFromFile(rev_file, &b_name); //bone name read
 		skeleton->SetBoneName(b_name);
-		UINT mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
+		UINT mesh_index = 0;
+		if(this != nullptr)
+			 mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
 		auto& temp_data = mesh_data.at(mesh_index);
 		//mesh_data.at(0).bone_data->bone_names.emplace_back(std::move(b_name));
 
@@ -490,12 +528,15 @@ namespace client_fw
 			else if (prefix.compare("<Mesh>:") == 0) //일반 메쉬 (미처리)
 			{
 				LoadMeshFromRevFile(rev_file, mesh_data);
-				AddMesh();
+				if (this != nullptr)AddMesh();
 			}
 			else if (prefix.compare("<SkinDeformations>:") == 0)
 			{
-				AddMesh();
-				if (m_mesh_count > 1) InitializeMeshData(mesh_data);
+				if (this != nullptr)
+				{
+					AddMesh();
+					if (m_mesh_count > 1) InitializeMeshData(mesh_data);
+				}
 				LoadSkinDeformations(rev_file, mesh_data.at(0).bone_data); //뼈정보는 한곳에 몰아넣기
 				ReadStringFromFile(rev_file, &prefix);
 				if (!prefix.compare("<Mesh>:"))
@@ -538,7 +579,7 @@ namespace client_fw
 							SPtr<Skeleton> child = CreateSPtr<Skeleton>();
 							skeleton->SetChild(child);
 
-							LoadFrameHierArchy(rev_file, child, mesh, mesh_data, path);
+							LoadFrameHierArchy(rev_file, child, mesh_data, path);
 
 						}
 
@@ -569,7 +610,9 @@ namespace client_fw
 		int temp_int;
 		BOrientedBox temp_box;
 
-		UINT mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
+		UINT mesh_index = 0;
+		if(this != nullptr)
+			mesh_index= (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
 		auto& temp_data = mesh_data.at(mesh_index);
 
 		while (ReadStringFromFile(rev_file, &prefix))
@@ -799,7 +842,7 @@ namespace client_fw
 					{
 						fread(&temp_mat4, sizeof(Mat4), 1, rev_file);
 						//rev_file.read((char*)&temp_mat4, sizeof(Mat4));
-						temp_mat4.Transpose();
+						//temp_mat4.Transpose();
 						bone_data->bone_offsets.emplace_back(std::move(temp_mat4));
 					}
 				}

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "client/asset/animation/animation_sequence.h"
+#include "client/object/animation/animation_controller.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/asset/bone/skeleton.h"
 #include "client/renderer/core/render.h"
 #include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 
@@ -12,26 +12,35 @@ namespace client_fw
 	SkeletalMeshComponent::SkeletalMeshComponent(const std::string& name)
 		:MeshComponent(name, Render::ConvertShaderType(eShaderType::kOpaqueMesh))
 	{
+		m_animation_controller = CreateSPtr<AnimationController>();
 
 	}
 	bool SkeletalMeshComponent::Initialize()
 	{
+		m_animation_controller->Initialize();
 		return MeshComponent::Initialize();
 	}
 	void SkeletalMeshComponent::Update(float delta_time)
 	{
-		if (m_anim_seq && GetSkeletalMesh()->GetSkeleton())
+		if (m_is_playing)
 		{
-			m_anim_seq->AnimToPlay(delta_time,m_looping);
-			
-			GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
-			//GetSkeletalMesh()->GetSkeleton()->UpdateToParent(GetWorldMatrix());
+			m_animation_controller->AnimToPlay(delta_time, m_looping);
+			GetSkeletalMesh()->GetSkeleton()->UpdateToParent(GetWorldMatrix());
+			m_animation_controller->CopyAnimationData();
 		}
-		
 	}
 	void SkeletalMeshComponent::Shutdown()
 	{
+		UnregisterAnimationController();
 		MeshComponent::Shutdown();
+	}
+	bool SkeletalMeshComponent::RegisterAnimationController()
+	{
+		return Render::RegisterAnimationController(SharedFromThis(),m_draw_shader_name);
+	}
+	void SkeletalMeshComponent::UnregisterAnimationController()
+	{
+		return Render::UnregisterAnimationController(SharedFromThis(), m_draw_shader_name);
 	}
 	SPtr<SkeletalMesh> SkeletalMeshComponent::GetSkeletalMesh() const
 	{
@@ -45,11 +54,23 @@ namespace client_fw
 			LOG_ERROR("Could not cast Mesh[{0}] to SkeletalMesh", file_path);
 			return false;
 		}
+		auto& skeletal_mesh = GetSkeletalMesh();
+		if (RegisterAnimationController())
+		{
+			m_animation_controller->SetBoneData(skeletal_mesh->GetBoneData(), skeletal_mesh->GetSkeleton());
+			skeletal_mesh->GetSkeleton()->UpdateToParent(GetWorldMatrix());
+			m_animation_controller->CopyAnimationData();
+		}
+		
+
 		return true;
 	}
-	void SkeletalMeshComponent::SetAnimation(const std::string& path)
+	void SkeletalMeshComponent::SetAnimation(const std::string& animation_path,const std::string& animation_name)
 	{
-		m_anim_seq = AssetStore::LoadAnimation(path);
+		m_animation_name = animation_name;
+		m_animation_controller->SetAnimation(animation_path, GetSkeletalMesh()->GetSkeleton());
+		m_animation_controller->SetAnimationName(animation_name);
+	
 	}
 	UPtr<Collisioner> SkeletalMeshComponent::CreateCollisioner()
 	{

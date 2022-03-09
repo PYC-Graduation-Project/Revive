@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "skeleton.h"
-//#include "client/util/d3d_util.h"
 
 namespace client_fw 
 {

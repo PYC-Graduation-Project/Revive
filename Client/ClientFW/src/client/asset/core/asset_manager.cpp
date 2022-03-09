@@ -139,14 +139,16 @@ namespace client_fw
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<AnimationSequence>(asset);
 	}
 
-	SPtr<AnimationSequence> AssetManager::LoadAnimation(const std::string& path)
+	SPtr<AnimationSequence> AssetManager::LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton)
 	{
 		auto asset = LoadAsset(eAssetType::kAnimation, path);
 		if (asset == nullptr)
 		{
 			std::string stem = file_help::GetStemFromPath(path);
 			std::string extension = file_help::GetExtentionFromPath(path);
-			//asset = m_rev_loader->LoadAnimation(file, skeleton);
+			
+			FILE* animation_file = m_rev_loader->LoadRevForAnimation(path, extension);
+			asset = m_rev_loader->LoadAnimation(animation_file,skeleton);
 			if (asset != nullptr)
 			{
 				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);

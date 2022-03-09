@@ -8,7 +8,7 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
-//#include "render/shader/render_anim_shader.h"
+#include "render/shader/render_anim_shader.h"
 #include "object/level/player_test_level.h"
 #include "object/actor/test_actor.h"
 
@@ -30,16 +30,17 @@ namespace anim_test
 		SpawnActor(m_player_controller);
 
 
-		//Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
-		//등록해도 작성한 셰이더코드로 안들어감 어떻게쓰는거지??
+		Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
 		
-		auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel_run.rev");
-		////auto skel2 = = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/k.rev");
-		////auto skel = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/c.rev");
-		SpawnActor(skel);
-		skel->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		skel->SetScale(Vec3(50.0f, 50.0f, 50.0f));
-		////skel->SetRotation(-1.5f, 3.0f, 0.0f);
+		auto skel_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
+		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
+		SpawnActor(skel_idle);
+		SpawnActor(skel_run);
+		skel_idle->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
+		skel_idle->SetScale(Vec3(50.0f, 50.0f, 50.0f));
+		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1100.0f });
+		skel_run->SetScale(Vec3(50.0f, 50.0f, 50.0f));
+		
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
 		Input::SetHideCursor(true);
@@ -49,7 +50,7 @@ namespace anim_test
 
 	void PlayerTestLevel::Shutdown()
 	{
-		//Render::UnregisterGraphicsShader("render anim shader", eRenderLevelType::kOpaque);
+		Render::UnregisterGraphicsShader("render anim shader", eRenderLevelType::kOpaque);
 
 		Input::SetHideCursor(false);
 		Input::SetClipCursor(false);
@@ -66,13 +67,13 @@ namespace anim_test
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 3000)
+		if (time >= 0.016f && count <= 1000)
 		{
 			for (int i = 0; i < 10; ++i)
 			{
 				if (i % 2 == 0)
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel_run.rev");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel.rev","run");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);
@@ -80,7 +81,7 @@ namespace anim_test
 				}
 				else
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel_run.rev");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);
