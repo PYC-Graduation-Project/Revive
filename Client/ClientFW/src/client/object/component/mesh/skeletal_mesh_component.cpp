@@ -55,13 +55,10 @@ namespace client_fw
 			return false;
 		}
 		auto& skeletal_mesh = GetSkeletalMesh();
-		if (RegisterAnimationController())
-		{
-			m_animation_controller->SetBoneData(skeletal_mesh->GetBoneData(), skeletal_mesh->GetSkeleton());
-			skeletal_mesh->GetSkeleton()->UpdateToParent(GetWorldMatrix());
-			m_animation_controller->CopyAnimationData();
-		}
 		
+		m_animation_controller->SetBoneData(skeletal_mesh->GetBoneData(), skeletal_mesh->GetSkeleton());
+		skeletal_mesh->GetSkeleton()->UpdateToParent(GetWorldMatrix());
+		m_animation_controller->CopyAnimationData();
 
 		return true;
 	}
@@ -70,7 +67,8 @@ namespace client_fw
 		m_animation_name = animation_name;
 		m_animation_controller->SetAnimation(animation_path, GetSkeletalMesh()->GetSkeleton());
 		m_animation_controller->SetAnimationName(animation_name);
-	
+		if (m_animation_controller->GetIsRegistered() == false)
+			m_animation_controller->SetIsRegistered(RegisterAnimationController());
 	}
 	UPtr<Collisioner> SkeletalMeshComponent::CreateCollisioner()
 	{

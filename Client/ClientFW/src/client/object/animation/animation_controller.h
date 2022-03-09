@@ -31,9 +31,14 @@ namespace client_fw
 
 		bool GetIsNeedUpdate() { return m_is_need_update; }
 		void SetIsNeedUpdate(bool value) { m_is_need_update = value; }
+		
+		bool GetIsRegistered() { return m_is_registered; }
+		void SetIsRegistered(bool value) { m_is_registered = value; }
 
 	private:
+		bool m_is_registered = false;
 		bool m_is_need_update = false;
+
 		UINT m_instance_index;
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;

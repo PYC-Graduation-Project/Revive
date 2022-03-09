@@ -32,7 +32,7 @@ namespace anim_test
 
 		Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
 		
-		auto skel_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
+		auto skel_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","idle");
 		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
 		SpawnActor(skel_idle);
 		SpawnActor(skel_run);
