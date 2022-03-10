@@ -80,8 +80,8 @@ namespace client_fw
 	struct CollisionTreeNode
 	{
 		BBox bounding_box;
-		std::vector<SPtr<SceneComponent>> static_scene_components;
-		std::vector<SPtr<SceneComponent>> movable_scene_components;
+		std::map<std::string, std::vector<SPtr<SceneComponent>>> static_scene_components;
+		std::map<std::string, std::vector<SPtr<SceneComponent>>> movable_scene_components;
 		std::array<SPtr<CollisionTreeNode>, 8> child_nodes;
 	};
 

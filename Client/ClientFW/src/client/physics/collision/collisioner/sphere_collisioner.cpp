@@ -5,8 +5,8 @@
 
 namespace client_fw
 {
-	SphereCollisioner::SphereCollisioner(const WPtr<SphereComponent>& owner)
-		: Collisioner(owner, eMeshCollisionType::kSphere)
+	SphereCollisioner::SphereCollisioner()
+		: Collisioner(eMeshCollisionType::kSphere)
 	{
 	}
 

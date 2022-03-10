@@ -9,7 +9,7 @@ namespace client_fw
 	class StaticMeshCollisioner : public Collisioner
 	{
 	public:
-		StaticMeshCollisioner(const WPtr<StaticMeshComponent>& owner);
+		StaticMeshCollisioner();
 		virtual ~StaticMeshCollisioner() = default;
 
 		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;

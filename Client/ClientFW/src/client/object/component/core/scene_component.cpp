@@ -19,7 +19,8 @@ namespace client_fw
 
 	bool SceneComponent::InitializeComponent()
 	{
-		m_collisioner = std::move(CreateCollisioner());
+		if (m_collisioner != nullptr)
+			m_collisioner->SetOwner(shared_from_this());
 		UpdateLocalMatrix();
 		bool ret = Initialize();
 		return ret;
@@ -79,7 +80,7 @@ namespace client_fw
 	{
 		if (m_collisioner != nullptr)
 		{
-			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+			if (m_collisioner->GetCollisionInfo().is_collision == true)
 				CollisionOctreeManager::GetOctreeManager().ReregisterSceneComponent(shared_from_this());
 		}
 	}
@@ -88,7 +89,7 @@ namespace client_fw
 	{
 		if (m_collisioner != nullptr)
 		{
-			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+			if (m_collisioner->GetCollisionInfo().is_collision == true)
 				CollisionOctreeManager::GetOctreeManager().UnregisterSceneComponent(shared_from_this());
 		}
 	}
@@ -123,9 +124,11 @@ namespace client_fw
 		m_update_local_matrix = true;
 	}
 
-	UPtr<Collisioner> SceneComponent::CreateCollisioner()
+	const UPtr<Collisioner>& SceneComponent::GetCollisioner() const
 	{
-		return nullptr;
+		if (m_collisioner == nullptr)
+			LOG_ERROR("Register component and call ""GetCollisioner"" function");
+		return m_collisioner;
 	}
 
 	void SceneComponent::SetPhysics(bool value)

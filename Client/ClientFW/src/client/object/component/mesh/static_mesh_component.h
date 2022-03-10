@@ -19,7 +19,6 @@ namespace client_fw
 		virtual bool SetMesh(const std::string& file_path);
 
 	protected:
-		virtual UPtr<Collisioner> CreateCollisioner();
 		SPtr<StaticMeshComponent> SharedFromThis();
 	};
 

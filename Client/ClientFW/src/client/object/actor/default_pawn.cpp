@@ -3,6 +3,7 @@
 #include "client/object/component/util/simple_movement_component.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/input/input.h"
+#include "client/physics/collision/collisioner/collisioner.h"
 
 namespace client_fw
 {
@@ -20,6 +21,7 @@ namespace client_fw
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
 		ret &= mesh->SetMesh("../Contents/cube.obj");
+		//mesh->GetCollisioner()->SetCollisionInfo("pawn", { "default" });
 		ret &= AttachComponent(mesh);
 
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },

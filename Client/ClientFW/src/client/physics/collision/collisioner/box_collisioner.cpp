@@ -5,8 +5,8 @@
 
 namespace client_fw
 {
-	BoxCollisioner::BoxCollisioner(const WPtr<BoxComponent>& owner)
-		: Collisioner(owner, eMeshCollisionType::kBox)
+	BoxCollisioner::BoxCollisioner()
+		: Collisioner(eMeshCollisionType::kBox)
 	{
 	}
 

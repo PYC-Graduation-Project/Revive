@@ -10,6 +10,8 @@ namespace client_fw
 	StaticMeshComponent::StaticMeshComponent(const std::string& name)
 		: MeshComponent(name, Render::ConvertShaderType(eShaderType::kOpaqueMesh))
 	{
+		if (m_collisioner == nullptr)
+			m_collisioner = CreateUPtr<StaticMeshCollisioner>();
 	}
 
 	bool StaticMeshComponent::Initialize()
@@ -36,11 +38,6 @@ namespace client_fw
 			return false;
 		}
 		return true;
-	}
-
-	UPtr<Collisioner> StaticMeshComponent::CreateCollisioner()
-	{
-		return CreateUPtr<StaticMeshCollisioner>(SharedFromThis());
 	}
 
 	SPtr<StaticMeshComponent> StaticMeshComponent::SharedFromThis()

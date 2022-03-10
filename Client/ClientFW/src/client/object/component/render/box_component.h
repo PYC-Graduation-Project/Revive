@@ -17,7 +17,6 @@ namespace client_fw
 		void SetExtentZ(float z) { m_extents.z = z; }
 
 	protected:
-		virtual UPtr<Collisioner> CreateCollisioner();
 		SPtr<BoxComponent> SharedFromThis();
 	};
 }

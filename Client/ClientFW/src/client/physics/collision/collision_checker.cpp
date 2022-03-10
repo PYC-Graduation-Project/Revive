@@ -26,26 +26,40 @@ namespace client_fw
 		{
 			if (node->movable_scene_components.empty() == false)
 			{
-				for (size_t i = 0; i < node->movable_scene_components.size(); ++i)
+				for (const auto& [type, mov_comps] : node->movable_scene_components)
 				{
-					const auto& comp = node->movable_scene_components[i];
-					
-					for (size_t j = i + 1; j < node->movable_scene_components.size(); ++j)
+					for (const auto& mov_comp : mov_comps)
 					{
-						const auto& other = node->movable_scene_components[j];
-						if (comp->GetCollisioner() != nullptr && other->GetCollisioner() != nullptr &&
-							comp->GetOwner().lock() != other->GetOwner().lock())
-						{
-							comp->GetCollisioner()->CheckCollisionWithOtherComponent(other);
-						}
-					}
+						const auto& col_types = mov_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
 
-					for (const auto& static_comp : node->static_scene_components)
-					{
-						if (comp->GetCollisioner() != nullptr && static_comp->GetCollisioner() != nullptr &&
-							comp->GetOwner().lock() != static_comp->GetOwner().lock())
+						auto iter = std::lower_bound(col_types.cbegin(), col_types.cend(), type);
+
+						for (iter; iter != col_types.cend(); ++iter)
 						{
-							comp->GetCollisioner()->CheckCollisionWithOtherComponent(static_comp);
+							for (const auto& other_comp : node->movable_scene_components[*iter])
+							{
+								const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
+								if (other_col_types.find(type)!= other_col_types.cend() && 
+									mov_comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
+									mov_comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr)
+								{
+									mov_comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp);
+								}
+							}
+						}
+
+						for (const auto& other_type : col_types)
+						{
+							for (const auto& other_comp : node->static_scene_components[other_type])
+							{
+								const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
+								if (other_col_types.find(type) != other_col_types.cend() &&
+									mov_comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
+									mov_comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr)
+								{
+									mov_comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp);
+								}
+							}
 						}
 					}
 				}

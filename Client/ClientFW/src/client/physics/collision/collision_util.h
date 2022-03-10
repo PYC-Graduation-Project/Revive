@@ -16,12 +16,13 @@ namespace client_fw
 		kHigh,				//KDTree Leaf Triangle Check
 	};
 
-	struct CollisionInfo
+	struct CollisionInfo //런타임에 여기 있는 데이터를 변환할 시 문제가 발생할 확률이 매우 높습니다.
 	{
-		eCollisionPreset preset = eCollisionPreset::kOverlapAll;
+		bool is_collision = false;
+		std::string collision_type = "default";
+		std::set<std::string> collisionable_types = { "default" };
 		eCollisionComplex complex = eCollisionComplex::kLow;
-		bool generate_block_event = false;
-		bool generate_overlap_event = true;
+		bool generate_collision_event = false;
 	};
 }
 

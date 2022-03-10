@@ -4,6 +4,8 @@
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/physics/core/bounding_mesh.h"
+#include "client/physics/collision/collisioner/collisioner.h"
+#include "client/physics/collision/collision_util.h"
 
 namespace client_fw
 {
@@ -160,10 +162,10 @@ namespace client_fw
 
 			for (const auto& tree_node : scene_comp->GetCollisionTreeNodes())
 			{
-				if(scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
-					UnregisterSceneComp(tree_node.lock()->movable_scene_components);
-				else 
-					UnregisterSceneComp(tree_node.lock()->static_scene_components);
+				if (scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+					UnregisterSceneComp(tree_node.lock()->movable_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
+				else
+					UnregisterSceneComp(tree_node.lock()->static_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
 				scene_comp->ResetCollisionTreeNode();
 			}
 		}

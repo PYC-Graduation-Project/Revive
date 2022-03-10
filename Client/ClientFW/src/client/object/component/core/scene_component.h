@@ -71,8 +71,7 @@ namespace client_fw
 		Vec3 GetLocalUp() const { return vec3::TransformNormal(vec3::AXIS_Y, m_local_rotation); }
 
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
-		const UPtr<Collisioner>& GetCollisioner() const { return m_collisioner; }
-		virtual UPtr<Collisioner> CreateCollisioner();
+		const UPtr<Collisioner>& GetCollisioner() const;
 		bool IsPhysics() const { return m_is_physics; }
 		void SetPhysics(bool value);
 		void AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node);

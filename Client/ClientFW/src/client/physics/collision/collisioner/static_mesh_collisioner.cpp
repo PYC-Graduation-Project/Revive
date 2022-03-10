@@ -8,8 +8,8 @@
 
 namespace client_fw
 {
-	StaticMeshCollisioner::StaticMeshCollisioner(const WPtr<StaticMeshComponent>& owner)
-		: Collisioner(owner, eMeshCollisionType::kStaticMesh)
+	StaticMeshCollisioner::StaticMeshCollisioner()
+		: Collisioner(eMeshCollisionType::kStaticMesh)
 	{
 	}
 
@@ -54,61 +54,63 @@ namespace client_fw
 	{
 		if (mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox()))
 		{
-			const auto& tree1 = mesh1->GetStaticMesh()->GetBoundingTree();
-			const auto& tree2 = mesh2->GetStaticMesh()->GetBoundingTree();
+			LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
 
-			m_node_count = 0;
-			m_tri_count = 0;
-			switch (complex1)
-			{
-			case eCollisionComplex::kHigh:
-			{
-				switch (complex2)
-				{
-				case eCollisionComplex::kHigh:
-				{
-					BOrientedBox box2;
-					box2.Transform(tree2->GetRootNode()->box, mesh2->GetWorldMatrix());
+			//const auto& tree1 = mesh1->GetStaticMesh()->GetBoundingTree();
+			//const auto& tree2 = mesh2->GetStaticMesh()->GetBoundingTree();
 
-					if (CheckCollision(mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode(), mesh1,
-						mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode(), mesh2, box2))
-					{
-						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
-					}
-					break;
-				}
-				case eCollisionComplex::kLow:
-				{
-					if (CheckCollision(*mesh2->GetOrientedBox(), mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode()))
-					{
-						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
-					}
-					break;
-				}
-				}
-				break;
-			}
-			case eCollisionComplex::kLow:
-			{
-				switch (complex2)
-				{
-				case eCollisionComplex::kHigh:
-				{
-					if (CheckCollision(*mesh1->GetOrientedBox(), mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode()))
-					{
-						//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
-					}
-					break;
-				}
-				case eCollisionComplex::kLow:
-				{
-					//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
-					break;
-				}
-				}
-				break;
-			}
-			}
+			//m_node_count = 0;
+			//m_tri_count = 0;
+			//switch (complex1)
+			//{
+			//case eCollisionComplex::kHigh:
+			//{
+			//	switch (complex2)
+			//	{
+			//	case eCollisionComplex::kHigh:
+			//	{
+			//		BOrientedBox box2;
+			//		box2.Transform(tree2->GetRootNode()->box, mesh2->GetWorldMatrix());
+
+			//		if (CheckCollision(mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode(), mesh1,
+			//			mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode(), mesh2, box2))
+			//		{
+			//			//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+			//		}
+			//		break;
+			//	}
+			//	case eCollisionComplex::kLow:
+			//	{
+			//		if (CheckCollision(*mesh2->GetOrientedBox(), mesh1->GetWorldMatrix(), tree1, tree1->GetRootNode()))
+			//		{
+			//			//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+			//		}
+			//		break;
+			//	}
+			//	}
+			//	break;
+			//}
+			//case eCollisionComplex::kLow:
+			//{
+			//	switch (complex2)
+			//	{
+			//	case eCollisionComplex::kHigh:
+			//	{
+			//		if (CheckCollision(*mesh1->GetOrientedBox(), mesh2->GetWorldMatrix(), tree2, tree2->GetRootNode()))
+			//		{
+			//			//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+			//		}
+			//		break;
+			//	}
+			//	case eCollisionComplex::kLow:
+			//	{
+			//		//LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+			//		break;
+			//	}
+			//	}
+			//	break;
+			//}
+			//}
 			//LOG_INFO("충돌 검출 수 : {0} / {1}", m_node_count, m_tri_count);
 		}
 	}

@@ -8,11 +8,8 @@ namespace client_fw
 	BoxComponent::BoxComponent(const Vec3& extents, const std::string& name)
 		: ShapeComponent(name, extents, Render::ConvertShaderType(eShaderType::kShapeBox))
 	{
-	}
-
-	UPtr<Collisioner> BoxComponent::CreateCollisioner()
-	{
-		return CreateUPtr<BoxCollisioner>(SharedFromThis());
+		if (m_collisioner != nullptr)
+			m_collisioner = CreateUPtr<BoxCollisioner>();
 	}
 
 	SPtr<BoxComponent> BoxComponent::SharedFromThis()

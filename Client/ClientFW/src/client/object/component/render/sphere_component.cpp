@@ -9,11 +9,8 @@ namespace client_fw
 		: ShapeComponent(name, Vec3(radius, radius, radius)
 		, Render::ConvertShaderType(eShaderType::kShapeBox))
 	{
-	}
-
-	UPtr<Collisioner> SphereComponent::CreateCollisioner()
-	{
-		return CreateUPtr<SphereCollisioner>(SharedFromThis());
+		if (m_collisioner != nullptr)
+			CreateUPtr<SphereCollisioner>();
 	}
 
 	SPtr<SphereComponent> SphereComponent::SharedFromThis()
