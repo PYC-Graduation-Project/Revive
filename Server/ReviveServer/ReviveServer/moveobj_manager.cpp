@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "moveobj_manager.h"
-
+MoveObjManager* MoveObjManager::m_pisnt = nullptr;
 
 using namespace std;
 
@@ -39,23 +39,23 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	error = lua_pcall(L, 7, 0, 0);
 	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
 	
-	//RegisterAPI( L);
+	RegisterAPI( L);
 }
 
-//void MoveObjManager::RegisterAPI(lua_State* L)
-//{
-//
-//	lua_register(L, "API_get_x", API_get_x);
-//	lua_register(L, "API_get_y", API_get_y);
-//	lua_register(L, "API_get_z", API_get_z);
-//}
+void MoveObjManager::RegisterAPI(lua_State* L)
+{
+
+	lua_register(L, "API_get_x", API_get_x);
+	lua_register(L, "API_get_y", API_get_y);
+	lua_register(L, "API_get_z", API_get_z);
+}
 
 int MoveObjManager::API_get_x(lua_State* L)
 {
 	int user_id =
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	float x;
+	float x=MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosX();
 	lua_pushnumber(L, x);
 	return 1;
 }
@@ -65,7 +65,7 @@ int MoveObjManager::API_get_y(lua_State* L)
 	int user_id =
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	float y = m_moveobj_arr[user_id]->GetPosY();
+	float y = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosY();
 	lua_pushnumber(L, y);
 	return 1;
 }
@@ -75,7 +75,7 @@ int MoveObjManager::API_get_z(lua_State* L)
 	int user_id =
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	float z = m_moveobj_arr[user_id]->GetPosZ();
+	float z = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosZ();
 	lua_pushnumber(L, z);
 	return 1;
 }

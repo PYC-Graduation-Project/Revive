@@ -174,6 +174,7 @@ void PacketManager::SpawnEnemy(int room_id)
 	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
+//16ms=60프레임
 void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
@@ -193,9 +194,10 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		Vector3 nlook = Vector3{ m_moveobj_manager->GetPlayer(enemy->GetTargetId())->GetPos() - npos }.Normalrize();
 	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
-	npos+=(nlook* MAX_SPEED);
+	npos+=(nlook* MAX_SPEED);//이동거리 16ms보내주는거
 	
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
+	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	enemy->SetPos(npos);
 
 	for (int i = 0; i < room->GetMaxUser(); i++)

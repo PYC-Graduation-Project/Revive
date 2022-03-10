@@ -6,7 +6,7 @@
 class MoveObjManager
 {
 public:
-	MoveObjManager() = default;
+	MoveObjManager() { MoveObjManager::m_pisnt = this; };
 	~MoveObjManager() = default;
 
 	Player* GetPlayer(int id) { 
@@ -26,17 +26,19 @@ public:
 
 	void InitLua(const char* script_name,int obj_id);
 	void RegisterAPI(lua_State* L);
-	 static int API_get_x(lua_State* L);
-	 int API_get_y(lua_State* L);
-	 int API_get_z(lua_State* L);
+	static int API_get_x(lua_State* L);
+	static int API_get_y(lua_State* L);
+	static int API_get_z(lua_State* L);
 
 	int GetNewID();
 	void Disconnect(int);
 	void InitPlayer();
 	void InitNPC();
 	void DestroyObject();
+	static MoveObjManager* m_pisnt;
 private:
 	std::array <MoveObj*, MAX_USER + MAX_NPC>m_moveobj_arr;
+	
 	int m_id;
 };
 
