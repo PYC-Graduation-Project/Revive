@@ -26,40 +26,57 @@ namespace client_fw
 		{
 			if (node->movable_scene_components.empty() == false)
 			{
+				auto CheckCollision([](const std::string& type, const SPtr<SceneComponent>& comp,
+					const SPtr<SceneComponent>& other_comp) {
+						const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
+						if (other_col_types.find(type) != other_col_types.cend() &&
+							comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
+							comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr &&
+							comp->IsCollidedComponent(other_comp) == false &&
+							other_comp->IsCollidedComponent(other_comp) == false)
+						{
+							if (comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp))
+							{
+								comp->AddCollidedComponent(other_comp);
+								other_comp->AddCollidedComponent(comp);
+								if (comp->GetCollisioner()->GetCollisionInfo().generate_collision_event == true)
+									comp->ExecuteCollisionResponse(comp, other_comp->GetOwner().lock(), other_comp);
+								if (other_comp->GetCollisioner()->GetCollisionInfo().generate_collision_event == true)
+									other_comp->ExecuteCollisionResponse(other_comp, comp->GetOwner().lock(), comp);
+							}
+						}
+					});
+
 				for (const auto& [type, mov_comps] : node->movable_scene_components)
 				{
-					for (const auto& mov_comp : mov_comps)
+					for (auto iter_comp = mov_comps.cbegin(); iter_comp != mov_comps.cend(); ++iter_comp)
 					{
+						const auto mov_comp = *iter_comp;
+
 						const auto& col_types = mov_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
 
-						auto iter = std::lower_bound(col_types.cbegin(), col_types.cend(), type);
+						auto col_iter = std::lower_bound(col_types.cbegin(), col_types.cend(), type);
 
-						for (iter; iter != col_types.cend(); ++iter)
+						if (col_iter != col_types.cend() && *col_iter == type)
 						{
-							for (const auto& other_comp : node->movable_scene_components[*iter])
+							for (auto iter_other_comp = iter_comp; iter_other_comp != mov_comps.cend(); ++iter_other_comp)
 							{
-								const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
-								if (other_col_types.find(type)!= other_col_types.cend() && 
-									mov_comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
-									mov_comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr)
-								{
-									mov_comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp);
-								}
+								const auto& other_comp = *iter_other_comp;
+								CheckCollision(type, mov_comp, other_comp);
 							}
+							++col_iter;
+						}
+
+						for (col_iter; col_iter != col_types.cend(); ++col_iter)
+						{
+							for (const auto& other_comp : node->movable_scene_components[*col_iter])
+								CheckCollision(type, mov_comp, other_comp);
 						}
 
 						for (const auto& other_type : col_types)
 						{
 							for (const auto& other_comp : node->static_scene_components[other_type])
-							{
-								const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
-								if (other_col_types.find(type) != other_col_types.cend() &&
-									mov_comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
-									mov_comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr)
-								{
-									mov_comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp);
-								}
-							}
+								CheckCollision(type, mov_comp, other_comp);
 						}
 					}
 				}

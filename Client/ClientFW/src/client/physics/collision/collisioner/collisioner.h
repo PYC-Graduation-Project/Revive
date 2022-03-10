@@ -20,7 +20,7 @@ namespace client_fw
 		Collisioner(eMeshCollisionType type);
 		virtual ~Collisioner() = default;
 
-		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) = 0;
+		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) = 0;
 
 	protected:
 		CollisionInfo m_collision_info;

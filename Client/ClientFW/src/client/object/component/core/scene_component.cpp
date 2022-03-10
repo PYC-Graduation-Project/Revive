@@ -35,6 +35,7 @@ namespace client_fw
 	void SceneComponent::UpdateComponent(float delta_time)
 	{
 		m_is_updated_world_matrix = false;
+		m_collided_components.clear();
 
 		UpdateLocalMatrix();
 
@@ -94,6 +95,13 @@ namespace client_fw
 		}
 	}
 
+	void SceneComponent::ExecuteCollisionResponse(const SPtr<SceneComponent>& comp,
+		const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)
+	{
+		if (m_collision_responce_function != nullptr)
+			m_collision_responce_function(comp, other_actor, other_comp);
+	}
+
 	void SceneComponent::SetLocalPosition(const Vec3& pos)
 	{
 		m_local_position = pos;
@@ -143,5 +151,24 @@ namespace client_fw
 	void SceneComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)
 	{
 		m_collision_tree_node.push_back(tree_node);
+	}
+
+	bool SceneComponent::IsCollidedComponent(const SPtr<SceneComponent>& component)
+	{
+		const auto& actor_name = component->GetOwner().lock()->GetName();
+		if (m_collided_components.find(actor_name) == m_collided_components.cend())
+			return false;
+		else
+		{
+			auto& collided_components = m_collided_components[actor_name];
+			if (collided_components.find(component->GetName()) == collided_components.cend())
+				return false;
+		}
+		return true;
+	}
+
+	void SceneComponent::AddCollidedComponent(const SPtr<SceneComponent>& component)
+	{
+		m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
 	}
 }

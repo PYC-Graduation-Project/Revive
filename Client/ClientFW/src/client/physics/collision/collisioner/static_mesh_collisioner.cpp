@@ -13,7 +13,7 @@ namespace client_fw
 	{
 	}
 
-	void StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
+	bool StaticMeshCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
 	{
 		switch (other->GetCollisioner()->GetMeshCollisionType())
 		{
@@ -21,41 +21,28 @@ namespace client_fw
 		{
 			const auto& mesh1 = std::static_pointer_cast<StaticMeshComponent>(GetOwner());
 			const auto& mesh2 = std::static_pointer_cast<StaticMeshComponent>(other->GetCollisioner()->GetOwner());
-			CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex,
+			return CheckCollsionWithStaticMesh(mesh1, mesh1->GetCollisioner()->GetCollisionInfo().complex,
 				mesh2, mesh2->GetCollisioner()->GetCollisionInfo().complex);
-			break;
 		}
 		case eMeshCollisionType::kBox:
-		{
-			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
-			{
-			/*	LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());*/
-			}
-			break;
-		}
+			return GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox());
 		case eMeshCollisionType::kSphere:
 		{
 			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
-			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
-			{
-			/*	LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());*/
-			}
-			break;
+			return GetOwner()->GetOrientedBox()->Intersects(sphere2);
 		}
 		default:
 			break;
 		}
+		return false;
 	}
 
-	void StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
+	bool StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
 		const SPtr<StaticMeshComponent>& mesh2, eCollisionComplex complex2)
 	{
-		if (mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox()))
-		{
-			LOG_INFO("{0} col {1}", mesh1->GetOwner().lock()->GetName(), mesh2->GetOwner().lock()->GetName());
+		return mesh1->GetOrientedBox()->Intersects(*mesh2->GetOrientedBox());
 
+		{			
 			//const auto& tree1 = mesh1->GetStaticMesh()->GetBoundingTree();
 			//const auto& tree2 = mesh2->GetStaticMesh()->GetBoundingTree();
 

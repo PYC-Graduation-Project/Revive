@@ -44,9 +44,19 @@ namespace client_fw
 		SPtr<BOrientedBox> m_oriented_box;
 		UPtr<Collisioner> m_collisioner;
 		bool m_is_physics = false;
+		std::function<void(const SPtr<SceneComponent>&, const SPtr<Actor>&,
+			const SPtr<SceneComponent>&)> m_collision_responce_function = nullptr;
 
 	private:
 		std::vector<WPtr<CollisionTreeNode>> m_collision_tree_node;
+		std::map<std::string, std::set<std::string>> m_collided_components;
+
+	public:
+		void OnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
+			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)
+		{ m_collision_responce_function = function; }
+		virtual void ExecuteCollisionResponse(const SPtr<SceneComponent>& comp,
+			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp);
 
 	public:
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
@@ -77,6 +87,8 @@ namespace client_fw
 		void AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node);
 		void ResetCollisionTreeNode() { m_collision_tree_node.clear(); }
 		const std::vector<WPtr<CollisionTreeNode>>& GetCollisionTreeNodes() const { return m_collision_tree_node; }
+		bool IsCollidedComponent(const SPtr<SceneComponent>& component);
+		void AddCollidedComponent(const SPtr<SceneComponent>& component);
 	};
 
 }

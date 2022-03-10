@@ -9,7 +9,7 @@ namespace client_fw
 		SphereCollisioner();
 		virtual ~SphereCollisioner() = default;
 
-		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>&other) override;
+		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>&other) override;
 	};
 }
 

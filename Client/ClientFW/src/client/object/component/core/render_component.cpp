@@ -25,6 +25,7 @@ namespace client_fw
 	{
 		UnregisterFromRenderSystem();
 		UnregisterFromVisualOctree();
+		SceneComponent::ShutdownComponent();
 	}
 
 	void RenderComponent::UpdateComponent(float delta_time)

@@ -18,7 +18,6 @@ namespace client_fw
 
 	private:
 		static void CheckCollisionInLeafNode(const SPtr<CollisionTreeNode>& node);
-
 	};
 }
 

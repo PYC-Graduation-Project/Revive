@@ -12,11 +12,11 @@ namespace client_fw
 		StaticMeshCollisioner();
 		virtual ~StaticMeshCollisioner() = default;
 
-		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
 
 	private:
 		//Check static mesh
-		void CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
+		bool CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,
 			const SPtr<StaticMeshComponent>& mesh2, eCollisionComplex complex2);
 		bool CheckCollision(const Mat4& mat1, const SPtr<KDTree>& tree1, const SPtr<KDTreeNode>& node1, const SPtr<StaticMeshComponent>& mesh1,
 			const Mat4& mat2, const SPtr<KDTree>& tree2, const SPtr<KDTreeNode>& node2, const SPtr<StaticMeshComponent>& mesh2, const BOrientedBox& box2);
