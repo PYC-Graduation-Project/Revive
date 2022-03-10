@@ -63,6 +63,14 @@ namespace client_fw
 		}
 	}
 
+	void LevelManager::UpdateWorldMatrix()
+	{
+		if (m_cur_level != nullptr)
+		{
+			m_cur_level->UpdateWorldMatrix();
+		}
+	}
+
 	void LevelManager::OpenLevel(const SPtr<Level> new_level, UPtr<LevelLoader>&& level_loader)
 	{
 		if (m_ready_level != nullptr)

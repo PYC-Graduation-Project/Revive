@@ -121,9 +121,10 @@ namespace client_fw
 
 	void Application::Update(float delta_time)
 	{
-		m_user_interface_manager->Update(delta_time);
 		m_level_manager->Update(delta_time);
 		m_physics_world->Update(delta_time);
+		m_user_interface_manager->Update(delta_time);
+		m_level_manager->UpdateWorldMatrix();
 	}
 
 	void Application::Render()

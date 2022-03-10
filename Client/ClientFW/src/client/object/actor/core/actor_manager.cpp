@@ -10,7 +10,9 @@ namespace client_fw
 			actor->ShutdownActor();
 		for (const auto& actor : m_static_actors)
 			actor->ShutdownActor();
-		for (const auto& actor : m_dynamic_actors)
+		for (const auto& actor : m_destructible_actors)
+			actor->ShutdownActor();
+		for (const auto& actor : m_movable_actors)
 			actor->ShutdownActor();
 	}
 
@@ -28,9 +30,11 @@ namespace client_fw
 				case eMobilityState::kStatic:
 					m_static_actors.emplace_back(std::move(actor));
 					break;
-				case eMobilityState::kDestructable:
+				case eMobilityState::kDestructible:
+					m_destructible_actors.emplace_back(std::move(actor));
+					break;
 				case eMobilityState::kMovable:
-					m_dynamic_actors.emplace_back(std::move(actor));
+					m_movable_actors.emplace_back(std::move(actor));
 					break;
 				}
 			}
@@ -43,7 +47,14 @@ namespace client_fw
 		m_ready_actors.clear();
 
 		UpdateStaticActors(delta_time);
-		UpdateDynamicActors(delta_time);
+		UpdateDynamicActors(m_destructible_actors, delta_time);
+		UpdateDynamicActors(m_movable_actors, delta_time);
+	}
+
+	void ActorManager::UpdateWorldMatrix()
+	{
+		for (const auto& actor : m_movable_actors)
+			actor->UpdateWorldMatrix();
 	}
 
 	void ActorManager::UpdateStaticActors(float delta_time)
@@ -65,11 +76,11 @@ namespace client_fw
 		}
 	}
 
-	void ActorManager::UpdateDynamicActors(float delta_time)
+	void ActorManager::UpdateDynamicActors(std::vector<SPtr<Actor>>& actors, float delta_time)
 	{
 		int count = 0;
 
-		for (auto actor = m_dynamic_actors.rbegin(); actor != m_dynamic_actors.rend(); ++actor)
+		for (auto actor = actors.rbegin(); actor != actors.rend(); ++actor)
 		{
 			switch ((*actor)->GetActorState())
 			{
@@ -80,14 +91,14 @@ namespace client_fw
 				break;
 			case eActorState::kDead:
 				(*actor)->ShutdownActor();
-				std::iter_swap(actor, m_dynamic_actors.rbegin() + count);
+				std::iter_swap(actor, actors.rbegin() + count);
 				++count;
 				break;
 			}
 		}
 
 		while (count--)
-			m_dynamic_actors.pop_back();
+			actors.pop_back();
 	}
 
 	void ActorManager::RegisterActor(const SPtr<Actor>& actor)

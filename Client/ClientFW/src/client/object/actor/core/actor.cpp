@@ -50,8 +50,6 @@ namespace client_fw
 		m_previous_position = m_position;
 		m_is_updated_world_matrix = false;
 
-		UpdateWorldMatrix();
-
 		if (m_physics_manager != nullptr && m_physics_manager->IsActive())
 			m_physics_manager->Update(delta_time);
 

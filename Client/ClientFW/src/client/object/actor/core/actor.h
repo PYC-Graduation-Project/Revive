@@ -17,7 +17,7 @@ namespace client_fw
 
 	enum class eMobilityState
 	{
-		kStatic, kDestructable, kMovable
+		kStatic, kDestructible, kMovable
 	};
 
 	class Actor : public IBaseObject, public std::enable_shared_from_this<Actor>
@@ -50,7 +50,7 @@ namespace client_fw
 		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 
-	private:
+	public:
 		void UpdateWorldMatrix();
 
 	protected:

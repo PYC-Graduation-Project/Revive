@@ -42,6 +42,11 @@ namespace client_fw
 		m_actor_manager->Update(delta_time);
 	}
 
+	void Level::UpdateWorldMatrix()
+	{
+		m_actor_manager->UpdateWorldMatrix();
+	}
+
 	void Level::SpawnActor(const SPtr<Actor>& actor) const
 	{
 		if (IsRuntime())
@@ -52,7 +57,7 @@ namespace client_fw
 				LOG_WARN("Static actor[{0}] cannot be spawned at runtime", actor->GetName());
 				actor->SetActorState(eActorState::kDead);
 				break;
-			case eMobilityState::kDestructable:
+			case eMobilityState::kDestructible:
 			case eMobilityState::kMovable:
 				m_actor_manager->RegisterActor(actor);
 				break;

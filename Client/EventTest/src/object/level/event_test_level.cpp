@@ -81,7 +81,7 @@ namespace event_test
 
 		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
 			[this]()->bool {
-				auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kDestructable,
+				auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kDestructible,
 					"../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), m_move_cube_queue.size() % 2);
 				SpawnActor(test_billboard);
 				test_billboard->SetPosition(m_spawn_pos);

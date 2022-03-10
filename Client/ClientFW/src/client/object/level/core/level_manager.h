@@ -20,6 +20,7 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
+		void UpdateWorldMatrix();
 
 		void OpenLevel(const SPtr<Level> new_level, UPtr<LevelLoader>&& level_loader);
 		void CloseLevel() const;

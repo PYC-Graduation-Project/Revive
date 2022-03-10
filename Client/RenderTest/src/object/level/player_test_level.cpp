@@ -65,11 +65,11 @@ namespace render_test
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 10000)
+		if (time >= 0.016f && count <= 4000)
 		{
 			for (int i = 0; i < 40; ++i)
 			{
-				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructable, "../Contents/police.obj");
+				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructible, "../Contents/police.obj");
 				SpawnActor(police);
 				police->SetPosition(Vec3{ x, y, z });
 				police->SetScale(0.2f);

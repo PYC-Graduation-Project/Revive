@@ -30,6 +30,7 @@ namespace client_fw
 
 		void UpdateLevel(float delta_time);
 		virtual void Update(float delta_time) override {}
+		void UpdateWorldMatrix();
 
 		void SpawnActor(const SPtr<Actor>& actor) const;
 		void RegisterUILayer(const SPtr<UserInterfaceLayer>& ui_layer) const;
