@@ -183,11 +183,11 @@ namespace client_fw
 		}
 	}
 
-	void MeshRenderItem::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component )
+	void MeshRenderItem::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component )
 	{
 		m_animation_controllers.emplace_back(skeletal_mesh_component->GetAnimationController());
 	}
-	void MeshRenderItem::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component)
+	void MeshRenderItem::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component)
 	{
 		//메시 데이터를 기준으로 삭제한다.
 		UINT index = skeletal_mesh_component->GetInstanceIndex();

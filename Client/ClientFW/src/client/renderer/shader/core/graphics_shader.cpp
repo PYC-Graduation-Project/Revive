@@ -143,15 +143,15 @@ namespace client_fw
 		LOG_WARN("Could not supported shape component at {0}", m_name);
 	}
 
-	bool GraphicsShader::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	bool GraphicsShader::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
 	{
-		LOG_WARN("Could not supported Animation Controller at {0}", m_name);
+		LOG_WARN("Could not supported skeletal mesh component at {0}", m_name);
 		return false;
 	}
 
-	void GraphicsShader::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	void GraphicsShader::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
 	{
-		LOG_WARN("Could not supported Animation Controller at {0}", m_name);
+		LOG_WARN("Could not supported skeletal mesh component at {0}", m_name);
 	}
 
 	MeshShader::MeshShader(const std::string& name)
@@ -209,13 +209,13 @@ namespace client_fw
 		}
 	}
 
-	bool MeshShader::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	bool MeshShader::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
 	{
 		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
 
 		if (m_render_items_map.find(path) != m_render_items_map.cend())
 		{
-			m_render_items_map[path]->RegisterAnimationController(skeletal_mesh_comp);
+			m_render_items_map[path]->RegisterSkeletalMeshComponent(skeletal_mesh_comp);
 		}
 		else
 		{
@@ -225,13 +225,13 @@ namespace client_fw
 		return true;
 	}
 
-	void MeshShader::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	void MeshShader::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
 	{
 		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
 
 		if (m_render_items_map.find(path) != m_render_items_map.cend())
 		{
-			m_render_items_map[path]->UnregisterAnimationController(skeletal_mesh_comp);
+			m_render_items_map[path]->UnregisterSkeletalMeshComponent(skeletal_mesh_comp);
 		}
 	}
 

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "client/asset/animation/animation_sequence.h"
-#include "client/object/animation/animation_controller.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
@@ -31,16 +30,16 @@ namespace client_fw
 	}
 	void SkeletalMeshComponent::Shutdown()
 	{
-		UnregisterAnimationController();
+		UnregisterSkeletalMeshComponent();
 		MeshComponent::Shutdown();
 	}
-	bool SkeletalMeshComponent::RegisterAnimationController()
+	bool SkeletalMeshComponent::RegisterSkeletalMeshComponent()
 	{
-		return Render::RegisterAnimationController(SharedFromThis(),m_draw_shader_name);
+		return Render::RegisterSkeletalMeshComponent(SharedFromThis(),m_draw_shader_name);
 	}
-	void SkeletalMeshComponent::UnregisterAnimationController()
+	void SkeletalMeshComponent::UnregisterSkeletalMeshComponent()
 	{
-		return Render::UnregisterAnimationController(SharedFromThis(), m_draw_shader_name);
+		return Render::UnregisterSkeletalMeshComponent(SharedFromThis(), m_draw_shader_name);
 	}
 	SPtr<SkeletalMesh> SkeletalMeshComponent::GetSkeletalMesh() const
 	{
@@ -67,8 +66,8 @@ namespace client_fw
 		m_animation_name = animation_name;
 		m_animation_controller->SetAnimation(animation_path, GetSkeletalMesh()->GetSkeleton());
 		m_animation_controller->SetAnimationName(animation_name);
-		if (m_animation_controller->GetIsRegistered() == false)
-			m_animation_controller->SetIsRegistered(RegisterAnimationController());
+		if (GetIsRegistered() == false)
+			SetIsRegistered(RegisterSkeletalMeshComponent());
 	}
 	UPtr<Collisioner> SkeletalMeshComponent::CreateCollisioner()
 	{

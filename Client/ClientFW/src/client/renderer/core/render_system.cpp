@@ -11,7 +11,7 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/util/camera_component.h"
-#include <client/object/component/mesh/skeletal_mesh_component.h>
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 
 namespace client_fw
 {
@@ -202,13 +202,13 @@ namespace client_fw
 			break;
 		}
 	}
-	bool RenderSystem::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
+	bool RenderSystem::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
 	{
-		return m_graphics_shaders.at(shader_name)->RegisterAnimationController(skeletal_mesh_comp);
+		return m_graphics_shaders.at(shader_name)->RegisterSkeletalMeshComponent(skeletal_mesh_comp);
 	}
-	void RenderSystem::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
+	void RenderSystem::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
 	{
-		return m_graphics_shaders.at(shader_name)->UnregisterAnimationController(skeletal_mesh_comp);
+		return m_graphics_shaders.at(shader_name)->UnregisterSkeletalMeshComponent(skeletal_mesh_comp);
 
 	}
 }

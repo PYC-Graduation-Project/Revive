@@ -30,14 +30,14 @@ namespace client_fw
 		s_render_system->UnregisterCameraComponent(camera_comp);
 	}
 
-	bool Render::RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
+	bool Render::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
 	{
-		return s_render_system->RegisterAnimationController(skeletal_mesh_component,shader_name);
+		return s_render_system->RegisterSkeletalMeshComponent(skeletal_mesh_component,shader_name);
 	}
 
-	void Render::UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
+	void Render::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
 	{
-		s_render_system->UnregisterAnimationController(skeletal_mesh_component, shader_name);
+		s_render_system->UnregisterSkeletalMeshComponent(skeletal_mesh_component, shader_name);
 	}
 
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)

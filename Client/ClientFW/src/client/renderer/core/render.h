@@ -42,8 +42,8 @@ namespace client_fw
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 
-		static bool RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
-		static void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
+		static bool RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
+		static void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
 
 
 	public:

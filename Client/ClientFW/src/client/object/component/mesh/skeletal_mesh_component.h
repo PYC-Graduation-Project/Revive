@@ -1,4 +1,5 @@
 #pragma once
+#include "client/object/animation/animation_controller.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/asset/bone/skeleton.h"
 
@@ -25,9 +26,12 @@ namespace client_fw
 		bool m_looping = true;
 		bool m_is_playing = true;
 
-		bool RegisterAnimationController();
-		void UnregisterAnimationController();
+		bool RegisterSkeletalMeshComponent();
+		void UnregisterSkeletalMeshComponent();
 	public:
+
+		bool GetIsRegistered() { return m_animation_controller->GetIsRegistered(); }
+		void SetIsRegistered(bool value) { m_animation_controller->SetIsRegistered(value); }
 
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;
 		virtual bool SetMesh(const std::string& file_path);

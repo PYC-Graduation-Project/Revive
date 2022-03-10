@@ -39,8 +39,8 @@ namespace client_fw
 
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 		void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
-		void RegisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
-		void UnregisterAnimationController(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
+		void RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
+		void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component);
 
 	private:
 		void CreateResources(ID3D12Device* device);
