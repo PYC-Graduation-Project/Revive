@@ -19,14 +19,14 @@ namespace client_fw
 
 	protected:
 		eTextureType m_texture_type;
-		UINT m_texture_resource_index = 0;
+		INT m_texture_resource_index = -1;
 
 		ComPtr<ID3D12Resource> m_texture_resource;
 		
 	public:
 		eTextureType GetTextureType() const { return m_texture_type; }
-		UINT GetResourceIndex() const { return m_texture_resource_index; }
-		void SetResourceIndex(UINT index) { m_texture_resource_index = index; }
+		INT GetResourceIndex() const { return m_texture_resource_index; }
+		void SetResourceIndex(INT index) { m_texture_resource_index = index; }
 		ID3D12Resource* GetResource() const { return m_texture_resource.Get(); }
 	};
 
