@@ -36,6 +36,7 @@ private:
 	int curr_round;
 	std::mutex m_obj_lock;
 	std::vector<int>m_obj_list;
+	float m_round_time;
 	Object* m_base;//방초기화할때 생성
 };
 

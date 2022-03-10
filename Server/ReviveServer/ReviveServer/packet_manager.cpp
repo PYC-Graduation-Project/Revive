@@ -75,6 +75,8 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
+		m_timer_queue.push(SetTimerEvent(new_id, new_id,
+			EVENT_TYPE::EVENT_TIME, 100));
 	}
 
 	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
@@ -299,6 +301,16 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendTime(int c_id, float round_time, float send_time)
+{
+	sc_packet_time packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_TIME;
+	packet.time = round_time;
+	packet.send_time = send_time;
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 
 
 
@@ -491,7 +503,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 void PacketManager::ProcessRotation(int c_id, unsigned char* p)
 {
 	cs_packet_rotation* packet = reinterpret_cast<cs_packet_rotation*>(p);
-	
+	//사용안할확률이 높지만 일단 둔다
 
 }
 
@@ -549,6 +561,8 @@ void PacketManager::StartGame(int room_id)
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));
+	m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+		EVENT_TYPE::EVENT_TIME, 100));
 }
 
 
@@ -638,7 +652,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 		this_thread::sleep_for(10ms);
 	}
 }
-
+static float ro_time = 30.0f;//임시시간 나중에 지우고 각 방마다 넣어주기
 void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 {
 	EXP_OVER* ex_over = new EXP_OVER;
@@ -647,20 +661,35 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	{
 		ex_over->_comp_op = COMP_OP::OP_NPC_SPAWN;
 		ex_over->target_id = ev.target_id;
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
 	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
 		ex_over->_comp_op = COMP_OP::OP_PLAYER_MOVE;
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
 	case EVENT_TYPE::EVENT_NPC_MOVE: {
 		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
 		ex_over->room_id = ev.room_id;
 		ex_over->target_id = ev.target_id;
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+		break;
+	}
+	case EVENT_TYPE::EVENT_TIME: {
+		//방으로 처리하도록 바꾸기
+		auto end_time = std::chrono::system_clock::now();
+		std::chrono::duration<float>send_t = end_time.time_since_epoch();
+		std::chrono::duration<float> elapsed = end_time - ev.start_time;
+		ro_time -= elapsed.count();
+		SendTime(ev.obj_id,ro_time, send_t.count());
+		m_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
+			EVENT_TYPE::EVENT_TIME, 100));
+		break;
 	}
 	}
 
-	PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+	
 }
 void PacketManager::CreateDBThread()
 {

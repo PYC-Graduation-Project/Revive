@@ -31,7 +31,7 @@ public:
 	void SendMatchingOK(int c_id);
 	void SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type);
 	void SendObjInfo(int c_id, int obj_id);
-
+	void SendTime(int c_id,float round_time, float send_time);
 
 
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
