@@ -17,7 +17,7 @@ namespace client_fw
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
-		m_bone_trans_data = CreateUPtr<UploadBuffer<AnimationData>>(false);
+		m_bone_trans_data = CreateUPtr<UploadBuffer<RSSkinnedData>>(false);
 	}
 
 	MeshRenderItem::~MeshRenderItem()
@@ -106,16 +106,16 @@ namespace client_fw
 				m_index_of_lod_instance_data[lod - 1] + m_mesh->GetLODMeshCount(static_cast<UINT>(lod));
 		}
 
-		m_num_of_instance_animation_controller = m_mesh->GetLODMeshCount(0);
+		UINT index = m_mesh->GetLODMeshCount(0);
 
 		for (auto& animation_controller : m_animation_controllers)
 		{
 			//if (animation_controller->IsVisible())
 			//{
-				m_bone_trans_data->CopyData(--m_num_of_instance_animation_controller,
-					AnimationData{ animation_controller->GetBoneTransformData() });
+			if (index <= 0) break;
+				m_bone_trans_data->CopyData(--index,
+					RSSkinnedData{ animation_controller->GetBoneTransformData() });
 			//}
-			if (m_num_of_instance_animation_controller <= 0) break;
 		}
 
 		for (auto& mesh_data : m_mesh_comp_data)

@@ -23,20 +23,20 @@ VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : S
 	VS_SKINNED_MESH_OUT output;
 
 	InstanceData i_data = g_instance_data[instance_id];
-	BoneTransData b_data = g_transform_data[instance_id];
+    SkinnedData skinned_data = g_transform_data[instance_id];
 	
     float3 pos = float3(0.0f, 0.0f, 0.0f);
     float3 normal = float3(0.0f, 0.0f, 0.0f);
 	
 
-    pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
-    normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[0]]) * input.weights[0];
-	pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
-    normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[1]]) * input.weights[1];
-	pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[2]]).xyz * input.weights[2];
-    normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[2]]) * input.weights[2];
-	pos += mul(float4(input.position, 1.0f), b_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
-    normal += mul(input.normal, (float3x3) b_data.bone_trans[input.indices[3]]) * input.weights[3];
+    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
+    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[0]]) * input.weights[0];
+    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
+    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[1]]) * input.weights[1];
+    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[2]]).xyz * input.weights[2];
+    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[2]]) * input.weights[2];
+    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
+    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[3]]) * input.weights[3];
 	
     
 	//   float4x4 x1 = b_data.bone_trans[input.indices[0]] * input.weights[0];

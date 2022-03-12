@@ -22,7 +22,7 @@ namespace client_fw
 		Mat4 world_inverse;
 	};
 
-	struct AnimationData;
+	struct RSSkinnedData;
 
 	class MeshRenderItem final
 	{
@@ -58,9 +58,8 @@ namespace client_fw
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
 
-		UINT m_num_of_instance_animation_controller = 0;
 		std::vector<SPtr<AnimationController>> m_animation_controllers;
-		UPtr<UploadBuffer<AnimationData>> m_bone_trans_data;
+		UPtr<UploadBuffer<RSSkinnedData>> m_bone_trans_data;
 
 	public:
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }

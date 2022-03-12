@@ -547,6 +547,7 @@ namespace client_fw
 			}
 			else if (prefix.compare("<Materials>:") == 0)
 			{
+
 				fread(&material_count, sizeof(int), 1, rev_file);
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
@@ -559,7 +560,8 @@ namespace client_fw
 					case HashCode("<AlbedoMap>:"):
 						ReadStringFromFile(rev_file, &texture_name); //W_HEAD_00_violet +확장자 붙힌채로 읽기
 						temp_data.mtl_names.push_back(texture_name );
-						temp_data.materials = CreateRevMaterial(texture_name, file_help::GetParentPathFromPath(path));
+						temp_data.materials = AssetStore::LoadMaterials(parent_path + "/" + texture_name + ".mtl");
+						//AddRevMaterial(temp_data.materials,texture_name, file_help::GetParentPathFromPath(path));
 						break;
 					}
 				}
@@ -593,7 +595,7 @@ namespace client_fw
 			}
 		}
 
-		
+		return true;
 	}
 
 	void RevLoader::LoadMeshFromRevFile(FILE* rev_file, std::vector<MeshData>& mesh_data) const
@@ -1006,12 +1008,13 @@ namespace client_fw
 		return length;
 	}
 
-	std::map<std::string, SPtr<Material>> RevLoader::CreateRevMaterial(const std::string& mtl_name, const std::string& parent_path) const
+	void RevLoader::AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const
 	{
-		std::map<std::string, SPtr<Material>> materials;
+		//std::map<std::string, SPtr<Material>> materials;
 
 		bool is_new_mtl = false;
 		SPtr<Material> material = nullptr;
+		std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서 확장자를 적도록 변경할예정
 
 		auto AddMaterial([&material, &materials, &is_new_mtl]() {
 			if (material != nullptr)
@@ -1022,16 +1025,16 @@ namespace client_fw
 			is_new_mtl = false;
 			});
 
+		material = AssetStore::LoadMaterial(texture_path);
 		if (material == nullptr)
 		{
 			AddMaterial();
 
 			material = CreateSPtr<Material>();
-			material->SetAssetInfo({ mtl_name, "", "" }); //불러오는것없이 이름만 저장함
 			is_new_mtl = true;
 			material->SetBaseColor(Vec4(0.3f, 0.3f, 0.3f, 1.0f)); //베이스컬러 회색
 
-			std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서 확장자를 적도록 변경할예정
+			material->SetAssetInfo({ mtl_name, texture_path, ".png" }); //텍스처 경로 = 마테리얼 경로(마테리얼 파일이없기때문에)
 			SPtr<Texture> diffuse_texture = AssetStore::LoadTexture(texture_path);
 			if (diffuse_texture != nullptr)
 			{
@@ -1041,7 +1044,7 @@ namespace client_fw
 			AddMaterial();
 
 		}
-		return materials;
+		//return materials;
 	}
 	void RevLoader::InitializeMeshData(std::vector<MeshData>& mesh_data) const
 	{

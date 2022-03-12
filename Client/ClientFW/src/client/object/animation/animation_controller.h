@@ -7,7 +7,7 @@ namespace client_fw
 	class Skeleton;
 
 	struct BoneData;
-	struct AnimationData;
+	struct RSSkinnedData;
 
 	class AnimationController :public std::enable_shared_from_this<AnimationController>
 	{
@@ -18,7 +18,7 @@ namespace client_fw
 		bool Initialize();
 
 		void CopyAnimationData();
-		const AnimationData& GetBoneTransformData() { return m_bone_trans_data; }
+		const RSSkinnedData& GetBoneTransformData() { return m_bone_trans_data; }
 
 	public:
 		void SetAnimation(const std::string& animation_path, const SPtr<Skeleton>& skeleton);
@@ -52,6 +52,6 @@ namespace client_fw
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
-		AnimationData m_bone_trans_data;
+		RSSkinnedData m_bone_trans_data;
 	};
 }

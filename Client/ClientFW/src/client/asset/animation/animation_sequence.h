@@ -5,7 +5,7 @@ namespace client_fw
 {
 	class Skeleton;
 
-	struct AnimationData
+	struct RSSkinnedData
 	{
 		std::array<Mat4,32> animation_matrix;
 	};
@@ -56,7 +56,7 @@ namespace client_fw
 
 		void TrackToPlay(int& prev_time_index, float time_pos);
 		
-		const Mat4& GetSRT(int& prev_time_index, int bone_index,float time_pos, float weight);
+		void SetAnimatedTransform(int& prev_time_index, int bone_index,float time_pos, float weight);
 		std::vector<SPtr<Skeleton>>& GetAnimatedSkeleton() { return m_animated_skeleton; }
 
 	};

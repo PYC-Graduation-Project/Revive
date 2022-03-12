@@ -26,7 +26,7 @@ namespace client_fw
 	{
 		for (int i = 0; i < m_animated_bone_count; ++i)
 		{
-			m_animated_skeleton.at(i)->SetToParent(GetSRT(prev_time_index,i, time_pos,m_wieght));
+			SetAnimatedTransform(prev_time_index,i, time_pos,m_wieght);
 		}
 	}
 
@@ -43,7 +43,7 @@ namespace client_fw
 			prev_time_index = 0;
 	}
 
-	const Mat4& AnimationTrack::GetSRT(int& prev_time_index, int bone_index, float time_pos, float weight)
+	void  AnimationTrack::SetAnimatedTransform(int& prev_time_index, int bone_index, float time_pos, float weight)
 	{
 		auto temp_bone = m_animated_skeleton.at(bone_index);
 		/*Vec3 scale = temp_bone->m_scale;
@@ -110,7 +110,7 @@ namespace client_fw
 
 		Mat4 transform = S * R * T;
 
-		return transform;
+		temp_bone->SetToParent(transform);
 	}
 	
 	SPtr<AnimationCurve> LoadKeyValue(FILE* file)

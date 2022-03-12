@@ -32,14 +32,16 @@ namespace anim_test
 
 		Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
 		
-		auto skel_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","idle");
+		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/violet.rev","idle");
 		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
-		SpawnActor(skel_idle);
+		SpawnActor(violet_idle);
 		SpawnActor(skel_run);
-		skel_idle->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		skel_idle->SetScale(Vec3(50.0f, 50.0f, 50.0f));
-		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1100.0f });
+		violet_idle->SetPosition(Vec3{ 10.0f, -35.0f, 1100.0f });
+		violet_idle->SetScale(Vec3(0.5f,0.5f,0.5f));
+		violet_idle->SetRotation(80.0f, 0.0f, 0.0f);
+		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 		skel_run->SetScale(Vec3(50.0f, 50.0f, 50.0f));
+		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
 		
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
@@ -73,10 +75,11 @@ namespace anim_test
 			{
 				if (i % 2 == 0)
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel.rev","run");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/violet.rev","idle");
 					SpawnActor(police);
-					police->SetPosition(Vec3{ x, y, z });
-					police->SetScale(50.f);
+					police->SetPosition(Vec3{ x, y- 35.0f, z });
+					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
+					police->SetRotation(80.0f, 0.0f, 0.0f);
 					++count;
 				}
 				else
@@ -85,6 +88,7 @@ namespace anim_test
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);
+					police->SetRotation(80.0f, 0.0f, 0.0f);
 					++count;
 				}
 				

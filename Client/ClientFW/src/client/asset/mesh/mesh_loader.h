@@ -47,8 +47,8 @@ namespace client_fw
 		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>& skeleton) const;
 
 
-		//마테리얼을 로드하는게아닌 생성임, 따라서 Material_Loader에 정의하지 않음,또한 여기서만 사용함
-		std::map<std::string, SPtr<Material>> CreateRevMaterial(const std::string& mtl_name, const std::string& parent_path) const;
+		//여기서만 사용함
+		void AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const;
 
 		
 

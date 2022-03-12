@@ -12,14 +12,15 @@ struct MaterialData
 	int diffuse_texture_index;
 };
 
-struct BoneTransData {
+struct SkinnedData
+{
 	matrix bone_trans[ANIMATION_BONES];
 };
 
 Texture2D g_texture_data[] : register(t0, space1);
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
 StructuredBuffer<MaterialData> g_material_data : register(t1, space0); 
-StructuredBuffer<BoneTransData> g_transform_data : register(t2, space0);
+StructuredBuffer<SkinnedData> g_transform_data : register(t2, space0);
 
 SamplerState g_sampler_point_wrap : register(s0);
 
