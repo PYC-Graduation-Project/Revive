@@ -4,6 +4,7 @@
 #include "client/object/component/core/component.h"
 #include "client/object/component/core/component_manager.h"
 #include "client/input/input.h"
+#include "client/event/messageevent/message_helper.h"
 #include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
@@ -37,8 +38,10 @@ namespace client_fw
 
 	void Actor::ShutdownActor()
 	{
-		for (auto name : m_registered_input_event)
+		for (const auto& name : m_registered_input_events)
 			Input::UnregisterInputEvent(name);
+		for (const auto& name : m_registered_message_events)
+		MessageHelper::UnregisterMessageReceiver(name, shared_from_this());
 
 		m_component_manager->Shutdown();
 
@@ -118,7 +121,13 @@ namespace client_fw
 
 	void Actor::RegisterInputEvent(const std::string& name)
 	{
-		m_registered_input_event.emplace_back(std::move(name));
+		m_registered_input_events.push_back(name);
+	}
+
+	void Actor::RegisterReceiveMessage(const std::string& name)
+	{
+		MessageHelper::RegisterMessageReceiver(name, shared_from_this());
+		m_registered_message_events.push_back(name);
 	}
 
 	void Actor::SetPosition(const Vec3& pos)

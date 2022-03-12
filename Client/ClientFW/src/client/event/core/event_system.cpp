@@ -5,6 +5,7 @@
 #include "client/event/uievent/ui_event_manager.h"
 #include "client/input/input.h"
 #include "client/input/input_manager.h"
+#include "client/event/messageevent/message_event_manager.h"
 
 namespace client_fw
 {
@@ -16,6 +17,7 @@ namespace client_fw
 		m_input_manager = CreateUPtr<InputManager>(window);
 		m_input_event_manager = CreateUPtr<InputEventManager>();
 		m_ui_event_manager = CreateUPtr<UIEventManager>();
+		m_message_event_manager = CreateUPtr<MessageEventManager>();
 	}
 
 	EventSystem::~EventSystem()
@@ -30,6 +32,7 @@ namespace client_fw
 			m_input_event_manager->ExecuteEvent();
 			m_ui_event_manager->ExecuteEvent();
 		}
+		m_message_event_manager->ExecuteEvent();
 		m_input_manager->Update();
 	}
 

@@ -6,6 +6,7 @@ namespace client_fw
 	class Component;
 	class ComponentManager;
 	class ActorPhysicsManager;
+	class MessageEventInfo;
 
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
@@ -44,6 +45,10 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 		void RegisterInputEvent(const std::string& name);
+		void RegisterReceiveMessage(const std::string& name);
+
+	public:
+		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
 
 	public:
 		void SpawnActor(const SPtr<Actor>& actor);
@@ -59,7 +64,8 @@ namespace client_fw
 		eMobilityState m_mobility_state;
 
 	private:
-		std::vector<std::string> m_registered_input_event;
+		std::vector<std::string> m_registered_input_events;
+		std::vector<std::string> m_registered_message_events;
 		UPtr<ComponentManager> m_component_manager;
 		UPtr<ActorPhysicsManager> m_physics_manager;
 

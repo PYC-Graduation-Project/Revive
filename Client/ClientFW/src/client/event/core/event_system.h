@@ -6,6 +6,7 @@ namespace client_fw
     class InputManager;
     class InputEventManager;
     class UIEventManager;
+    class MessageEventManager;
 
     class EventSystem final
     {
@@ -26,12 +27,14 @@ namespace client_fw
         UPtr<InputManager> m_input_manager;
         UPtr<InputEventManager> m_input_event_manager;
         UPtr<UIEventManager> m_ui_event_manager;
+        UPtr<MessageEventManager> m_message_event_manager;
 
     public:
         static EventSystem& GetEventSystem() { return *s_event_system; }
         const UPtr<InputManager>& GetInputManager() const { return m_input_manager; }
         const UPtr<InputEventManager>& GetInputEventManager() const { return m_input_event_manager; }
         const UPtr<UIEventManager>& GetUIEventManager() const { return m_ui_event_manager; }
+        const UPtr<MessageEventManager>& GetMessageEventManager() const { return m_message_event_manager; }
     };
 }
 

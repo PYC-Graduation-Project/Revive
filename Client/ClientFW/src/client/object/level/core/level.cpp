@@ -5,6 +5,7 @@
 #include "client/object/ui/core/user_interface_manager.h"
 #include "client/input/input.h"
 #include "client/util/octree/octree.h"
+#include "client/event/messageevent/message_helper.h"
 
 namespace client_fw
 {
@@ -26,8 +27,10 @@ namespace client_fw
 
 	void Level::ShutdownLevel()
 	{
-		for (auto name : m_registered_input_event)
+		for (const auto& name : m_registered_input_events)
 			Input::UnregisterInputEvent(name);
+		for (const auto& name : m_registered_message_events)
+			MessageHelper::UnregisterMessageReceiver(name, shared_from_this());
 
 		UserInterfaceManager::GetUIManager().Reset();
 		m_actor_manager->Shutdown();
@@ -98,9 +101,15 @@ namespace client_fw
 			RegisterInputEvent(event_name);
 	}
 
+	void Level::RegisterReceiveMessage(const std::string& name)
+	{
+		MessageHelper::RegisterMessageReceiver(name, shared_from_this());
+		m_registered_message_events.push_back(name);
+	}
+
 	void Level::RegisterInputEvent(const std::string& name)
 	{
-		m_registered_input_event.push_back(name);
+		m_registered_input_events.push_back(name);
 	}
 
 	std::vector<SPtr<VisualOctree>> Level::CreateVisualOctrees() const

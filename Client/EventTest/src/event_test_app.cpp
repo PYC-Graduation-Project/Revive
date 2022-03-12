@@ -2,6 +2,7 @@
 #include <client/core/entry_point.h>
 #include "object/level/event_test_level.h"
 #include "object/level/physics_test_level.h"
+#include "object/level/message_test_level.h"
 
 using namespace client_fw;
 
@@ -30,6 +31,9 @@ namespace event_test
 
 			RegisterPressedEvent("open physics test level", { {eKey::k2} },
 				[this]()->bool {OpenLevel(CreateSPtr<PhysicsTestLevel>()); return true; });
+
+			RegisterPressedEvent("open message test level", { {eKey::k3} },
+				[this]()->bool {OpenLevel(CreateSPtr<MessageTestLevel>()); return true; });
 
 			return result;
 		}

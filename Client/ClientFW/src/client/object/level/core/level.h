@@ -10,13 +10,14 @@ namespace client_fw
 	struct AxisEventKeyInfo;
 	class VisualOctree;
 	class CollisionOctree;
+	class MessageEventInfo;
 
 	enum class eLevelState
 	{
 		kInGame, kPaused, kDead
 	};
 
-	class Level : public IBaseObject
+	class Level : public IBaseObject, public std::enable_shared_from_this<Level>
 	{
 	public:
 		Level(const std::string& name = "level");
@@ -43,15 +44,21 @@ namespace client_fw
 		void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
+		void RegisterReceiveMessage(const std::string& name);
+
 	private:
 		void RegisterInputEvent(const std::string& name);
+
+	public:
+		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
 
 	protected:
 		std::string m_name;
 		eLevelState m_level_state;
 
 	private:
-		std::vector<std::string> m_registered_input_event;
+		std::vector<std::string> m_registered_input_events;
+		std::vector<std::string> m_registered_message_events;
 		UPtr<ActorManager> m_actor_manager;
 		bool m_is_runtime_level;
 

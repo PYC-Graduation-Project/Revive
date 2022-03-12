@@ -20,6 +20,7 @@ namespace event_test
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;
+		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message);
 
 	private:
 		SPtr<RotatingMovementComponent> m_rotating_component;
