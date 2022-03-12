@@ -134,7 +134,7 @@ struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	unsigned char size;
 	char	type;
 	float time;
-	float send_time;//추후에 없애야될수도 있음
+	//float send_time;//추후에 없애야될수도 있음
 	
 };
 struct sc_packet_sign_up_ok {

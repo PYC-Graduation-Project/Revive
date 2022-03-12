@@ -20,9 +20,10 @@ public:
 	int GetMaxUser() { return max_user; }
 	int GetMaxEnemy() { return max_npc; }
 	int GetRound() { return curr_round; }
+	float GetRoundTime() { return m_round_time; }
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
-
+	void SetRoundTime(float val) { m_round_time = val; }
 	
 	std::vector<int>& GetObjList()
 	{

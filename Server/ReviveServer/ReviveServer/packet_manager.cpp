@@ -25,6 +25,7 @@ void PacketManager::Init()
 	m_db->Init();
 	
 	m_db2->Init();
+
 }
 
 void PacketManager::ProcessPacket(int c_id, unsigned char* p)
@@ -67,7 +68,7 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 	int new_id = m_moveobj_manager->GetNewID();
 	if (-1 == new_id) {
 		std::cout << "Maxmum user overflow. Accept aborted.\n";
-		
+		SendLoginFailPacket(c_socket, static_cast<int>(LOGINFAIL_TYPE::FULL));
 	}
 	else {//다시제작
 		Player* cl = m_moveobj_manager->GetPlayer(new_id);
@@ -76,7 +77,7 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
 		m_timer_queue.push(SetTimerEvent(new_id, new_id,
-			EVENT_TYPE::EVENT_TIME, 100));
+			EVENT_TYPE::EVENT_TIME, 1000));
 	}
 
 	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
@@ -244,6 +245,17 @@ void PacketManager::SendLoginFailPacket(int c_id, int reason)
 	packet.type = SC_PACKET_LOGIN_FAIL;
 	packet.reason = reason;
 	pl->DoSend(sizeof(packet), &packet);
+
+}
+
+void PacketManager::SendLoginFailPacket(SOCKET& c_socket, int reason)
+{
+	sc_packet_login_fail packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_LOGIN_FAIL;
+	packet.reason = reason;
+	EXP_OVER* ex_over = new EXP_OVER(COMP_OP::OP_SEND, sizeof(packet), &packet);
+	int ret = WSASend(c_socket, &ex_over->_wsa_buf, 1, 0, 0, &ex_over->_wsa_over, NULL);
 }
 
 void PacketManager::SendSignInOK(int c_id)
@@ -301,13 +313,13 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
-void PacketManager::SendTime(int c_id, float round_time, float send_time)
+void PacketManager::SendTime(int c_id, float round_time)
 {
 	sc_packet_time packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_TIME;
 	packet.time = round_time;
-	packet.send_time = send_time;
+	
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
@@ -560,9 +572,9 @@ void PacketManager::StartGame(int room_id)
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
-		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));
-	m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
-		EVENT_TYPE::EVENT_TIME, 100));
+		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));//30초다되면 넣어주는걸로 수정?
+	//m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+	//	EVENT_TYPE::EVENT_TIME, 100));
 }
 
 
@@ -643,6 +655,11 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 			if (ev.start_time <= start_t) {
 				ProcessEvent(hiocp,ev);
 			}
+			else if (10ms >= ev.start_time - start_t)
+			{
+				this_thread::sleep_for(ev.start_time - start_t);
+				ProcessEvent(hiocp, ev);
+			}
 			else {
 				m_timer_queue.push(ev);
 				break;
@@ -652,7 +669,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 		this_thread::sleep_for(10ms);
 	}
 }
-static float ro_time = 30.0f;//임시시간 나중에 지우고 각 방마다 넣어주기
+//static float ro_time = 30.0f;//임시시간 나중에 지우고 각 방마다 넣어주기
 void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 {
 	EXP_OVER* ex_over = new EXP_OVER;
@@ -678,13 +695,21 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	}
 	case EVENT_TYPE::EVENT_TIME: {
 		//방으로 처리하도록 바꾸기
-		auto end_time = std::chrono::system_clock::now();
-		std::chrono::duration<float>send_t = end_time.time_since_epoch();
+		Room*room=m_room_manager->GetRoom(ev.target_id);
+		auto end_time = std::chrono::system_clock::now()+1000ms;
 		std::chrono::duration<float> elapsed = end_time - ev.start_time;
-		ro_time -= elapsed.count();
-		SendTime(ev.obj_id,ro_time, send_t.count());
+		room->SetRoundTime(room->GetRoundTime() - elapsed.count());
+		//ro_time -= elapsed.count();
+		//cout << "duration:" << elapsed.count() << endl;
+		for (int pl : room->GetObjList())
+		{
+			if (false == m_moveobj_manager->IsPlayer(pl))
+				break;
+			SendTime(pl, room->GetRoundTime());
+		}
+		
 		m_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
-			EVENT_TYPE::EVENT_TIME, 100));
+			EVENT_TYPE::EVENT_TIME, 1000));
 		break;
 	}
 	}

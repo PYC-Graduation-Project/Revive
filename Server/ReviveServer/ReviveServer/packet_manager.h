@@ -26,12 +26,13 @@ public:
 
 	void SendMovePacket(int c_id, int mover);
 	void SendLoginFailPacket(int c_id, int reason);
+	void SendLoginFailPacket(SOCKET& c_socket, int reason);
 	void SendSignInOK(int c_id);
 	void SendSignUpOK(int c_id);
 	void SendMatchingOK(int c_id);
 	void SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type);
 	void SendObjInfo(int c_id, int obj_id);
-	void SendTime(int c_id,float round_time, float send_time);
+	void SendTime(int c_id,float round_time);
 
 
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
@@ -53,7 +54,7 @@ private:
 	RoomManager* m_room_manager;
 	DB* m_db;
 	DB* m_db2;
-
+	
 	concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
 	concurrency::concurrent_queue<db_task>m_db_queue;
 	
