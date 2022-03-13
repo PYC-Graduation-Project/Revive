@@ -12,13 +12,13 @@ namespace client_fw
 		virtual ~Component() = default;
 
 	public:
-		bool InitializeComponent();
+		virtual bool InitializeComponent();
 		virtual bool Initialize() override { return true; }
 
-		void ShutdownComponent();
+		virtual void ShutdownComponent();
 		virtual void Shutdown() override {}
 
-		void UpdateComponent(float delta_time);
+		virtual void UpdateComponent(float delta_time);
 		virtual void Update(float delta_time) override {}
 
 		virtual void UpdateWorldMatrix() {}
@@ -30,6 +30,7 @@ namespace client_fw
 
 	public:
 		const std::string& GetName() const { return m_name; }
+		void SetName(const std::string& name) { m_name = name; }
 		int GetUpdateOrder() const { return m_update_order; }
 		const WPtr<Actor>& GetOwner() const { return m_owner; }
 		void SetOwner(const WPtr<Actor>& owner) { m_owner = owner; }

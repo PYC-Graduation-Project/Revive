@@ -3,7 +3,7 @@
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
-#include <client/util/octree/mesh_octree.h>
+#include <client/util/octree/octree.h>
 #include "object/level/player_test_level.h"
 
 namespace render_test
@@ -24,26 +24,25 @@ namespace render_test
 		SpawnActor(m_player_controller);
 
 
-		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
+		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 
-		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
+	/*	police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
 
 		police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });
+		police->SetPosition(Vec3{ -300.0f, 0.0f, 1000.0f });*/
 
-		//police->SetScale(0.2f);
-
-
-		/*police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
+		/*police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/cube.obj");
 		SpawnActor(police);
-		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });*/
- 
-		Input::SetInputMode(eInputMode::kUIAndGame);
+		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
+
+		police->SetScale(0.2f);*/
+
+		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
 
 		return true;
@@ -58,18 +57,19 @@ namespace render_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-	/*	static float x = -300.0f, y = 0.0f, z = 1100.0f;
+		
+		static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
 		static UINT count = 1;
 
 		time += delta_time;
 
-		if (time >= 0.016f)
+		if (time >= 0.016f && count <= 4000)
 		{
-			for (int i = 0; i < 10; ++i)
+			for (int i = 0; i < 40; ++i)
 			{
-				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructable, "../Contents/police.obj");
+				auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kDestructible, "../Contents/police.obj");
 				SpawnActor(police);
 				police->SetPosition(Vec3{ x, y, z });
 				police->SetScale(0.2f);
@@ -92,12 +92,21 @@ namespace render_test
 			time -= 0.016f;
 		}
 
-		if (count % 100 == 1)
+		/*if (count % 100 == 1)
 			LOG_INFO(count);*/
 	}
 
-	SPtr<MeshOctree> PlayerTestLevel::CreateMeshOctree() const
+	std::vector<SPtr<VisualOctree>> PlayerTestLevel::CreateVisualOctrees() const
 	{
-		return CreateSPtr<MeshOctree>(10000.0f);
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
+		return visual_octrees;
+	}
+
+	std::vector<SPtr<CollisionOctree>> PlayerTestLevel::CreateCollisionOctrees() const
+	{
+		std::vector<SPtr<CollisionOctree>> collision_octrees;
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(10000.0f));
+		return collision_octrees;
 	}
 }

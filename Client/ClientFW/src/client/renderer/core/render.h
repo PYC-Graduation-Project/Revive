@@ -7,23 +7,24 @@ namespace client_fw
 	class RenderLevel;
 	class Shader;
 	class RenderComponent;
-	class MeshComponent;
 	class CameraComponent;
 
 
+	//현재 전략은 Opaque -> Deferred -> Transperent -> Compute -> UI
+	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque
+		kOpaque, kDeferred, kUI, kFinalView
 	};
 
 	enum class eShaderType
 	{
-		kOpaqueMesh,
+		kOpaqueMesh, kShapeBox, kBillboard,
 	};
 
 	enum class eKindOfRenderLevel
 	{
-		kGraphics, kCompute, kDeferred,
+		kGraphics, kCompute
 	};
 
 	class Render final
@@ -37,13 +38,16 @@ namespace client_fw
 
 		static void UnregisterGraphicsShader(const std::string shader_name, eRenderLevelType type);
 
-		static bool RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
-		static void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name);
+		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
+		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
+		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
 
 	public:
+		static Vec2 GetWindowSize();
+
 		static std::string ConvertRenderLevelType(eRenderLevelType type);
 		static std::string ConvertShaderType(eShaderType type);
 

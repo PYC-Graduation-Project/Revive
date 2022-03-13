@@ -19,6 +19,14 @@ namespace client_fw
 		void AddYawInput(float value);
 		void AddRollInput(float value);
 
+	protected:
+		virtual void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
+			const std::function<bool()>& func, bool consumption = true);
+		virtual void RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
+			const std::function<bool()>& func, bool consumption = true);
+		virtual void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
+			const std::function<bool(float)>& func, bool consumption = true);
+
 	private:
 		static PlayerController* s_player_controller;
 		SPtr<CameraComponent> m_camera_component;

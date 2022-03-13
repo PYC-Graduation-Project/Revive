@@ -1,6 +1,8 @@
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
 #include "object/level/event_test_level.h"
+#include "object/level/physics_test_level.h"
+#include "object/level/message_test_level.h"
 
 using namespace client_fw;
 
@@ -17,13 +19,21 @@ namespace event_test
 		{
 			bool result = Application::Initialize();
 
-			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
-				[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
-			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
-				[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
+			RegisterPressedEvent("Input Mode Game Only", std::vector{ EventKeyInfo{eKey::k1, {eAdditionalKey::kControl}} },
+				[]()->bool { Input::SetInputMode(eInputMode::kGameOnly); return true;  });
+			RegisterPressedEvent("Input Mode Game And UI", std::vector{ EventKeyInfo{eKey::k2, {eAdditionalKey::kControl}} },
+				[]()->bool { Input::SetInputMode(eInputMode::kUIAndGame); return true;  });
+			RegisterPressedEvent("Input Mode UI Only", std::vector{ EventKeyInfo{eKey::k3, {eAdditionalKey::kControl}} },
+				[]()->bool { Input::SetInputMode(eInputMode::kUIOnly); return true;  });
 
 			RegisterPressedEvent("open event test level", { {eKey::k1} },
 				[this]()->bool {OpenLevel(CreateSPtr<EventTestLevel>()); return true; });
+
+			RegisterPressedEvent("open physics test level", { {eKey::k2} },
+				[this]()->bool {OpenLevel(CreateSPtr<PhysicsTestLevel>()); return true; });
+
+			RegisterPressedEvent("open message test level", { {eKey::k3} },
+				[this]()->bool {OpenLevel(CreateSPtr<MessageTestLevel>()); return true; });
 
 			return result;
 		}

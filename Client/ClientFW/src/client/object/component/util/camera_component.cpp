@@ -2,11 +2,12 @@
 #include "client/object/component/util/camera_component.h"
 #include "client/object/actor/core/actor.h"
 #include "client/renderer/core/render.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
 	CameraComponent::CameraComponent(const std::string& name, eCameraUsage usage)
-		: Component(name), m_camera_state(eCameraState::kPaused)
+		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
 	{
 	}
@@ -23,23 +24,35 @@ namespace client_fw
 
 	void CameraComponent::UpdateWorldMatrix()
 	{
-		const auto& owner = GetOwner().lock();
-		Vec3 eye = owner->GetPosition();
+		SceneComponent::UpdateWorldMatrix();
+
+		Vec3 eye = GetWorldPosition();
 		Vec3 target, up;
 		if (m_owner_controller.expired())
 		{
-			target = eye + owner->GetForward();
-			up = owner->GetUp();
+			target = eye + GetWorldForward();
+			up = GetWorldUp();
 		}
 		else
 		{
-			target = eye + m_owner_controller.lock()->GetForward();
-			up = m_owner_controller.lock()->GetUp();
+			target = eye + vec3::TransformNormal(GetLocalForward(), m_owner_controller.lock()->GetRotation());
+			up = vec3::TransformNormal(GetLocalUp(), m_owner_controller.lock()->GetRotation());
 		}
 
 		m_view_matrix = mat4::LookAt(eye, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
-		m_bf_projection.Transform(m_bounding_frustum, XMLoadFloat4x4(&m_inverse_view_matrix));
+		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
+	}
+
+	void CameraComponent::UpdateViewport(LONG left, LONG top, LONG width, LONG height)
+	{
+		m_viewport.left = left;
+		m_viewport.width = width;
+		m_viewport.top = top;
+		m_viewport.height = height;
+		SetAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+		UpdateProjectionMatrix();
+		UpdateWorldMatrix();
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -47,28 +60,54 @@ namespace client_fw
 		switch (m_projection_mode)
 		{
 		case client_fw::eProjectionMode::kPerspective:
-			m_projection_matrix = mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
-			BoundingFrustum::CreateFromMatrix(m_bf_projection, XMLoadFloat4x4(&m_projection_matrix));
+			m_projection_matrix = GetPerspectiveMatrix();
 			break;
 		case client_fw::eProjectionMode::kOrthographic:
-			//m_projection_matrix = mat4::Ortho()
+			m_projection_matrix = GetOrthoMatrix();
 			break;
 		}
+		m_bf_projection = BFrustum(m_projection_matrix);
 	}
 
 	bool CameraComponent::RegisterToRenderSystem()
 	{
-		if (Render::RegisterCameraComponent(shared_from_this()))
-		{
-			UpdateProjectionMatrix();
+		if (Render::RegisterCameraComponent(SharedFromThis()))
 			return true;
-		}
 		return false;
 	}
 
 	void CameraComponent::UnregisterFromRenderSystem()
 	{
-		Render::UnregisterCameraComponent(shared_from_this());
+		Render::UnregisterCameraComponent(SharedFromThis());
+	}
+
+	void CameraComponent::SetMainCamera()
+	{
+		Render::SetMainCamera(SharedFromThis());
+	}
+
+	void CameraComponent::SetOwnerController(const WPtr<Actor>& owner)
+	{
+		m_owner_controller = owner; 
+		UpdateWorldMatrix();
+	}
+
+	Mat4 CameraComponent::GetPerspectiveMatrix() const
+	{
+		return mat4::Perspective(math::ToRadian(m_field_of_view), m_aspect_ratio, m_near_z, m_far_z);
+	}
+
+	Mat4 CameraComponent::GetOrthoMatrix() const
+	{
+		return  mat4::Ortho(static_cast<float>(m_viewport.left),
+			static_cast<float>(m_viewport.left + m_viewport.width),
+			static_cast<float>(m_viewport.top + m_viewport.height),
+			static_cast<float>(m_viewport.top), m_near_z, m_far_z);
+	}
+
+	SPtr<CameraComponent> CameraComponent::SharedFromThis()
+	{
+		return std::static_pointer_cast<CameraComponent>(shared_from_this());
 	}
 
 }

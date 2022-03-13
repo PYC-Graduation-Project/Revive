@@ -1,9 +1,11 @@
 #pragma once
-#include "client/object/component/core/component.h"
+#include "client/object/component/core/scene_component.h"
+#include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
 	class Actor;
+	class RenderTexture;
 
 	enum class eProjectionMode
 	{
@@ -15,12 +17,22 @@ namespace client_fw
 		kActive, kPaused
 	};
 
+	//아마 Light는 LightComponent에 넣을 것 같다.
+	//일단 Light를 넣을 때 다시 생각해 볼 생각이라 수정은 하지 않겠다.
 	enum class eCameraUsage
 	{
 		kBasic, kLight,
 	};
 
-	class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
+	struct Viewport
+	{
+		LONG left;
+		LONG top;
+		LONG width;
+		LONG height;
+	};
+
+	class CameraComponent : public SceneComponent
 	{
 	public:
 		CameraComponent(const std::string& name = "camera component",
@@ -31,6 +43,7 @@ namespace client_fw
 		virtual void Shutdown() override;
 
 		virtual void UpdateWorldMatrix() override;
+		virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -42,6 +55,7 @@ namespace client_fw
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
+		Viewport m_viewport;
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
@@ -49,22 +63,37 @@ namespace client_fw
 		float m_field_of_view = 45.0f;
 		float m_near_z = 1.01f;
 		float m_far_z = 100000.0f;
-		BoundingFrustum m_bf_projection;
-		BoundingFrustum m_bounding_frustum;
+		BFrustum m_bf_projection;
+		BFrustum m_bounding_frustum;
 
 	public:
-		void SetOwnerController(const WPtr<Actor>& owner) { m_owner_controller = owner; }
+		void SetMainCamera();
+		void SetOwnerController(const WPtr<Actor>& owner);
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
+		const Viewport& GetViewport() const { return m_viewport; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
+		Mat4 GetPerspectiveMatrix() const;
+		Mat4 GetOrthoMatrix() const;
 		void SetAspectRatio(float aspect_ratio) { m_aspect_ratio = aspect_ratio; }
 		void SetFieldOfView(float fov) { m_field_of_view = fov; }
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
-		const BoundingFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+
+	private:
+		SPtr<RenderTexture> m_render_texture;
+
+	public:
+		const SPtr<RenderTexture>& GetRenderTexture() const { return m_render_texture; }
+		void SetRenderTexture(const SPtr<RenderTexture>& texture) { m_render_texture = texture; }
+
+	protected:
+		SPtr<CameraComponent> SharedFromThis();
+
 	};
 }
 

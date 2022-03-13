@@ -3,81 +3,96 @@
 #include "client/input/input_manager.h"
 #include "client/event/inputevent/input_event_info.h"
 #include "client/event/inputevent/input_event_manager.h"
-#include "client/event/inputevent/input_event_system.h"
+#include "client/event/core/event_system.h"
 
 namespace client_fw
 {
 	bool Input::IsKeyHoldDown(eKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
 	}
 
 	bool Input::IsKeyHoldDown(eAdditionalKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsKeyHoldDown(ToUnderlying(key));
 	}
 
 	bool Input::IsKeyPressed(eKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsKeyPressed(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsKeyPressed(ToUnderlying(key));
 	}
 
 	bool Input::IsKeyReleased(eKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsKeyReleased(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsKeyReleased(ToUnderlying(key));
 	}
 
 	bool Input::IsNotKeyHoldDown(eKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsNotKeyHoldDown(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsNotKeyHoldDown(ToUnderlying(key));
 	}
 
 	const IVec2& Input::GetMousePosition()
 	{
-		return s_input_event_system->GetInputManager()->GetMousePosition();
+		return EventSystem::GetEventSystem().GetInputManager()->GetMousePosition();
 	}
 
 	const IVec2 Input::GetRelativeMousePosition()
 	{
-		return s_input_event_system->GetInputManager()->GetRelativeMoustPosition();
+		return EventSystem::GetEventSystem().GetInputManager()->GetRelativeMoustPosition();
 	}
 
 	void Input::ConsumeKey(eKey key)
 	{
-		s_input_event_system->GetInputManager()->ConsumeKey(ToUnderlying(key));
+		EventSystem::GetEventSystem().GetInputManager()->ConsumeKey(ToUnderlying(key));
 	}
 
 	bool Input::IsConsumedKey(eKey key)
 	{
-		return s_input_event_system->GetInputManager()->IsConsumedKey(ToUnderlying(key));
+		return EventSystem::GetEventSystem().GetInputManager()->IsConsumedKey(ToUnderlying(key));
 	}
 
 	void Input::SetHideCursor(bool hide)
 	{
 		if (hide != IsHideCursor())
-			s_input_event_system->GetInputManager()->SetHideCursor(hide);
+			EventSystem::GetEventSystem().GetInputManager()->SetHideCursor(hide);
 	}
 
 	bool Input::IsHideCursor()
 	{
-		return s_input_event_system->GetInputManager()->IsHideCursor();
+		return EventSystem::GetEventSystem().GetInputManager()->IsHideCursor();
 	}
 
 	void Input::SetClipCursor(bool clip)
 	{
 		if (clip != IsClipCursor())
-			s_input_event_system->GetInputManager()->SetClipCursor(clip);
+			EventSystem::GetEventSystem().GetInputManager()->SetClipCursor(clip);
 	}
 
 	bool Input::IsClipCursor()
 	{
-		return s_input_event_system->GetInputManager()->IsClipCursor();
+		return EventSystem::GetEventSystem().GetInputManager()->IsClipCursor();
+	}
+
+	void Input::StartInputMethodEditor()
+	{
+		EventSystem::GetEventSystem().GetInputManager()->StartInputMethodEditor();
+	}
+
+	void Input::EndInputMethodEditor()
+	{
+		EventSystem::GetEventSystem().GetInputManager()->EndInputMethodEditor();
+	}
+
+	void Input::OnChangeTextFromIME(const std::function<void(wchar_t)>& function)
+	{
+		EventSystem::GetEventSystem().GetInputManager()->OnChangeTextFromIME(function);
 	}
 
 	bool Input::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
-		return s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return EventSystem::GetEventSystem().GetInputEventManager()->RegisterEvent(
 			CreateUPtr<PressedEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
@@ -85,7 +100,7 @@ namespace client_fw
 	bool Input::RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 		const std::function<bool()>& func, bool consumption, eInputOwnerType type)
 	{
-		return s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return EventSystem::GetEventSystem().GetInputEventManager()->RegisterEvent(
 			CreateUPtr<ReleasedEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
@@ -93,23 +108,49 @@ namespace client_fw
 	bool Input::RegisterAxisEvent(const std::string& name, std::vector<AxisEventKeyInfo>&& keys,
 		const std::function<bool(float)>& func, bool consumption, eInputOwnerType type)
 	{
-		return s_input_event_system->GetInputEventManager()->RegisterEvent(
+		return EventSystem::GetEventSystem().GetInputEventManager()->RegisterEvent(
 			CreateUPtr<AxisEventInfo>(name, consumption, std::move(keys), func), type
 		);
 	}
 
 	void Input::UnregisterInputEvent(const std::string& name)
 	{
-		s_input_event_system->GetInputEventManager()->UnregisterEvent(name);
+		EventSystem::GetEventSystem().GetInputEventManager()->UnregisterEvent(name);
 	}
 
 	eInputMode Input::GetInputMode()
 	{
-		return s_input_event_system->GetInputEventManager()->GetInputMode();
+		return EventSystem::GetEventSystem().GetInputEventManager()->GetInputMode();
 	}
 
 	void Input::SetInputMode(eInputMode input_mode)
 	{
-		s_input_event_system->GetInputEventManager()->SetInputMode(input_mode);
+		switch (input_mode)
+		{
+		case client_fw::eInputMode::kUIOnly:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kUIAndGame:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kGameOnly:
+			Input::SetHideCursor(true);
+			Input::SetClipCursor(true);
+			break;
+		case client_fw::eInputMode::kInActive:
+			Input::SetHideCursor(false);
+			Input::SetClipCursor(false);
+			break;
+		default:
+			break;
+		}
+		EventSystem::GetEventSystem().GetInputEventManager()->SetInputMode(input_mode);
+	}
+
+	void Input::SetOnlyInputMode(eInputMode input_mode)
+	{
+		EventSystem::GetEventSystem().GetInputEventManager()->SetInputMode(input_mode);
 	}
 }

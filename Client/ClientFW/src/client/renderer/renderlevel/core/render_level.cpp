@@ -3,8 +3,6 @@
 #include "client/renderer/shader/core/shader.h"
 #include "client/renderer/shader/core/graphics_shader.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
-#include "client/object/component/util/camera_component.h"
-#include "client/util/octree/octree_helper.h"
 
 namespace client_fw
 {
@@ -34,26 +32,10 @@ namespace client_fw
 			shader->Update(device, command_list, m_level_type);
 	}
 
-	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list, const std::vector<SPtr<CameraComponent>>& cameras)
+	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		if (cameras.empty())
-		{
-			for (const auto& shader : m_graphics_shaders)
-				shader->Draw(command_list, m_level_type);
-		}
-		else
-		{
-			for (const auto& camera : cameras)
-			{
-				if (camera->GetCameraState() == eCameraState::kActive)
-				{
-					m_graphics_root_signature->SetCameraResource(command_list, camera);
-					OctreeHelper::SetVisibilityFromCamera(camera);
-					for (const auto& shader : m_graphics_shaders)
-						shader->Draw(command_list, m_level_type);
-				}
-			}
-		}
+		for (const auto& shader : m_graphics_shaders)
+			shader->Draw(command_list, m_level_type);
 	}
 
 	bool GraphicsRenderLevel::RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader)
@@ -70,9 +52,5 @@ namespace client_fw
 			std::iter_swap(iter, m_graphics_shaders.end() - 1);
 			m_graphics_shaders.pop_back();
 		}
-	}
-
-	void GraphicsRenderLevel::SetRootCameraResource(ID3D12GraphicsCommandList* command_list, const SPtr<CameraComponent>& camera)
-	{
 	}
 }

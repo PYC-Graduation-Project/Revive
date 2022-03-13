@@ -5,6 +5,8 @@ namespace client_fw
 {
 	class Component;
 	class ComponentManager;
+	class ActorPhysicsManager;
+	class MessageEventInfo;
 
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
@@ -16,7 +18,7 @@ namespace client_fw
 
 	enum class eMobilityState
 	{
-		kStatic, kDestructable, kMovable
+		kStatic, kDestructible, kMovable
 	};
 
 	class Actor : public IBaseObject, public std::enable_shared_from_this<Actor>
@@ -43,13 +45,18 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 		void RegisterInputEvent(const std::string& name);
+		void RegisterReceiveMessage(UINT event_id);
+
+	public:
+		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) {}
 
 	public:
 		void SpawnActor(const SPtr<Actor>& actor);
 		bool AttachComponent(const SPtr<Component> comp);
 		void DetachComponent(const SPtr<Component> comp);
 
-	private:
+	public:
 		void UpdateWorldMatrix();
 
 	protected:
@@ -58,10 +65,13 @@ namespace client_fw
 		eMobilityState m_mobility_state;
 
 	private:
-		std::vector<std::string> m_registered_input_event;
+		std::vector<std::string> m_registered_input_events;
+		std::vector<UINT> m_registered_message_events;
 		UPtr<ComponentManager> m_component_manager;
+		UPtr<ActorPhysicsManager> m_physics_manager;
 
 		Mat4 m_world_matrix;
+		Vec3 m_previous_position;
 		Vec3 m_position;
 		Quaternion m_rotation;
 		Vec3 m_scale;
@@ -74,8 +84,10 @@ namespace client_fw
 		eActorState GetActorState() const { return m_actor_state; }
 		void SetActorState(eActorState actor_state) { m_actor_state = actor_state; }
 		eMobilityState GetMobilityState() const { return m_mobility_state; }
+		const UPtr<ActorPhysicsManager>& GetPhysicsManager() const { return m_physics_manager; }
 
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
+		const Vec3& GetPreviousPosition() const { return m_previous_position; }
 		const Vec3& GetPosition() const { return m_position; }
 		void SetPosition(const Vec3& pos);
 		const Quaternion& GetRotation() const { return m_rotation; }

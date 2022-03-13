@@ -6,7 +6,7 @@
 namespace client_fw
 {
 	OpaqueMeshShader::OpaqueMeshShader(const std::string& name)
-		: GraphicsShader(name)
+		: MeshShader(name)
 	{
 	}
 
@@ -15,7 +15,7 @@ namespace client_fw
 		UpdateRenderItem(device, command_list);
 	}
 
-	void OpaqueMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void OpaqueMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
 		switch (level_type)
 		{
@@ -28,17 +28,17 @@ namespace client_fw
 		}
 	}
 
-	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMesh", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueMesh", "ps_5_1", shader_blob);
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index)
+	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
 		input_element_descs.resize(3);

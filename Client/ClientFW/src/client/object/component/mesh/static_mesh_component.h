@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class StaticMesh;
+
 	class StaticMeshComponent : public MeshComponent
 	{
 	public:
@@ -11,6 +13,13 @@ namespace client_fw
 
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
+
+	public:
+		SPtr<StaticMesh> GetStaticMesh() const;
+		virtual bool SetMesh(const std::string& file_path);
+
+	protected:
+		SPtr<StaticMeshComponent> SharedFromThis();
 	};
 
 }

@@ -6,7 +6,7 @@ namespace client_fw
 	class OpaqueRenderLevel final : public GraphicsRenderLevel
 	{
 	public:
-		OpaqueRenderLevel(eRenderLevelType level_type, const SPtr<GraphicsSuperRootSignature>& root_signature);
+		OpaqueRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
 		virtual ~OpaqueRenderLevel() = default;
 
 	protected:

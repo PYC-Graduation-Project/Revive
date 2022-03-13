@@ -3,14 +3,17 @@
 #include "client/core/window.h"
 #include "client/core/timer.h"
 #include "client/input/input.h"
-#include "client/event/inputevent/input_event_system.h"
+#include "client/event/core/event_system.h"
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
+#include "client/object/ui/core/user_interface_manager.h"
+#include "client/physics/core/physics_world.h"
 #include "client/renderer/core/renderer.h"
 #include "client/asset/core/asset_manager.h"
 #include "client/asset/mesh/mesh_loader.h"
-#include "client/asset/mesh/material_loader.h"
+#include "client/asset/material/material_loader.h"
+#include "client/asset/texture/texture_loader.h"
 
 namespace client_fw
 {
@@ -25,8 +28,10 @@ namespace client_fw
 
 		m_window = CreateSPtr<Window>(1366, 768);
 		m_timer = CreateUPtr<Timer>();
-		m_input_event_system = CreateUPtr<InputEventSystem>(m_window);
+		m_event_system = CreateUPtr<EventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
+		m_user_interface_manager = CreateUPtr<UserInterfaceManager>();
+		m_physics_world = CreateUPtr<PhysicsWorld>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 		m_asset_manager = CreateUPtr<AssetManager>();
 	}
@@ -53,6 +58,13 @@ namespace client_fw
 		}
 		m_timer->OnFpsChanged([this](UINT fps) {ShowFpsToWindowTitle(fps); });
 
+		result = m_physics_world->Initialize();
+		if (result == false)
+		{
+			LOG_ERROR("Could not initialize physics world");
+			return false;
+		}
+
 		result = m_renderer->Initialize();
 		if (result == false)
 		{
@@ -67,12 +79,15 @@ namespace client_fw
 
 	void Application::InitializeAssetManager()
 	{
-		m_asset_manager->Initialize(CreateUPtr<MeshLoader>(), CreateUPtr<MaterialLoader>());
+		m_asset_manager->Initialize(std::move(CreateMeshLoader()),
+			std::move(CreateMaterialLoader()), std::move(CreateTextureLoader()));
 	}
 
 	void Application::Shutdown()
 	{
 		m_level_manager->Shutdown();
+		m_user_interface_manager->Shutdown();
+		m_physics_world->Shutdown();
 		m_renderer->Shutdown();
 	}
 
@@ -91,22 +106,31 @@ namespace client_fw
 			}
 			else if (GetAppState() == eAppState::kActive)
 			{
-				ProcessInput();
+				ExecuteEvents();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
+				SendEventToServer();
 				Render();
 			}
 		}
 	}
 
-	void Application::ProcessInput()
+	void Application::ExecuteEvents()
 	{
-		m_input_event_system->ExecuteEvent();
+		m_event_system->ExecuteEvent();
+	}
+
+	void Application::SendEventToServer()
+	{
+		m_event_system->SendEventToServer();
 	}
 
 	void Application::Update(float delta_time)
 	{
 		m_level_manager->Update(delta_time);
+		m_physics_world->Update(delta_time);
+		m_user_interface_manager->Update(delta_time);
+		m_level_manager->UpdateWorldMatrix();
 	}
 
 	void Application::Render()
@@ -118,18 +142,24 @@ namespace client_fw
 		}
 	}
 
-	void Application::UpdateWindowSize()
+	void Application::UpdateWindowSize(LONG x, LONG y)
 	{
 		UpdateWindowRect();
-		m_window->width = m_window->rect.right - m_window->rect.left;
-		m_window->height = m_window->rect.bottom - m_window->rect.top;
+		m_window->width = x;
+		m_window->height = y;
 		m_window->mid_pos.x = m_window->width / 2;
 		m_window->mid_pos.y = m_window->height / 2;
+
+		//현재 사이즈를 키우려면 카메라, UI등의 텍스쳐도 재 생성이 필요하다.
+		if (m_renderer->UpdateViewport() == false)
+		{
+			SetAppState(eAppState::kDead);
+		}
 	}
 
 	void Application::UpdateWindowRect()
 	{
-		GetWindowRect(m_window->hWnd, &m_window->rect);
+		GetWindowRect(m_window->hWnd, &m_window->rect);	
 	}
 
 	void Application::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -178,8 +208,10 @@ namespace client_fw
 		int posX = (GetSystemMetrics(SM_CXSCREEN) == m_window->width) ? 0 : (GetSystemMetrics(SM_CXSCREEN) - m_window->width) / 2;
 		int posY = (GetSystemMetrics(SM_CYSCREEN) == m_window->height) ? 0 : (GetSystemMetrics(SM_CYSCREEN) - m_window->height) / 2;
 
+		DWORD dw_style = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+
 		m_window->hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_app_name.c_str(), m_app_name.c_str(),
-			WS_OVERLAPPEDWINDOW, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
+			/*WS_OVERLAPPEDWINDOW*/dw_style, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
 
 		if (m_window->hWnd == nullptr)
 			return false;
@@ -208,12 +240,27 @@ namespace client_fw
 		SetWindowTextW(m_window->hWnd, title.c_str());
 	}
 
+	UPtr<MeshLoader> Application::CreateMeshLoader() const
+	{
+		return CreateUPtr<MeshLoader>();
+	}
+
+	UPtr<MaterialLoader> Application::CreateMaterialLoader() const
+	{
+		return CreateUPtr<MaterialLoader>();
+	}
+
+	UPtr<TextureLoader> Application::CreateTextureLoader() const
+	{
+		return CreateUPtr<TextureLoader>();
+	}
+
 	LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		LRESULT result = NULL;
 
 		const auto& app = Application::GetApplication();
-		const auto& input_system = app->m_input_event_system;
+		const auto& input_system = app->m_event_system;
 
 		switch (message)
 		{
@@ -225,28 +272,22 @@ namespace client_fw
 			else if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
 			{
 				app->SetAppState(client_fw::eAppState::kActive);
-				app->UpdateWindowSize();
+				app->UpdateWindowSize(LOWORD(lParam), HIWORD(lParam));
 			}
 			break;
 		case WM_ACTIVATE:
 		{
-			static bool s_clip = false;
-			static bool s_hide = false;
 			static eInputMode s_input_mode = eInputMode::kUIOnly;
 			switch (wParam)
 			{
 			case WA_ACTIVE:
+				Input::SetOnlyInputMode(s_input_mode);
+				break;
 			case WA_CLICKACTIVE:
-				Input::SetClipCursor(s_clip);
-				Input::SetHideCursor(s_hide);
 				Input::SetInputMode(s_input_mode);
 				break;
 			case WA_INACTIVE:
-				s_clip = Input::IsClipCursor();
-				s_hide = Input::IsHideCursor();
 				s_input_mode = Input::GetInputMode();
-				Input::SetHideCursor(false);
-				Input::SetClipCursor(false);
 				Input::SetInputMode(eInputMode::kInActive);
 				break;
 			}
@@ -264,7 +305,7 @@ namespace client_fw
 			break;
 		}
 
-		input_system->ChangeInputState(message, wParam, lParam);
+		input_system->ChangeInputState(hWnd, message, wParam, lParam);
 
 		return result;
 	}

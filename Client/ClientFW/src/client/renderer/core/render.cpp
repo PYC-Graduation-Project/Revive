@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/core/window.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 
@@ -10,14 +11,14 @@ namespace client_fw
 		s_render_system->UnregisterGraphicsShader(shader_name, type);
 	}
 
-	bool Render::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	bool Render::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		return s_render_system->RegisterMeshComponent(mesh_comp, shader_name);
+		return s_render_system->RegisterRenderComponent(render_comp, shader_name);
 	}
 
-	void Render::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp, const std::string& shader_name)
+	void Render::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		s_render_system->UnregisterMeshComponent(mesh_comp, shader_name);
+		s_render_system->UnregisterRenderComponent(render_comp, shader_name);
 	}
 
 	bool Render::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
@@ -28,6 +29,17 @@ namespace client_fw
 	void Render::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
 		s_render_system->UnregisterCameraComponent(camera_comp);
+	}
+
+	void Render::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	{
+		s_render_system->SetMainCamera(camera_comp);
+	}
+
+	Vec2 Render::GetWindowSize()
+	{
+		const auto& window = s_render_system->GetWindow();
+		return Vec2(static_cast<float>(window->width), static_cast<float>(window->height));
 	}
 
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)
@@ -46,6 +58,10 @@ namespace client_fw
 		{
 		case eShaderType::kOpaqueMesh:
 			return "opaque mesh";
+		case eShaderType::kShapeBox:
+			return "shape box";
+		case eShaderType::kBillboard:
+			return "billboard";
 		default:
 			return "unknown";
 		}

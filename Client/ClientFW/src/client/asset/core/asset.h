@@ -13,9 +13,6 @@ namespace client_fw
 	class Asset
 	{
 	public:
-		Asset() = default;
-		virtual ~Asset() = default;
-
 		virtual void Shutdown() {}
 
 	protected:

@@ -7,10 +7,13 @@ namespace client_fw
 	class MeshLoader;
 	class Material;
 	class MaterialLoader;
+	class ExternalTexture;
+	class TextureLoader;
+	class RenderTexture;
 
 	enum class eAssetType
 	{
-		kMesh, kMaterial, kTexture
+		kMesh, kMaterial, kTexture, kRenderTexture,
 	};
 
 	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
@@ -21,7 +24,8 @@ namespace client_fw
 		AssetManager();
 		~AssetManager();
 		
-		void Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader, bool level_cache = true);
+		void Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader, 
+			UPtr<TextureLoader>&& texture_loader, bool level_cache = true);
 
 		//void LoadAssets();
 		//void LoadAssetsForLevel();
@@ -34,6 +38,7 @@ namespace client_fw
 	private:
 		UPtr<MeshLoader> m_mesh_loader;
 		UPtr<MaterialLoader> m_material_loader;
+		UPtr<TextureLoader> m_texture_loader;
 
 		bool m_is_level_cache;
 		std::map<eAssetType, AssetCache> m_asset_caches;
@@ -49,8 +54,7 @@ namespace client_fw
 		SPtr<Mesh> LoadMesh(const std::string& path);
 		SPtr<Material> LoadMaterial(const std::string& mtl_path);
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
-
-
+		SPtr<ExternalTexture> LoadTexture(const std::string& path);
 	};
 
 	namespace file_help

@@ -5,6 +5,7 @@ namespace client_fw
 	struct Window;
 
 	class RenderSystem;
+	class TextRenderSystem;
 
 	class Renderer final
 	{
@@ -16,9 +17,12 @@ namespace client_fw
 		void Shutdown();
 		bool Render();
 
+		bool UpdateViewport();
+
 	private:
 		WPtr<Window> m_window;
 		UPtr<RenderSystem> m_render_system;
+		UPtr<TextRenderSystem> m_text_render_system;
 
 	private:
 		bool CreateDevice();
@@ -35,6 +39,7 @@ namespace client_fw
 		void MoveToNextFrame();
 
 		bool InitializeRenderSystem();
+		bool InitializeTextRenderSystem();
 
 	private:
 		ComPtr<IDXGIFactory4> m_factory = nullptr;
@@ -72,6 +77,7 @@ namespace client_fw
 	public:
 		const ComPtr<ID3D12Device>& GetDevice() const { return m_device; }
 		const ComPtr<ID3D12GraphicsCommandList>& GetCommandList() const { return m_command_list; }
+		const ComPtr<IDXGISwapChain3>& GetSwapChain() const { return m_swap_chain; }
 		const ComPtr<ID3D12Resource>& GetCurrentRenderTarget() const { return m_rtv_buffers[m_cur_swapchain_buffer]; }
 	};
 }

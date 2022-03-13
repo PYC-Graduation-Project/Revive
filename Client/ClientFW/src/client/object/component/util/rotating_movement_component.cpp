@@ -13,7 +13,8 @@ namespace client_fw
 	void RotatingMovementComponent::Update(float delta_time)
 	{
 		Vec3 rate = m_rotating_rate * delta_time;
-		Quaternion rot = quat::CreateQuaternionFromRollPitchYaw(rate.x, rate.y, rate.z);
+		Quaternion rot = quat::CreateQuaternionFromRollPitchYaw(
+			math::ToRadian(rate.x), math::ToRadian(rate.y), math::ToRadian(rate.z));
 		
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)

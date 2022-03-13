@@ -20,4 +20,9 @@ namespace client_fw
 	{
 		return s_asset_manager->LoadMaterials(path);
 	}
+
+	SPtr<ExternalTexture> AssetStore::LoadTexture(const std::string& path)
+	{
+		return s_asset_manager->LoadTexture(path);
+	}
 }

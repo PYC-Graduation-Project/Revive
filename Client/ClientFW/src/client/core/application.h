@@ -13,13 +13,19 @@ namespace client_fw
 	class Timer;
 	class Renderer;
 
-	class InputEventSystem;
+	class EventSystem;
 	struct EventKeyInfo;
+	class MessageEventInfo;
 	class LevelManager;
 	class LevelLoader;
 	class Level;
+	class UserInterfaceManager;
+	class PhysicsWorld;
 
 	class AssetManager;
+	class MeshLoader;
+	class MaterialLoader;
+	class TextureLoader;
 
 	class Application
 	{
@@ -31,12 +37,13 @@ namespace client_fw
 		Application& operator=(const Application&) = delete;
 
 		virtual bool Initialize();
-		virtual void InitializeAssetManager();
+		void InitializeAssetManager();
 		virtual void Shutdown();
 		void Run();
 
 	private:
-		void ProcessInput();
+		void ExecuteEvents();
+		void SendEventToServer();
 		void Update(float delta_time);
 		void Render();
 
@@ -44,7 +51,7 @@ namespace client_fw
 		virtual bool InitializeWindow();
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
-		void UpdateWindowSize();
+		void UpdateWindowSize(LONG x, LONG y);
 		void UpdateWindowRect();
 
 	protected:
@@ -64,8 +71,10 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
-		UPtr<InputEventSystem> m_input_event_system;
+		UPtr<EventSystem> m_event_system;
 		UPtr<LevelManager> m_level_manager;
+		UPtr<UserInterfaceManager> m_user_interface_manager;
+		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;
 		UPtr<AssetManager> m_asset_manager;
 
@@ -73,6 +82,11 @@ namespace client_fw
 		inline static Application* GetApplication() { return s_instance; }
 		eAppState GetAppState() { return m_app_state; }
 		void SetAppState(eAppState app_state) { m_app_state = app_state; }
+
+	private:
+		virtual UPtr<MeshLoader> CreateMeshLoader() const;
+		virtual UPtr<MaterialLoader> CreateMaterialLoader() const;
+		virtual UPtr<TextureLoader> CreateTextureLoader() const;
 
 	public:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
