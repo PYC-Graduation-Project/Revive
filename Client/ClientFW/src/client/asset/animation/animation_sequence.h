@@ -5,9 +5,9 @@ namespace client_fw
 {
 	class Skeleton;
 
-	struct RSSkinnedData
+	struct RSSkletalData
 	{
-		std::array<Mat4,32> animation_matrix;
+		std::array<Mat4,32> bone_transforms;
 	};
 
 	struct KeyFrame

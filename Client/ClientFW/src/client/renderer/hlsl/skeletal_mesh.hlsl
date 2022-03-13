@@ -1,6 +1,6 @@
-#include "../../../../ClientFW/src/client/renderer/hlsl/opaque.hlsl"
+#include "opaque.hlsl"
 
-struct VS_SKINNED_MESH_IN
+struct VS_SKELETAL_MESH_IN
 {
 	float3 position : POSITION;
 	float2 uv : TEXCOORD;
@@ -9,7 +9,7 @@ struct VS_SKINNED_MESH_IN
 	int4 indices : BONEINDEX;
 };
 
-struct VS_SKINNED_MESH_OUT
+struct VS_SKELETAL_MESH_OUT
 {
 	float4 sv_position : SV_POSITION;
 	float3 position : POSITION;
@@ -18,25 +18,25 @@ struct VS_SKINNED_MESH_OUT
 };
 
 
-VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : SV_InstanceID)
+VS_SKELETAL_MESH_OUT VSSkeletalMesh(VS_SKELETAL_MESH_IN input, uint instance_id : SV_InstanceID)
 {
-	VS_SKINNED_MESH_OUT output;
+    VS_SKELETAL_MESH_OUT output;
 
 	InstanceData i_data = g_instance_data[instance_id];
-    SkinnedData skinned_data = g_transform_data[instance_id];
+    SkeletalData skeletal_data = g_transform_data[instance_id];
 	
     float3 pos = float3(0.0f, 0.0f, 0.0f);
     float3 normal = float3(0.0f, 0.0f, 0.0f);
 	
 
-    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
-    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[0]]) * input.weights[0];
-    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
-    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[1]]) * input.weights[1];
-    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[2]]).xyz * input.weights[2];
-    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[2]]) * input.weights[2];
-    pos += mul(float4(input.position, 1.0f), skinned_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
-    normal += mul(input.normal, (float3x3) skinned_data.bone_trans[input.indices[3]]) * input.weights[3];
+    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
+    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[0]]) * input.weights[0];
+    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
+    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[1]]) * input.weights[1];
+    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[2]]).xyz * input.weights[2];
+    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[2]]) * input.weights[2];
+    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
+    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[3]]) * input.weights[3];
 	
     
 	//   float4x4 x1 = b_data.bone_trans[input.indices[0]] * input.weights[0];
@@ -58,7 +58,7 @@ VS_SKINNED_MESH_OUT VSSkinnedMesh(VS_SKINNED_MESH_IN input, uint instance_id : S
 	return output;
 }
 
-float4 PSSkinnedMesh(VS_SKINNED_MESH_OUT input) : SV_TARGET
+float4 PSSkeletalMesh(VS_SKELETAL_MESH_OUT input) : SV_TARGET
 {
  //return float4(input.normal, 1.0f);
     input.normal = normalize(input.normal);

@@ -17,7 +17,7 @@ namespace client_fw
 	{
 		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
 		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
-		m_bone_trans_data = CreateUPtr<UploadBuffer<RSSkinnedData>>(false);
+		m_bone_trans_data = CreateUPtr<UploadBuffer<RSSkletalData>>(false);
 	}
 
 	MeshRenderItem::~MeshRenderItem()
@@ -114,7 +114,7 @@ namespace client_fw
 			//{
 			if (index <= 0) break;
 				m_bone_trans_data->CopyData(--index,
-					RSSkinnedData{ animation_controller->GetBoneTransformData() });
+					RSSkletalData{ animation_controller->GetBoneTransformData() });
 			//}
 		}
 

@@ -1,30 +1,29 @@
-#include <include/client_core.h>
-#include <include/dx12_shader_fw.h>
-#include <client/renderer/renderlevel/core/render_level.h>
-#include <client/renderer/core/render.h>
-#include "render/shader/render_anim_shader.h"
+#include "stdafx.h"
+#include "client/renderer/core/render.h"
+#include "client/renderer/shader/skeletal_mesh_shader.h"
+#include "client/renderer/renderlevel/core/render_level.h"
 
-namespace anim_test
+namespace client_fw
 {
-	RenderAnimShader::RenderAnimShader(const std::string& name)
+	SkeletalMeshShader::SkeletalMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
 	}
 
-	void RenderAnimShader::Initialize(ID3D12Device* device)
+	void SkeletalMeshShader::Initialize(ID3D12Device* device)
 	{
 	}
 
-	void RenderAnimShader::Shutdown()
+	void SkeletalMeshShader::Shutdown()
 	{
 	}
 
-	void RenderAnimShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void SkeletalMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
 	{
 		UpdateRenderItem(device, command_list);
 	}
 
-	void RenderAnimShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
+	void SkeletalMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
 		switch (level_type)
 		{
@@ -37,17 +36,17 @@ namespace anim_test
 		}
 	}
 
-	D3D12_SHADER_BYTECODE RenderAnimShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	D3D12_SHADER_BYTECODE SkeletalMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../AnimationTest/src/render/hlsl/render_anim.hlsl", "VSSkinnedMesh", "vs_5_1", shader_blob);
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/skeletal_mesh.hlsl", "VSSkeletalMesh", "vs_5_1", shader_blob);
 	}
 
-	D3D12_SHADER_BYTECODE RenderAnimShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	D3D12_SHADER_BYTECODE SkeletalMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../AnimationTest/src/render/hlsl/render_anim.hlsl", "PSSkinnedMesh", "ps_5_1", shader_blob);
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/skeletal_mesh.hlsl", "PSSkeletalMesh", "ps_5_1", shader_blob);
 	}
 
-	std::vector<D3D12_INPUT_ELEMENT_DESC> RenderAnimShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
+	std::vector<D3D12_INPUT_ELEMENT_DESC> SkeletalMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
 		input_element_descs.resize(5);
@@ -61,7 +60,7 @@ namespace anim_test
 		return input_element_descs;
 	}
 
-	bool RenderAnimShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
+	bool SkeletalMeshShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
 	{
 		bool result = true;
 

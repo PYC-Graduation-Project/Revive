@@ -6,6 +6,7 @@
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
+#include "client/renderer/shader/skeletal_mesh_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
@@ -40,6 +41,7 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 

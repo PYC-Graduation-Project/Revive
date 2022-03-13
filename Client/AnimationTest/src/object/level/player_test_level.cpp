@@ -8,7 +8,6 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
-#include "render/shader/render_anim_shader.h"
 #include "object/level/player_test_level.h"
 #include "object/actor/test_actor.h"
 
@@ -29,11 +28,8 @@ namespace anim_test
 		SpawnActor(m_player);
 		SpawnActor(m_player_controller);
 
-
-		Render::RegisterGraphicsShader<RenderAnimShader>("render anim shader", eRenderLevelType::kOpaque);
-		
-		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/violet.rev","idle");
-		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/skel.rev","run");
+		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
+		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","run");
 		SpawnActor(violet_idle);
 		SpawnActor(skel_run);
 		violet_idle->SetPosition(Vec3{ 10.0f, -35.0f, 1100.0f });
@@ -52,8 +48,6 @@ namespace anim_test
 
 	void PlayerTestLevel::Shutdown()
 	{
-		Render::UnregisterGraphicsShader("render anim shader", eRenderLevelType::kOpaque);
-
 		Input::SetHideCursor(false);
 		Input::SetClipCursor(false);
 		Input::SetInputMode(eInputMode::kUIOnly);
@@ -75,7 +69,7 @@ namespace anim_test
 			{
 				if (i % 2 == 0)
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/violet.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/violet.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y- 35.0f, z });
 					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
@@ -84,7 +78,7 @@ namespace anim_test
 				}
 				else
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/skel.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/skel.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);

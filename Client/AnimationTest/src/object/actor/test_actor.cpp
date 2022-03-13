@@ -1,6 +1,6 @@
-#include "stdafx.h"
-#include "object/actor/test_actor.h"
+#include <include/client_core.h>
 #include <client/asset/core/asset_manager.h>
+#include "object/actor/test_actor.h"
 
 namespace anim_test
 {
@@ -8,7 +8,6 @@ namespace anim_test
 		: Actor(mobility), m_mesh_path(skeletal_mesh_path), m_animation_name(animation_name)
 	{
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
-		m_skeletal_mesh_component->SetDrawShaderName("render anim shader");
 	}
 
 	bool TestActor::Initialize()

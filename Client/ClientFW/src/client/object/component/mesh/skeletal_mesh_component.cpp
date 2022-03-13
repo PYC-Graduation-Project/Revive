@@ -11,8 +11,8 @@ namespace client_fw
 	SkeletalMeshComponent::SkeletalMeshComponent(const std::string& name)
 		:MeshComponent(name, Render::ConvertShaderType(eShaderType::kOpaqueMesh))
 	{
+		SetDrawShaderName("skeletal mesh");
 		m_animation_controller = CreateSPtr<AnimationController>();
-
 	}
 	bool SkeletalMeshComponent::Initialize()
 	{

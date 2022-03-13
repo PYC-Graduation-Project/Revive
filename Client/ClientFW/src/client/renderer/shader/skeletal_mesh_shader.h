@@ -1,15 +1,13 @@
 #pragma once
-#include <client/renderer/shader/core/graphics_shader.h>
+#include "client/renderer/shader/core/graphics_shader.h"
 
-namespace anim_test
+namespace client_fw
 {
-	using namespace client_fw;
-
-	class RenderAnimShader final : public MeshShader
+	class SkeletalMeshShader final : public MeshShader
 	{
 	public:
-		RenderAnimShader(const std::string& name);
-		virtual ~RenderAnimShader() = default;
+		SkeletalMeshShader(const std::string& name);
+		virtual ~SkeletalMeshShader() = default;
 
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;

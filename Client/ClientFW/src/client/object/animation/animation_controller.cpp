@@ -57,7 +57,7 @@ namespace client_fw
         {
            Mat4 final_transform = m_bone_offset[i] * m_cahce_skeleton[i]->GetWorld();
            final_transform.Transpose();
-           m_bone_trans_data.animation_matrix.at(i) = final_transform;
+           m_bone_trans_data.bone_transforms.at(i) = final_transform;
         }
     }
 }
