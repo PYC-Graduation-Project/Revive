@@ -24,8 +24,8 @@ namespace client_fw
         float m_roll_speed = 0.0f;
 
     public:
-        void Possess(const SPtr<Pawn>& pawn);
-        void UnPossess();
+       virtual void Possess(const SPtr<Pawn>& pawn);
+       virtual void UnPossess();
     };
 }
 

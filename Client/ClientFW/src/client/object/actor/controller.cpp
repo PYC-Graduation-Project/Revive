@@ -117,7 +117,7 @@ namespace client_fw
 	void Controller::Possess(const SPtr<Pawn>& pawn)
 	{
 		m_controlled_pawn = pawn;
-		pawn->m_controller = std::static_pointer_cast<Controller>(shared_from_this());
+		pawn->SetController(std::static_pointer_cast<Controller>(shared_from_this()));
 		SetRotation(m_controlled_pawn->GetRotation());
 	}
 

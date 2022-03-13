@@ -28,18 +28,24 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 	private:
-		static PlayerController* s_player_controller;
-		SPtr<CameraComponent> m_camera_component;
+		SPtr<CameraComponent> m_original_camera_component;
+		SPtr<CameraComponent> m_custom_camera_component;
 		float m_pitch_speed_scale = 4.0f;
 		float  m_yaw_speed_scale = 4.0f;
 		float m_roll_speed_scale = 4.0f;
 
 	public:
-		const SPtr<CameraComponent>& GetPlayerCamera() const { return m_camera_component; }
-		void SetPlayerCamera(const SPtr<CameraComponent>& camera_comp) { m_camera_component = camera_comp; }
+		const SPtr<CameraComponent>& GetPlayerCamera() const;
+		void SetPlayerCamera(const SPtr<CameraComponent>& camera_comp);
 		void SetPitchSpeedScale(float scale) { m_pitch_speed_scale = scale; }
 		void SetYawSpeedScale(float scale) { m_yaw_speed_scale = scale; }
 		void SetRollSpeedScale(float scale) { m_roll_speed_scale = scale; }
+
+		virtual void Possess(const SPtr<Pawn>& pawn) override;
+		virtual void UnPossess() override;
+
+	private:
+		void SetControlledCamera(const SPtr<CameraComponent>& camera_comp);
 	};
 }
 

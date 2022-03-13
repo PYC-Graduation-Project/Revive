@@ -125,11 +125,22 @@ namespace client_fw
 			if (camera_comp == m_main_camera)
 				m_main_camera = nullptr;
 		}
+
+		auto& ready_cameras = m_ready_cameras[camera_comp->GetCameraUsage()];
+
+		iter = std::find(ready_cameras.begin(), ready_cameras.end(), camera_comp);
+		if (iter != ready_cameras.end())
+		{
+			std::iter_swap(iter, ready_cameras.end() - 1);
+			ready_cameras.pop_back();
+			if (camera_comp == m_main_camera)
+				m_main_camera = nullptr;
+		}
 	}
 
 	void CameraManager::CreateCameraResource(ID3D12Device* device)
 	{
-		m_camera_data->CreateResource(device, static_cast<UINT>(m_cameras.size()) + 1);
+		m_camera_data->CreateResource(device, static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()) + 1);
 	}
 
 	void CameraManager::UpdateCameraResource()
@@ -155,7 +166,7 @@ namespace client_fw
 				camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
 				m_camera_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
 			}
-
+			
 			++index;
 		}
 	}

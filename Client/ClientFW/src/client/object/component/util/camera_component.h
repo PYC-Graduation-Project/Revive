@@ -72,6 +72,7 @@ namespace client_fw
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
+		void SetProjectionMode(eProjectionMode mode) { m_projection_mode = mode; }
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
 		const Viewport& GetViewport() const { return m_viewport; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
