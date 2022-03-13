@@ -5,12 +5,12 @@
 #include<functional>
 #include<set>
 #include<vector>
-const int ROW = 37;
-const int COL = 17;
+const int ROW = 60;
+const int COL = 60;
 //한칸에 몇미터? 
 //타일기준으로 하기
 //현재 위치에서 제일가까운 타일 찾아주기
-
+//60x60이 국룰 시작을 30,30으로 배치
 using Vec2 = std::pair<int, int>;
 
 class Node {
