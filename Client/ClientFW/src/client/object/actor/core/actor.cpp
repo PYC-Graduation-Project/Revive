@@ -124,10 +124,10 @@ namespace client_fw
 		m_registered_input_events.push_back(name);
 	}
 
-	void Actor::RegisterReceiveMessage(const std::string& name)
+	void Actor::RegisterReceiveMessage(UINT event_id)
 	{
-		MessageHelper::RegisterMessageReceiver(name, shared_from_this());
-		m_registered_message_events.push_back(name);
+		MessageHelper::RegisterMessageReceiver(event_id, shared_from_this());
+		m_registered_message_events.push_back(event_id);
 	}
 
 	void Actor::SetPosition(const Vec3& pos)

@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "client/event/messageevent/message_event_manager.h"
 #include "client/event/messageevent/message_event_info.h"
-#include "client/object/actor/core/actor.h"
+#include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
@@ -16,24 +17,24 @@ namespace client_fw
 
 	void MessageEventManager::ExecuteEvent()
 	{
-		while (m_message_queue.empty() == false)
+		const auto& current_level = LevelManager::GetLevelManager().GetCurrentLevel();
+		if (current_level != nullptr)
 		{
-			const auto& message = m_message_queue.front();
-			const auto& message_name = message->GetName();
-
-			for (auto iter = m_message_receive_actors.lower_bound(message_name);
-				iter != m_message_receive_actors.upper_bound(message_name); ++iter)
+			while (m_message_queue.empty() == false)
 			{
-				iter->second->ExecuteMessage(message);
-			}
+				const auto& message = m_message_queue.front();
+				const auto& event_id = message->GetEventID();
 
-			for (auto iter = m_message_receive_levels.lower_bound(message_name);
-				iter != m_message_receive_levels.upper_bound(message_name); ++iter)
-			{
-				iter->second->ExecuteMessage(message);
-			}
+				for (auto iter = m_message_receive_actors.lower_bound(event_id);
+					iter != m_message_receive_actors.upper_bound(event_id); ++iter)
+				{
+					iter->second->ExecuteMessage(message);
+				}
 
-			m_message_queue.pop();
+				current_level->ExecuteMessage(message);
+
+				m_message_queue.pop();
+			}
 		}
 	}
 
@@ -42,37 +43,19 @@ namespace client_fw
 		m_message_queue.emplace(std::move(message));
 	}
 
-	void MessageEventManager::RegisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor)
+	void MessageEventManager::RegisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor)
 	{
-		m_message_receive_actors.emplace(message_name, actor);
+		m_message_receive_actors.emplace(event_id, actor);
 	}
 
-	void MessageEventManager::RegisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level)
+	void MessageEventManager::UnregisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor)
 	{
-		m_message_receive_levels.emplace(message_name, level);
-	}
-
-	void MessageEventManager::UnregisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor)
-	{
-		for (auto iter = m_message_receive_actors.lower_bound(message_name);
-			iter != m_message_receive_actors.upper_bound(message_name); ++iter)
+		for (auto iter = m_message_receive_actors.lower_bound(event_id);
+			iter != m_message_receive_actors.upper_bound(event_id); ++iter)
 		{
 			if (iter->second == actor)
 			{
 				iter = m_message_receive_actors.erase(iter);
-				break;
-			}
-		}
-	}
-
-	void MessageEventManager::UnregisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level)
-	{
-		for (auto iter = m_message_receive_levels.lower_bound(message_name);
-			iter != m_message_receive_levels.upper_bound(message_name); ++iter)
-		{
-			if (iter->second == level)
-			{
-				iter = m_message_receive_levels.erase(iter);
 				break;
 			}
 		}

@@ -106,7 +106,7 @@ namespace client_fw
 			}
 			else if (GetAppState() == eAppState::kActive)
 			{
-				ProcessInput();
+				ExecuteEvents();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
 				Render();
@@ -114,7 +114,7 @@ namespace client_fw
 		}
 	}
 
-	void Application::ProcessInput()
+	void Application::ExecuteEvents()
 	{
 		m_event_system->ExecuteEvent();
 	}

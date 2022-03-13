@@ -2,6 +2,7 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/util/rotating_movement_component.h>
 #include <client/object/component/render/sphere_component.h>
+#include <client/event/messageevent/message_helper.h>
 #include "rotating_cube.h"
 #include "message/message_event_info.h"
 
@@ -19,7 +20,7 @@ namespace event_test
 		ret &= AttachComponent(m_rotating_component);
 		ret &= AttachComponent(CreateSPtr<SphereComponent>(200.0f));
 
-		RegisterReceiveMessage("change rotating speed");
+		RegisterReceiveMessage(HashCode("change rotating speed"));
 
 		return ret;
 	}
@@ -36,7 +37,7 @@ namespace event_test
 
 	void RotatingCube::ExecuteMessage(const SPtr<MessageEventInfo>& message)
 	{
-		if (message->GetName() == "change rotating speed")
+		if (message->GetEventID() == HashCode("change rotating speed"))
 		{
 			auto msg = std::static_pointer_cast<RotSpeedMessageEventInfo>(message);
 			if (msg != nullptr)

@@ -10,23 +10,13 @@ namespace client_fw
 		EventSystem::GetEventSystem().GetMessageEventManager()->RegisterMessageEvent(std::move(message));
 	}
 
-	void MessageHelper::RegisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor)
+	void MessageHelper::RegisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor)
 	{
-		EventSystem::GetEventSystem().GetMessageEventManager()->RegisterMessageReceiver(message_name, actor);
+		EventSystem::GetEventSystem().GetMessageEventManager()->RegisterMessageReceiver(event_id, actor);
 	}
 
-	void MessageHelper::RegisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level)
+	void MessageHelper::UnregisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor)
 	{
-		EventSystem::GetEventSystem().GetMessageEventManager()->RegisterMessageReceiver(message_name, level);
-	}
-
-	void MessageHelper::UnregisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor)
-	{
-		EventSystem::GetEventSystem().GetMessageEventManager()->UnregisterMessageReceiver(message_name, actor);
-	}
-
-	void MessageHelper::UnregisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level)
-	{
-		EventSystem::GetEventSystem().GetMessageEventManager()->UnregisterMessageReceiver(message_name, level);
+		EventSystem::GetEventSystem().GetMessageEventManager()->UnregisterMessageReceiver(event_id, actor);
 	}
 }

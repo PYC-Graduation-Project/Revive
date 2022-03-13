@@ -10,10 +10,9 @@ namespace client_fw
 	{
 	public:
 		static void RegisterMessageEvent(SPtr<MessageEventInfo>&& message);
-		static void RegisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor);
-		static void RegisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level);
-		static void UnregisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor);
-		static void UnregisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level);
+
+		static void RegisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor);
+		static void UnregisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor);
 	};
 }
 

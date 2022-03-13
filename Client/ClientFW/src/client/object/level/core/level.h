@@ -44,8 +44,6 @@ namespace client_fw
 		void RegisterAxisEvent(const std::string& name, std::vector <AxisEventKeyInfo>&& keys,
 			const std::function<bool(float)>& func, bool consumption = true);
 
-		void RegisterReceiveMessage(const std::string& name);
-
 	private:
 		void RegisterInputEvent(const std::string& name);
 
@@ -58,7 +56,6 @@ namespace client_fw
 
 	private:
 		std::vector<std::string> m_registered_input_events;
-		std::vector<std::string> m_registered_message_events;
 		UPtr<ActorManager> m_actor_manager;
 		bool m_is_runtime_level;
 

@@ -45,7 +45,7 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 		void RegisterInputEvent(const std::string& name);
-		void RegisterReceiveMessage(const std::string& name);
+		void RegisterReceiveMessage(UINT event_id);
 
 	public:
 		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
@@ -65,7 +65,7 @@ namespace client_fw
 
 	private:
 		std::vector<std::string> m_registered_input_events;
-		std::vector<std::string> m_registered_message_events;
+		std::vector<UINT> m_registered_message_events;
 		UPtr<ComponentManager> m_component_manager;
 		UPtr<ActorPhysicsManager> m_physics_manager;
 

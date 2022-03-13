@@ -5,17 +5,15 @@ namespace client_fw
 	class MessageEventInfo
 	{
 	public:
-		MessageEventInfo(const std::string& name)
-			: m_name(name) {}
+		MessageEventInfo(UINT event_id)
+			: m_event_id(event_id) {}
 		
 	protected:
-		std::string m_name;
+		UINT m_event_id;
 
 	public:
-		const std::string& GetName() const { return m_name; }
+		UINT GetEventID() const { return m_event_id; }
 	};
-
-	bool operator<(const MessageEventInfo& msg1, const MessageEventInfo& msg2);
 }
 
 

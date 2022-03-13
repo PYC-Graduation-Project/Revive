@@ -37,6 +37,7 @@ namespace client_fw
 
 	public:
 		inline static LevelManager& GetLevelManager() { return *s_instance; }
+		const SPtr<Level>& GetCurrentLevel() const { return m_cur_level; }
 		void AddLevelCloseEvent(const std::function<void()>& function);
 	};
 }

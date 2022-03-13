@@ -8,7 +8,7 @@ namespace event_test
     class RotSpeedMessageEventInfo final : public MessageEventInfo
     {
     public:
-        RotSpeedMessageEventInfo(const std::string& name, float speed);
+        RotSpeedMessageEventInfo(UINT event_id, float speed);
 
     private:
         float m_speed;

@@ -38,7 +38,7 @@ namespace event_test
 
 		RegisterAxisEvent("rotating speed up", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
 			[this](float axis)->bool {
-				MessageHelper::RegisterMessageEvent(CreateSPtr<RotSpeedMessageEventInfo>("change rotating speed", axis));
+				MessageHelper::RegisterMessageEvent(CreateSPtr<RotSpeedMessageEventInfo>(HashCode("change rotating speed"), axis));
 				return true;
 			});
 		

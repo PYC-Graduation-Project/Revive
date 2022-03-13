@@ -29,8 +29,6 @@ namespace client_fw
 	{
 		for (const auto& name : m_registered_input_events)
 			Input::UnregisterInputEvent(name);
-		for (const auto& name : m_registered_message_events)
-			MessageHelper::UnregisterMessageReceiver(name, shared_from_this());
 
 		UserInterfaceManager::GetUIManager().Reset();
 		m_actor_manager->Shutdown();
@@ -99,12 +97,6 @@ namespace client_fw
 		std::string event_name = m_name + " : " + name;
 		if (Input::RegisterAxisEvent(event_name, std::move(keys), func, consumption, eInputOwnerType::kLevel))
 			RegisterInputEvent(event_name);
-	}
-
-	void Level::RegisterReceiveMessage(const std::string& name)
-	{
-		MessageHelper::RegisterMessageReceiver(name, shared_from_this());
-		m_registered_message_events.push_back(name);
 	}
 
 	void Level::RegisterInputEvent(const std::string& name)

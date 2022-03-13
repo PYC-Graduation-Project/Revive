@@ -3,8 +3,8 @@
 
 namespace event_test
 {
-	RotSpeedMessageEventInfo::RotSpeedMessageEventInfo(const std::string& name, float speed)
-		: MessageEventInfo(name), m_speed(speed)
+	RotSpeedMessageEventInfo::RotSpeedMessageEventInfo(UINT event_id, float speed)
+		: MessageEventInfo(event_id), m_speed(speed)
 	{
 	}
 }

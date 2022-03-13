@@ -41,7 +41,7 @@ namespace client_fw
 		void Run();
 
 	private:
-		void ProcessInput();
+		void ExecuteEvents();
 		void Update(float delta_time);
 		void Render();
 

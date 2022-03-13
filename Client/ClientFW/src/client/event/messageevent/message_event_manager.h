@@ -20,16 +20,13 @@ namespace client_fw
 
 	public:
 		void RegisterMessageEvent(SPtr<MessageEventInfo>&& message);
-		void RegisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor);
-		void RegisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level);
-		void UnregisterMessageReceiver(const std::string& message_name, const SPtr<Actor>& actor);
-		void UnregisterMessageReceiver(const std::string& message_name, const SPtr<Level>& level);
+
+		void RegisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor);
+		void UnregisterMessageReceiver(UINT event_id, const SPtr<Actor>& actor);
 
 	private:
 		std::queue<SPtr<MessageEventInfo>> m_message_queue;
 
-		std::multimap<std::string, SPtr<Actor>> m_message_receive_actors;
-		std::multimap<std::string, SPtr<Level>> m_message_receive_levels;
-
+		std::multimap<UINT, SPtr<Actor>> m_message_receive_actors;
 	};
 }
