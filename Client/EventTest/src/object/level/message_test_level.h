@@ -16,6 +16,8 @@ namespace event_test
 
         virtual void Update(float delta_time) override;
 
+        virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
+
     public:
         virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
         virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;

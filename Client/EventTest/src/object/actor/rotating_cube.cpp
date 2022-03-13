@@ -48,4 +48,17 @@ namespace event_test
 			}
 		}
 	}
+
+	void RotatingCube::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
+	{
+		switch (message->GetEventID())
+		{
+		case HashCode("change rotating speed"):
+			m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
+			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			break;
+		default:
+			break;
+		}
+	}
 }

@@ -49,6 +49,7 @@ namespace client_fw
 
 	public:
 		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) {}
 
 	protected:
 		std::string m_name;

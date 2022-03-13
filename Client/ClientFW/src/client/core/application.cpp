@@ -109,6 +109,7 @@ namespace client_fw
 				ExecuteEvents();
 				m_timer->Update();
 				Update(m_timer->GetDeltaTime());
+				SendEventToServer();
 				Render();
 			}
 		}
@@ -117,6 +118,11 @@ namespace client_fw
 	void Application::ExecuteEvents()
 	{
 		m_event_system->ExecuteEvent();
+	}
+
+	void Application::SendEventToServer()
+	{
+		m_event_system->SendEventToServer();
 	}
 
 	void Application::Update(float delta_time)

@@ -15,6 +15,7 @@ namespace client_fw
 
 	class EventSystem;
 	struct EventKeyInfo;
+	class MessageEventInfo;
 	class LevelManager;
 	class LevelLoader;
 	class Level;
@@ -42,6 +43,7 @@ namespace client_fw
 
 	private:
 		void ExecuteEvents();
+		void SendEventToServer();
 		void Update(float delta_time);
 		void Render();
 

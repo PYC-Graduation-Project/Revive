@@ -49,6 +49,7 @@ namespace client_fw
 
 	public:
 		virtual void ExecuteMessage(const SPtr<MessageEventInfo>& message) {}
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) {}
 
 	public:
 		void SpawnActor(const SPtr<Actor>& actor);

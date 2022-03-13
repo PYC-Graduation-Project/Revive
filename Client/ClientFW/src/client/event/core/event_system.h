@@ -7,6 +7,7 @@ namespace client_fw
     class InputEventManager;
     class UIEventManager;
     class MessageEventManager;
+    class PacketEventManager;
 
     class EventSystem final
     {
@@ -18,6 +19,7 @@ namespace client_fw
         EventSystem& operator=(const EventSystem&) = delete;
 
         void ExecuteEvent();
+        void SendEventToServer();
 
     public:
         void ChangeInputState(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -28,6 +30,7 @@ namespace client_fw
         UPtr<InputEventManager> m_input_event_manager;
         UPtr<UIEventManager> m_ui_event_manager;
         UPtr<MessageEventManager> m_message_event_manager;
+        UPtr<PacketEventManager> m_packet_event_manager;
 
     public:
         static EventSystem& GetEventSystem() { return *s_event_system; }
@@ -35,6 +38,7 @@ namespace client_fw
         const UPtr<InputEventManager>& GetInputEventManager() const { return m_input_event_manager; }
         const UPtr<UIEventManager>& GetUIEventManager() const { return m_ui_event_manager; }
         const UPtr<MessageEventManager>& GetMessageEventManager() const { return m_message_event_manager; }
+        const UPtr<PacketEventManager>& GetPacketEventManager() const { return m_packet_event_manager; }
     };
 }
 
