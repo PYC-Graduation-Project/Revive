@@ -30,7 +30,7 @@ public:
 public:
 	NetworkObjManager() {};
 	~NetworkObjManager() {};
-	void InitObj(int obj_id, NW_OBJ_TYPE m_type, float hp, float damage,client_fw::Vec3& pos);
+
 	void AddObj(int id, NetworkObj*);
 	NetworkObj* GetObj(int id) { 
 		auto p = m_obj_map.find(id);

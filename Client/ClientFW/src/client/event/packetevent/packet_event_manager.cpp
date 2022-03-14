@@ -48,6 +48,7 @@ namespace client_fw
 			SPtr<MessageEventInfo> message;
 			if (m_server_receive_message_queue.try_pop(message))
 			{
+				//SendManager::GetInst()->SendMessageToServer(message);
 				//ÀÌº¥Æ®
 			}
 		}

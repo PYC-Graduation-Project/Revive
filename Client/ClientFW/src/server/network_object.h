@@ -19,7 +19,7 @@ public:
 			m_name = std::string(name);
 			m_position =client_fw::Vec3(x, y, z);
 	}
-	virtual ~NetworkObj()=default;
+	~NetworkObj()=default;
 
 
 	const client_fw::Vec3& GetPosition()const {return m_position;}

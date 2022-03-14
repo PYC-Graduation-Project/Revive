@@ -19,8 +19,8 @@ namespace revive
 			if (result)
 			{
 				LOG_INFO("Welcome to Revive Application");
-				Network::GetInst()->Init();
-				Network::GetInst()->CreateWorker();
+				//Network::GetInst()->Init();
+				//Network::GetInst()->CreateWorker();
 
 			}
 			

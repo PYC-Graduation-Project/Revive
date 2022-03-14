@@ -50,6 +50,11 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
+		RegisterPressedEvent("send sign up", { { eKey::k6 } },
+			[this]()->bool {
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MessageEventInfo>(HashCode("send sign up")));
+				return true;
+			});
 
 		RegisterPressedEvent("remove rotating cube", { { eKey::kO } },
 			[this]()->bool {
@@ -80,7 +85,7 @@ namespace event_test
 	{
 		static UINT id = 0;
 		static Vec3 spawn_pos = Vec3(100.0f, 0.0f, 1100.0f);
-
+		
 		switch (message->GetEventID())
 		{
 		case HashCode("spawn rotating cube"):

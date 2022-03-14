@@ -32,8 +32,8 @@ namespace render_test
 				[this]()->bool {OpenLevel(CreateSPtr<RenderRectLevel>());  return true; });
 			RegisterPressedEvent("open player test level", { {eKey::k2} },
 				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
-			Network::GetInst()->Init();
-			Network::GetInst()->CreateWorker();
+			//Network::GetInst()->Init();
+			//Network::GetInst()->CreateWorker();
 			return result;
 		}
 

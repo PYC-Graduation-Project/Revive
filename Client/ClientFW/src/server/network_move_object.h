@@ -18,7 +18,7 @@ public:
         m_damage = damage;
         m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
     }
-    virtual~NetworkMoveObj();
+    ~NetworkMoveObj();
 
     const client_fw::Quaternion& GetRotation() const { return m_rotation; }
     void SetRotation(const client_fw::Quaternion& rot) { m_rotation = rot; }
