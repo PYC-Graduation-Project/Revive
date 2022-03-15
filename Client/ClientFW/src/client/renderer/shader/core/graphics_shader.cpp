@@ -3,6 +3,8 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/core/render_level.h"
 #include "client/renderer/renderitem/mesh_render_item.h"
+#include "client/renderer/renderitem/billboard_render_item.h"
+
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/util/d3d_util.h"
@@ -248,6 +250,37 @@ namespace client_fw
 
 	void ShapeShader::UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp)
 	{
+	}
+
+	BillboardShader::BillboardShader(const std::string& name)
+		: GraphicsShader(name)
+	{
+	}
+
+	void BillboardShader::Initialize(ID3D12Device* device)
+	{
+		m_billboard_render_item->Initialize(device);
+	}
+
+	void BillboardShader::Shutdown()
+	{
+		m_billboard_render_item->Shutdown();
+	}
+
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE BillboardShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	}
+
+	bool BillboardShader::RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp)
+	{
+		m_billboard_render_item->RegisterBillboardComponent(bb_comp);
+		return true;
+	}
+
+	void BillboardShader::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	{
+		m_billboard_render_item->UnregisterBillboardComponent(bb_comp);
 	}
 
 }

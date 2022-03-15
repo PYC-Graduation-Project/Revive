@@ -1,5 +1,6 @@
 #pragma once
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
@@ -8,7 +9,8 @@ namespace client_fw
 	class StaticMeshComponent : public MeshComponent
 	{
 	public:
-		StaticMeshComponent(const std::string& name = "static mesh component");
+		StaticMeshComponent(const std::string& name = "static mesh component",
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueMesh));
 		virtual ~StaticMeshComponent() = default;
 
 		virtual bool Initialize() override;

@@ -9,7 +9,7 @@ namespace event_test
 		: Actor(mobility, "Billboard"), m_path(path)
 		, m_size(size), m_fix_up(fix_up)
 	{
-		//m_billboard_component = CreateSPtr<MaterialBillboardComponent>();
+		m_billboard_component = CreateSPtr<MaterialBillboardComponent>();
 	}
 
 	bool MaterialBillboardActor::Initialize()

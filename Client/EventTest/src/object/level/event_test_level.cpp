@@ -100,9 +100,9 @@ namespace event_test
 				return true;
 			});
 
-		/*RegisterPressedEvent("spawn material billboard", { EventKeyInfo{eKey::kL} },
+		RegisterPressedEvent("spawn material billboard", { EventKeyInfo{eKey::kL} },
 			[this]()->bool {
-				auto test_mat_billboard = CreateSPtr<MaterialBillboardActor>(eMobilityState::kDestructable, 
+				auto test_mat_billboard = CreateSPtr<MaterialBillboardActor>(eMobilityState::kDestructible, 
 					"../Contents/Castle/SiegeRam_LOD0.mtl", Vec2(100.0f, 100.0f), m_mat_bb_queue.size() % 2);
 				SpawnActor(test_mat_billboard);
 				test_mat_billboard->SetPosition(m_spawn_pos);
@@ -119,7 +119,7 @@ namespace event_test
 					m_mat_bb_queue.pop();
 				}
 				return true;
-			});*/
+			});
 
 		return true;
 	}

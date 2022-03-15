@@ -154,18 +154,18 @@ PS_GBUFFER_OUTPUT PSBillboard(GS_BILLBOARD_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
     
-    //float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
+    float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
     
-    ////clip(base_color.a - 0.33f);
-    //output.base_color = base_color;
+    clip(base_color.a - 0.333333f);
+    output.base_color = base_color;
+    output.base_color.a = 1.0f;
     
-    output.base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
     
     return output;
 }
 
-PS_GBUFFER_OUTPUT PSMaterialBillboard(GS_BILLBOARD_OUTPUT input)
+PS_GBUFFER_OUTPUT PSOpaqueMaterialBillboard(GS_BILLBOARD_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
     

@@ -48,6 +48,8 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 			return "opaque";
+		case eRenderLevelType::kTransparent:
+			return "transparent";
 		default:
 			return "unknown";
 		}
@@ -60,8 +62,12 @@ namespace client_fw
 			return "opaque mesh";
 		case eShaderType::kShapeBox:
 			return "shape box";
-		case eShaderType::kBillboard:
-			return "billboard";
+		case eShaderType::kTextureBillboard:
+			return "texture billboard";
+		case eShaderType::kOpaqueMaterialBillboard:
+			return "opaque material billboard";
+		case eShaderType::kWidget:
+			return "widget";
 		default:
 			return "unknown";
 		}

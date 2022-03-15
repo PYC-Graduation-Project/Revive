@@ -3,16 +3,11 @@
 
 namespace client_fw
 {
-	class BillboardRenderItem;
-
-	class BillboardShader : public GraphicsShader
+	class TextureBillboardShader : public BillboardShader
 	{
 	public:
-		BillboardShader(const std::string& name);
-		virtual ~BillboardShader() = default;
-
-		virtual void Initialize(ID3D12Device* device) override;
-		virtual void Shutdown() override;
+		TextureBillboardShader(const std::string& name);
+		virtual ~TextureBillboardShader() = default;
 
 		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
@@ -22,18 +17,8 @@ namespace client_fw
 		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 
 		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(eRenderLevelType level_type, int pso_index) const override;
-		virtual D3D12_BLEND_DESC CreateBlendState(eRenderLevelType level_type, int pso_index) const override;
-
-		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const override;
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
-
-	public:
-		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp) override;
-		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
-
-	private:
-		SPtr<BillboardRenderItem> m_billboard_render_item;
 	};
 }
 

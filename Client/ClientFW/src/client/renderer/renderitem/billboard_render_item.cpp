@@ -37,14 +37,27 @@ namespace client_fw
 		}
 	}
 
-	void BillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	void BillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, bool is_fix_up)
+	{
+		m_billboard_primitive->Draw(command_list,
+			m_num_of_draw_billboard_data[static_cast<UINT>(is_fix_up)], m_start_vertex_locations[static_cast<UINT>(is_fix_up)]);
+	}
+
+	TextureBillboardRenderItem::TextureBillboardRenderItem()
+		: BillboardRenderItem()
+	{
+	}
+
+	TextureBillboardRenderItem::~TextureBillboardRenderItem()
+	{
+	}
+
+	void TextureBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
 	{
 		std::vector<BillboardVertex> vertices;
 		std::vector<BillboardVertex> fix_up_vertices;
-		std::vector<BillboardVertex> material_vertices;
-		std::vector<BillboardVertex> fix_up_material_vertices;
 
-		for (const auto& bb_comp : m_texture_billboard_components)
+		for (const auto& bb_comp : m_billboard_components)
 		{
 			if (bb_comp->IsVisible() && bb_comp->GetTexture() != nullptr)
 			{
@@ -61,39 +74,14 @@ namespace client_fw
 			}
 		}
 
-		for (const auto& bb_comp : m_material_billboard_components)
-		{
-			if (bb_comp->IsVisible() && bb_comp->GetMaterial() != nullptr)
-			{
-				BillboardVertex vertex(BillboardVertex(bb_comp->GetWorldPosition(),
-					bb_comp->GetSize(), bb_comp->GetMaterial()->GetResourceIndex(),
-					Vec2(0.0f, 0.0f)));
-
-				if (bb_comp->IsFixUpVector())
-					fix_up_material_vertices.emplace_back(std::move(vertex));
-				else
-					material_vertices.emplace_back(std::move(vertex));
-
-				bb_comp->SetVisiblity(false);
-			}
-		}
-
 		std::vector<BillboardVertex> final_vertices;
-		m_num_of_draw_billboard_data[ToUnderlying(eBillboardRenderType::kTexture)] = static_cast<UINT>(vertices.size());
-		m_start_vertex_locations[ToUnderlying(eBillboardRenderType::kTexture)] = 0;
+		m_num_of_draw_billboard_data[0] = static_cast<UINT>(vertices.size());
+		m_start_vertex_locations[0] = 0;
 		std::move(vertices.begin(), vertices.end(), std::back_inserter(final_vertices));
 
-		m_num_of_draw_billboard_data[ToUnderlying(eBillboardRenderType::kFixUpTexture)] = static_cast<UINT>(fix_up_vertices.size());
-		m_start_vertex_locations[ToUnderlying(eBillboardRenderType::kFixUpTexture)] = static_cast<UINT>(final_vertices.size());
+		m_num_of_draw_billboard_data[1] = static_cast<UINT>(fix_up_vertices.size());
+		m_start_vertex_locations[1] = static_cast<UINT>(final_vertices.size());
 		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(final_vertices));
-
-		m_num_of_draw_billboard_data[ToUnderlying(eBillboardRenderType::kMaterial)] = static_cast<UINT>(material_vertices.size());
-		m_start_vertex_locations[ToUnderlying(eBillboardRenderType::kMaterial)] = static_cast<UINT>(final_vertices.size());
-		std::move(material_vertices.begin(), material_vertices.end(), std::back_inserter(final_vertices));
-
-		m_num_of_draw_billboard_data[ToUnderlying(eBillboardRenderType::kFixUpMaterial)] = static_cast<UINT>(fix_up_material_vertices.size());
-		m_start_vertex_locations[ToUnderlying(eBillboardRenderType::kFixUpMaterial)] = static_cast<UINT>(final_vertices.size());
-		std::move(fix_up_material_vertices.begin(), fix_up_material_vertices.end(), std::back_inserter(final_vertices));
 
 		if (final_vertices.empty() == false)
 		{
@@ -102,66 +90,151 @@ namespace client_fw
 		}
 	}
 
-	void BillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eBillboardRenderType type)
-	{
-		m_billboard_primitive->Draw(command_list, 
-			m_num_of_draw_billboard_data[ToUnderlying(type)], m_start_vertex_locations[ToUnderlying(type)]);
-	}
-
-	void BillboardRenderItem::RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	void TextureBillboardRenderItem::RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
 	{
 		if (bb_comp->GetBillboardType() == eBillboardType::kTexture)
 		{
-			bb_comp->SetRenderItemIndex(static_cast<UINT>(m_texture_billboard_components.size()));
-			m_texture_billboard_components.push_back(std::static_pointer_cast<TextureBillboardComponent>(bb_comp));
+			bb_comp->SetRenderItemIndex(static_cast<UINT>(m_billboard_components.size()));
+			m_billboard_components.push_back(std::static_pointer_cast<TextureBillboardComponent>(bb_comp));
+
+			if (m_num_of_billboard_data == 0)
+			{
+				m_num_of_billboard_data = 1;
+				m_is_need_resource_create = true;
+			}
+			else if (m_num_of_billboard_data < static_cast<UINT>(m_billboard_components.size()))
+			{
+				m_num_of_billboard_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data) * 1.5f));
+				m_is_need_resource_create = true;
+			}
 		}
 		else
 		{
-			bb_comp->SetRenderItemIndex(static_cast<UINT>(m_material_billboard_components.size()));
-			m_material_billboard_components.push_back(std::static_pointer_cast<MaterialBillboardComponent>(bb_comp));
-		}
-
-		if (m_num_of_billboard_data == 0)
-		{
-			m_num_of_billboard_data = 1;
-			m_is_need_resource_create = true;
-		}
-		else if(m_num_of_billboard_data < static_cast<UINT>(m_texture_billboard_components.size() + m_material_billboard_components.size()))
-		{
-			m_num_of_billboard_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data) * 1.5f));
-			m_is_need_resource_create = true;
+			LOG_WARN("Could not register {0} to material billboard render item", bb_comp->GetName());
 		}
 	}
 
-	void BillboardRenderItem::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	void TextureBillboardRenderItem::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
 	{
 		UINT index = bb_comp->GetRenderItemIndex();
 
 		if (bb_comp->GetBillboardType() == eBillboardType::kTexture)
 		{
-			std::iter_swap(m_texture_billboard_components.begin() + index, m_texture_billboard_components.end() - 1);
-			m_texture_billboard_components[index]->SetRenderItemIndex(index);
-			m_texture_billboard_components.pop_back();
+			std::iter_swap(m_billboard_components.begin() + index, m_billboard_components.end() - 1);
+			m_billboard_components[index]->SetRenderItemIndex(index);
+			m_billboard_components.pop_back();
+
+			UINT size = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data * 0.66f)));
+			if (size >= m_billboard_components.size())
+			{
+				if (m_billboard_components.empty())
+				{
+					m_num_of_billboard_data = 1;
+					m_is_need_resource_create = true;
+				}
+				else
+				{
+					m_num_of_billboard_data = size;
+					m_is_need_resource_create = true;
+				}
+			}
 		}
-		else
+	}
+
+	MaterialBillboardRenderItem::MaterialBillboardRenderItem()
+		: BillboardRenderItem()
+	{
+	}
+
+	MaterialBillboardRenderItem::~MaterialBillboardRenderItem()
+	{
+	}
+
+	void MaterialBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		std::vector<BillboardVertex> vertices;
+		std::vector<BillboardVertex> fix_up_vertices;
+
+		for (const auto& bb_comp : m_billboard_components)
 		{
-			std::iter_swap(m_material_billboard_components.begin() + index, m_material_billboard_components.end() - 1);
-			m_material_billboard_components[index]->SetRenderItemIndex(index);
-			m_material_billboard_components.pop_back();
+			if (bb_comp->IsVisible() && bb_comp->GetMaterial() != nullptr)
+			{
+				BillboardVertex vertex(BillboardVertex(bb_comp->GetWorldPosition(),
+					bb_comp->GetSize(), bb_comp->GetMaterial()->GetResourceIndex(),
+					Vec2(0.0f, 0.0f)));
+
+				if (bb_comp->IsFixUpVector())
+					fix_up_vertices.emplace_back(std::move(vertex));
+				else
+					vertices.emplace_back(std::move(vertex));
+
+				bb_comp->SetVisiblity(false);
+			}
 		}
 
-		UINT size = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data * 0.66f)));
-		if (size >= m_texture_billboard_components.size() + m_material_billboard_components.size())
+		std::vector<BillboardVertex> final_vertices;
+		m_num_of_draw_billboard_data[0] = static_cast<UINT>(vertices.size());
+		m_start_vertex_locations[0] = 0;
+		std::move(vertices.begin(), vertices.end(), std::back_inserter(final_vertices));
+
+		m_num_of_draw_billboard_data[1] = static_cast<UINT>(fix_up_vertices.size());
+		m_start_vertex_locations[1] = static_cast<UINT>(final_vertices.size());
+		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(final_vertices));
+
+		if (final_vertices.empty() == false)
 		{
-			if (m_texture_billboard_components.empty() && m_material_billboard_components.empty())
+			m_billboard_primitive->UpdateBillboardVertices(final_vertices);
+			m_billboard_primitive->PreDraw(command_list);
+		}
+	}
+
+	void MaterialBillboardRenderItem::RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	{
+		if (bb_comp->GetBillboardType() == eBillboardType::kMaterial)
+		{
+			bb_comp->SetRenderItemIndex(static_cast<UINT>(m_billboard_components.size()));
+			m_billboard_components.push_back(std::static_pointer_cast<MaterialBillboardComponent>(bb_comp));
+
+			if (m_num_of_billboard_data == 0)
 			{
 				m_num_of_billboard_data = 1;
 				m_is_need_resource_create = true;
 			}
-			else
+			else if (m_num_of_billboard_data < static_cast<UINT>(m_billboard_components.size()))
 			{
-				m_num_of_billboard_data = size;
+				m_num_of_billboard_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data) * 1.5f));
 				m_is_need_resource_create = true;
+			}
+		}
+		else
+		{
+			LOG_WARN("Could not register {0} to material billboard render item", bb_comp->GetName());
+		}
+	}
+
+	void MaterialBillboardRenderItem::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	{
+		UINT index = bb_comp->GetRenderItemIndex();
+
+		if (bb_comp->GetBillboardType() == eBillboardType::kMaterial)
+		{
+			std::iter_swap(m_billboard_components.begin() + index, m_billboard_components.end() - 1);
+			m_billboard_components[index]->SetRenderItemIndex(index);
+			m_billboard_components.pop_back();
+
+			UINT size = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data * 0.66f)));
+			if (size >= m_billboard_components.size())
+			{
+				if (m_billboard_components.empty())
+				{
+					m_num_of_billboard_data = 1;
+					m_is_need_resource_create = true;
+				}
+				else
+				{
+					m_num_of_billboard_data = size;
+					m_is_need_resource_create = true;
+				}
 			}
 		}
 	}

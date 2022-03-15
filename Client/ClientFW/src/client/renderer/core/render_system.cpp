@@ -3,18 +3,23 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/renderlevel/deferred_render_level.h"
 #include "client/renderer/renderlevel/final_view_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
+
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
 #include "client/renderer/shader/deferred_shader.h"
 #include "client/renderer/shader/main_camera_ui_shader.h"
 #include "client/renderer/shader/ui_shader.h"
-#include "client/renderer/shader/billboard_shader.h"
+#include "client/renderer/shader/texture_billboard_shader.h"
+#include "client/renderer/shader/material_billboard_shader.h"
+
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
+
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
@@ -54,7 +59,8 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
-		ret &= RegisterGraphicsShader<BillboardShader>("billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -208,6 +214,7 @@ namespace client_fw
 		{
 			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
 			m_graphics_shaders.at(shader_name)->UnregisterBillboardComponent(billboard_comp);
+			break;
 		}
 		default:
 			break;

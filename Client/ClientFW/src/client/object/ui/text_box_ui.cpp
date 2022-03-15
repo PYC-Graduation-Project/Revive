@@ -39,11 +39,14 @@ namespace client_fw
 							{
 								Input::EndInputMethodEditor();
 								Input::OnChangeTextFromIME(nullptr);
+								if (m_committed_function != nullptr)
+									m_committed_function();
 							}
 							else
 							{
 								text.push_back(t);
-
+								if (m_changed_function != nullptr)
+									m_changed_function();
 							}
 							SetText(text);
 							});
@@ -55,6 +58,8 @@ namespace client_fw
 					{
 						Input::EndInputMethodEditor();
 						Input::OnChangeTextFromIME(nullptr);
+						if (m_committed_function != nullptr)
+							m_committed_function();
 					}
 				}
 		));

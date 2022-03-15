@@ -11,7 +11,8 @@ namespace client_fw
 	class BillboardComponent : public RenderComponent
 	{
 	protected:
-		BillboardComponent(const std::string& name, eBillboardType type);
+		BillboardComponent(const std::string& name, eBillboardType type,
+			const std::string& draw_shader_name);
 		virtual ~BillboardComponent() = default;
 
 		virtual void UpdateOrientedBox() override;

@@ -8,6 +8,7 @@ namespace client_fw
 	class ShapeComponent;
 	class BillboardComponent;
 	class MeshRenderItem;
+	class BillboardRenderItem;
 
 	class GraphicsShader : public Shader
 	{
@@ -88,6 +89,25 @@ namespace client_fw
 
 	private:
 
+	};
+
+	class BillboardShader : public GraphicsShader
+	{
+	protected:
+		BillboardShader(const std::string& name);
+		virtual ~BillboardShader() = default;
+
+	public:
+		virtual void Initialize(ID3D12Device* device) override;
+		virtual void Shutdown() override;
+
+		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const override;
+
+		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp) override;
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+
+	protected:
+		SPtr<BillboardRenderItem> m_billboard_render_item;
 	};
 }
 
