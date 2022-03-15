@@ -16,6 +16,7 @@
 #include "client/renderer/shader/ui_shader.h"
 #include "client/renderer/shader/texture_billboard_shader.h"
 #include "client/renderer/shader/material_billboard_shader.h"
+#include "client/renderer/shader/widget_shader.h"
 
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
@@ -24,6 +25,7 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/render/billboard_component.h"
+#include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
 
 namespace client_fw
@@ -61,6 +63,7 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -181,6 +184,11 @@ namespace client_fw
 			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterBillboardComponent(m_device, billboard_comp);
 		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterWidgetComponent(m_device, widget_comp);
+		}
 		default:
 			break;
 		}
@@ -214,6 +222,12 @@ namespace client_fw
 		{
 			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
 			m_graphics_shaders.at(shader_name)->UnregisterBillboardComponent(billboard_comp);
+			break;
+		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterWidgetComponent(widget_comp);
 			break;
 		}
 		default:

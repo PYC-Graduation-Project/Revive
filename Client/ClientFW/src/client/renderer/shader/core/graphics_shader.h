@@ -4,9 +4,12 @@
 namespace client_fw
 {
 	class GraphicsRenderLevel;
+
 	class MeshComponent;
 	class ShapeComponent;
 	class BillboardComponent;
+	class WidgetComponent;
+
 	class MeshRenderItem;
 	class BillboardRenderItem;
 
@@ -46,6 +49,8 @@ namespace client_fw
 		virtual void UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp);
 		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp);
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp);
+		virtual bool RegisterWidgetComponent(ID3D12Device* device, const SPtr<WidgetComponent>& widget_comp);
+		virtual void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 	};
 
 	class MeshShader : public GraphicsShader

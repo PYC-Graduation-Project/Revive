@@ -208,9 +208,9 @@ namespace client_fw
 #endif // SHOW_TREE_INFO
 				BOrientedBox box = BOrientedBox(std::move(positions));
 				mesh->SetOrientBox(box);
-				auto bounding_tree = CreateSPtr<KDTree>();
+				/*auto bounding_tree = CreateSPtr<KDTree>();
 				bounding_tree->Initialize(box, triangles);
-				mesh->SetBoundingTree(std::move(bounding_tree));
+				mesh->SetBoundingTree(std::move(bounding_tree));*/
 			}
 
 			++lod;

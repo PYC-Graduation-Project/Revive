@@ -4,12 +4,15 @@
 namespace client_fw
 {
 	class RotatingMovementComponent;
+	class WidgetComponent;
 }
 
 namespace event_test
 {
 	using namespace client_fw;
 	
+	class EnemyInfoUILayer;
+
 	class RotatingCube final : public StaticMeshActor
 	{
 	public:
@@ -25,6 +28,14 @@ namespace event_test
 
 	private:
 		SPtr<RotatingMovementComponent> m_rotating_component;
+		SPtr<WidgetComponent> m_widget_component;
+		SPtr<EnemyInfoUILayer> m_ui_layer;
+
+		std::function<void(float)> m_speed_change_function;
+		float m_rotating_y_speed = 0.0f;
+
+	public:
+		void OnSpeedChangeFunction(std::function<void(float)> function) { m_speed_change_function = function; }
 	};
 }
 

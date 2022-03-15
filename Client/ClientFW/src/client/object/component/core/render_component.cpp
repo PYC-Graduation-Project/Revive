@@ -17,7 +17,7 @@ namespace client_fw
 	{
 		bool ret = SceneComponent::InitializeComponent();
 		RegisterToVisualOctree();
-		ret = RegisterToRenderSystem();
+		ret &= RegisterToRenderSystem();
 		return ret;
 	}
 

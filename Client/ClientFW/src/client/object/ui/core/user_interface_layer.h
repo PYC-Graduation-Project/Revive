@@ -17,7 +17,7 @@ namespace client_fw
 		virtual ~UserInterfaceLayer() = default;
 	
 	public:
-		bool InitlaizeUILayer();
+		bool InitializeUILayer();
 		virtual bool Initialize() override { return true; }
 		void ShutdownUILayer();
 		virtual void Shutdown() override {}
@@ -28,6 +28,7 @@ namespace client_fw
 		bool RegisterUserInterface(const SPtr<UserInterface>& ui);
 
 	private:
+		bool m_is_initialized = false;
 		std::string m_name;
 		eUILayerState m_layer_state;
 		std::vector<SPtr<UserInterface>> m_user_interfaces;

@@ -74,4 +74,33 @@ namespace client_fw
 	{
 	}
 
+	WidgetVertex::WidgetVertex()
+		: Vertex(vec3::ZERO), m_size(Vec2(100.f, 100.f))
+		, m_texture_resource_index(0)
+		, m_coordinate(vec2::ZERO), m_tilling(Vec2(1.f, 1.f))
+	{
+	}
+
+	WidgetVertex::WidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+		const Vec4& color, const Vec2& coordinate, const Vec2& tilling)
+		: Vertex(position), m_size(size)
+		, m_texture_resource_index(index), m_color(color)
+		, m_coordinate(coordinate), m_tilling(tilling)
+	{
+	}
+
+	WorldWidgetVertex::WorldWidgetVertex()
+		: WidgetVertex()
+		, m_right(vec3::AXIS_X), m_up(vec3::AXIS_Y)
+	{
+	}
+
+	WorldWidgetVertex::WorldWidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+		const Vec4& color, const Vec2& coordinate, const Vec2& tilling, 
+		const Vec3& right, const Vec3& up)
+		: WidgetVertex(position, size, index, color, coordinate, tilling)
+		, m_right(right), m_up(up)
+	{
+	}
+
 }

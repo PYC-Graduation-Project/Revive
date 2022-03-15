@@ -111,7 +111,7 @@ namespace event_test
 				return true;
 			});
 
-		RegisterPressedEvent("kill movable actor", { EventKeyInfo{eKey::kK} },
+		RegisterPressedEvent("kill mat movable actor", { EventKeyInfo{eKey::kK} },
 			[this]()->bool {
 				if (m_mat_bb_queue.empty() == false)
 				{

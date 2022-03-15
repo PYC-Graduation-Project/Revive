@@ -113,4 +113,48 @@ namespace client_fw
 		UINT m_resource_index;
 		Vec2 m_coordinate;
 	};
+
+	class WidgetVertex : public Vertex
+	{
+	public:
+		WidgetVertex();
+		WidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+			const Vec4& color, const Vec2& coordinate, const Vec2& tilling);
+
+		const Vec2& GetSize() const { return m_size; }
+		void SetSize(const Vec2& size) { m_size = size; }
+		INT GetTextureResourceIndex() const { return m_texture_resource_index; }
+		void SetTextureResourceIndex(INT index) { m_texture_resource_index = index; }
+		const Vec4& GetColor() const { return m_color; }
+		void SetColor(const Vec4& color) { m_color = color; }
+		const Vec2& GetCoordinate() const { return m_coordinate; }
+		void SetCoordinate(const Vec2& coord) { m_coordinate = coord; }
+		const Vec2& GetTilling() const { return m_tilling; }
+		void SetTilling(const Vec2& tilling) { m_tilling = tilling; }
+
+	protected:
+		Vec2 m_size;
+		INT m_texture_resource_index;
+		Vec4 m_color;
+		Vec2 m_coordinate;
+		Vec2 m_tilling;
+	};
+
+	class WorldWidgetVertex : public WidgetVertex
+	{
+	public:
+		WorldWidgetVertex();
+		WorldWidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+			const Vec4& color, const Vec2& coordinate, const Vec2& tilling,
+			const Vec3& right, const Vec3& up);
+
+		const Vec3& GetRight() const { return m_right; }
+		void SetRight(const Vec3& right) { m_right = right; }
+		const Vec3& GetUp() const { return m_up; }
+		void SetUp(const Vec3& up) { m_up = up; }
+		
+	protected:
+		Vec3 m_right;
+		Vec3 m_up;
+	};
 }

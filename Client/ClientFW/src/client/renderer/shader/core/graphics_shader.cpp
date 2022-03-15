@@ -155,6 +155,17 @@ namespace client_fw
 		LOG_WARN("Could not supported billboard component at {0}", m_name);
 	}
 
+	bool GraphicsShader::RegisterWidgetComponent(ID3D12Device* device, const SPtr<WidgetComponent>& widget_comp)
+	{
+		LOG_WARN("Could not supported widget component at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp)
+	{
+		LOG_WARN("Could not supported widget component at {0}", m_name);
+	}
+
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{

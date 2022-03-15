@@ -50,8 +50,8 @@ namespace client_fw
 			const auto& world = owner->GetWorldMatrix();
 			m_world_matrix = m_local_matrix * world;
 			m_world_position = vec3::TransformCoord(m_local_position, world);
-			m_world_rotation *= owner->GetRotation();
-			m_world_scale *= owner->GetScale();
+			m_world_rotation = m_local_rotation * owner->GetRotation();
+			m_world_scale = m_local_scale * owner->GetScale();
 			UpdateOrientedBox();
 
 			m_is_updated_world_matrix = true;
