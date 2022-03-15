@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/renderitem/ui_render_item.h"
-#include "client/asset/primitive/ui_primitive.h"
+#include "client/asset/primitive/primitive.h"
 #include "client/object/ui/core/user_interface_manager.h"
 #include "client/object/ui/core/user_interface_layer.h"
 #include "client/object/ui/core/user_interface.h"
@@ -11,7 +11,7 @@ namespace client_fw
 {
 	UIRenderItem::UIRenderItem()
 	{
-		m_ui_primitive = CreateUPtr<UIPrimitive>();
+		m_ui_primitive = CreateUPtr<UploadPrimitive<UIVertex>>();
 	}
 
 	UIRenderItem::~UIRenderItem()
@@ -89,7 +89,7 @@ namespace client_fw
 					}
 
 					m_num_of_draw_ui_data = static_cast<UINT>(vertices.size());
-					m_ui_primitive->UpdateUIVertices(vertices);
+					m_ui_primitive->UpdateVertices(vertices);
 				}
 			}
 		}
@@ -97,7 +97,7 @@ namespace client_fw
 
 	void UIRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		if (m_num_of_draw_ui_data > 0)
-			m_ui_primitive->Draw(command_list, m_num_of_draw_ui_data);
+		m_ui_primitive->PreDraw(command_list);
+		m_ui_primitive->Draw(command_list, m_num_of_draw_ui_data);
 	}
 }

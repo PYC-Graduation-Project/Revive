@@ -41,9 +41,14 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
-			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-			m_render_item->Draw(command_list);
+		{
+			if (m_render_item->IsDrawDataEmpty() == false)
+			{
+				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				m_render_item->Draw(command_list);
+			}
 			break;
+		}
 		default:
 			break;
 		}

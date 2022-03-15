@@ -2,7 +2,7 @@
 #include "client/renderer/renderitem/billboard_render_item.h"
 #include "client/object/component/render/texture_billboard_component.h"
 #include "client/object/component/render/material_billboard_component.h"
-#include "client/asset/primitive/billboard_primitive.h"
+#include "client/asset/primitive/primitive.h"
 #include "client/asset/texture/texture.h"
 #include "client/asset/material/material.h"
 #include "client/util/octree/octree.h"
@@ -11,7 +11,7 @@ namespace client_fw
 {
 	BillboardRenderItem::BillboardRenderItem()
 	{
-		m_billboard_primitive = CreateUPtr<BillboardPrimitive>();
+		m_billboard_primitive = CreateUPtr<UploadPrimitive<BillboardVertex>>();
 	}
 
 	BillboardRenderItem::~BillboardRenderItem()
@@ -85,7 +85,7 @@ namespace client_fw
 
 		if (final_vertices.empty() == false)
 		{
-			m_billboard_primitive->UpdateBillboardVertices(final_vertices);
+			m_billboard_primitive->UpdateVertices(final_vertices);
 			m_billboard_primitive->PreDraw(command_list);
 		}
 	}
@@ -110,7 +110,7 @@ namespace client_fw
 		}
 		else
 		{
-			LOG_WARN("Could not register {0} to material billboard render item", bb_comp->GetName());
+			LOG_WARN("Could not register {0} to texture billboard render item", bb_comp->GetName());
 		}
 	}
 
@@ -183,7 +183,7 @@ namespace client_fw
 
 		if (final_vertices.empty() == false)
 		{
-			m_billboard_primitive->UpdateBillboardVertices(final_vertices);
+			m_billboard_primitive->UpdateVertices(final_vertices);
 			m_billboard_primitive->PreDraw(command_list);
 		}
 	}

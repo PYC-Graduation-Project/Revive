@@ -3,8 +3,11 @@
 namespace client_fw
 {
 	class UserInterface;
-	class UIPrimitive;
 	class CameraComponent;
+
+	template<class VertexType>
+	class UploadPrimitive;
+	class UIVertex;
 
 	class UIRenderItem final
 	{
@@ -23,8 +26,10 @@ namespace client_fw
 		UINT m_num_of_ui_layer = 0;
 		UINT m_size_of_user_interface_data = 0;
 		UINT m_num_of_draw_ui_data = 0;
-		UPtr<UIPrimitive> m_ui_primitive;
+		UPtr<UploadPrimitive<UIVertex>> m_ui_primitive;
 
+	public:
+		bool IsDrawDataEmpty() { return m_num_of_draw_ui_data == 0; }
 	};
 }
 

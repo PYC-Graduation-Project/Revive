@@ -5,7 +5,10 @@ namespace client_fw
 	class BillboardComponent;
 	class TextureBillboardComponent;
 	class MaterialBillboardComponent;
-	class BillboardPrimitive;
+
+	template<class VertexType>
+	class UploadPrimitive;
+	class BillboardVertex;
 
 	class BillboardRenderItem
 	{
@@ -30,7 +33,7 @@ namespace client_fw
 		UINT m_num_of_billboard_data = 0;
 		std::array<UINT, 2> m_num_of_draw_billboard_data;
 		std::array<UINT, 2> m_start_vertex_locations;
-		UPtr<BillboardPrimitive> m_billboard_primitive;
+		UPtr<UploadPrimitive<BillboardVertex>> m_billboard_primitive;
 
 	public:
 		bool IsDrawDataEmpty(bool is_fix_up) { return m_num_of_draw_billboard_data[static_cast<UINT>(is_fix_up)] == 0; }

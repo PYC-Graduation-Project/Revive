@@ -152,5 +152,56 @@ namespace client_fw
 	public:
 		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
 	};
+
+	template<class VertexType>
+	class UploadPrimitive
+	{
+	public:
+		UploadPrimitive()
+		{
+			m_vertex_info = CreateSPtr<UploadVertexInfo>();
+		}
+		virtual ~UploadPrimitive() = default;
+
+		virtual bool Initialize(ID3D12Device* device) { return true; }
+
+		virtual void Shutdown()
+		{ 
+			m_vertex_info->Shutdown();
+		}
+
+		virtual void Update(ID3D12Device* device, UINT num_of_data)
+		{
+			m_vertex_info->CreateResource<VertexType>(device, num_of_data);
+		}
+
+		virtual void UpdateVertices(const std::vector<VertexType>& vertices)
+		{
+			m_vertex_info->CopyData(vertices.data(), vertices.size());
+		}
+
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const
+		{
+			command_list->IASetPrimitiveTopology(m_primitive_topology);
+			m_vertex_info->Draw(command_list);
+		}
+
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const
+		{
+			command_list->DrawInstanced(num_of_vertex, 1, 0, 0);
+		}
+
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex, UINT start_vertex_location) const
+		{
+			command_list->DrawInstanced(num_of_vertex, 1, start_vertex_location, 0);
+		}
+
+	protected:
+		SPtr<UploadVertexInfo> m_vertex_info;
+		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	public:
+		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
+	};
 }
 
