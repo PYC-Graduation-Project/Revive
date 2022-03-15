@@ -8,14 +8,14 @@ class SendManager
 
 
 public:
-	SendManager() :m_s_socket(INVALID_SOCKET) {};
+	SendManager()=default ;
 	virtual ~SendManager()=default;
 
-	virtual void SendByMessageToSrver(const client_fw::SPtr<client_fw::MessageEventInfo>& message) {};
+	virtual void ProcessSend(const SOCKET& s_socket, const client_fw::SPtr<client_fw::MessageEventInfo>& message) {};
 
-	void SendPacket(int num_byte, void* packet);
+	void SendPacket(const SOCKET& s_socket, int num_byte, void* packet);
 
 private:
-	SOCKET m_s_socket;
+	//SOCKET m_s_socket;
 };
 

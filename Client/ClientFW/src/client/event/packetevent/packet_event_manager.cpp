@@ -5,7 +5,7 @@
 #include "client/object/level/core/level.h"
 #include "client/object/actor/core/actor.h"
 #include "client/core/application.h"
-
+#include"server/network.h"
 namespace client_fw
 {
 	PacketEventManager::PacketEventManager()
@@ -48,6 +48,7 @@ namespace client_fw
 			SPtr<MessageEventInfo> message;
 			if (m_server_receive_message_queue.try_pop(message))
 			{
+				Network::GetInst()->SendMessageToServer(message);
 				//SendManager::GetInst()->SendMessageToServer(message);
 				//¿Ã∫•∆Æ
 			}

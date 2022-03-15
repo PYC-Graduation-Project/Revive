@@ -1,8 +1,10 @@
+
 #include "stdafx.h"
-#
-#include "server/revive_packet_manager.h"
+
 #include"server/network_obj_manager.h"
 #include"server/network_move_object.h"
+#include "revive_packet_manager.h"
+
 using namespace std;
 void RevivePacketManager::Init()
 {
@@ -12,7 +14,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_MATCHING, [this](int c_id, unsigned char* p) {ProcessMatching(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_LOGIN_FAIL, [this](int c_id, unsigned char* p) {ProcessLoginFali(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_OBJ_INFO, [this](int c_id, unsigned char* p) {ProcessObjInfo(c_id, p); });
-	//RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
 
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
@@ -119,10 +121,10 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 	NetworkObjManager::GetInst()->AddObj(packet->id, obj);
 }
 
-//void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
-//{
-//	sc_packet_time* packet = reinterpret_cast<sc_packet_time*>(p);
-//	float d_ms = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count() - packet->send_time;
-//	LOG_INFO(packet->time);
-//	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
-//}
+void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
+{
+	sc_packet_time* packet = reinterpret_cast<sc_packet_time*>(p);
+	//float d_ms = std::chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() - packet->send_time;
+	LOG_INFO(packet->time);
+	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
+}

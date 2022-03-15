@@ -126,3 +126,8 @@ void Network::OnRecv(int client_id,EXP_OVER*exp_over,DWORD num_byte)
 	m_packet_manager->ProcessRecv(client_id, exp_over, num_byte);
 }
 
+void Network::SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventInfo>& message)
+{
+	m_send_manager->ProcessSend(m_s_socket,message);
+}
+

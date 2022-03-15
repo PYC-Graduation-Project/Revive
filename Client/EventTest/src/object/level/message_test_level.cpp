@@ -50,9 +50,11 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
-		RegisterPressedEvent("send sign up", { { eKey::k6 } },
+		RegisterPressedEvent("send sign in", { { eKey::k6 } },
 			[this]()->bool {
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MessageEventInfo>(HashCode("send sign up")));
+				std::string id{"123"};
+				std::string pw{ "123" };
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"),id.data(), pw.data()));
 				return true;
 			});
 

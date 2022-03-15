@@ -38,7 +38,10 @@ public:
 	
 	
 	};
-	~Network() {};
+	~Network() {
+		closesocket(m_s_socket);
+		WSACleanup();
+	};
 
 	bool Init(client_fw::UPtr<PacketManager>&&packet_manager, client_fw::UPtr<SendManager>&& send_manager);
 	bool Connect();
@@ -62,18 +65,18 @@ public:
 	{
 
 		worker = std::thread([this]() {Worker(); });
-
+		//worker.join();
 	}
 
 	//void SendPacket(int num_byte ,void* packet);
 
-	
+	void SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventInfo>& message);
 	SOCKET& GetSock() { return m_s_socket; }
 private:
 	void Worker();
 	void DoRecv();
 	void OnRecv(int client_id, EXP_OVER* exp_over, DWORD num_byte);
-	//void ProcessPacket(int c_id,unsigned char*p);
+
 	int GetID() const
 	{
 		return m_id;

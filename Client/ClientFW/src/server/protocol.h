@@ -12,14 +12,14 @@ const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
 const int MAX_ROOM_SIZE = 25;//방 최대 사이즈
 
 
-constexpr int  MAX_USER = MAX_ROOM_SIZE * 3; //최대 동접 가능 인원
+constexpr int  MAX_USER = MAX_ROOM_SIZE*3; //최대 동접 가능 인원
 const int  NPC_PER_USER = 15;//사람하나당 최대 npc
 const int  SORDIER_PER_USER = 9;//사람하나당 최대 해골 병사
 const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
-constexpr int  MAX_NPC = MAX_USER * NPC_PER_USER; //최대 npc 개수
+constexpr int  MAX_NPC = MAX_USER* NPC_PER_USER; //최대 npc 개수
 
 const float FramePerSecond = 0.016f;
-const float MAX_SPEED = 225 * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
+const float MAX_SPEED=225* FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;
@@ -106,7 +106,7 @@ struct cs_packet_chat {
 	char	message[MAX_CHAT_SIZE];
 };
 
-struct cs_packet_teleport {
+struct cs_packet_teleport { 
 	// 서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
 	// 더미 클라이언트에서 동접 테스트용으로 사용.
 	unsigned char size;
@@ -130,13 +130,7 @@ struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
 	char	type;
 	//short	user_num;//원하는 인원수
 };
-struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
-	unsigned char size;
-	char	type;
-	float time;
-	float send_time;
-	//short	user_num;//원하는 인원수
-};
+
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
@@ -161,7 +155,7 @@ struct sc_packet_obj_info {
 	float damage;
 	float x, y, z;
 	char object_type;
-	char name[MAX_NAME_SIZE + 2];
+	char name[MAX_NAME_SIZE+2];
 };
 
 struct sc_packet_put_object {
@@ -199,4 +193,11 @@ struct sc_packet_status_change {
 	float	hp, maxhp;
 };
 
+struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
+	unsigned char size;
+	char	type;
+	float time;
+	//float send_time;//추후에 없애야될수도 있음
+
+};
 #pragma pack(pop)

@@ -1,5 +1,5 @@
 #pragma once
-#include"server/define.h"
+//#include"server/define.h"
 #include "server/packet_manager.h"
 class RevivePacketManager :
     public PacketManager
@@ -15,6 +15,6 @@ public:
     void ProcessLoginFali(int c_id, unsigned char* p);
     void ProcessMatching(int c_id, unsigned char* p);
     void ProcessObjInfo(int c_id, unsigned char* p);
-    //void ProcessTime(int c_id, unsigned char* p);
+    void ProcessTime(int c_id, unsigned char* p);
 };
 
