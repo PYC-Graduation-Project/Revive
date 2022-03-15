@@ -41,6 +41,8 @@ public:
 	~Network() {
 		closesocket(m_s_socket);
 		WSACleanup();
+		if (worker.joinable())
+			worker.join();
 	};
 
 	bool Init(client_fw::UPtr<PacketManager>&&packet_manager, client_fw::UPtr<SendManager>&& send_manager);
@@ -59,7 +61,9 @@ public:
 	}
 	void DestroyWorker()
 	{
-		worker.join();
+		worker.detach();
+		m_iswork = false;
+		//worker.join();
 	}
 	void CreateWorker()
 	{
@@ -91,7 +95,7 @@ private:
 	
 	int m_id;
 	int m_prev_size = 0;
-	
+	bool m_iswork = true;
 
 };
 

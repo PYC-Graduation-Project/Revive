@@ -11,7 +11,7 @@ int main()
     setlocale(LC_ALL, "korean");
     wcout.imbue(locale("korean"));
     InGameServer server;
-    server.Init(1);
+    server.Init(MAX_THREAD);
     cout << "초기화완료" << endl;
     server.BindListen(SERVER_PORT);
     cout << "바인드 리슨 중" << endl;

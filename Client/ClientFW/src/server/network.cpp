@@ -1,6 +1,6 @@
 #include"stdafx.h"
 #include "network.h"
-
+#include<client/core/application.h>
 using namespace std;
 Network* Network::m_pInst = NULL;
 
@@ -9,6 +9,7 @@ bool Network::Init(client_fw::UPtr<PacketManager>&& packet_manager, client_fw::U
 	m_id = 0;
 	m_packet_manager = move(packet_manager);
 	m_send_manager = move(send_manager);
+	m_packet_manager->Init();
 	WSADATA WSAData;
 	if (WSAStartup(MAKEWORD(2, 2), &WSAData) != 0)
 		return false;
@@ -68,7 +69,7 @@ bool Network::Connect()
 void Network::Worker()
 {
 	Connect();
-		for (;;) {
+		while (m_iswork) {
 			DWORD num_byte;
 			LONG64 iocp_key;
 			WSAOVERLAPPED* p_over;

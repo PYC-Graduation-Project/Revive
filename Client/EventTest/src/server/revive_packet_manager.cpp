@@ -37,7 +37,7 @@ void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)
 {
 	sc_packet_sign_in_ok* packet = reinterpret_cast<sc_packet_sign_in_ok*>(p);
 	m_id = packet->id;
-	cout << "로그인 성공" << endl;
+	LOG_INFO("로그인 성공" );
 
 
 }
@@ -55,27 +55,27 @@ void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
 	switch (packet->reason)
 	{
 	case 1: {
-		cout << "DBError" << endl;
+		LOG_INFO( "DBError");
 		break;
 	}
 	case 2: {
-		cout << "사용자 Full" << endl;
+		LOG_INFO("사용자 Full");
 		break;
 	}
 	case 3: {
-		cout << "이미 접속중" << endl;
+		LOG_INFO("이미 접속중");
 		break;
 	}
 	case 4: {
-		cout << "비번틀림" << endl;
+		LOG_INFO("비번틀림" );
 		break;
 	}
 	case 5: {
-		cout << "아이디없음" << endl;
+		LOG_INFO("아이디없음");
 		break;
 	}
 	case 6: {
-		cout << "해당 아이디 존재" << endl;
+		LOG_INFO("해당 아이디 존재");
 		break;
 	}
 	}

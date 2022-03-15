@@ -43,8 +43,10 @@ namespace event_test
 
 		void Shutdown() override
 		{
+			Network::GetInst()->DestroyWorker();
 			Network::DestroyInst();
 			Application::Shutdown();
+			
 		}
 	};
 }

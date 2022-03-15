@@ -600,9 +600,21 @@ void PacketManager::ProcessDBTask(db_task& dt)
 	{
 	case DB_TASK_TYPE::SIGN_IN:
 	{
+		for (int i = 0; i < MAX_USER; ++i)
+		{
+			pl = m_moveobj_manager->GetPlayer(i);
+			if (strcmp(pl->GetName(), dt.user_id) == 0)
+			{
+				ret = LOGINFAIL_TYPE::AREADY_SIGHN_IN;
+				SendLoginFailPacket(dt.obj_id, (int)ret);
+				return;
+			}
+		}
 		ret = m_db->CheckLoginData(dt.user_id, dt.user_password);
 		if (ret == LOGINFAIL_TYPE::OK)
 		{
+			//이미 접속해있는지 확인
+			
 			//접속꽉찬거는 accept 쪽에서 보내기주기
 			pl->state_lock.lock();
 			if (STATE::ST_INGAME != pl->GetState())
