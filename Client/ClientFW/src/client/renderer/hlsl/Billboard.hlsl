@@ -61,11 +61,12 @@ void GSBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILL
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
         out_stream.Append(output);
@@ -83,11 +84,12 @@ void GSMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout TriangleSt
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+   [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i];
         
         out_stream.Append(output);
@@ -117,11 +119,12 @@ void GSFixUpBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
         out_stream.Append(output);
@@ -139,11 +142,12 @@ void GSFixUpMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout Trian
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i];
         
         out_stream.Append(output);

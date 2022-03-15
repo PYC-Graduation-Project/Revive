@@ -50,6 +50,7 @@ void GSWorldWidget(point VS_WORLD_WIDGET_INPUT input[1], inout TriangleStream<GS
     output.texture_index = input[0].texture_index;
     output.color = input[0].color;
 
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(float4(vertices[i], 1.0f), g_view_projection);
