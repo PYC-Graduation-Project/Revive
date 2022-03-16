@@ -29,7 +29,7 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device);
 		void Draw(ID3D12GraphicsCommandList* command_list);
 
 		void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);

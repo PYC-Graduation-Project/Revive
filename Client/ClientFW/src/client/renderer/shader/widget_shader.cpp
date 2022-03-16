@@ -124,13 +124,13 @@ namespace client_fw
 		m_widget_render_item = CreateSPtr<WidgetRenderItem>();
 	}
 
-	void OpaqueWidgetShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void OpaqueWidgetShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			m_widget_render_item->Update(device, command_list);
+			m_widget_render_item->Update(device);
 			break;
 		}
 		default:
@@ -167,13 +167,13 @@ namespace client_fw
 		m_widget_render_item = CreateSPtr<WidgetRenderItem>();
 	}
 
-	void MaskedWidgetShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void MaskedWidgetShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			m_widget_render_item->Update(device, command_list);
+			m_widget_render_item->Update(device);
 			break;
 		}
 		default:

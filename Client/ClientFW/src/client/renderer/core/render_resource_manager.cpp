@@ -49,7 +49,7 @@ namespace client_fw
 		m_material_data->Shutdown();
 	}
 
-	void RenderResourceManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		UpdateTextureResource(device, command_list);
 

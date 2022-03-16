@@ -14,7 +14,7 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
 
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;

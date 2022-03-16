@@ -62,7 +62,7 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void UpdateRenderItem(ID3D12Device* device);
 		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
@@ -82,7 +82,7 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list);
+		virtual void UpdateRenderItem(ID3D12Device* device);
 		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual D3D12_RASTERIZER_DESC CreateRasterizerState(eRenderLevelType level_type, int pso_index) const override;

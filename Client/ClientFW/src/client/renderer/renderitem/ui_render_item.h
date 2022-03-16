@@ -18,8 +18,7 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
-			const Vec2& window_size);
+		void Update(ID3D12Device* device, const Vec2& window_size);
 		void Draw(ID3D12GraphicsCommandList* command_list);
 
 	private:

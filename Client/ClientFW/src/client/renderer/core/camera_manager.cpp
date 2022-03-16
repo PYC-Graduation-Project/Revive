@@ -25,7 +25,7 @@ namespace client_fw
 		m_camera_data->Shutdown();
 	}
 
-	void CameraManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void CameraManager::Update(ID3D12Device* device)
 	{
 		//더 좋은 방법 없을까?
 		if (m_ready_main_camera != nullptr && m_ready_main_camera->GetRenderTexture() != nullptr && 
@@ -35,7 +35,6 @@ namespace client_fw
 			m_ready_main_camera = nullptr;
 		}
 
-		UpdateCameraResource();
 
 		if (m_ready_cameras[eCameraUsage::kBasic].empty() == false)
 		{
@@ -52,6 +51,8 @@ namespace client_fw
 
 			CreateCameraResource(device);
 		}
+
+		UpdateCameraResource();				
 	}
 
 	void CameraManager::UpdateMainCameraViewport(LONG width, LONG height)
@@ -151,20 +152,23 @@ namespace client_fw
 		{
 			const auto& render_texture = camera->GetRenderTexture();
 
-			camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
-			camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
-			camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
-			camera_data.camera_position = camera->GetWorldPosition();
-			camera_data.final_texture_index = render_texture->GetResourceIndex();
-			camera_data.gbuffer_texture_indices = XMUINT4(
-				render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
-				0, render_texture->GetDSVResourceIndex());
-			m_camera_data->CopyData(index, camera_data);
-
-			if (camera == m_main_camera)
+			if (render_texture->GetResource() != nullptr)
 			{
-				camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
-				m_camera_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+				camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
+				camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
+				camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
+				camera_data.camera_position = camera->GetWorldPosition();
+				camera_data.final_texture_index = render_texture->GetResourceIndex();
+				camera_data.gbuffer_texture_indices = XMUINT4(
+					render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
+					0, render_texture->GetDSVResourceIndex());
+				m_camera_data->CopyData(index, camera_data);
+
+				if (camera == m_main_camera)
+				{
+					camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
+					m_camera_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+				}
 			}
 			
 			++index;

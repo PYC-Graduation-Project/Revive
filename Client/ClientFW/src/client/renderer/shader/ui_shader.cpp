@@ -24,12 +24,12 @@ namespace client_fw
 		m_render_item->Shutdown();
 	}
 
-	void UIShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void UIShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
-			m_render_item->Update(device, command_list, Render::GetWindowSize());
+			m_render_item->Update(device, Render::GetWindowSize());
 			break;
 		default:
 			break;

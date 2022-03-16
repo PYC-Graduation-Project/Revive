@@ -19,7 +19,7 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void Update(ID3D12Device* device);
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) {}
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, bool is_fix_up);
 		//void DrawFixUp(ID3D12GraphicsCommandList* command_list);

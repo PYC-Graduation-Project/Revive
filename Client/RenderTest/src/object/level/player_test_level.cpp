@@ -65,7 +65,7 @@ namespace render_test
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 4000)
+		if (time >= 0.016f && count <= 40000)
 		{
 			for (int i = 0; i < 40; ++i)
 			{

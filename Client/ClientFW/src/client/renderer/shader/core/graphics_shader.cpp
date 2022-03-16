@@ -179,10 +179,10 @@ namespace client_fw
 	{
 	}
 
-	void MeshShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshShader::UpdateRenderItem(ID3D12Device* device)
 	{
 		for (const auto& render_item : m_render_items)
-			render_item->Update(device, command_list);
+			render_item->Update(device);
 	}
 
 	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
@@ -234,7 +234,7 @@ namespace client_fw
 	{
 	}
 
-	void ShapeShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list)
+	void ShapeShader::UpdateRenderItem(ID3D12Device* device)
 	{
 	}
 

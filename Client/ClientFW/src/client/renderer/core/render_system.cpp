@@ -84,20 +84,24 @@ namespace client_fw
 		Render::s_render_system = nullptr;
 	}
 
-	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderSystem::Update(ID3D12Device* device)
 	{
-		m_camera_manager->Update(device, command_list);
-		m_render_asset_manager->Update(device, command_list);
+		m_camera_manager->Update(device);
 
-		m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device, command_list);
-		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device, command_list);
+		m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device, command_list);
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
 
-		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device, command_list);
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
+	}
+
+	void RenderSystem::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const
+	{
+		m_render_asset_manager->PreDraw(device, command_list);
 	}
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const

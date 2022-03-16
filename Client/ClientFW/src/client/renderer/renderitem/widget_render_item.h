@@ -19,15 +19,15 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device);
 		void Draw(ID3D12GraphicsCommandList* command_list, eWidgetSpaceType type);
 
 		void RegisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 		void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 
 	private:
-		void UpdateWorldWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void UpdateWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void UpdateWorldWidgets(ID3D12Device* device);
+		void UpdateWidgets(ID3D12Device* device);
 
 	private:
 		bool m_is_need_world_widget_resource_create = false;

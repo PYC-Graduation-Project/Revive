@@ -27,7 +27,7 @@ namespace client_fw
 		CameraManager& operator=(const CameraManager&) = delete;
 
 		void Shutdown();
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device);
 		void UpdateMainCameraViewport(LONG width, LONG height);
 
 		void Draw(ID3D12GraphicsCommandList* command_list, 

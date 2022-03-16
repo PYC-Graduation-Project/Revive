@@ -10,9 +10,9 @@ namespace client_fw
 	{
 	}
 
-	void OpaqueMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void OpaqueMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItem(device, command_list);
+		UpdateRenderItem(device);
 	}
 
 	void OpaqueMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const

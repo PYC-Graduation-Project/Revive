@@ -100,7 +100,7 @@ namespace client_fw
 	bool Renderer::Render()
 	{
 		m_text_render_system->Update(m_device.Get());
-		m_text_render_system->Draw();
+		m_render_system->Update(m_device.Get());
 
 		if (FAILED(m_command_allocator->Reset()))
 		{
@@ -114,7 +114,8 @@ namespace client_fw
 			return false;
 		}
 		
-		m_render_system->Update(m_device.Get(), m_command_list.Get());
+		m_render_system->PreDraw(m_device.Get(), m_command_list.Get());
+		m_text_render_system->Draw();
 		m_render_system->Draw(m_command_list.Get());
 
 		m_command_list->RSSetViewports(1, &m_viewport);

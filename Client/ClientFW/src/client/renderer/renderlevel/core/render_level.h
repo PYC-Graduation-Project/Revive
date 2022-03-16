@@ -17,7 +17,7 @@ namespace client_fw
 
 		virtual bool Initialize(ID3D12Device* device) { return true; }
 		virtual void Shutdown() {}
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
+		virtual void Update(ID3D12Device* device) = 0;
 		
 	protected:
 		//virtual void UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
@@ -39,7 +39,7 @@ namespace client_fw
 		virtual ~GraphicsRenderLevel() = default;
 
 		virtual void Shutdown();
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void Update(ID3D12Device* device);
 		virtual void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		bool RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader);

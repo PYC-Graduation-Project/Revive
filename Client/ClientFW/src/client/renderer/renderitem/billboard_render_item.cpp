@@ -28,7 +28,7 @@ namespace client_fw
 		m_billboard_primitive->Shutdown();
 	}
 
-	void BillboardRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void BillboardRenderItem::Update(ID3D12Device* device)
 	{
 		if (m_is_need_resource_create)
 		{

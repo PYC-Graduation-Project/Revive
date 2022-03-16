@@ -28,8 +28,7 @@ namespace client_fw
 		m_ui_primitive->Shutdown();
 	}
 
-	void UIRenderItem::Update(ID3D12Device* device, 
-		ID3D12GraphicsCommandList* command_list, const Vec2& window_size)
+	void UIRenderItem::Update(ID3D12Device* device, const Vec2& window_size)
 	{
 		const auto& ui_manager = UserInterfaceManager::GetUIManager();
 		const auto& ui_layers = ui_manager.GetUILayers();

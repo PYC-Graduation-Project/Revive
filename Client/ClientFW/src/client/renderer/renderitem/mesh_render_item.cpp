@@ -29,7 +29,7 @@ namespace client_fw
 		m_instance_data->Shutdown();
 	}
 
-	void MeshRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Update(ID3D12Device* device)
 	{
 		if (m_mesh_comp_data.empty() == false)
 		{

@@ -31,13 +31,13 @@ namespace client_fw
 		m_widget_primitive->Shutdown();
 	}
 
-	void WidgetRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void WidgetRenderItem::Update(ID3D12Device* device)
 	{
-		UpdateWorldWidgets(device, command_list);
-		UpdateWidgets(device, command_list);		
+		UpdateWorldWidgets(device);
+		UpdateWidgets(device);		
 	}
 
-	void WidgetRenderItem::UpdateWorldWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void WidgetRenderItem::UpdateWorldWidgets(ID3D12Device* device)
 	{
 		if (m_is_need_world_widget_resource_create)
 		{
@@ -103,7 +103,7 @@ namespace client_fw
 		}
 	}
 
-	void WidgetRenderItem::UpdateWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void WidgetRenderItem::UpdateWidgets(ID3D12Device* device)
 	{
 		if (m_is_need_widget_resource_create)
 		{
