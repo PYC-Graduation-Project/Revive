@@ -22,7 +22,6 @@ namespace client_fw
 		virtual void Update(ID3D12Device* device);
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) {}
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, bool is_fix_up);
-		//void DrawFixUp(ID3D12GraphicsCommandList* command_list);
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
@@ -37,6 +36,7 @@ namespace client_fw
 
 	public:
 		bool IsDrawDataEmpty(bool is_fix_up) { return m_num_of_draw_billboard_data[static_cast<UINT>(is_fix_up)] == 0; }
+		bool IsDrawDataEmpty();
 	};
 	
 	class TextureBillboardRenderItem final : public BillboardRenderItem
@@ -45,6 +45,7 @@ namespace client_fw
 		TextureBillboardRenderItem();
 		virtual ~TextureBillboardRenderItem();
 
+		virtual void Update(ID3D12Device* device) override;
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
@@ -60,6 +61,7 @@ namespace client_fw
 		MaterialBillboardRenderItem();
 		virtual ~MaterialBillboardRenderItem();
 
+		virtual void Update(ID3D12Device* device) override;
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;

@@ -38,16 +38,56 @@ namespace client_fw
 			}
 			UpdateResources();
 		}
+
+		UINT start_index = 0;
+		for (const auto& mesh_data : m_mesh_data)
+		{
+			mesh_data->lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
+			mesh_data->lod_instance_data[0] = mesh_data->mesh->GetLODMeshCount(0);
+			mesh_data->index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
+			mesh_data->index_of_lod_instance_data[0] = mesh_data->mesh->GetLODMeshCount(0);
+			for (size_t lod = 1; lod < mesh_data->mesh->GetLODCount(); ++lod)
+			{
+				mesh_data->lod_instance_data[lod] = mesh_data->mesh->GetLODMeshCount(static_cast<UINT>(lod));
+				mesh_data->index_of_lod_instance_data[lod] =
+					mesh_data->index_of_lod_instance_data[lod - 1] + mesh_data->mesh->GetLODMeshCount(static_cast<UINT>(lod));
+			}
+
+			UINT index = 0;
+
+			for (auto& mesh_comp_data : mesh_data->mesh_comp_data)
+			{
+				const auto& mesh_comp = mesh_comp_data.mesh_comp;
+
+				if (mesh_comp->IsVisible())
+				{
+					UINT lod = mesh_comp->GetLevelOfDetail();
+
+					m_instance_data->CopyData(start_index + --mesh_data->index_of_lod_instance_data.at(lod),
+						RSInstanceData{ mesh_comp_data.world_transpose, mesh_comp_data.world_inverse });
+
+					mesh_comp->SetVisiblity(false);
+
+					++index;
+				}
+			}
+
+			if (index == 0)
+				mesh_data->draw_start_index = -1;
+			else
+				mesh_data->draw_start_index = start_index;
+
+			start_index += index;
+
+			mesh_data->mesh->ResetLOD();
+		}
 	}
 
 	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		UINT start_index = 0;
 		for (const auto& mesh_data : m_mesh_data)
 		{
 			const auto& mesh = mesh_data->mesh;
-
-			UpdateResourcesBeforeDraw(mesh_data, start_index);
 
 			if (mesh_data->draw_start_index >= 0)
 			{
@@ -55,16 +95,15 @@ namespace client_fw
 
 				for (UINT lod = 0; lod < mesh->GetLODCount(); ++lod)
 				{
-					if (mesh->GetLODMeshCount(lod) > 0)
+					if (mesh_data->lod_instance_data[lod] > 0)
 					{
 						command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress() +
 							(mesh_data->draw_start_index + mesh_data->index_of_lod_instance_data[lod]) * m_instance_data->GetByteSize());
 
-						mesh->Draw(command_list, lod);
+						mesh->Draw(command_list, mesh_data->lod_instance_data[lod], lod);
 					}
 				}
 			}
-			mesh_data->mesh->PostDraw(command_list);
 		}
 	}
 
@@ -95,39 +134,7 @@ namespace client_fw
 
 	void MeshRenderItem::UpdateResourcesBeforeDraw(const SPtr<MeshData>& mesh_data, UINT& start_index)
 	{
-		mesh_data->index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
-		mesh_data->index_of_lod_instance_data[0] = mesh_data->mesh->GetLODMeshCount(0);
-		for (size_t lod = 1; lod < mesh_data->mesh->GetLODCount(); ++lod)
-		{
-			mesh_data->index_of_lod_instance_data[lod] =
-				mesh_data->index_of_lod_instance_data[lod - 1] + mesh_data->mesh->GetLODMeshCount(static_cast<UINT>(lod));
-		}
-
-		UINT index = 0;
-
-		for (auto& mesh_comp_data : mesh_data->mesh_comp_data)
-		{
-			const auto& mesh_comp = mesh_comp_data.mesh_comp;
-
-			if (mesh_comp->IsVisible())
-			{
-				UINT lod = mesh_comp->GetLevelOfDetail();
-
-				m_instance_data->CopyData(start_index + --mesh_data->index_of_lod_instance_data.at(lod),
-					RSInstanceData{ mesh_comp_data.world_transpose, mesh_comp_data.world_inverse });
-
-				mesh_comp->SetVisiblity(false);
-
-				++index;
-			}
-		}
-
-		if (index == 0)
-			mesh_data->draw_start_index = -1;
-		else
-			mesh_data->draw_start_index = start_index;
-
-		start_index += index;
+		
 	}
 
 	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)

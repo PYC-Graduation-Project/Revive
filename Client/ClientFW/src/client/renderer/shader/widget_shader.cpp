@@ -190,17 +190,23 @@ namespace client_fw
 			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kWorld) == false)
 			{
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				m_widget_render_item->PreDraw(command_list, true);
 				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kWorld);
 			}
-			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kBillboard) == false)
+
+			if (m_widget_render_item->IsDrawDataEmpty() == false)
 			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
-				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kBillboard);
-			}
-			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kFixUpBillboard) == false)
-			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[2].Get());
-				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kFixUpBillboard);
+				m_widget_render_item->PreDraw(command_list, false);
+				if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kBillboard) == false)
+				{
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+					m_widget_render_item->Draw(command_list, eWidgetSpaceType::kBillboard);
+				}
+				if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kFixUpBillboard) == false)
+				{
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[2].Get());
+					m_widget_render_item->Draw(command_list, eWidgetSpaceType::kFixUpBillboard);
+				}
 			}
 			break;
 		}

@@ -29,16 +29,19 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			m_billboard_render_item->PreDraw(command_list);
-			if (m_billboard_render_item->IsDrawDataEmpty(false) == false)
+			if (m_billboard_render_item->IsDrawDataEmpty() ==false)
 			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-				m_billboard_render_item->Draw(command_list, false);
-			}
-			if (m_billboard_render_item->IsDrawDataEmpty(true) == false)
-			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
-				m_billboard_render_item->Draw(command_list, true);
+				m_billboard_render_item->PreDraw(command_list);
+				if (m_billboard_render_item->IsDrawDataEmpty(false) == false)
+				{
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+					m_billboard_render_item->Draw(command_list, false);
+				}
+				if (m_billboard_render_item->IsDrawDataEmpty(true) == false)
+				{
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+					m_billboard_render_item->Draw(command_list, true);
+				}
 			}
 			break;
 		default:

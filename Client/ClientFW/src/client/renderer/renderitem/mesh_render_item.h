@@ -25,6 +25,7 @@ namespace client_fw
 		SPtr<Mesh> mesh;
 		INT draw_start_index;
 		std::vector<UINT> index_of_lod_instance_data;
+		std::vector<UINT> lod_instance_data;
 		std::vector<MeshComponentData> mesh_comp_data;
 	};
 

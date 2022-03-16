@@ -182,33 +182,37 @@ namespace client_fw
 		}
 	}
 
+	void WidgetRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list, bool is_world)
+	{
+		if(is_world)
+			m_world_widget_primitive->PreDraw(command_list);
+		else	
+			m_widget_primitive->PreDraw(command_list);
+	}
+
+
 	void WidgetRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eWidgetSpaceType type)
 	{
 		switch (type)
 		{
 		case client_fw::eWidgetSpaceType::kWorld:
-			m_world_widget_primitive->PreDraw(command_list);
 			m_world_widget_primitive->Draw(command_list, m_num_of_draw_world_widget_ui_data);
 			break;
 		case client_fw::eWidgetSpaceType::kBillboard:
-			m_widget_primitive->PreDraw(command_list);
 			m_widget_primitive->Draw(command_list,
 				m_num_of_draw_widget_ui_data[0], m_widget_start_vertex_locations[0]);
 			break;
 		case client_fw::eWidgetSpaceType::kFixUpBillboard:
-			m_widget_primitive->PreDraw(command_list);
 			m_widget_primitive->Draw(command_list,
 				m_num_of_draw_widget_ui_data[1], m_widget_start_vertex_locations[1]);
 			break;
 		case client_fw::eWidgetSpaceType::kScreen:
-			m_widget_primitive->PreDraw(command_list);
 			m_widget_primitive->Draw(command_list,
 				m_num_of_draw_widget_ui_data[2], m_widget_start_vertex_locations[2]);
 			break;
 		default:
 			break;
 		}
-		
 	}
 
 	void WidgetRenderItem::RegisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp)
@@ -313,6 +317,11 @@ namespace client_fw
 		case client_fw::eWidgetSpaceType::kScreen:
 			return m_num_of_draw_widget_ui_data[2] == 0;
 		}
+	}
+
+	bool WidgetRenderItem::IsDrawDataEmpty()
+	{
+		return std::all_of(m_num_of_draw_widget_ui_data.cbegin(), m_num_of_draw_widget_ui_data.cend(), [](UINT i) { return i == 0; });
 	}
 
 }

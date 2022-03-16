@@ -7,7 +7,7 @@
 namespace client_fw
 {
 	CameraComponent::CameraComponent(const std::string& name, eCameraUsage usage)
-		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
+		: SceneComponent(name), m_camera_state(eCameraState::kActive)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
 	{
 	}
@@ -42,6 +42,13 @@ namespace client_fw
 		m_view_matrix = mat4::LookAt(eye, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
+
+		if (m_is_updated_viewport)
+		{
+			SetAspectRatio(static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height));
+			UpdateProjectionMatrix();
+			m_is_updated_viewport = false;
+		}
 	}
 
 	void CameraComponent::UpdateViewport(LONG left, LONG top, LONG width, LONG height)
@@ -50,8 +57,7 @@ namespace client_fw
 		m_viewport.width = width;
 		m_viewport.top = top;
 		m_viewport.height = height;
-		SetAspectRatio(static_cast<float>(width) / static_cast<float>(height));
-		UpdateProjectionMatrix();
+		m_is_updated_viewport = true;
 		UpdateWorldMatrix();
 	}
 

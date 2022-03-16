@@ -43,6 +43,11 @@ namespace client_fw
 			m_num_of_draw_billboard_data[static_cast<UINT>(is_fix_up)], m_start_vertex_locations[static_cast<UINT>(is_fix_up)]);
 	}
 
+	bool BillboardRenderItem::IsDrawDataEmpty()
+	{
+		return std::all_of(m_num_of_draw_billboard_data.cbegin(), m_num_of_draw_billboard_data.cend(), [](UINT i) { return i == 0; });
+	}
+
 	TextureBillboardRenderItem::TextureBillboardRenderItem()
 		: BillboardRenderItem()
 	{
@@ -52,8 +57,10 @@ namespace client_fw
 	{
 	}
 
-	void TextureBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	void TextureBillboardRenderItem::Update(ID3D12Device* device)
 	{
+		BillboardRenderItem::Update(device);
+
 		std::vector<BillboardVertex> vertices;
 		std::vector<BillboardVertex> fix_up_vertices;
 
@@ -84,10 +91,12 @@ namespace client_fw
 		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(final_vertices));
 
 		if (final_vertices.empty() == false)
-		{
 			m_billboard_primitive->UpdateVertices(final_vertices);
-			m_billboard_primitive->PreDraw(command_list);
-		}
+	}
+
+	void TextureBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		m_billboard_primitive->PreDraw(command_list);
 	}
 
 	void TextureBillboardRenderItem::RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
@@ -150,8 +159,10 @@ namespace client_fw
 	{
 	}
 
-	void MaterialBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	void MaterialBillboardRenderItem::Update(ID3D12Device* device)
 	{
+		BillboardRenderItem::Update(device);
+
 		std::vector<BillboardVertex> vertices;
 		std::vector<BillboardVertex> fix_up_vertices;
 
@@ -182,10 +193,12 @@ namespace client_fw
 		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(final_vertices));
 
 		if (final_vertices.empty() == false)
-		{
 			m_billboard_primitive->UpdateVertices(final_vertices);
-			m_billboard_primitive->PreDraw(command_list);
-		}
+	}
+
+	void MaterialBillboardRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		m_billboard_primitive->PreDraw(command_list);
 	}
 
 	void MaterialBillboardRenderItem::RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)

@@ -27,7 +27,7 @@ namespace client_fw
 		CameraManager& operator=(const CameraManager&) = delete;
 
 		void Shutdown();
-		void Update(ID3D12Device* device);
+		void Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
 		void UpdateMainCameraViewport(LONG width, LONG height);
 
 		void Draw(ID3D12GraphicsCommandList* command_list, 
@@ -41,8 +41,7 @@ namespace client_fw
 
 	private:
 		void CreateCameraResource(ID3D12Device* device);
-		void UpdateCameraResource();
-		void UpdateCameraResourceBeforeDraw();
+		void UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
 
 	private:
 		static CameraManager* s_camera_manager;

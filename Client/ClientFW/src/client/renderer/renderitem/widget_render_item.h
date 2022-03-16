@@ -20,6 +20,7 @@ namespace client_fw
 		void Shutdown();
 
 		void Update(ID3D12Device* device);
+		void PreDraw(ID3D12GraphicsCommandList* command_list, bool is_world);
 		void Draw(ID3D12GraphicsCommandList* command_list, eWidgetSpaceType type);
 
 		void RegisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
@@ -49,6 +50,7 @@ namespace client_fw
 
 	public:
 		bool IsDrawDataEmpty(eWidgetSpaceType type);
+		bool IsDrawDataEmpty();
 	};
 }
 
