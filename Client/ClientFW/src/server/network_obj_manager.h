@@ -8,25 +8,7 @@ class NetworkObj;
 enum class NW_OBJ_TYPE;
 class NetworkObjManager
 {
-private:
-	static NetworkObjManager* m_pInst;
 
-public:
-	static NetworkObjManager* GetInst()
-	{
-		if (!m_pInst)
-			m_pInst = new NetworkObjManager;
-		return m_pInst;
-	}
-
-	static void DestroyInst()
-	{
-		if (m_pInst)
-		{
-			delete m_pInst;
-			m_pInst = NULL;
-		}
-	}
 public:
 	NetworkObjManager() {};
 	~NetworkObjManager() {};

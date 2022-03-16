@@ -1,6 +1,14 @@
 #pragma once
 #include "server/network_object.h"
 #include"client/math/quaternion.h"
+enum class NW_OBJ_TYPE
+{
+    OT_NONE,
+    OT_BASE,
+    OT_PLAYER,
+    OT_NPC_SKULL,
+    OT_NPC_SKULLKING
+};
 class NetworkMoveObj :
     public NetworkObj
 {
@@ -20,13 +28,18 @@ public:
     }
     ~NetworkMoveObj();
 
-    const client_fw::Quaternion& GetRotation() const { return m_rotation; }
-    void SetRotation(const client_fw::Quaternion& rot) { m_rotation = rot; }
-
+    void SetType(const NW_OBJ_TYPE val) { m_type = val; }
+    void SetHP(float val) { m_hp = val; }
+    void SetMaxHP(float val) { m_max_hp = val; }
+    const float GetHp()const { return m_hp; }
+    const float GetMaxHp()const { return m_max_hp; }
+    const NW_OBJ_TYPE GetType()const { return m_type; }
     const float GetDamage()const { return m_damage; }
     void SetDamage(float val) { m_damage = val; }
 private:
+    float m_hp, m_max_hp;
+    NW_OBJ_TYPE m_type;
     float m_damage;
-    client_fw::Quaternion m_rotation;
+    //client_fw::Quaternion m_rotation;
 };
 

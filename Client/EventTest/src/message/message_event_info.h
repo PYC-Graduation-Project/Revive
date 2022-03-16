@@ -28,6 +28,21 @@ namespace event_test
         char* GetUserID() { return m_user_id; }
         char* GetUserPassword() { return m_user_pw; }
     };
+    class TestMessageEventInfo final :public MessageEventInfo
+    {
+    public:
+        TestMessageEventInfo(UINT event_id,int obj_id,float x,float y,float z)
+            :MessageEventInfo(event_id),m_obj_id(obj_id)
+        {
+            m_position = Vec3(x, y, z);
+        };
+    private:
+        int m_obj_id;
+        Vec3 m_position;
+    public:
+        const Vec3& GetPosition() const{ return m_position; }
+        const int GetObjId()const { return m_obj_id; }
+    };
 }
 
 

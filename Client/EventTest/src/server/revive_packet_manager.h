@@ -16,5 +16,8 @@ public:
     void ProcessMatching(int c_id, unsigned char* p);
     void ProcessObjInfo(int c_id, unsigned char* p);
     void ProcessTime(int c_id, unsigned char* p);
+    void ProcessTest(int c_id, unsigned char* p);
+private:
+
 };
 

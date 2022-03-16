@@ -109,6 +109,16 @@ namespace event_test
 			}
 			break;
 		}
+		case HashCode("testspawn"):
+		{
+			auto cube = CreateSPtr<RotatingCube>();
+			SpawnActor(cube);
+			auto msg = std::static_pointer_cast<event_test::TestMessageEventInfo>(message);
+			cube->SetPosition(msg->GetPosition());
+			PacketHelper::ConnectActorToServer(cube, msg->GetObjId());
+			spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
+			break;
+		}
 		default:
 			break;
 		}

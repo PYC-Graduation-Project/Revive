@@ -54,10 +54,10 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		ProcessMatching(c_id, p);
 		break;
 	}
-	case CS_PACKET_ROTATION: {
-		ProcessRotation(c_id, p);
-		break;
-	}
+	//case CS_PACKET_ROTATION: {
+	//	ProcessRotation(c_id, p);
+	//	break;
+	//}
 	}
 }
 
@@ -323,6 +323,18 @@ void PacketManager::SendTime(int c_id, float round_time)
 	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendTestPacket(int c_id, int obj_id, float x, float y, float z)
+{
+	sc_packet_test packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_TEST;
+	packet.obj_id = obj_id;
+	packet.x = x;
+	packet.y = y;
+	packet.z = z;
+	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 
 
 
@@ -512,12 +524,6 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
 }
 
-void PacketManager::ProcessRotation(int c_id, unsigned char* p)
-{
-	cs_packet_rotation* packet = reinterpret_cast<cs_packet_rotation*>(p);
-	//사용안할확률이 높지만 일단 둔다
-
-}
 
 void PacketManager::StartGame(int room_id)
 {
@@ -633,6 +639,11 @@ void PacketManager::ProcessDBTask(db_task& dt)
 		{
 			//로그인 실패 패킷보내기
 			SendLoginFailPacket(dt.obj_id, static_cast<int>(ret));
+		}
+		//test용 코드 이후에 꼭 지우자
+		for (int i = 0; i < 10; ++i)
+		{
+			SendTestPacket(pl->GetID(), i * 20, i * 100.0f, 0, i * 100.0f);
 		}
 		break;
 	}
