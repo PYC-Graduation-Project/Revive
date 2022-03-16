@@ -69,8 +69,7 @@ namespace client_fw
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
 
 	private:
-		std::vector<SPtr<MeshRenderItem>> m_render_items;
-		std::unordered_map<std::string, SPtr<MeshRenderItem>> m_render_items_map;
+		SPtr<MeshRenderItem> m_render_item;
 	};
 
 	class ShapeShader : public GraphicsShader

@@ -88,15 +88,13 @@ namespace client_fw
 	{
 		m_camera_manager->Update(device);
 
-		m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
-		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
-
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
+			m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+			m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
+			m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 		}
-
-		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 	}
 
 	void RenderSystem::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const

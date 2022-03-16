@@ -20,10 +20,18 @@ namespace client_fw
 		Mat4 world_inverse;
 	};
 
+	struct MeshData
+	{
+		SPtr<Mesh> mesh;
+		INT draw_start_index;
+		std::vector<UINT> index_of_lod_instance_data;
+		std::vector<MeshComponentData> mesh_comp_data;
+	};
+
 	class MeshRenderItem final
 	{
 	public:
-		MeshRenderItem(const SPtr<Mesh>& mesh);
+		MeshRenderItem();
 		~MeshRenderItem();
 
 		void Initialize(ID3D12Device* device);
@@ -38,20 +46,16 @@ namespace client_fw
 	private:
 		void CreateResources(ID3D12Device* device);
 		void UpdateResources();
-		void UpdateResourcesBeforeDraw();
+		void UpdateResourcesBeforeDraw(const SPtr<MeshData>& mesh_data, UINT& start_index);
 
 	private:
 		bool m_is_need_resource_create = false;
-		SPtr<Mesh> m_mesh;
-		std::vector<UINT> m_index_of_lod_instance_data;
 
-		std::vector<MeshComponentData> m_mesh_comp_data;
-		std::unordered_set<UINT> m_changed_resource_index;
+		std::vector<SPtr<MeshData>> m_mesh_data;
+		std::map<std::string, SPtr<MeshData>> m_mesh_data_map;
 
 		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
 		UINT m_num_of_instance_data = 0;
-
-	public:
-		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
+		UINT m_real_num_of_instance_data = 0;
 	};
 }

@@ -169,56 +169,38 @@ namespace client_fw
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{
+		m_render_item = CreateSPtr<MeshRenderItem>();
 	}
 
 	void MeshShader::Initialize(ID3D12Device* device)
 	{
+		m_render_item->Initialize(device);
 	}
 
 	void MeshShader::Shutdown()
 	{
+		m_render_item->Shutdown();
 	}
 
 	void MeshShader::UpdateRenderItem(ID3D12Device* device)
 	{
-		for (const auto& render_item : m_render_items)
-			render_item->Update(device);
+		m_render_item->Update(device);
 	}
 
 	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
 	{
-		for (const auto& render_item : m_render_items)
-			render_item->Draw(command_list);
+		m_render_item->Draw(command_list);
 	}
 
 	bool MeshShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
 	{
-		std::string path = mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->RegisterMeshComponent(mesh_comp);
-		}
-		else
-		{
-			SPtr<MeshRenderItem> render_item = CreateSPtr<MeshRenderItem>(mesh_comp->GetMesh());
-			render_item->Initialize(device);
-			render_item->RegisterMeshComponent(mesh_comp);
-			m_render_items_map.insert({ path, render_item });
-			m_render_items.push_back(render_item);
-		}
-
+		m_render_item->RegisterMeshComponent(mesh_comp);
 		return true;
 	}
 
 	void MeshShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		std::string path = mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->UnregisterMeshComponent(mesh_comp);
-		}
+		m_render_item->UnregisterMeshComponent(mesh_comp);
 	}
 
 	ShapeShader::ShapeShader(const std::string& name)

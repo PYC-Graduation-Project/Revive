@@ -26,7 +26,7 @@ namespace event_test
 		SpawnActor(player);
 		SpawnActor(controller);
 
-		/*auto cube = CreateSPtr<RotatingCube>();
+		auto cube = CreateSPtr<RotatingCube>();
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 
@@ -36,7 +36,7 @@ namespace event_test
 
 		cube = CreateSPtr<RotatingCube>();
 		SpawnActor(cube);
-		cube->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });*/
+		cube->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
 
 		RegisterAxisEvent("rotating speed up", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
 			[this](float axis)->bool {
