@@ -157,4 +157,19 @@ namespace client_fw
 		Vec3 m_right;
 		Vec3 m_up;
 	};
+
+	class PivotWidgetVertex : public WidgetVertex
+	{
+	public:
+		PivotWidgetVertex();
+		PivotWidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+			const Vec4& color, const Vec2& coordinate, const Vec2& tilling,
+			const Vec2& pivot);
+
+		const Vec2& GetPivot() const { return m_pivot; }
+		void SetPivot(const Vec2& pivot) { m_pivot = pivot; }
+
+	protected:
+		Vec2 m_pivot;
+	};
 }

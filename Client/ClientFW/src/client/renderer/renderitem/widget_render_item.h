@@ -6,7 +6,7 @@ namespace client_fw
 
 	template<class VerterType>
 	class UploadPrimitive;
-	class WidgetVertex;
+	class PivotWidgetVertex;
 	class WorldWidgetVertex;
 	enum class eWidgetSpaceType;
 
@@ -26,6 +26,10 @@ namespace client_fw
 		void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 
 	private:
+		void UpdateWorldWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void UpdateWidgets(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+
+	private:
 		bool m_is_need_world_widget_resource_create = false;
 		bool m_is_need_widget_resource_create = false;
 		UINT m_num_of_world_widget_ui_data = 0;
@@ -35,15 +39,16 @@ namespace client_fw
 
 		UINT m_num_of_draw_world_widget_ui_data = 0;
 		std::array<UINT, 3> m_num_of_draw_widget_ui_data = { 0, 0, 0 };
+		std::array<UINT, 3> m_widget_start_vertex_locations = { 0, 0, 0 };
 
 		UPtr<UploadPrimitive<WorldWidgetVertex>> m_world_widget_primitive;
-		UPtr<UploadPrimitive<WidgetVertex>> m_widget_primitive;
+		UPtr<UploadPrimitive<PivotWidgetVertex>> m_widget_primitive;
 
 		std::vector<SPtr<WidgetComponent>> m_world_widget_components;
 		std::vector<SPtr<WidgetComponent>> m_widget_components;
 
 	public:
-		bool IsDrawWorldDataEmpty() { return m_num_of_draw_world_widget_ui_data == 0; }
+		bool IsDrawDataEmpty(eWidgetSpaceType type);
 	};
 }
 

@@ -30,6 +30,19 @@ namespace client_fw
 		SPtr<WidgetRenderItem> m_widget_render_item;
 	};
 
+	class OpaqueWidgetShader : public WidgetShader
+	{
+	public:
+		OpaqueWidgetShader(const std::string& name);
+		virtual ~OpaqueWidgetShader() = default;
+
+	public:
+		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
 	class MaskedWidgetShader : public WidgetShader
 	{
 	public:

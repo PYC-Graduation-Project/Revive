@@ -13,7 +13,7 @@ namespace client_fw
 		switch (blend_mode)
 		{
 		case client_fw::eWidgetBlendMode::kOpaque:
-			SetDrawShaderName(Render::ConvertShaderType(eShaderType::kMaskedWidget));
+			SetDrawShaderName(Render::ConvertShaderType(eShaderType::kOpaqueWidget));
 			break;
 		case client_fw::eWidgetBlendMode::kMasked:
 			SetDrawShaderName(Render::ConvertShaderType(eShaderType::kMaskedWidget));

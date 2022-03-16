@@ -19,7 +19,7 @@ namespace client_fw
 	{
 	public:
 		WidgetComponent(const SPtr<UserInterfaceLayer>& ui_layer, const std::string& name = "widget component",
-			eWidgetSpaceType type = eWidgetSpaceType::kWorld,
+			eWidgetSpaceType type = eWidgetSpaceType::kBillboard,
 			eWidgetBlendMode blend_mode = eWidgetBlendMode::kMasked);
 		virtual ~WidgetComponent() = default;
 

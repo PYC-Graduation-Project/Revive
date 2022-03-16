@@ -66,6 +66,8 @@ namespace client_fw
 			return "texture billboard";
 		case eShaderType::kOpaqueMaterialBillboard:
 			return "opaque material billboard";
+		case eShaderType::kOpaqueWidget:
+			return "opaque widget";
 		case eShaderType::kMaskedWidget:
 			return "masked widget";
 		default:

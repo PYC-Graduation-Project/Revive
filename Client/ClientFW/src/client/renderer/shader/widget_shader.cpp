@@ -24,28 +24,64 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE WidgetShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "VSWorldWidget", "vs_5_1", shader_blob);
+		if (pso_index == 0)
+		{
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "VSWorldWidget", "vs_5_1", shader_blob);
+		}
+		else
+		{
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "VSPivotWidget", "vs_5_1", shader_blob);
+		}
+
 	}
 
 	D3D12_SHADER_BYTECODE WidgetShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "GSWorldWidget", "gs_5_1", shader_blob);
+		switch (pso_index)
+		{
+		case 1:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "GSBillboardWidget", "gs_5_1", shader_blob);
+		case 2:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "GSFixUpBillboardWidget", "gs_5_1", shader_blob);
+		case 0:
+		default:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "GSWorldWidget", "gs_5_1", shader_blob);
+		}
+	
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> WidgetShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(8);
+		if (pso_index == 0)
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(8);
 
-		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_SINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[3] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[4] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[5] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[6] = { "RIGHT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[7] = { "UP", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 68, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_SINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[3] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[4] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[5] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[6] = { "RIGHT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[7] = { "UP", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 68, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		return input_element_descs;
+			return input_element_descs;
+		}
+		else
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(7);
+
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "TEXINDEX", 0, DXGI_FORMAT_R32_SINT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[3] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[4] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[5] = { "TILLING", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[6] = { "PIVOT", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+			return input_element_descs;
+		}
+	
 	}
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE WidgetShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
@@ -60,7 +96,7 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kOpaque:
-			result &= CreatePipelineState(device, render_level, 1);
+			result &= CreatePipelineState(device, render_level, 3);
 			break;
 		default:
 			LOG_ERROR("Could not support {0} from {1}",
@@ -80,6 +116,49 @@ namespace client_fw
 	void WidgetShader::UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp)
 	{
 		m_widget_render_item->UnregisterWidgetComponent(widget_comp);
+	}
+
+	OpaqueWidgetShader::OpaqueWidgetShader(const std::string& name)
+		: WidgetShader(name)
+	{
+		m_widget_render_item = CreateSPtr<WidgetRenderItem>();
+	}
+
+	void OpaqueWidgetShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	{
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+		{
+			m_widget_render_item->Update(device, command_list);
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	void OpaqueWidgetShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
+	{
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+		{
+			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kWorld) == false)
+			{
+				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kWorld);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	D3D12_SHADER_BYTECODE OpaqueWidgetShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "PSOpaqueWidget", "ps_5_1", shader_blob);
 	}
 
 	MaskedWidgetShader::MaskedWidgetShader(const std::string& name)
@@ -108,10 +187,20 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			if (m_widget_render_item->IsDrawWorldDataEmpty() == false)
+			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kWorld) == false)
 			{
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kWorld);
+			}
+			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kBillboard) == false)
+			{
+				command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kBillboard);
+			}
+			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kFixUpBillboard) == false)
+			{
+				command_list->SetPipelineState(m_pipeline_states.at(level_type)[2].Get());
+				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kFixUpBillboard);
 			}
 			break;
 		}
@@ -124,4 +213,5 @@ namespace client_fw
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Widget.hlsl", "PSMaskedWidget", "ps_5_1", shader_blob);
 	}
+
 }

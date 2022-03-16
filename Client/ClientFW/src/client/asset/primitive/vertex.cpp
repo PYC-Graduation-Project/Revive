@@ -103,4 +103,16 @@ namespace client_fw
 	{
 	}
 
+	PivotWidgetVertex::PivotWidgetVertex()
+	{
+	}
+
+	PivotWidgetVertex::PivotWidgetVertex(const Vec3& position, const Vec2& size, UINT index,
+		const Vec4& color, const Vec2& coordinate, const Vec2& tilling, 
+		const Vec2& pivot)
+		: WidgetVertex(position, size, index, color, coordinate, tilling)
+		, m_pivot(pivot)
+	{
+	}
+
 }
