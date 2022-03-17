@@ -577,10 +577,10 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
-		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));//30초다되면 넣어주는걸로 수정?
-	//m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
-	//	EVENT_TYPE::EVENT_TIME, 100));
+	//m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
+	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));//30초다되면 넣어주는걸로 수정?
+	m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+		EVENT_TYPE::EVENT_TIME, 1000));
 }
 
 
@@ -730,7 +730,13 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 				break;
 			SendTime(pl, room->GetRoundTime());
 		}
-		
+		if (0.01f >= room->GetRoundTime())
+		{
+			m_timer_queue.push(SetTimerEvent(room->GetRoomID(),
+				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10));
+			room->SetRoundTime(30.0f);
+			room->SetRound(room->GetRound() + 1);
+		}
 		m_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
 			EVENT_TYPE::EVENT_TIME, 1000));
 		break;
