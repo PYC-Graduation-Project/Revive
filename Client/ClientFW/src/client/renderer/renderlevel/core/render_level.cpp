@@ -26,8 +26,6 @@ namespace client_fw
 
 	void GraphicsRenderLevel::Update(ID3D12Device* device)
 	{
-		//UpdateCommonResource(device, command_list);
-
 		for (const auto& shader : m_graphics_shaders)
 			shader->Update(device, m_level_type);
 	}

@@ -19,24 +19,19 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		virtual void Update(ID3D12Device* device);
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) {}
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, bool is_fix_up);
+		virtual void Update(ID3D12Device* device) = 0;
+		virtual void UpdateFrameResource(ID3D12Device* device) = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) = 0;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 
 	protected:
 		bool m_is_need_resource_create = false;
-	
-		UINT m_num_of_billboard_data = 0;
-		std::array<UINT, 2> m_num_of_draw_billboard_data;
-		std::array<UINT, 2> m_start_vertex_locations;
-		UPtr<UploadPrimitive<BillboardVertex>> m_billboard_primitive;
 
-	public:
-		bool IsDrawDataEmpty(bool is_fix_up) { return m_num_of_draw_billboard_data[static_cast<UINT>(is_fix_up)] == 0; }
-		bool IsDrawDataEmpty();
+		UINT m_num_of_billboard_data = 1;
+		std::vector<BillboardVertex> m_vertices;
 	};
 	
 	class TextureBillboardRenderItem final : public BillboardRenderItem
@@ -46,7 +41,9 @@ namespace client_fw
 		virtual ~TextureBillboardRenderItem();
 
 		virtual void Update(ID3D12Device* device) override;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void UpdateFrameResource(ID3D12Device* device) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) override;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
@@ -62,7 +59,9 @@ namespace client_fw
 		virtual ~MaterialBillboardRenderItem();
 
 		virtual void Update(ID3D12Device* device) override;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) override;
+		virtual void UpdateFrameResource(ID3D12Device* device) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function);
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;

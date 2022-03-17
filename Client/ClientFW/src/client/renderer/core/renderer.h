@@ -6,6 +6,7 @@ namespace client_fw
 
 	class RenderSystem;
 	class TextRenderSystem;
+	class FrameResourceManager;
 
 	class Renderer final
 	{
@@ -23,6 +24,7 @@ namespace client_fw
 		WPtr<Window> m_window;
 		UPtr<RenderSystem> m_render_system;
 		UPtr<TextRenderSystem> m_text_render_system;
+		UPtr<FrameResourceManager> m_frame_resource_manager;
 
 	private:
 		bool CreateDevice();
@@ -40,6 +42,7 @@ namespace client_fw
 
 		bool InitializeRenderSystem();
 		bool InitializeTextRenderSystem();
+		bool InitializeFrameResourceManager();
 
 	private:
 		ComPtr<IDXGIFactory4> m_factory = nullptr;

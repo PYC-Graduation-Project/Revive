@@ -98,7 +98,12 @@ namespace client_fw
 			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
+
+
+		for (const auto& [name, shader] : m_graphics_shaders)
+			shader->UpdateFrameResource(device);
 	}
+
 
 	void RenderSystem::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const
 	{

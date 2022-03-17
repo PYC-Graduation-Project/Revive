@@ -17,11 +17,16 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			m_billboard_render_item->Update(device);
+			UpdateRenderItem(device);
 			break;
 		default:
 			break;
 		}
+	}
+
+	void MaterialBillboardShader::UpdateFrameResource(ID3D12Device* device)
+	{
+		UpdateRenderItemResource(device);
 	}
 
 	void MaterialBillboardShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -29,20 +34,12 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			if (m_billboard_render_item->IsDrawDataEmpty() ==false)
-			{
-				m_billboard_render_item->PreDraw(command_list);
-				if (m_billboard_render_item->IsDrawDataEmpty(false) == false)
-				{
-					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-					m_billboard_render_item->Draw(command_list, false);
-				}
-				if (m_billboard_render_item->IsDrawDataEmpty(true) == false)
-				{
+			DrawRenderItem(command_list, [this, command_list, level_type]() {
+				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				},
+				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
-					m_billboard_render_item->Draw(command_list, true);
-				}
-			}
+				});
 			break;
 		default:
 			break;

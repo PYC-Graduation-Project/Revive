@@ -2,6 +2,8 @@
 #include "client/renderer/core/renderer.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/text/text_render_system.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
 #include "client/core/window.h"
 #include "client/util/d3d_util.h"
 
@@ -12,6 +14,7 @@ namespace client_fw
 	{
 		m_render_system = CreateUPtr<RenderSystem>(window);
 		m_text_render_system = CreateUPtr<TextRenderSystem>();
+		m_frame_resource_manager = CreateUPtr<FrameResourceManager>();
 	}
 
 	Renderer::~Renderer()
@@ -55,6 +58,11 @@ namespace client_fw
 			LOG_ERROR("Could not initialize text render system");
 			return false;
 		}
+		if (InitializeFrameResourceManager() == false)
+		{
+			LOG_ERROR("Could not initialize frame resource manager");
+			return false;
+		}
 		
 		return true;
 	}
@@ -65,6 +73,7 @@ namespace client_fw
 
 		CloseHandle(m_fence_event);
 		
+		m_frame_resource_manager->Shutdown();
 		m_text_render_system->Shutdown();
 		m_render_system->Shutdown();
 	}
@@ -97,18 +106,42 @@ namespace client_fw
 		return true;
 	}
 
+	bool Renderer::InitializeFrameResourceManager()
+	{
+		return m_frame_resource_manager->Initialize(m_device.Get());
+	}
+
 	bool Renderer::Render()
 	{
+		m_frame_resource_manager->MoveToNextFrame();
+
+		const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
+
+		if (frame_resource->GetFence() != 0 && 
+			m_fence->GetCompletedValue() < frame_resource->GetFence())
+		{
+			HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+			if (FAILED(m_fence->SetEventOnCompletion(frame_resource->GetFence(), event_handle)))
+			{
+				LOG_WARN("Failed to reach fence value");
+				return false;
+			}
+			WaitForSingleObject(event_handle, INFINITE);
+			CloseHandle(event_handle);
+		}
+
 		m_text_render_system->Update(m_device.Get());
 		m_render_system->Update(m_device.Get());
 
-		if (FAILED(m_command_allocator->Reset()))
+		const auto& allocator = m_frame_resource_manager->GetCurrentFrameResource()->GetCommandAllocator();
+
+		if (FAILED(allocator->Reset()))
 		{
 			LOG_ERROR("Could not reset command allocator");
 			return false;
 		}
 
-		if (FAILED(m_command_list->Reset(m_command_allocator.Get(), nullptr)))
+		if (FAILED(m_command_list->Reset(allocator.Get(), nullptr)))
 		{
 			LOG_ERROR("Could not reset command list");
 			return false;
@@ -150,6 +183,11 @@ namespace client_fw
 		m_swap_chain->Present(1, 0);
 
 		MoveToNextFrame();
+
+		/*m_swap_chain->Present(0, 0);
+		m_cur_swapchain_buffer = (m_cur_swapchain_buffer + 1) % s_swap_chain_buffer_count;
+
+		m_command_queue->Signal(m_fence.Get(), m_fence_values);*/
 
 		return true;
 	}
