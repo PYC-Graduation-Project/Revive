@@ -4,8 +4,6 @@ namespace client_fw
 {
 	class WidgetComponent;
 
-	template<class VerterType>
-	class UploadPrimitive;
 	class PivotWidgetVertex;
 	class WorldWidgetVertex;
 	enum class eWidgetSpaceType;

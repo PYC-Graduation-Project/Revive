@@ -187,6 +187,11 @@ namespace client_fw
 		m_render_item->Update(device);
 	}
 
+	void MeshShader::UpdateRenderItemResource(ID3D12Device* device)
+	{
+		m_render_item->UpdateFrameResource(device);
+	}
+
 	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
 	{
 		m_render_item->Draw(command_list);
@@ -217,6 +222,10 @@ namespace client_fw
 	}
 
 	void ShapeShader::UpdateRenderItem(ID3D12Device* device)
+	{
+	}
+
+	void ShapeShader::UpdateRenderItemResource(ID3D12Device* device)
 	{
 	}
 

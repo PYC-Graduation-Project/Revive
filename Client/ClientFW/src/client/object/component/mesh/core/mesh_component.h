@@ -14,6 +14,8 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 
+		virtual void UpdateWorldMatrix() override;
+
 	protected:
 		virtual void UpdateLevelOfDetail(const Vec3& eye);
 		virtual void UpdateOrientedBox() override;
@@ -23,6 +25,10 @@ namespace client_fw
 		float m_max_extent = 0;
 		UINT m_level_of_detail = 0;
 
+	private:
+		Mat4 m_world_transpose_matrix;
+		Mat4 m_world_inverse_matrix;
+
 	public:
 		virtual bool SetMesh(const std::string& file_path) = 0; 
 		const SPtr<Mesh>& GetMesh() const { return m_mesh; }
@@ -30,6 +36,8 @@ namespace client_fw
 		bool IsUseLevelOfDetail() const;
 		UINT GetLevelOfDetail() const { return m_level_of_detail; }
 		void SetLevelOfDetail(UINT lod);
+		const Mat4& GetWorldTransposeMatrix() const { return m_world_transpose_matrix; }
+		const Mat4& GetWorldInverseMatrix() const { return m_world_inverse_matrix; }
 	};
 }
 
