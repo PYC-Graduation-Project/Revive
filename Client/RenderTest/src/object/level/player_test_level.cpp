@@ -65,7 +65,7 @@ namespace render_test
 
 		time += delta_time;
 
-		if (time >= 0.016f && count <= 40000)
+		if (time >= 0.016f && count <= 60000)
 		{
 			for (int i = 0; i < 40; ++i)
 			{
@@ -82,7 +82,7 @@ namespace render_test
 			{
 				x -= 100.0f;
 				z = 1000.0f;
-				if (x < -3300.0f)
+				if (x < -4300.0f)
 				{
 					x = -300.0f;
 					y += 100.0f;

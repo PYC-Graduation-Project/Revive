@@ -30,16 +30,22 @@ namespace client_fw
 
 	void LevelManager::Update(float delta_time)
 	{
-		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
+		if (m_dead_level != nullptr)
 		{
 			m_octree_manager->UnregisterOctrees();
+			m_dead_level->ShutdownLevel();
+			m_dead_level = nullptr;
+		}
+
+		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
+		{
+			m_dead_level = std::move(m_cur_level);
 			for (const auto& event : m_level_close_events)
 				event();
-			m_cur_level->ShutdownLevel();
 			m_cur_level = nullptr;
 		}
 
-		if (m_ready_level != nullptr)
+		if (m_ready_level != nullptr && m_dead_level == nullptr)
 		{
 			m_octree_manager->RegisterVisualOctrees(std::move(m_ready_level->CreateVisualOctrees()));
 			m_octree_manager->RegisterCollisionOctrees(std::move(m_ready_level->CreateCollisionOctrees()));
