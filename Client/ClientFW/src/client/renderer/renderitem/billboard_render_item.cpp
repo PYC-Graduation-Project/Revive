@@ -77,18 +77,21 @@ namespace client_fw
 		UINT new_size = static_cast<UINT>(m_vertices.size());
 		if (new_size > 0)
 		{
-			while (m_num_of_billboard_data <= new_size)
+			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
+			
+			UINT primitive_size = billboard_resource->GetSizeOfTextureBillboardPrimitive();
+			bool is_need_resource_create = false;
+
+			while (primitive_size <= new_size)
 			{
-				m_num_of_billboard_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data) * 1.5f));
-				m_is_need_resource_create = true;
+				primitive_size = static_cast<UINT>(roundf(static_cast<float>(primitive_size) * 1.5f));
+				is_need_resource_create = true;
 			}
 
-			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
-
-			if (m_is_need_resource_create)
+			if (is_need_resource_create)
 			{
-				billboard_resource->GetTextureBillboardPrimitive()->Update(device, m_num_of_billboard_data);
-				m_is_need_resource_create = false;
+				billboard_resource->GetTextureBillboardPrimitive()->Update(device, primitive_size);
+				billboard_resource->SetSizeOfTextureBillboardPrimitive(primitive_size);
 			}
 
 			billboard_resource->GetTextureBillboardPrimitive()->UpdateVertices(m_vertices);
@@ -192,18 +195,21 @@ namespace client_fw
 		UINT new_size = static_cast<UINT>(m_vertices.size());
 		if (new_size > 0)
 		{
-			while (m_num_of_billboard_data <= new_size)
-			{
-				m_num_of_billboard_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_billboard_data) * 1.5f));
-				m_is_need_resource_create = true;
-			}
-
 			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
 
-			if (m_is_need_resource_create)
+			UINT primitive_size = billboard_resource->GetSizeOfMaterialBillboardPrimitive();
+			bool is_need_resource_create = false;
+
+			while (primitive_size <= new_size)
 			{
-				billboard_resource->GetMaterialBillboardPrimitive()->Update(device, m_num_of_billboard_data);
-				m_is_need_resource_create = false;
+				primitive_size = static_cast<UINT>(roundf(static_cast<float>(primitive_size) * 1.5f));
+				is_need_resource_create = true;
+			}
+
+			if (is_need_resource_create)
+			{
+				billboard_resource->GetMaterialBillboardPrimitive()->Update(device, primitive_size);
+				billboard_resource->SetSizeOfMaterialBillboardPrimitive(primitive_size);
 			}
 
 			billboard_resource->GetMaterialBillboardPrimitive()->UpdateVertices(m_vertices);

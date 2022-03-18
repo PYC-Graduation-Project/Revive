@@ -115,20 +115,20 @@ namespace client_fw
 	{
 		m_frame_resource_manager->MoveToNextFrame();
 
-		const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
+		//const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
 
-		if (frame_resource->GetFence() != 0 && 
-			m_fence->GetCompletedValue() < frame_resource->GetFence())
-		{
-			HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-			if (FAILED(m_fence->SetEventOnCompletion(frame_resource->GetFence(), event_handle)))
-			{
-				LOG_WARN("Failed to reach fence value");
-				return false;
-			}
-			WaitForSingleObject(event_handle, INFINITE);
-			CloseHandle(event_handle);
-		}
+		//if (frame_resource->GetFence() != 0 && 
+		//	m_fence->GetCompletedValue() < frame_resource->GetFence())
+		//{
+		//	HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		//	if (FAILED(m_fence->SetEventOnCompletion(frame_resource->GetFence(), event_handle)))
+		//	{
+		//		LOG_WARN("Failed to reach fence value");
+		//		return false;
+		//	}
+		//	WaitForSingleObject(event_handle, INFINITE);
+		//	CloseHandle(event_handle);
+		//}
 
 		m_text_render_system->Update(m_device.Get());
 		m_render_system->Update(m_device.Get());

@@ -28,9 +28,6 @@ namespace client_fw
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 
 	protected:
-		bool m_is_need_resource_create = false;
-
-		UINT m_num_of_billboard_data = 1;
 		std::vector<BillboardVertex> m_vertices;
 	};
 	

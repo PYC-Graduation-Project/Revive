@@ -21,7 +21,6 @@ namespace client_fw
 		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function);
 
 	private:
-		UINT m_num_of_ui_data = 1;
 		UINT m_num_of_draw_ui_data = 0;
 
 		std::vector<UIVertex> m_vertices;

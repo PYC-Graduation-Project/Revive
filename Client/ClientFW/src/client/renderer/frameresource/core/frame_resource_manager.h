@@ -2,7 +2,7 @@
 
 namespace client_fw
 {
-	constexpr UINT s_num_of_frame_resource = 1;
+	constexpr UINT s_num_of_frame_resource = 3;
 
 	class FrameResource;
 

@@ -33,11 +33,6 @@ namespace client_fw
 		void UpdatePivotWidgets(ID3D12Device* device);
 
 	private:
-		UINT m_num_of_world_widget_ui_data = 1;
-		UINT m_num_of_draw_world_widget_ui_data = 0;
-		UINT m_num_of_pivot_widget_ui_data = 1;
-		UINT m_num_of_draw_pivot_widget_ui_data = 0;
-
 		std::vector<WorldWidgetVertex> m_world_widget_vertices;
 		std::vector<PivotWidgetVertex> m_pivot_widget_vertices;
 

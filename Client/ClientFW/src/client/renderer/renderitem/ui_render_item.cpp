@@ -68,22 +68,28 @@ namespace client_fw
 
 	void UIRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
+		const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
+
 		m_num_of_draw_ui_data = static_cast<UINT>(m_vertices.size());
 
 		if (m_num_of_draw_ui_data > 0)
 		{
+			UINT ui_primitive_size = ui_resource->GetSizeOfUIPrimitive();
 			bool is_need_resource_create = false;
 
-			while (m_num_of_ui_data <= m_num_of_draw_ui_data)
+			while (ui_primitive_size <= m_num_of_draw_ui_data)
 			{
-				m_num_of_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_ui_data) * 1.5f));
+				ui_primitive_size = static_cast<UINT>(roundf(static_cast<float>(ui_primitive_size) * 1.5f));
 				is_need_resource_create = true;
 			}
 
 			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
 
 			if (is_need_resource_create)
-				ui_resource->GetUserInterfacePrimitive()->Update(device, m_num_of_ui_data);
+			{
+				ui_resource->GetUserInterfacePrimitive()->Update(device, ui_primitive_size);
+				ui_resource->SetSizeOfUIPrimitive(ui_primitive_size);
+			}
 
 			ui_resource->GetUserInterfacePrimitive()->UpdateVertices(m_vertices);
 			m_vertices.clear();
@@ -97,7 +103,7 @@ namespace client_fw
 			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
 			draw_function();
 			ui_resource->GetUserInterfacePrimitive()->PreDraw(command_list);
-			ui_resource->GetUserInterfacePrimitive()->Draw(command_list, m_num_of_ui_data);
+			ui_resource->GetUserInterfacePrimitive()->Draw(command_list, m_num_of_draw_ui_data);
 		}
 	}
 }

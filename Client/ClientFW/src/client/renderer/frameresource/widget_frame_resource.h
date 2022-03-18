@@ -34,12 +34,20 @@ namespace client_fw
 		UPtr<UploadPrimitive<WorldWidgetVertex>> m_world_widget_primitive;
 		UPtr<UploadPrimitive<PivotWidgetVertex>> m_pivot_widget_primitive;
 
+		UINT m_size_of_world_widget_primitive = 1;
+		UINT m_size_of_pivot_widget_primitive = 1;
+
 		std::queue<WorldWidgetDrawInfo> m_world_widget_draw_info;
 		std::queue<PivotWidgetDrawInfo> m_pivot_widget_draw_info;
 
 	public:
 		const UPtr<UploadPrimitive<WorldWidgetVertex>>& GetWorldWidgetPrimitive() const { return m_world_widget_primitive; }
 		const UPtr<UploadPrimitive<PivotWidgetVertex>>& GetPivotWidgetPrimitive() const { return m_pivot_widget_primitive; }
+
+		UINT GetSizeOfWorldWidgetPrimitive() const { return m_size_of_world_widget_primitive; }
+		UINT GetSizeOfPivotWidgetPrimitive() const { return m_size_of_pivot_widget_primitive; }
+		void SetSizeOfWorldWidgetPrimitive(UINT value) { m_size_of_world_widget_primitive = value; }
+		void SetSizeOfPivotWidgetPrimitive(UINT value) { m_size_of_pivot_widget_primitive = value; }
 
 		void AddWorldWidgetDrawInfo(WorldWidgetDrawInfo&& info) { m_world_widget_draw_info.emplace(std::move(info)); }
 		void AddPivotWidgetDrawInfo(PivotWidgetDrawInfo&& info) { m_pivot_widget_draw_info.emplace(std::move(info)); }

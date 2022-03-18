@@ -5,18 +5,6 @@ namespace client_fw
 	enum class eCameraUsage;
 	class CameraComponent;
 
-	template<class T> class UploadBuffer;
-
-	struct RSCameraData
-	{
-		Mat4 view_matrix;
-		Mat4 projection_matrix;
-		Mat4 view_projection_matrix;
-		Vec3 camera_position;
-		UINT final_texture_index;
-		XMUINT4 gbuffer_texture_indices;
-	};
-
 	class CameraManager final
 	{
 	public:
@@ -40,7 +28,6 @@ namespace client_fw
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 
 	private:
-		void CreateCameraResource(ID3D12Device* device);
 		void UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
 
 	private:
@@ -50,7 +37,6 @@ namespace client_fw
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_cameras;
 		SPtr<CameraComponent> m_ready_main_camera;
 		SPtr<CameraComponent> m_main_camera;
-		UPtr<UploadBuffer<RSCameraData>> m_camera_data;
 
 	public:
 		static CameraManager& GetCameraManager() { return *s_camera_manager; }

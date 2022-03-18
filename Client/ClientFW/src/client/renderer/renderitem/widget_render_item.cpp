@@ -159,16 +159,20 @@ namespace client_fw
 		UINT new_size = static_cast<UINT>(m_world_widget_vertices.size());
 		if (new_size > 0)
 		{
+			UINT world_primitive_size = widget_resource->GetSizeOfWorldWidgetPrimitive();
 			bool is_need_resource_create = false;
 
-			while (m_num_of_world_widget_ui_data <= new_size)
+			while (world_primitive_size <= new_size)
 			{
-				m_num_of_world_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_world_widget_ui_data) * 1.5f));
+				world_primitive_size = static_cast<UINT>(roundf(static_cast<float>(world_primitive_size) * 1.5f));
 				is_need_resource_create = true;
 			}
 
 			if (is_need_resource_create)
-				widget_resource->GetWorldWidgetPrimitive()->Update(device, m_num_of_world_widget_ui_data);
+			{
+				widget_resource->GetWorldWidgetPrimitive()->Update(device, world_primitive_size);
+				widget_resource->SetSizeOfWorldWidgetPrimitive(world_primitive_size);
+			}
 
 			widget_resource->GetWorldWidgetPrimitive()->UpdateVertices(m_world_widget_vertices);
 			m_world_widget_vertices.clear();
@@ -177,16 +181,20 @@ namespace client_fw
 		new_size = static_cast<UINT>(m_pivot_widget_vertices.size());
 		if (new_size > 0)
 		{
+			UINT pivot_primitive_size = widget_resource->GetSizeOfPivotWidgetPrimitive();
 			bool is_need_resource_create = false;
 
-			while (m_num_of_pivot_widget_ui_data <= new_size)
+			while (pivot_primitive_size <= new_size)
 			{
-				m_num_of_pivot_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_pivot_widget_ui_data) * 1.5f));
+				pivot_primitive_size = static_cast<UINT>(roundf(static_cast<float>(pivot_primitive_size) * 1.5f));
 				is_need_resource_create = true;
 			}
 
 			if (is_need_resource_create)
-				widget_resource->GetPivotWidgetPrimitive()->Update(device, m_num_of_pivot_widget_ui_data);
+			{
+				widget_resource->GetPivotWidgetPrimitive()->Update(device, pivot_primitive_size);
+				widget_resource->SetSizeOfPivotWidgetPrimitive(pivot_primitive_size);
+			}
 
 			widget_resource->GetPivotWidgetPrimitive()->UpdateVertices(m_pivot_widget_vertices);
 			m_pivot_widget_vertices.clear();

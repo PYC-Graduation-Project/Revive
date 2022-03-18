@@ -18,7 +18,12 @@ namespace client_fw
 	private:
 		UPtr<UploadPrimitive<UIVertex>> m_ui_primitive;
 
+		UINT m_size_of_ui_primitive = 1;
+
 	public:
 		const UPtr<UploadPrimitive<UIVertex>>& GetUserInterfacePrimitive() const { return m_ui_primitive; }
+
+		UINT GetSizeOfUIPrimitive() const { return m_size_of_ui_primitive; }
+		void SetSizeOfUIPrimitive(UINT value) { m_size_of_ui_primitive = value; }
 	};
 }
