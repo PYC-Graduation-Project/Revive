@@ -5,8 +5,6 @@ namespace client_fw
 	class UserInterface;
 	class CameraComponent;
 
-	template<class VertexType>
-	class UploadPrimitive;
 	class UIVertex;
 
 	class UIRenderItem final
@@ -19,16 +17,14 @@ namespace client_fw
 		void Shutdown();
 
 		void Update(ID3D12Device* device, const Vec2& window_size);
-		void Draw(ID3D12GraphicsCommandList* command_list);
+		void UpdateFrameResource(ID3D12Device* device);
+		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function);
 
 	private:
-		UINT m_num_of_ui_layer = 0;
-		UINT m_size_of_user_interface_data = 0;
+		UINT m_num_of_ui_data = 1;
 		UINT m_num_of_draw_ui_data = 0;
-		UPtr<UploadPrimitive<UIVertex>> m_ui_primitive;
 
-	public:
-		bool IsDrawDataEmpty() { return m_num_of_draw_ui_data == 0; }
+		std::vector<UIVertex> m_vertices;
 	};
 }
 

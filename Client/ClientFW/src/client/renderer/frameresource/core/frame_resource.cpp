@@ -1,12 +1,16 @@
 #include "stdafx.h"
 #include "client/renderer/frameresource/core/frame_resource.h"
 #include "client/renderer/frameresource/billboard_frame_resource.h"
+#include "client/renderer/frameresource/widget_frame_resource.h"
+#include "client/renderer/frameresource/ui_frame_resource.h"
 
 namespace client_fw
 {
 	FrameResource::FrameResource()
 	{
 		m_billboard_frame_resource = CreateUPtr<BillboardFrameResource>();
+		m_widget_frame_resource = CreateUPtr<WidgetFrameResource>();
+		m_ui_frame_resource = CreateUPtr<UserInterfaceFrameResource>();
 	}
 
 	FrameResource::~FrameResource()
@@ -25,12 +29,16 @@ namespace client_fw
 		}
 
 		ret &= m_billboard_frame_resource->Initialize(device);
+		ret &= m_widget_frame_resource->Initialize(device);
+		ret &= m_ui_frame_resource->Initialize(device);
 
 		return ret;
 	}
 
 	void FrameResource::Shutdown()
 	{
+		m_ui_frame_resource->Shutdown();
+		m_widget_frame_resource->Shutdown();
 		m_billboard_frame_resource->Shutdown();
 	}
 }

@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "client/renderer/renderitem/widget_render_item.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/widget_frame_resource.h"
 #include "client/asset/primitive/primitive.h"
 #include "client/asset/texture/texture.h"
 #include "client/object/component/render/widget_component.h"
@@ -11,8 +14,6 @@ namespace client_fw
 {
 	WidgetRenderItem::WidgetRenderItem()
 	{
-		m_world_widget_primitive = CreateUPtr<UploadPrimitive<WorldWidgetVertex>>();
-		m_widget_primitive = CreateUPtr<UploadPrimitive<PivotWidgetVertex>>();
 	}
 
 	WidgetRenderItem::~WidgetRenderItem()
@@ -21,197 +22,208 @@ namespace client_fw
 
 	void WidgetRenderItem::Initialize(ID3D12Device* device)
 	{
-		m_world_widget_primitive->Initialize(device);
-		m_widget_primitive->Initialize(device);
 	}
 
 	void WidgetRenderItem::Shutdown()
 	{
-		m_world_widget_primitive->Shutdown();
-		m_widget_primitive->Shutdown();
 	}
 
 	void WidgetRenderItem::Update(ID3D12Device* device)
 	{
 		UpdateWorldWidgets(device);
-		UpdateWidgets(device);		
+		UpdatePivotWidgets(device);		
 	}
 
 	void WidgetRenderItem::UpdateWorldWidgets(ID3D12Device* device)
 	{
-		if (m_is_need_world_widget_resource_create)
+		WorldWidgetDrawInfo info;
+		info.start_index = static_cast<UINT>(m_world_widget_vertices.size());
+
+		for (const auto& widget : m_world_widget_components)
 		{
-			if (m_world_widget_components.empty())
+			Vec3 position = widget->GetWorldPosition();
+			const Vec3& right = widget->GetWorldRight();
+			const Vec3& up = widget->GetWorldUp();
+
+			const Vec2& widget_size = widget->GetSize();
+			const Vec2& move_pos = widget->GetPivot() * widget_size;
+			position += ((up * move_pos.y) - (right * move_pos.x));
+
+			if (widget->IsVisible())
 			{
-				m_world_widget_primitive->Shutdown();
-				m_num_of_draw_world_widget_ui_data = 0;
-			}
-			else
-				m_world_widget_primitive->Update(device, m_num_of_world_widget_ui_data);
-			m_is_need_world_widget_resource_create = false;
-		}
-
-		if (m_real_num_of_world_widget_ui_data > 0)
-		{
-			std::vector<WorldWidgetVertex> vertices;
-
-			for (const auto& widget : m_world_widget_components)
-			{
-				Vec3 position = widget->GetWorldPosition();
-				const Vec3& right = widget->GetWorldRight();
-				const Vec3& up = widget->GetWorldUp();
-
-				const Vec2& widget_size = widget->GetSize();
-				const Vec2& move_pos = widget->GetPivot() * widget_size;
-				position += ((up * move_pos.y) - (right * move_pos.x));
-
-				if (widget->IsVisible())
+				for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
 				{
-					for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
+					const Vec2& lt = ui->GetPosition();
+					if (ui->IsVisible() &&
+						((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
 					{
-						const Vec2& lt = ui->GetPosition();
-						if (ui->IsVisible() &&
-							((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
+						for (const auto& ui_texture : ui->GetVisibleTextures())
 						{
-							for (const auto& ui_texture : ui->GetVisibleTextures())
+							if (ui_texture == nullptr)
+								LOG_WARN("Could not find ui texture : {0}", ui->GetName());
+							else
 							{
-								if (ui_texture == nullptr)
-									LOG_WARN("Could not find ui texture : {0}", ui->GetName());
-								else
-								{
-									Vec3 new_position = position + right * lt.x + up * lt.y;
+								Vec3 new_position = position + right * lt.x + up * lt.y;
 
-									INT resource_index = -1;
+								INT resource_index = -1;
 
-									if (ui_texture->GetTexture() != nullptr)
-										resource_index = ui_texture->GetTexture()->GetResourceIndex();
+								if (ui_texture->GetTexture() != nullptr)
+									resource_index = ui_texture->GetTexture()->GetResourceIndex();
 
-									vertices.emplace_back(WorldWidgetVertex(new_position, ui_texture->GetSize(), resource_index,
-										ui_texture->GetBrushColor(), ui_texture->GetCoordinate(), ui_texture->GetTilling(),
-										right, up));
-								}
+								m_world_widget_vertices.emplace_back(WorldWidgetVertex(new_position, ui_texture->GetSize(),
+									resource_index,	ui_texture->GetBrushColor(), ui_texture->GetCoordinate(),
+									ui_texture->GetTilling(), right, up));
 							}
 						}
 					}
-
-					widget->SetVisiblity(false);
 				}
-			}
 
-			m_num_of_draw_world_widget_ui_data = static_cast<UINT>(vertices.size());
-			m_world_widget_primitive->UpdateVertices(vertices);
+				widget->SetVisiblity(false);
+			}
 		}
+
+		info.num_of_draw_data = static_cast<UINT>(m_world_widget_vertices.size() - info.start_index);
+	
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		widget_resource->AddWorldWidgetDrawInfo(std::move(info));
 	}
 
-	void WidgetRenderItem::UpdateWidgets(ID3D12Device* device)
+	void WidgetRenderItem::UpdatePivotWidgets(ID3D12Device* device)
 	{
-		if (m_is_need_widget_resource_create)
+		std::vector<PivotWidgetVertex> vertices;
+		std::vector<PivotWidgetVertex> fix_up_vertices;
+
+		for (const auto& widget : m_widget_components)
 		{
-			if (m_widget_components.empty())
+			Vec3 position = widget->GetWorldPosition();
+			const Vec3& right = widget->GetWorldRight();
+			const Vec3& up = widget->GetWorldUp();
+
+			const Vec2& widget_size = widget->GetSize();
+			const Vec2& pivot = widget->GetPivot() * widget_size;
+
+			if (widget->IsVisible())
 			{
-				m_widget_primitive->Shutdown();
-				m_num_of_draw_widget_ui_data = { 0, 0, 0 };
-			}
-			else
-				m_widget_primitive->Update(device, m_num_of_widget_ui_data);
-			m_is_need_widget_resource_create = false;
-		}
-
-		if (m_real_num_of_widget_ui_data > 0)
-		{
-			std::vector<PivotWidgetVertex> vertices;
-			std::vector<PivotWidgetVertex> fix_up_vertices;
-
-			for (const auto& widget : m_widget_components)
-			{
-				Vec3 position = widget->GetWorldPosition();
-				const Vec3& right = widget->GetWorldRight();
-				const Vec3& up = widget->GetWorldUp();
-
-				const Vec2& widget_size = widget->GetSize();
-				const Vec2& pivot = widget->GetPivot() * widget_size;
-
-				if (widget->IsVisible())
+				for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
 				{
-					for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
+					const Vec2& lt = ui->GetPosition();
+					if (ui->IsVisible() &&
+						((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
 					{
-						const Vec2& lt = ui->GetPosition();
-						if (ui->IsVisible() &&
-							((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
+						for (const auto& ui_texture : ui->GetVisibleTextures())
 						{
-							for (const auto& ui_texture : ui->GetVisibleTextures())
+							if (ui_texture == nullptr)
+								LOG_WARN("Could not find ui texture : {0}", ui->GetName());
+							else
 							{
-								if (ui_texture == nullptr)
-									LOG_WARN("Could not find ui texture : {0}", ui->GetName());
-								else
-								{
-									Vec3 new_position = position + right * lt.x + up * lt.y;
+								Vec3 new_position = position + right * lt.x + up * lt.y;
 
-									INT resource_index = -1;
+								INT resource_index = -1;
 
-									if (ui_texture->GetTexture() != nullptr)
-										resource_index = ui_texture->GetTexture()->GetResourceIndex();
+								if (ui_texture->GetTexture() != nullptr)
+									resource_index = ui_texture->GetTexture()->GetResourceIndex();
 
-									PivotWidgetVertex vertex(PivotWidgetVertex(new_position, ui_texture->GetSize(), resource_index,
-										ui_texture->GetBrushColor(), ui_texture->GetCoordinate(), ui_texture->GetTilling(), pivot));
+								PivotWidgetVertex vertex(PivotWidgetVertex(new_position, ui_texture->GetSize(), resource_index,
+									ui_texture->GetBrushColor(), ui_texture->GetCoordinate(), ui_texture->GetTilling(), pivot));
 
-									if (widget->GetWidgetSpaceType() == eWidgetSpaceType::kBillboard)
-										vertices.emplace_back(std::move(vertex));
-									else if (widget->GetWidgetSpaceType() == eWidgetSpaceType::kFixUpBillboard)
-										fix_up_vertices.emplace_back(std::move(vertex));
-								}
+								if (widget->GetWidgetSpaceType() == eWidgetSpaceType::kBillboard)
+									vertices.emplace_back(std::move(vertex));
+								else if (widget->GetWidgetSpaceType() == eWidgetSpaceType::kFixUpBillboard)
+									fix_up_vertices.emplace_back(std::move(vertex));
 							}
 						}
 					}
-
-					widget->SetVisiblity(false);
 				}
+
+				widget->SetVisiblity(false);
+			}
+		}
+
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+
+		PivotWidgetDrawInfo info;
+		info.billboard_start_index = static_cast<UINT>(m_pivot_widget_vertices.size());
+		info.num_of_draw_billboard_data = static_cast<UINT>(vertices.size());
+		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_pivot_widget_vertices));
+		info.fix_up_start_index = static_cast<UINT>(m_pivot_widget_vertices.size());
+		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
+		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_pivot_widget_vertices));
+
+		widget_resource->AddPivotWidgetDrawInfo(std::move(info));
+	}
+
+	void WidgetRenderItem::UpdateFrameResource(ID3D12Device* device)
+	{
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+
+		UINT new_size = static_cast<UINT>(m_world_widget_vertices.size());
+		if (new_size > 0)
+		{
+			bool is_need_resource_create = false;
+
+			while (m_num_of_world_widget_ui_data <= new_size)
+			{
+				m_num_of_world_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_world_widget_ui_data) * 1.5f));
+				is_need_resource_create = true;
 			}
 
-			std::vector<PivotWidgetVertex> final_vertices;
+			if (is_need_resource_create)
+				widget_resource->GetWorldWidgetPrimitive()->Update(device, m_num_of_world_widget_ui_data);
 
-			m_num_of_draw_widget_ui_data[0] = static_cast<UINT>(vertices.size());
-			m_widget_start_vertex_locations[0] = 0;
-			std::move(vertices.begin(), vertices.end(), std::back_inserter(final_vertices));
+			widget_resource->GetWorldWidgetPrimitive()->UpdateVertices(m_world_widget_vertices);
+			m_world_widget_vertices.clear();
+		}
 
-			m_num_of_draw_widget_ui_data[1] = static_cast<UINT>(fix_up_vertices.size());
-			m_widget_start_vertex_locations[1] = static_cast<UINT>(final_vertices.size());
-			std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(final_vertices));
+		new_size = static_cast<UINT>(m_pivot_widget_vertices.size());
+		if (new_size > 0)
+		{
+			bool is_need_resource_create = false;
 
-			m_widget_primitive->UpdateVertices(final_vertices);
+			while (m_num_of_pivot_widget_ui_data <= new_size)
+			{
+				m_num_of_pivot_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_pivot_widget_ui_data) * 1.5f));
+				is_need_resource_create = true;
+			}
+
+			if (is_need_resource_create)
+				widget_resource->GetPivotWidgetPrimitive()->Update(device, m_num_of_pivot_widget_ui_data);
+
+			widget_resource->GetPivotWidgetPrimitive()->UpdateVertices(m_pivot_widget_vertices);
+			m_pivot_widget_vertices.clear();
 		}
 	}
 
-	void WidgetRenderItem::PreDraw(ID3D12GraphicsCommandList* command_list, bool is_world)
+	void WidgetRenderItem::Draw(ID3D12GraphicsCommandList* command_list,
+		std::function<void()>&& world_function, std::function<void()>&& billboard_function,
+		std::function<void()>&& fix_up_function)
 	{
-		if(is_world)
-			m_world_widget_primitive->PreDraw(command_list);
-		else	
-			m_widget_primitive->PreDraw(command_list);
-	}
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		WorldWidgetDrawInfo world_info = widget_resource->GetWorldWidgetDrawInfo();
 
-
-	void WidgetRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eWidgetSpaceType type)
-	{
-		switch (type)
+		if (world_info.num_of_draw_data > 0)
 		{
-		case client_fw::eWidgetSpaceType::kWorld:
-			m_world_widget_primitive->Draw(command_list, m_num_of_draw_world_widget_ui_data);
-			break;
-		case client_fw::eWidgetSpaceType::kBillboard:
-			m_widget_primitive->Draw(command_list,
-				m_num_of_draw_widget_ui_data[0], m_widget_start_vertex_locations[0]);
-			break;
-		case client_fw::eWidgetSpaceType::kFixUpBillboard:
-			m_widget_primitive->Draw(command_list,
-				m_num_of_draw_widget_ui_data[1], m_widget_start_vertex_locations[1]);
-			break;
-		case client_fw::eWidgetSpaceType::kScreen:
-			m_widget_primitive->Draw(command_list,
-				m_num_of_draw_widget_ui_data[2], m_widget_start_vertex_locations[2]);
-			break;
-		default:
-			break;
+			world_function();
+			widget_resource->GetWorldWidgetPrimitive()->PreDraw(command_list);
+			widget_resource->GetWorldWidgetPrimitive()->Draw(command_list, world_info.num_of_draw_data, world_info.start_index);
+		}
+
+		PivotWidgetDrawInfo pivot_info = widget_resource->GetPivotWidgetDrawInfo();
+
+		if (pivot_info.num_of_draw_billboard_data + pivot_info.num_of_draw_fix_up_data > 0)
+		{
+			widget_resource->GetPivotWidgetPrimitive()->PreDraw(command_list);
+			if (pivot_info.num_of_draw_billboard_data > 0)
+			{
+				billboard_function();
+				widget_resource->GetPivotWidgetPrimitive()->Draw(command_list, 
+					pivot_info.num_of_draw_billboard_data, pivot_info.billboard_start_index);
+			}
+			if (pivot_info.num_of_draw_fix_up_data > 0)
+			{
+				fix_up_function();
+				widget_resource->GetWorldWidgetPrimitive()->Draw(command_list,
+					pivot_info.num_of_draw_fix_up_data, pivot_info.fix_up_start_index);
+			}
 		}
 	}
 
@@ -225,43 +237,11 @@ namespace client_fw
 			{
 				widget_comp->SetRenderItemIndex(static_cast<UINT>(m_world_widget_components.size()));
 				m_world_widget_components.push_back(widget_comp);
-
-				if (m_num_of_world_widget_ui_data == 0)
-				{
-					m_num_of_world_widget_ui_data = num_of_data;
-					m_real_num_of_world_widget_ui_data = num_of_data;
-					m_is_need_world_widget_resource_create = true;
-				}
-				else
-				{
-					m_real_num_of_world_widget_ui_data += num_of_data;
-					while (m_real_num_of_world_widget_ui_data > m_num_of_world_widget_ui_data)
-					{
-						m_num_of_world_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_world_widget_ui_data) * 1.5f));
-						m_is_need_world_widget_resource_create = true;
-					}
-				}
 			}
 			else
 			{
 				widget_comp->SetRenderItemIndex(static_cast<UINT>(m_widget_components.size()));
 				m_widget_components.push_back(widget_comp);
-
-				if (m_num_of_widget_ui_data == 0)
-				{
-					m_num_of_widget_ui_data = num_of_data;
-					m_real_num_of_widget_ui_data = num_of_data;
-					m_is_need_widget_resource_create = true;
-				}
-				else
-				{
-					m_real_num_of_widget_ui_data += num_of_data;
-					while (m_real_num_of_widget_ui_data > m_num_of_widget_ui_data)
-					{
-						m_num_of_widget_ui_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_widget_ui_data) * 1.5f));
-						m_is_need_widget_resource_create = true;
-					}
-				}
 			}
 		}
 	}
@@ -279,49 +259,13 @@ namespace client_fw
 				std::iter_swap(m_world_widget_components.begin() + index, m_world_widget_components.end() - 1);
 				m_world_widget_components[index]->SetRenderItemIndex(index);
 				m_world_widget_components.pop_back();
-
-				if (m_world_widget_components.empty())
-				{
-					m_num_of_world_widget_ui_data = 0;
-					m_real_num_of_world_widget_ui_data = 0;
-					m_is_need_world_widget_resource_create = true;
-				}
 			}
 			else
 			{
 				std::iter_swap(m_widget_components.begin() + index, m_widget_components.end() - 1);
 				m_widget_components[index]->SetRenderItemIndex(index);
 				m_widget_components.pop_back();
-
-				if (m_widget_components.empty())
-				{
-					m_num_of_widget_ui_data = 0;
-					m_real_num_of_widget_ui_data = 0;
-					m_is_need_widget_resource_create = true;
-				}
 			}
 		}
 	}
-
-	bool WidgetRenderItem::IsDrawDataEmpty(eWidgetSpaceType type)
-	{
-		switch (type)
-		{
-		case client_fw::eWidgetSpaceType::kWorld:
-		default:
-			return m_num_of_draw_world_widget_ui_data == 0;
-		case client_fw::eWidgetSpaceType::kBillboard:
-			return m_num_of_draw_widget_ui_data[0] == 0;
-		case client_fw::eWidgetSpaceType::kFixUpBillboard:
-			return m_num_of_draw_widget_ui_data[1] == 0;
-		case client_fw::eWidgetSpaceType::kScreen:
-			return m_num_of_draw_widget_ui_data[2] == 0;
-		}
-	}
-
-	bool WidgetRenderItem::IsDrawDataEmpty()
-	{
-		return std::all_of(m_num_of_draw_widget_ui_data.cbegin(), m_num_of_draw_widget_ui_data.cend(), [](UINT i) { return i == 0; });
-	}
-
 }

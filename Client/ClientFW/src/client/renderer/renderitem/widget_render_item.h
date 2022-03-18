@@ -20,37 +20,29 @@ namespace client_fw
 		void Shutdown();
 
 		void Update(ID3D12Device* device);
-		void PreDraw(ID3D12GraphicsCommandList* command_list, bool is_world);
-		void Draw(ID3D12GraphicsCommandList* command_list, eWidgetSpaceType type);
+		void UpdateFrameResource(ID3D12Device* device);
+		void Draw(ID3D12GraphicsCommandList* command_list, 
+			std::function<void()>&& world_function, std::function<void()>&& billboard_function,
+			std::function<void()>&& fix_up_function);
 
 		void RegisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 		void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 
 	private:
 		void UpdateWorldWidgets(ID3D12Device* device);
-		void UpdateWidgets(ID3D12Device* device);
+		void UpdatePivotWidgets(ID3D12Device* device);
 
 	private:
-		bool m_is_need_world_widget_resource_create = false;
-		bool m_is_need_widget_resource_create = false;
-		UINT m_num_of_world_widget_ui_data = 0;
-		UINT m_real_num_of_world_widget_ui_data = 0;
-		UINT m_num_of_widget_ui_data = 0;
-		UINT m_real_num_of_widget_ui_data = 0;
-
+		UINT m_num_of_world_widget_ui_data = 1;
 		UINT m_num_of_draw_world_widget_ui_data = 0;
-		std::array<UINT, 3> m_num_of_draw_widget_ui_data = { 0, 0, 0 };
-		std::array<UINT, 3> m_widget_start_vertex_locations = { 0, 0, 0 };
+		UINT m_num_of_pivot_widget_ui_data = 1;
+		UINT m_num_of_draw_pivot_widget_ui_data = 0;
 
-		UPtr<UploadPrimitive<WorldWidgetVertex>> m_world_widget_primitive;
-		UPtr<UploadPrimitive<PivotWidgetVertex>> m_widget_primitive;
+		std::vector<WorldWidgetVertex> m_world_widget_vertices;
+		std::vector<PivotWidgetVertex> m_pivot_widget_vertices;
 
 		std::vector<SPtr<WidgetComponent>> m_world_widget_components;
 		std::vector<SPtr<WidgetComponent>> m_widget_components;
-
-	public:
-		bool IsDrawDataEmpty(eWidgetSpaceType type);
-		bool IsDrawDataEmpty();
 	};
 }
 

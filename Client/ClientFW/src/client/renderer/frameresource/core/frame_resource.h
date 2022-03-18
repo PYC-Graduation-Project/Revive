@@ -3,6 +3,8 @@
 namespace client_fw
 {
 	class BillboardFrameResource;
+	class WidgetFrameResource;
+	class UserInterfaceFrameResource;
 
 	class FrameResource
 	{
@@ -24,11 +26,13 @@ namespace client_fw
 
 	private:
 		UPtr<BillboardFrameResource> m_billboard_frame_resource;
+		UPtr<WidgetFrameResource> m_widget_frame_resource;
+		UPtr<UserInterfaceFrameResource> m_ui_frame_resource;
 
 	public:
 		const UPtr<BillboardFrameResource>& GetBillboardFrameResource() const { return m_billboard_frame_resource; }
-
-
+		const UPtr<WidgetFrameResource>& GetWidgetFrameResource() const { return m_widget_frame_resource; }
+		const UPtr<UserInterfaceFrameResource>& GetUserInterfaceFrameResource() const { return m_ui_frame_resource; }
 	};
 }
 

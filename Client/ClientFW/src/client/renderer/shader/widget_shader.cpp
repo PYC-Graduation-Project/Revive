@@ -22,6 +22,24 @@ namespace client_fw
 		m_widget_render_item->Shutdown();
 	}
 
+	void WidgetShader::UpdateRenderItem(ID3D12Device* device)
+	{
+		m_widget_render_item->Update(device);
+	}
+
+	void WidgetShader::UpdateRenderItemResource(ID3D12Device* device)
+	{
+		m_widget_render_item->UpdateFrameResource(device);
+	}
+
+	void WidgetShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list, 
+		std::function<void()>&& world_function, std::function<void()>&& billboard_function,
+		std::function<void()>&& fix_up_function) const
+	{
+		m_widget_render_item->Draw(command_list, std::move(world_function),
+			std::move(billboard_function), std::move(fix_up_function));
+	}
+
 	D3D12_SHADER_BYTECODE WidgetShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
 		if (pso_index == 0)
@@ -130,12 +148,17 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			m_widget_render_item->Update(device);
+			UpdateRenderItem(device);
 			break;
 		}
 		default:
 			break;
 		}
+	}
+
+	void OpaqueWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	{
+		UpdateRenderItemResource(device);
 	}
 
 	void OpaqueWidgetShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -144,11 +167,16 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kWorld) == false)
-			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kWorld);
-			}
+			DrawRenderItem(command_list,
+				[this, command_list, level_type]() {
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				},
+				[this, command_list, level_type]() {
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
+				},
+					[this, command_list, level_type]() {
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[2].Get());
+				});
 			break;
 		}
 		default:
@@ -173,12 +201,17 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			m_widget_render_item->Update(device);
+			UpdateRenderItem(device);
 			break;
 		}
 		default:
 			break;
 		}
+	}
+
+	void MaskedWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	{
+		UpdateRenderItemResource(device);
 	}
 
 	void MaskedWidgetShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -187,27 +220,16 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kWorld) == false)
-			{
-				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-				m_widget_render_item->PreDraw(command_list, true);
-				m_widget_render_item->Draw(command_list, eWidgetSpaceType::kWorld);
-			}
-
-			if (m_widget_render_item->IsDrawDataEmpty() == false)
-			{
-				m_widget_render_item->PreDraw(command_list, false);
-				if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kBillboard) == false)
-				{
+			DrawRenderItem(command_list,
+				[this, command_list, level_type]() {
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				},
+				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
-					m_widget_render_item->Draw(command_list, eWidgetSpaceType::kBillboard);
-				}
-				if (m_widget_render_item->IsDrawDataEmpty(eWidgetSpaceType::kFixUpBillboard) == false)
-				{
+				},
+				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[2].Get());
-					m_widget_render_item->Draw(command_list, eWidgetSpaceType::kFixUpBillboard);
-				}
-			}
+				});
 			break;
 		}
 		default:

@@ -36,17 +36,20 @@ namespace client_fw
 		}
 	}
 
+	void UIShader::UpdateFrameResource(ID3D12Device* device)
+	{
+		m_render_item->UpdateFrameResource(device);
+	}
+
 	void UIShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
 		{
-			if (m_render_item->IsDrawDataEmpty() == false)
-			{
+			m_render_item->Draw(command_list, [this, command_list, level_type]() {
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-				m_render_item->Draw(command_list);
-			}
+				});
 			break;
 		}
 		default:
