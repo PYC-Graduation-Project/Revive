@@ -28,9 +28,12 @@ namespace client_fw
 				switch (actor->GetMobilityState())
 				{
 				case eMobilityState::kStatic:
-					m_static_actors.emplace_back(std::move(actor));
+					actor->UpdateActor(delta_time);
+					if (actor->IsUseUpdate())
+						m_static_actors.emplace_back(std::move(actor));
 					break;
 				case eMobilityState::kDestructible:
+					actor->UpdateActor(delta_time);
 					m_destructible_actors.emplace_back(std::move(actor));
 					break;
 				case eMobilityState::kMovable:
@@ -47,8 +50,8 @@ namespace client_fw
 		m_ready_actors.clear();
 
 		UpdateStaticActors(delta_time);
-		UpdateDynamicActors(m_destructible_actors, delta_time);
-		UpdateDynamicActors(m_movable_actors, delta_time);
+		UpdateDestructibleActors(delta_time);
+		UpdateMovableActors(delta_time);
 	}
 
 	void ActorManager::UpdateWorldMatrix()
@@ -61,26 +64,42 @@ namespace client_fw
 	{
 		for (const auto& actor : m_static_actors)
 		{
-			switch (actor->GetActorState())
+			if (actor->GetActorState() == eActorState::kActive)
+				actor->UpdateActor(delta_time);
+		}
+	}
+
+	void ActorManager::UpdateDestructibleActors(float delta_time)
+	{
+		int count = 0;
+
+		for (auto actor = m_destructible_actors.rbegin(); actor != m_destructible_actors.rend(); ++actor)
+		{
+			switch ((*actor)->GetActorState())
 			{
 			case eActorState::kActive:
-				actor->UpdateActor(delta_time);
+				if ((*actor)->IsUseUpdate())
+					(*actor)->UpdateActor(delta_time);
 				break;
 			case eActorState::kPaused:
 				break;
 			case eActorState::kDead:
-				LOG_WARN("Static actor[{0}] cannot be deleted at runtime", actor->GetName());
-				actor->SetActorState(eActorState::kActive);
+				(*actor)->ShutdownActor();
+				std::iter_swap(actor, m_destructible_actors.rbegin() + count);
+				++count;
 				break;
 			}
 		}
+
+		while (count--)
+			m_destructible_actors.pop_back();
 	}
 
-	void ActorManager::UpdateDynamicActors(std::vector<SPtr<Actor>>& actors, float delta_time)
+	void ActorManager::UpdateMovableActors(float delta_time)
 	{
 		int count = 0;
 
-		for (auto actor = actors.rbegin(); actor != actors.rend(); ++actor)
+		for (auto actor = m_movable_actors.rbegin(); actor != m_movable_actors.rend(); ++actor)
 		{
 			switch ((*actor)->GetActorState())
 			{
@@ -91,14 +110,14 @@ namespace client_fw
 				break;
 			case eActorState::kDead:
 				(*actor)->ShutdownActor();
-				std::iter_swap(actor, actors.rbegin() + count);
+				std::iter_swap(actor, m_movable_actors.rbegin() + count);
 				++count;
 				break;
 			}
 		}
 
 		while (count--)
-			actors.pop_back();
+			m_movable_actors.pop_back();
 	}
 
 	void ActorManager::RegisterActor(const SPtr<Actor>& actor)

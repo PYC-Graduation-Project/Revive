@@ -17,6 +17,7 @@ namespace client_fw
 		m_component_manager = CreateUPtr<ComponentManager>();
 		if (m_mobility_state == eMobilityState::kMovable)
 		{
+			UseUpdate();
 			m_physics_manager = CreateUPtr<ActorPhysicsManager>();
 		}
 	}
