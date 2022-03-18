@@ -10,6 +10,7 @@ using namespace std;
 using namespace client_fw;
 void RevivePacketManager::Init()
 {
+	m_obj_map = unordered_map<int, client_fw::SPtr<NetworkMoveObj>>();
 	RegisterRecvFunction(SC_PACKET_MOVE, [this](int c_id, unsigned char* p) {ProcessMove(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_SIGN_IN_OK, [this](int c_id, unsigned char* p) {ProcessSignIn(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_SIGN_UP_OK, [this](int c_id, unsigned char* p) {ProcessSignUp(c_id, p); });
@@ -91,36 +92,35 @@ void RevivePacketManager::ProcessMatching(int c_id, unsigned char* p)
 
 void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 {
-	//sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
-	//NetworkObj* obj = NULL;
-	//if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
-	//{
-	//	obj = new NetworkObj(
-	//		packet->id,
-	//		packet->maxhp,
-	//		packet->name,
-	//		packet->x,
-	//		packet->y,
-	//		packet->z,
-	//		(NW_OBJ_TYPE)packet->object_type
-	//	);
-	//	//NetworkObjManager::GetInst()->AddObj(packet->id, obj);
-	//}
-	//else
-	//{
-	//	obj = new NetworkMoveObj(
-	//		packet->id,
-	//		packet->maxhp,
-	//		packet->name,
-	//		packet->x,
-	//		packet->y,
-	//		packet->z,
-	//		(NW_OBJ_TYPE)packet->object_type,
-	//		packet->damage
-	//	);
-	//
-	//}
-	//NetworkObjManager::GetInst()->AddObj(packet->id, obj);
+	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
+	NetworkObj* obj = NULL;
+	if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
+	{
+		//obj = new NetworkObj(
+		//	packet->id,
+		//	packet->maxhp,
+		//	packet->name,
+		//	packet->x,
+		//	packet->y,
+		//	packet->z,
+		//	(NW_OBJ_TYPE)packet->object_type
+		//);
+		//NetworkObjManager::GetInst()->AddObj(packet->id, obj);
+	}
+	else
+	{
+		auto res=m_obj_map.try_emplace(packet->id, CreateSPtr<NetworkMoveObj>(
+			packet->id,
+			packet->maxhp,
+			packet->name,
+			packet->x,
+			packet->y,
+			packet->z,
+			(NW_OBJ_TYPE)packet->object_type,
+			packet->damage
+		));
+	}
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<event_test::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));
 }
 
 void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)

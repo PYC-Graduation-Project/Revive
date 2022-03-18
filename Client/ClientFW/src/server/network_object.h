@@ -12,6 +12,7 @@ public:
 	{
 			m_name = std::string(name);
 			m_position =client_fw::Vec3(x, y, z);
+			m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 	~NetworkObj()=default;
 

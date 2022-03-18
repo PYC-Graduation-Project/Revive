@@ -1,6 +1,8 @@
 #pragma once
 //#include"server/define.h"
+#include<unordered_map>
 #include "server/packet_manager.h"
+#include"server/network_move_object.h"
 class RevivePacketManager :
     public PacketManager
 {
@@ -18,6 +20,6 @@ public:
     void ProcessTime(int c_id, unsigned char* p);
     void ProcessTest(int c_id, unsigned char* p);
 private:
-
+    std::unordered_map<int, client_fw::SPtr<NetworkMoveObj>>m_obj_map;
 };
 

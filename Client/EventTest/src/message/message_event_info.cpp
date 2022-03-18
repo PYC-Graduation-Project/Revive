@@ -1,6 +1,6 @@
 #include <include/client_core.h>
 #include "message_event_info.h"
-
+#include"server/network_move_object.h"
 namespace event_test
 {
 	RotSpeedMessageEventInfo::RotSpeedMessageEventInfo(UINT event_id, float speed)
@@ -13,5 +13,23 @@ namespace event_test
 		strcpy_s(m_user_id, id);
 		strcpy_s(m_user_pw, pw);
 
+	}
+	
+	ObjectInfoMessageEventInfo::ObjectInfoMessageEventInfo(UINT event_id, const SPtr<NetworkMoveObj>& other)
+		:MessageEventInfo(event_id),m_network_object(other)
+	{
+
+		//m_network_object =CreateSPtr<NetworkMoveObj>(other);
+	}
+	SignUpMessageEventInfo::SignUpMessageEventInfo(UINT event_id, char* id, char* pw):
+		MessageEventInfo(event_id)
+	{
+		strcpy_s(m_user_id, id);
+		strcpy_s(m_user_pw, pw);
+
+	}
+	MatchingMessageEventInfo::MatchingMessageEventInfo(UINT event_id, int user_num):
+		MessageEventInfo(event_id),m_user_num(user_num)
+	{
 	}
 }

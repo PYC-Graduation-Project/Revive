@@ -692,7 +692,6 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 		this_thread::sleep_for(10ms);
 	}
 }
-//static float ro_time = 30.0f;//임시시간 나중에 지우고 각 방마다 넣어주기
 void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 {
 	EXP_OVER* ex_over = new EXP_OVER;
@@ -732,10 +731,10 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		}
 		if (0.01f >= room->GetRoundTime())
 		{
-			m_timer_queue.push(SetTimerEvent(room->GetRoomID(),
-				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10));
 			room->SetRoundTime(30.0f);
 			room->SetRound(room->GetRound() + 1);
+			m_timer_queue.push(SetTimerEvent(room->GetRoomID(),
+				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 16));
 		}
 		m_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
 			EVENT_TYPE::EVENT_TIME, 1000));

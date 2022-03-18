@@ -33,6 +33,7 @@ enum class STATE
 enum class OBJ_TYPE
 {
 	OT_MAPOBJ,
+	OT_BASE,
 	OT_PLAYER,
 	OT_NPC_SKULL,
 	OT_NPC_SKULLKING

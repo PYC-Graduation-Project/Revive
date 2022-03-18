@@ -10,6 +10,16 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 		SendSignInPacket(s_socket, msg->GetUserID(), msg->GetUserPassword());
 		break;
 	}
+	case HashCode("send sign up"): {
+		auto msg = std::static_pointer_cast<event_test::SignUpMessageEventInfo>(message);
+		SendSignUPPacket(s_socket, msg->GetUserID(), msg->GetUserPassword());
+		break;
+	}
+	case HashCode("send sign matching"): {
+		auto msg = std::static_pointer_cast<event_test::MatchingMessageEventInfo>(message);
+		SendMatchingPacket(s_socket, msg->GetUserNum());
+		break;
+	}
 	}
 }
 

@@ -7,9 +7,13 @@
 #include "object/level/message_test_level.h"
 #include "message/message_event_info.h"
 #include "object/actor/rotating_cube.h"
-
+#include"server/network_move_object.h"
 #include <client/event/packetevent/packet_helper.h>
-
+#include<random>
+std::default_random_engine dre;
+std::uniform_int_distribution uid{1,100000000};
+std::string g_id{ std::to_string(uid(dre)) };
+std::string g_pw{ std::to_string(uid(dre)) };
 namespace event_test
 {
 	MessageTestLevel::MessageTestLevel()
@@ -50,14 +54,24 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
-		RegisterPressedEvent("send sign in", { { eKey::k6 } },
+		RegisterPressedEvent("send sign up", { { eKey::k5 } },
 			[this]()->bool {
-				std::string id{"123"};
-				std::string pw{ "123" };
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"),id.data(), pw.data()));
+				
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
 				return true;
 			});
+		RegisterPressedEvent("send sign in", { { eKey::k6 } },
+			[this]()->bool {
+				
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
+				return true;
+			});
+		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
+			[this]()->bool {
 
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				return true;
+			});
 		RegisterPressedEvent("remove rotating cube", { { eKey::kO } },
 			[this]()->bool {
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("remove rotating cube")));
@@ -117,6 +131,22 @@ namespace event_test
 			cube->SetPosition(msg->GetPosition());
 			PacketHelper::ConnectActorToServer(cube, msg->GetObjId());
 			spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
+			break;
+		}
+		case HashCode("spawn object"):
+		{
+			
+			auto msg = std::static_pointer_cast<event_test::ObjectInfoMessageEventInfo>(message);
+			auto obj =msg->GetNetworkObj();
+			LOG_INFO("id : {0}",obj->GetID());
+			LOG_INFO("name : {0}", obj->GetName());
+			LOG_INFO("hp : {0}", obj->GetHp());
+			LOG_INFO("damage : {0}", obj->GetDamage());
+			LOG_INFO("position :{0}", obj->GetPosition());
+			//auto cube = CreateSPtr<RotatingCube>();
+			//SpawnActor(cube);
+			//PacketHelper::ConnectActorToServer(cube, msg->GetObjId());
+			//spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
 			break;
 		}
 		default:

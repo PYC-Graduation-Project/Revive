@@ -26,6 +26,17 @@ public:
         m_damage = damage;
         m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
     }
+    NetworkMoveObj(const NetworkMoveObj& other)
+    {
+        m_id = other.GetID();
+        m_name = std::string(other.GetName());
+        m_hp = other.GetHp();
+        m_max_hp = other.GetMaxHp();
+        m_position = other.GetPosition();
+        m_type = other.GetType();
+        m_damage = other.GetDamage();
+        m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+    }
     ~NetworkMoveObj();
 
     void SetType(const NW_OBJ_TYPE val) { m_type = val; }
