@@ -18,6 +18,7 @@ namespace client_fw
 
 			m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
 				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
+			D3DUtil::SetObjectName(m_vertex_buffer.Get(), "vertex buffer");
 
 			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
 			m_vertex_buffer_view.SizeInBytes = vertices_size;
@@ -93,6 +94,7 @@ namespace client_fw
 
 			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data,
 				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_vertex_mapped_data);
+			D3DUtil::SetObjectName(m_vertex_buffer.Get(), "upload vertex buffer");
 
 			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
 			m_vertex_buffer_view.SizeInBytes = sizeof(VertexType) * num_of_data;

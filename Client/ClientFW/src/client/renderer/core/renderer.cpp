@@ -124,6 +124,7 @@ namespace client_fw
 		if (m_is_level_changed)
 		{
 			const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
+
 			if (frame_resource->GetFence() != 0 &&
 				m_fence->GetCompletedValue() < frame_resource->GetFence())
 			{
@@ -205,12 +206,6 @@ namespace client_fw
 			ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
 			m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
 
-			/*WaitForGpuCompelete();
-
-			m_swap_chain->Present(1, 0);
-
-			MoveToNextFrame();*/
-
 			m_swap_chain->Present(0, 0);
 			m_cur_swapchain_buffer = (m_cur_swapchain_buffer + 1) % s_swap_chain_buffer_count;
 
@@ -287,10 +282,7 @@ namespace client_fw
 			LOG_ERROR("Could not create fence");
 			return false;
 		}
-		for (auto& fence_value : m_fence_values)
-			fence_value = 0;
 		D3DUtil::SetObjectName(m_fence.Get(), "renderer_fence");
-		m_fence_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 		D3DUtil::s_cbvsrvuav_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3DUtil::s_rtv_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -541,7 +533,7 @@ namespace client_fw
 		ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
 		m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
 
-		WaitForGpuCompelete();
+		FlushCommandQueue();
 
 		SetViewAndScissor(0.0f, 0.0f, static_cast<float>(window->width), static_cast<float>(window->height));
 
@@ -582,32 +574,5 @@ namespace client_fw
 			WaitForSingleObject(event_handle, INFINITE);
 			CloseHandle(event_handle);
 		}
-	}
-
-	void Renderer::WaitForGpuCompelete()
-	{
-		UINT64 fence_value = ++m_fence_values[m_cur_swapchain_buffer];
-
-		if (FAILED(m_command_queue->Signal(m_fence.Get(), fence_value)))
-		{
-			LOG_WARN("Gpu cannot excute signal");
-		}
-
-		if (m_fence->GetCompletedValue() < fence_value)
-		{
-			if (FAILED(m_fence->SetEventOnCompletion(fence_value, m_fence_event)))
-			{
-				LOG_WARN("Failed to reach fence value");
-			}
-			WaitForSingleObject(m_fence_event, INFINITE);
-		}
-
-	}
-
-	void Renderer::MoveToNextFrame()
-	{
-		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
-
-		WaitForGpuCompelete();
 	}
 }

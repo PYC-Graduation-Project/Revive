@@ -39,8 +39,6 @@ namespace client_fw
 
 		void SetViewAndScissor(float left, float top, float width, float height);
 		void FlushCommandQueue();
-		void WaitForGpuCompelete();
-		void MoveToNextFrame();
 
 		bool InitializeRenderSystem();
 		bool InitializeTextRenderSystem();
@@ -56,8 +54,6 @@ namespace client_fw
 
 		ComPtr<ID3D12Fence> m_fence = nullptr;
 		UINT m_current_fence = 0;
-		std::array<UINT64, s_swap_chain_buffer_count> m_fence_values;
-		HANDLE m_fence_event = NULL;
 
 		bool m_is_use_4x_mass = false;
 		UINT m_4x_msaa_quality = 0;
