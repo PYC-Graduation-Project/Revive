@@ -55,7 +55,6 @@ namespace client_fw
 
 			std::vector<RSInstanceData> instance_data(mesh_count);
 
-			UINT index = 0;
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
 			{
 				if (mesh_comp->IsVisible())
@@ -66,17 +65,11 @@ namespace client_fw
 						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
 
 					mesh_comp->SetVisiblity(false);
-
-					++index;
 				}
 			}
 
-			if (index == 0)
-				info.draw_start_index = -1;
-			else
-				info.draw_start_index = start_index;
-
-			start_index += index;
+			info.draw_start_index = start_index;
+			start_index += mesh_count;
 
 			mesh_data->mesh->ResetLOD();
 
@@ -131,20 +124,17 @@ namespace client_fw
 
 			for (const auto& mesh_info : instance_info.mesh_draw_infos)
 			{
-				if (mesh_info.draw_start_index >= 0)
+				mesh_info.mesh->PreDraw(command_list);
+
+				for (UINT lod = 0; lod < mesh_info.mesh->GetLODCount(); ++lod)
 				{
-					mesh_info.mesh->PreDraw(command_list);
-
-					for (UINT lod = 0; lod < mesh_info.mesh->GetLODCount(); ++lod)
+					if (mesh_info.num_of_lod_instance_data[lod] > 0)
 					{
-						if (mesh_info.num_of_lod_instance_data[lod] > 0)
-						{
-							command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
-								(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
-								instance_data->GetByteSize());
+						command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
+							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
+							instance_data->GetByteSize());
 
-							mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
-						}
+						mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
 					}
 				}
 			}

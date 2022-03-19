@@ -174,9 +174,9 @@ namespace client_fw
 				return false;
 			}
 
-			m_render_system->PreDraw(m_device.Get(), m_command_list.Get());
 			m_text_render_system->Draw();
 			m_render_system->Draw(m_command_list.Get());
+			m_render_system->PreDraw(m_device.Get(), m_command_list.Get());
 
 			m_command_list->RSSetViewports(1, &m_viewport);
 			m_command_list->RSSetScissorRects(1, &m_scissor_rect);

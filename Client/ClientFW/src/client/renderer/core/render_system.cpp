@@ -90,7 +90,7 @@ namespace client_fw
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
 			});
-	
+
 		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
@@ -98,7 +98,6 @@ namespace client_fw
 			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
-
 
 		for (const auto& [name, shader] : m_graphics_shaders)
 			shader->UpdateFrameResource(device);

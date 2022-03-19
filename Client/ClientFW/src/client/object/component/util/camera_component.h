@@ -28,8 +28,8 @@ namespace client_fw
 	{
 		LONG left = 0;
 		LONG top = 0;
-		LONG width = 1366;
-		LONG height = 768;
+		LONG width = 100;
+		LONG height = 100;
 	};
 
 	class CameraComponent : public SceneComponent

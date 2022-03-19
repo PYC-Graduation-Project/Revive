@@ -77,26 +77,30 @@ namespace client_fw
 
 			if (camera->GetCameraState() == eCameraState::kActive)
 			{
-				
-				gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
-					index * camera_resource->GetCameraData()->GetByteSize();
+				const auto& render_texture = camera->GetRenderTexture();
 
-				//일단 임시, 추후에 resize작업을 하게 되면 설정
-				const auto& cv = camera->GetRenderTexture()->GetTextureSize();
-				D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
-				D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
-				command_list->RSSetViewports(1, &view);
-				command_list->RSSetScissorRects(1, &scissor);
+				if (render_texture->GetResource() != nullptr)
+				{
+					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
+						index * camera_resource->GetCameraData()->GetByteSize();
 
-				command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
+					//일단 임시, 추후에 resize작업을 하게 되면 설정
+					const auto& cv = camera->GetRenderTexture()->GetTextureSize();
+					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
+					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
+					command_list->RSSetViewports(1, &view);
+					command_list->RSSetScissorRects(1, &scissor);
 
-				camera->GetRenderTexture()->GBufferPreDraw(command_list);
-				before_deferred_function(command_list);
-				camera->GetRenderTexture()->GBufferPostDraw(command_list);
+					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
 
-				camera->GetRenderTexture()->PreDraw(command_list);
-				deferred_function(command_list);
-				camera->GetRenderTexture()->PostDraw(command_list);
+					camera->GetRenderTexture()->GBufferPreDraw(command_list);
+					before_deferred_function(command_list);
+					camera->GetRenderTexture()->GBufferPostDraw(command_list);
+
+					camera->GetRenderTexture()->PreDraw(command_list);
+					deferred_function(command_list);
+					camera->GetRenderTexture()->PostDraw(command_list);
+				}
 			}
 			++index;
 		}
