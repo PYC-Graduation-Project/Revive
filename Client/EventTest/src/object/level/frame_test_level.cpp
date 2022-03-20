@@ -1,7 +1,5 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
-#include <client/object/actor/default_pawn.h>
-#include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
 #include <client/object/component/render/billboard_component.h>
@@ -21,21 +19,11 @@ namespace event_test
 
 	bool FrameTestLevel::Initialize()
 	{
-		auto player = CreateSPtr<DefaultPawn>();
-		auto controller = CreateSPtr<PlayerController>();
-
-		controller->Possess(player);
-		SpawnActor(player);
-		SpawnActor(controller);
-
-		Input::SetInputMode(eInputMode::kGameOnly);
-
 		return true;
 	}
 
 	void FrameTestLevel::Shutdown()
 	{
-		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
 	void FrameTestLevel::Update(float delta_time)

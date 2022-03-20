@@ -1,7 +1,5 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
-#include <client/object/actor/default_pawn.h>
-#include <client/object/actor/player_controller.h>
 #include <client/util/octree/octree.h>
 #include <client/event/messageevent/message_helper.h>
 #include "object/level/message_test_level.h"
@@ -19,13 +17,6 @@ namespace event_test
 
 	bool MessageTestLevel::Initialize()
 	{
-		auto player = CreateSPtr<DefaultPawn>();
-		auto controller = CreateSPtr<PlayerController>();
-
-		controller->Possess(player);
-		SpawnActor(player);
-		SpawnActor(controller);
-
 		auto cube = CreateSPtr<RotatingCube>();
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
@@ -61,15 +52,11 @@ namespace event_test
 			PacketHelper::RegisterPacketEventToActor(CreateSPtr<MessageEventInfo>(HashCode("change rotating speed")), 0);
 			return true; 
 			});
-		
-
-		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
 	}
 
 	void MessageTestLevel::Shutdown()
 	{
-		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
 	void MessageTestLevel::Update(float delta_time)

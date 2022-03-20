@@ -3,6 +3,9 @@
 #include "client/input/input.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/object/actor/pawn.h"
+#include "client/object/level/gamemode/game_mode_base.h"
+#include "client/object/level/core/level_manager.h"
+#include "client/object/level/core/level.h"
 
 namespace client_fw
 {
@@ -18,6 +21,18 @@ namespace client_fw
 
 	bool PlayerController::Initialize()
 	{
+		const auto& cur_level = LevelManager::GetLevelManager().GetCurrentLevel();
+		if (cur_level != nullptr)
+		{
+			if (cur_level->GetGameMode()->GetPlayerController() != shared_from_this())
+			{
+				LOG_ERROR("Could not create another player controller");
+				return false;
+			}
+			return true;
+		}
+		return false;
+
 	/*	m_camera_component->SetActive();
 		m_camera_component->SetOwnerController(shared_from_this());
 		m_camera_component->SetMainCamera();*/
@@ -32,7 +47,10 @@ namespace client_fw
 
 	void PlayerController::Shutdown()
 	{
+		if (m_controlled_pawn != nullptr)
+			m_controlled_pawn->SetActorState(eActorState::kDead);
 		m_custom_camera_component = nullptr;
+		
 	}
 
 	void PlayerController::AddPitchInput(float value)
@@ -121,8 +139,13 @@ namespace client_fw
 
 	void PlayerController::SetControlledCamera(const SPtr<CameraComponent>& camera_comp)
 	{
-		camera_comp->SetActive();
-		camera_comp->SetOwnerController(shared_from_this());
-		camera_comp->SetMainCamera();
+		const auto& cur_level = LevelManager::GetLevelManager().GetCurrentLevel();
+		if (cur_level != nullptr &&
+			cur_level->GetGameMode()->GetPlayerController() == shared_from_this())
+		{
+			camera_comp->SetActive();
+			camera_comp->SetOwnerController(shared_from_this());
+			camera_comp->SetMainCamera();
+		}
 	}
 }

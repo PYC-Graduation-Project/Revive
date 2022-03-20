@@ -49,16 +49,17 @@ namespace client_fw
 		{
 			m_octree_manager->RegisterVisualOctrees(std::move(m_ready_level->CreateVisualOctrees()));
 			m_octree_manager->RegisterCollisionOctrees(std::move(m_ready_level->CreateCollisionOctrees()));
-			if (m_ready_level->InitializeLevel())
+			m_cur_level = std::move(m_ready_level);
+			if (m_cur_level->InitializeLevel())
 			{
-				m_cur_level = std::move(m_ready_level);
 				m_cur_level->SetRuntime();
 				m_ready_level = nullptr;
 			}
 			else
 			{
-				LOG_WARN("Could not initailize level : {0}", m_ready_level->GetName());
-				m_ready_level->ShutdownLevel();
+				LOG_WARN("Could not initailize level : {0}", m_cur_level->GetName());
+				m_cur_level->ShutdownLevel();
+				m_cur_level = nullptr;
 				m_octree_manager->UnregisterOctrees();
 			}
 		}
