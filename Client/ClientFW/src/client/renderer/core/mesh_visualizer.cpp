@@ -30,7 +30,8 @@ namespace client_fw
 
 		for (const auto& render_comp : movable_render_comps)
 		{
-			if (bounding_frustum.Intersects(*render_comp->GetOrientedBox()))
+			if (render_comp->IsHiddenInGame() == false &&
+				bounding_frustum.Intersects(*render_comp->GetOrientedBox()))
 			{
 				render_comp->SetVisiblity(true);
 				render_comp->UpdateLevelOfDetail(eye);
@@ -48,7 +49,7 @@ namespace client_fw
 			case DirectX::INTERSECTS:
 				for (const auto& render_cmp : node->render_components)
 				{
-					if (render_cmp->IsVisible() == false)
+					if (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false)
 					{
 						if (bounding_frustum.Intersects(*render_cmp->GetOrientedBox()))
 						{
@@ -61,7 +62,7 @@ namespace client_fw
 			case DirectX::CONTAINS:
 				for (const auto& render_cmp : node->render_components)
 				{
-					if (render_cmp->IsVisible() == false)
+					if (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false)
 					{
 						render_cmp->SetVisiblity(true);
 						render_cmp->UpdateLevelOfDetail(eye);

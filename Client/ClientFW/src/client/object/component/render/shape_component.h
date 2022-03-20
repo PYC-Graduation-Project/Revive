@@ -14,12 +14,9 @@ namespace client_fw
 		virtual void UpdateOrientedBox() override;
 
 	protected:
-		bool m_hidden_in_game = true;
 		Vec3 m_extents;
 
 	public:
-		bool HiddenInGame() const { return m_hidden_in_game; }
-		void SetHiddenInGame(bool value) { m_hidden_in_game = value; }
 		const Vec3& GetExtents() const { return m_extents; }
 	};
 }
