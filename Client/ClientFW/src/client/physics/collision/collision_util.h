@@ -19,6 +19,7 @@ namespace client_fw
 	struct CollisionInfo //런타임에 여기 있는 데이터를 변환할 시 문제가 발생할 확률이 매우 높습니다.
 	{
 		bool is_collision = false;
+		bool is_blocking = false;
 		std::string collision_type = "default";
 		std::set<std::string> collisionable_types = { "default" };
 		eCollisionComplex complex = eCollisionComplex::kLow;

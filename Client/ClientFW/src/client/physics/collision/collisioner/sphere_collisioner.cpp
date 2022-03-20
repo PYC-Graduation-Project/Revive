@@ -29,4 +29,7 @@ namespace client_fw
 		}
 		return false;
 	}
+	void SphereCollisioner::BlockOtherComponent(const SPtr<SceneComponent>& other)
+	{
+	}
 }

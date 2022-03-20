@@ -27,4 +27,7 @@ namespace client_fw
 		}
 		return false;
 	}
+	void BoxCollisioner::BlockOtherComponent(const SPtr<SceneComponent>& other)
+	{
+	}
 }

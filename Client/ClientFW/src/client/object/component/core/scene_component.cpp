@@ -47,6 +47,13 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
+			if (m_is_updated_world_matrix == false)
+			{
+				m_world_previous_matrix = m_world_matrix;
+				m_world_previous_position = m_world_position;
+				m_world_previous_rotation = m_world_rotation;
+			}
+
 			const auto& world = owner->GetWorldMatrix();
 			m_world_matrix = m_local_matrix * world;
 			m_world_position = vec3::TransformCoord(m_local_position, world);
@@ -169,6 +176,7 @@ namespace client_fw
 
 	void SceneComponent::AddCollidedComponent(const SPtr<SceneComponent>& component)
 	{
-		m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
+		if (GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+			m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
 	}
 }

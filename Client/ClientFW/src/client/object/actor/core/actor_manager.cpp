@@ -29,8 +29,7 @@ namespace client_fw
 				{
 				case eMobilityState::kStatic:
 					actor->UpdateActor(delta_time);
-					if (actor->IsUseUpdate())
-						m_static_actors.emplace_back(std::move(actor));
+					m_static_actors.emplace_back(std::move(actor));
 					break;
 				case eMobilityState::kDestructible:
 					actor->UpdateActor(delta_time);
@@ -64,7 +63,7 @@ namespace client_fw
 	{
 		for (const auto& actor : m_static_actors)
 		{
-			if (actor->GetActorState() == eActorState::kActive)
+			if (actor->GetActorState() == eActorState::kActive && actor->IsUseUpdate())
 				actor->UpdateActor(delta_time);
 		}
 	}

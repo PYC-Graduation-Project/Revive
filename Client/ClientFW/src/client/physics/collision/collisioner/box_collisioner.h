@@ -10,5 +10,6 @@ namespace client_fw
 		virtual ~BoxCollisioner() = default;
 
 		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual void BlockOtherComponent(const SPtr<SceneComponent>& other) override;
 	};
 }

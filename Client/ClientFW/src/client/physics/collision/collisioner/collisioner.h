@@ -21,6 +21,7 @@ namespace client_fw
 		virtual ~Collisioner() = default;
 
 		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) = 0;
+		virtual void BlockOtherComponent(const SPtr<SceneComponent>& other) = 0;
 
 	protected:
 		CollisionInfo m_collision_info;

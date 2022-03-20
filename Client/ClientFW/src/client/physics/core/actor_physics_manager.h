@@ -34,6 +34,7 @@ namespace client_fw
 		bool IsActive() const { return m_is_active > 0; }
 		void SetActive(bool active) { active ? ++m_is_active : --m_is_active; }
 		void SetOwner(const WPtr<Actor>& owner) { m_owner = owner; }
+		void ResetGravitySpeed() { m_gravity_speed = 0.0f; }
 	};
 
 }
