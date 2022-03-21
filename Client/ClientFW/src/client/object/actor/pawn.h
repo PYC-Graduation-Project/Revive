@@ -16,8 +16,6 @@ namespace client_fw
 
 		virtual void AddMovementInput(const Vec3& direction, float scale) {}
 
-		friend void Controller::Possess(const SPtr<Pawn>& pawn);
-
 	protected:
 		virtual void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
@@ -39,10 +37,8 @@ namespace client_fw
 		bool m_use_controller_yaw = false;
 		bool m_use_controller_roll = false;
 
-	private:
-		void SetController(const SPtr<Controller>& controller);
-
 	public:
+		void SetController(const SPtr<Controller>& controller);
 		bool IsNeedUpdate() const { return m_is_need_update; }
 		bool IsUseControllerPitch() const { return m_use_controller_pitch; }
 		bool IsUseControllerYaw() const { return m_use_controller_yaw; }

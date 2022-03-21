@@ -20,7 +20,7 @@ namespace client_fw
 	{
 	}
 
-	void MainCameraUIShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void MainCameraUIShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 	}
 

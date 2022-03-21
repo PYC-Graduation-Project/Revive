@@ -12,8 +12,8 @@ namespace event_test
 
     class MaterialBillboardActor final : public Actor
     {
-    //public:
-    private:
+    public:
+    //private:
         MaterialBillboardActor(eMobilityState mobility, const std::string& path, const Vec2&& size, bool fix_up);
         virtual ~MaterialBillboardActor() = default;
 

@@ -5,6 +5,7 @@
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/object/component/render/box_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
 {
@@ -35,6 +36,104 @@ namespace client_fw
 			break;
 		}
 		return false;
+	}
+
+	void StaticMeshCollisioner::BlockOtherComponent(const SPtr<SceneComponent>& other)
+	{
+		if (other->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+		{
+		}
+		else
+		{
+			const auto& owner = m_owner.lock();
+			Vec3 p_pos = owner->GetWorldPreviousPosition();
+			Vec3 velocity = owner->GetWorldPosition() - p_pos;;
+			const auto& other_box = *(other->GetOrientedBox());
+			BOrientedBox box(*owner->GetOrientedBox());
+			
+			if (velocity != vec3::ZERO)
+			{
+				Vec3 time{ -0.01f, -0.01f, -0.01f };
+
+				float t = 1.0f;
+				for (UINT i = 0; i < 4; ++i)
+				{
+					if (time.x < 0.0f)
+					{
+						box.SetCenter(p_pos + Vec3(velocity.x * t, 0.0f, 0.0f));
+						if (box.Intersects(other_box) == false)
+							time.x = t;
+					}
+
+					if (time.y < 0.0f)
+					{
+						box.SetCenter(p_pos + Vec3(0.0f, velocity.y * t, 0.0f));
+						if (box.Intersects(other_box) == false)
+						{
+							time.y = t;
+						}
+					}
+
+					if (time.z < 0.0f)
+					{
+						box.SetCenter(p_pos + Vec3(0.0f, 0.0f, velocity.z * t));
+						if (box.Intersects(other_box) == false)
+							time.z = t;
+					}
+					t *= 0.5f;
+				}
+
+				owner->GetOwner().lock()->GetPhysicsManager()->ResetGravitySpeed();
+
+				box.SetCenter(p_pos + velocity * time);
+				if (box.Intersects(other_box) == false)
+				{
+					owner->GetOwner().lock()->SetPosition(p_pos + velocity * time);
+					return;
+				}
+			}
+
+			const auto& corners = box.GetCorners();
+			float distance = 0.0f, length = box.GetExtents().Length();
+			Vec3 direction;
+			for (const auto& corner : corners)
+			{
+				if (other_box.Contains(corner) != ContainmentType::DISJOINT)
+				{
+					float dis;
+					Vec3 dir = vec3::Normalize(corner - box.GetCenter());
+					if (other_box.Intersects(box.GetCenter(), dir, dis) &&
+						distance <= fabs(dis) && fabs(dis) < length)
+					{
+						distance = dis;
+						direction = dir;
+					}
+				}
+			}
+
+			if (distance == 0.0f)
+			{
+				for (const auto& corner : corners)
+				{
+					float dis;
+					Vec3 dir = vec3::Normalize(box.GetCenter() - corner);
+					if (other_box.Intersects(corner, dir, dis) &&
+						distance <= fabs(dis) && fabs(dis) < length)
+					{
+						distance = dis;
+						direction = dir;
+					}
+				}
+
+				p_pos += direction * distance;
+			}
+			else
+			{
+				p_pos -= direction * (length - distance);
+			}
+
+			owner->GetOwner().lock()->SetPosition(p_pos);
+		}
 	}
 
 	bool StaticMeshCollisioner::CheckCollsionWithStaticMesh(const SPtr<StaticMeshComponent>& mesh1, eCollisionComplex complex1,

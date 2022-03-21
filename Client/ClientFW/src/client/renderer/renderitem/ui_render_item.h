@@ -3,8 +3,9 @@
 namespace client_fw
 {
 	class UserInterface;
-	class UIPrimitive;
 	class CameraComponent;
+
+	class UIVertex;
 
 	class UIRenderItem final
 	{
@@ -15,16 +16,14 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
-			const Vec2& window_size);
-		void Draw(ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device, const Vec2& window_size);
+		void UpdateFrameResource(ID3D12Device* device);
+		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function);
 
 	private:
-		UINT m_num_of_ui_layer = 0;
-		UINT m_size_of_user_interface_data = 0;
 		UINT m_num_of_draw_ui_data = 0;
-		UPtr<UIPrimitive> m_ui_primitive;
 
+		std::vector<UIVertex> m_vertices;
 	};
 }
 

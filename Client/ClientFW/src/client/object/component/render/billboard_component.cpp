@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "client/object/component/render/billboard_component.h"
-#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
-	BillboardComponent::BillboardComponent(const std::string& name, eBillboardType type)
-		: RenderComponent(name, 20, eRenderType::kBillboard, Render::ConvertShaderType(eShaderType::kBillboard))
+	BillboardComponent::BillboardComponent(const std::string& name,
+		eBillboardType type, const std::string& draw_shader_name)
+		: RenderComponent(name, 20, eRenderType::kBillboard, draw_shader_name)
 		, m_type(type), m_size(Vec2(100.f, 100.f))
 	{
 		m_oriented_box = CreateSPtr<BOrientedBox>();
@@ -14,7 +14,7 @@ namespace client_fw
 	void BillboardComponent::UpdateOrientedBox()
 	{
 		m_oriented_box->Transform(BOrientedBox(), GetWorldMatrix());
-		float extent = m_size.Length();
+		float extent = m_size.Length() * 0.5f;
 		m_oriented_box->SetExtents(Vec3(extent, extent, extent));
 	}
 

@@ -20,7 +20,7 @@ namespace client_fw
 		m_vertex_info->CreateResource<ShapeVertex>(device, num_of_data);
 	}
 
-	void Shape::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
+	void Shape::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const
 	{
 		m_vertex_info->Draw(command_list);
 	}

@@ -24,12 +24,10 @@ namespace client_fw
 		m_graphics_shaders.clear();
 	}
 
-	void GraphicsRenderLevel::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void GraphicsRenderLevel::Update(ID3D12Device* device)
 	{
-		//UpdateCommonResource(device, command_list);
-
 		for (const auto& shader : m_graphics_shaders)
-			shader->Update(device, command_list, m_level_type);
+			shader->Update(device, m_level_type);
 	}
 
 	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list) const

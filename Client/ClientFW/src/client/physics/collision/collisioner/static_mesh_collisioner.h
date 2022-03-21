@@ -13,6 +13,7 @@ namespace client_fw
 		virtual ~StaticMeshCollisioner() = default;
 
 		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual void BlockOtherComponent(const SPtr<SceneComponent>& other) override;
 
 	private:
 		//Check static mesh

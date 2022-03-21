@@ -5,15 +5,12 @@ namespace client_fw
 	class BillboardComponent;
 	class TextureBillboardComponent;
 	class MaterialBillboardComponent;
-	class BillboardPrimitive;
 
-	enum class eBillboardRenderType
-	{
-		kTexture, kFixUpTexture,
-		kMaterial, kFixUpMaterial
-	};
+	template<class VertexType>
+	class UploadPrimitive;
+	class BillboardVertex;
 
-	class BillboardRenderItem final
+	class BillboardRenderItem
 	{
 	public:
 		BillboardRenderItem();
@@ -22,26 +19,52 @@ namespace client_fw
 		void Initialize(ID3D12Device* device);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void PreDraw(ID3D12GraphicsCommandList* command_list);
-		void Draw(ID3D12GraphicsCommandList* command_list, eBillboardRenderType type);
-		//void DrawFixUp(ID3D12GraphicsCommandList* command_list);
+		virtual void Update(ID3D12Device* device) = 0;
+		virtual void UpdateFrameResource(ID3D12Device* device) = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) = 0;
 
-		void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp);
-		void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp);
+		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
+
+	protected:
+		std::vector<BillboardVertex> m_vertices;
+	};
+	
+	class TextureBillboardRenderItem final : public BillboardRenderItem
+	{
+	public:
+		TextureBillboardRenderItem();
+		virtual ~TextureBillboardRenderItem();
+
+		virtual void Update(ID3D12Device* device) override;
+		virtual void UpdateFrameResource(ID3D12Device* device) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) override;
+
+		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
 
 	private:
-		bool m_is_need_resource_create = false;
-		std::vector<SPtr<TextureBillboardComponent>> m_texture_billboard_components;
-		std::vector<SPtr<MaterialBillboardComponent>> m_material_billboard_components;
+		std::vector<SPtr<TextureBillboardComponent>> m_billboard_components;
+	};
 
-		UINT m_num_of_billboard_data = 0;
-		std::array<UINT, 4> m_num_of_draw_billboard_data;
-		std::array<UINT, 4> m_start_vertex_locations;
-		UPtr<BillboardPrimitive> m_billboard_primitive;
-
+	class MaterialBillboardRenderItem final : public BillboardRenderItem
+	{
 	public:
-		bool IsDrawDataEmpty(eBillboardRenderType type) const { return m_num_of_draw_billboard_data[ToUnderlying(type)] == 0; }
+		MaterialBillboardRenderItem();
+		virtual ~MaterialBillboardRenderItem();
+
+		virtual void Update(ID3D12Device* device) override;
+		virtual void UpdateFrameResource(ID3D12Device* device) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function);
+
+		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+
+	private:
+		std::vector<SPtr<MaterialBillboardComponent>> m_billboard_components;
 	};
 }
 

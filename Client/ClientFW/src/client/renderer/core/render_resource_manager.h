@@ -32,7 +32,7 @@ namespace client_fw
 
 		bool Initialize(ID3D12Device* device);
 		void Shutdown();
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		void RegisterMesh(const SPtr<Mesh>& mesh);

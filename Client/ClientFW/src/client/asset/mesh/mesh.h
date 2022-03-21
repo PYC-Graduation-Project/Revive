@@ -28,9 +28,9 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const = 0;
-		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 		virtual void CreateDataForLodMesh(UINT lod);
+		virtual void ResetLOD();
 
 	protected:
 		UINT m_lod_count = 0;
@@ -76,7 +76,7 @@ namespace client_fw
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const override;
 
 		SPtr<KDTree> m_bounding_tree;
 

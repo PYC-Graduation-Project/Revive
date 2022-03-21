@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "client/object/level/core/level.h"
+#include "client/object/level/gamemode/game_mode_base.h"
 #include "client/object/actor/core/actor_manager.h"
 #include "client/object/actor/core/actor.h"
+#include "client/object/actor/player_controller.h"
+#include "client/object/actor/default_pawn.h"
 #include "client/object/ui/core/user_interface_manager.h"
 #include "client/input/input.h"
 #include "client/util/octree/octree.h"
@@ -22,7 +25,10 @@ namespace client_fw
 
 	bool Level::InitializeLevel()
 	{
-		return Initialize();
+		m_game_mode = CreateGameMode();
+		bool ret = m_game_mode->Initialize(shared_from_this());
+		ret &= Initialize();
+		return ret;
 	}
 
 	void Level::ShutdownLevel()
@@ -32,6 +38,8 @@ namespace client_fw
 
 		UserInterfaceManager::GetUIManager().Reset();
 		m_actor_manager->Shutdown();
+		if (m_game_mode != nullptr)
+			m_game_mode->Shutdown();
 
 		Shutdown();
 	}
@@ -73,6 +81,11 @@ namespace client_fw
 	void Level::RegisterUILayer(const SPtr<UserInterfaceLayer>& ui_layer) const
 	{
 		UserInterfaceManager::GetUIManager().RegisterUserInterfaceLayer(ui_layer);
+	}
+
+	UPtr<GameMode> Level::CreateGameMode() const
+	{
+		return CreateUPtr<GameMode>();
 	}
 	
 	void Level::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

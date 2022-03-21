@@ -32,15 +32,11 @@ namespace client_fw
 		void ConnectActorToServer(const SPtr<Actor>& actor, UINT id);
 		SPtr<Actor> DisconnectActorFromServer(UINT id);
 
-		//void SpawnActorToCurrentLevel(const SPtr<Actor>& actor, UINT id);
-		//void RemoveActorFromCurrentLevel(UINT id);
-
 	private:
 		Concurrency::concurrent_queue<PacketIDEventInfo> m_server_send_message_to_actor_queue;
 		Concurrency::concurrent_queue<SPtr<MessageEventInfo>> m_server_send_message_to_level_queue;
 		Concurrency::concurrent_queue<SPtr<MessageEventInfo>> m_server_receive_message_queue;
 
-		//std::vector<SPtr<Actor>> m_connected_actors;
 		std::unordered_map<UINT, SPtr<Actor>> m_connected_actor_map;
 	};
 }

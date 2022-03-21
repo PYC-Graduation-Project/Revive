@@ -10,16 +10,16 @@ namespace client_fw
 	class CameraComponent;
 
 
-	//현재 전략은 Opaque -> Deferred -> Transperent -> Compute -> UI
+	//현재 전략은 Opaque -> Deferred -> Transparent -> Compute -> UI
 	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque, kDeferred, kUI, kFinalView
+		kOpaque, kDeferred, kTransparent, kUI, kFinalView
 	};
 
 	enum class eShaderType
 	{
-		kOpaqueMesh, kShapeBox, kBillboard,
+		kOpaqueMesh, kShapeBox, kTextureBillboard, kOpaqueMaterialBillboard, kOpaqueWidget, kMaskedWidget
 	};
 
 	enum class eKindOfRenderLevel

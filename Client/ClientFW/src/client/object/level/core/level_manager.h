@@ -32,6 +32,7 @@ namespace client_fw
 
 		SPtr<Level> m_ready_level;
 		SPtr<Level> m_cur_level;
+		SPtr<Level> m_dead_level;
 		UPtr<OctreeManager> m_octree_manager;
 		std::vector<std::function<void()>> m_level_close_events;
 

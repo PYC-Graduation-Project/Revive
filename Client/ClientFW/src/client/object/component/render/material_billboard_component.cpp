@@ -5,8 +5,9 @@
 
 namespace client_fw
 {
-	MaterialBillboardComponent::MaterialBillboardComponent(const std::string& name)
-		: BillboardComponent(name, eBillboardType::kMaterial)
+	MaterialBillboardComponent::MaterialBillboardComponent(const std::string& name,
+		const std::string& draw_shader_name)
+		: BillboardComponent(name, eBillboardType::kMaterial, draw_shader_name)
 	{
 	}
 

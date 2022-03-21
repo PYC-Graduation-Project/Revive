@@ -22,7 +22,8 @@ namespace client_fw
 
 	private:
 		void UpdateStaticActors(float delta_time);
-		void UpdateDynamicActors(std::vector<SPtr<Actor>>& actors, float delta_time);
+		void UpdateDestructibleActors(float delta_time);
+		void UpdateMovableActors(float delta_time);
 
 	private:
 		std::vector<SPtr<Actor>> m_ready_actors;

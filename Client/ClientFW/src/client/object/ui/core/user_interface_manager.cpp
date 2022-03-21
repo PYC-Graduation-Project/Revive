@@ -48,7 +48,7 @@ namespace client_fw
 
 	bool UserInterfaceManager::RegisterUserInterfaceLayer(const SPtr<UserInterfaceLayer>& ui_layer)
 	{
-		if (ui_layer->InitlaizeUILayer())
+		if (ui_layer->InitializeUILayer())
 		{
 			m_ui_layers.push_back(ui_layer);
 			return true;

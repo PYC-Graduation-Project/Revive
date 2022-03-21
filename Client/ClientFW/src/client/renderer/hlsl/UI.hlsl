@@ -70,7 +70,8 @@ void GSRenderUI(point VS_UI_INPUT input[1], inout TriangleStream<GS_UI_OUTPUT> o
     
     output.texture_index = input[0].texture_index;
     output.color = input[0].color;
-
+    
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(float4(vertices[i], 0.0f, 1.0f), g_projection);

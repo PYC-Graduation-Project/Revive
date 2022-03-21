@@ -33,15 +33,22 @@ namespace client_fw
 							comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
 							comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr &&
 							comp->IsCollidedComponent(other_comp) == false &&
-							other_comp->IsCollidedComponent(other_comp) == false)
+							other_comp->IsCollidedComponent(comp) == false)
 						{
 							if (comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp))
 							{
 								comp->AddCollidedComponent(other_comp);
 								other_comp->AddCollidedComponent(comp);
-								if (comp->GetCollisioner()->GetCollisionInfo().generate_collision_event == true)
+
+								const auto& col_info = comp->GetCollisioner()->GetCollisionInfo();
+								const auto& other_col_info = other_comp->GetCollisioner()->GetCollisionInfo();
+
+								if (col_info.is_blocking == true && other_col_info.is_blocking == true)
+									comp->GetCollisioner()->BlockOtherComponent(other_comp);
+
+								if (col_info.generate_collision_event == true)
 									comp->ExecuteCollisionResponse(comp, other_comp->GetOwner().lock(), other_comp);
-								if (other_comp->GetCollisioner()->GetCollisionInfo().generate_collision_event == true)
+								if (other_col_info.generate_collision_event == true)
 									other_comp->ExecuteCollisionResponse(other_comp, comp->GetOwner().lock(), comp);
 							}
 						}

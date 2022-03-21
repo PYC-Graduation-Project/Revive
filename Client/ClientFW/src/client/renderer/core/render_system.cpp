@@ -3,22 +3,29 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/renderlevel/deferred_render_level.h"
 #include "client/renderer/renderlevel/final_view_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
+
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
 #include "client/renderer/shader/deferred_shader.h"
 #include "client/renderer/shader/main_camera_ui_shader.h"
 #include "client/renderer/shader/ui_shader.h"
-#include "client/renderer/shader/billboard_shader.h"
+#include "client/renderer/shader/texture_billboard_shader.h"
+#include "client/renderer/shader/material_billboard_shader.h"
+#include "client/renderer/shader/widget_shader.h"
+
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
+
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/render/billboard_component.h"
+#include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
 
 namespace client_fw
@@ -54,7 +61,10 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
-		ret &= RegisterGraphicsShader<BillboardShader>("billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -74,20 +84,29 @@ namespace client_fw
 		Render::s_render_system = nullptr;
 	}
 
-	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderSystem::Update(ID3D12Device* device)
 	{
-		m_camera_manager->Update(device, command_list);
-		m_render_asset_manager->Update(device, command_list);
+		m_camera_manager->Update(device, 
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+			});
 
-		m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device, command_list);
-		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device, command_list);
+		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device, command_list);
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
-		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device, command_list);
+		for (const auto& [name, shader] : m_graphics_shaders)
+			shader->UpdateFrameResource(device);
+	}
+
+
+	void RenderSystem::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const
+	{
+		m_render_asset_manager->PreDraw(device, command_list);
 	}
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
@@ -175,6 +194,11 @@ namespace client_fw
 			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterBillboardComponent(m_device, billboard_comp);
 		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterWidgetComponent(m_device, widget_comp);
+		}
 		default:
 			break;
 		}
@@ -208,6 +232,13 @@ namespace client_fw
 		{
 			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
 			m_graphics_shaders.at(shader_name)->UnregisterBillboardComponent(billboard_comp);
+			break;
+		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterWidgetComponent(widget_comp);
+			break;
 		}
 		default:
 			break;

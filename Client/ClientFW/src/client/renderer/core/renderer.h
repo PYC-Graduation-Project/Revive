@@ -6,6 +6,7 @@ namespace client_fw
 
 	class RenderSystem;
 	class TextRenderSystem;
+	class FrameResourceManager;
 
 	class Renderer final
 	{
@@ -23,6 +24,8 @@ namespace client_fw
 		WPtr<Window> m_window;
 		UPtr<RenderSystem> m_render_system;
 		UPtr<TextRenderSystem> m_text_render_system;
+		UPtr<FrameResourceManager> m_frame_resource_manager;
+		bool m_is_level_changed = false;
 
 	private:
 		bool CreateDevice();
@@ -35,11 +38,11 @@ namespace client_fw
 		bool ResizeViewport();
 
 		void SetViewAndScissor(float left, float top, float width, float height);
-		void WaitForGpuCompelete();
-		void MoveToNextFrame();
+		void FlushCommandQueue();
 
 		bool InitializeRenderSystem();
 		bool InitializeTextRenderSystem();
+		bool InitializeFrameResourceManager();
 
 	private:
 		ComPtr<IDXGIFactory4> m_factory = nullptr;
@@ -50,8 +53,7 @@ namespace client_fw
 		UINT m_cur_swapchain_buffer = 0;
 
 		ComPtr<ID3D12Fence> m_fence = nullptr;
-		std::array<UINT64, s_swap_chain_buffer_count> m_fence_values;
-		HANDLE m_fence_event = NULL;
+		UINT m_current_fence = 0;
 
 		bool m_is_use_4x_mass = false;
 		UINT m_4x_msaa_quality = 0;

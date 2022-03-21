@@ -9,6 +9,8 @@ namespace client_fw
 		, m_extents(extents)
 	{
 		m_oriented_box = CreateSPtr<BOrientedBox>();
+		m_hidden_in_game = true;
+		m_is_register_render_system = false;
 	}
 
 	void ShapeComponent::UpdateOrientedBox()

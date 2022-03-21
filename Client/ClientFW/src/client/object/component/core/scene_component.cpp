@@ -47,11 +47,16 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
+			if (m_is_updated_world_matrix == false)
+			{
+				m_world_previous_position = m_world_position;
+			}
+
 			const auto& world = owner->GetWorldMatrix();
 			m_world_matrix = m_local_matrix * world;
 			m_world_position = vec3::TransformCoord(m_local_position, world);
-			m_world_rotation *= owner->GetRotation();
-			m_world_scale *= owner->GetScale();
+			m_world_rotation = m_local_rotation * owner->GetRotation();
+			m_world_scale = m_local_scale * owner->GetScale();
 			UpdateOrientedBox();
 
 			m_is_updated_world_matrix = true;
@@ -169,6 +174,7 @@ namespace client_fw
 
 	void SceneComponent::AddCollidedComponent(const SPtr<SceneComponent>& component)
 	{
-		m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
+		if (GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+			m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
 	}
 }

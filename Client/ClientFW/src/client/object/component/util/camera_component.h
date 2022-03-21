@@ -26,10 +26,10 @@ namespace client_fw
 
 	struct Viewport
 	{
-		LONG left;
-		LONG top;
-		LONG width;
-		LONG height;
+		LONG left = 0;
+		LONG top = 0;
+		LONG width = 100;
+		LONG height = 100;
 	};
 
 	class CameraComponent : public SceneComponent
@@ -56,6 +56,7 @@ namespace client_fw
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
 		Viewport m_viewport;
+		bool m_is_updated_viewport = true;
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
@@ -72,8 +73,10 @@ namespace client_fw
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
+		void SetProjectionMode(eProjectionMode mode) { m_projection_mode = mode; }
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
 		const Viewport& GetViewport() const { return m_viewport; }
+		void SetViewport(const Viewport& viewport) { m_viewport = viewport; m_is_updated_viewport = true; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;

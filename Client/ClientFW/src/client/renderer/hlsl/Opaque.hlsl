@@ -1,6 +1,8 @@
 #ifndef __OPAQUE_HLSL__
 #define __OPAQUE_HLSL__
 
+#define MASKED_ALPHA        0.333333f
+
 struct InstanceData
 {
     matrix world;

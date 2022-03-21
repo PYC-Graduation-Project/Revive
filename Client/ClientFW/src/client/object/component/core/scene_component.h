@@ -30,6 +30,7 @@ namespace client_fw
 	private:
 		Mat4 m_world_matrix;
 		Vec3 m_world_position;
+		Vec3 m_world_previous_position;
 		Quaternion m_world_rotation;
 		Vec3 m_world_scale;
 		bool m_is_updated_world_matrix = false;
@@ -61,6 +62,7 @@ namespace client_fw
 	public:
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
 		const Vec3& GetWorldPosition() const { return m_world_position; }
+		const Vec3& GetWorldPreviousPosition() const { return m_world_previous_position; }
 		const Quaternion& GetWorldRotation() const { return m_world_rotation; }
 		const Vec3& GetWorldScale() const { return m_world_scale; }
 		Vec3 GetWorldForward() const { return vec3::TransformNormal(vec3::AXIS_Z, m_world_rotation); }

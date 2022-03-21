@@ -5,6 +5,7 @@ namespace client_fw
 {
 	class Actor;
 	class ActorManager;
+	class GameMode;
 	class UserInterfaceLayer;
 	struct EventKeyInfo;
 	struct AxisEventKeyInfo;
@@ -36,6 +37,9 @@ namespace client_fw
 		void SpawnActor(const SPtr<Actor>& actor) const;
 		void RegisterUILayer(const SPtr<UserInterfaceLayer>& ui_layer) const;
 
+	private:
+		virtual UPtr<GameMode> CreateGameMode() const;
+
 	protected:
 		void RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption = true);
@@ -59,6 +63,7 @@ namespace client_fw
 		std::vector<std::string> m_registered_input_events;
 		UPtr<ActorManager> m_actor_manager;
 		bool m_is_runtime_level;
+		UPtr<GameMode> m_game_mode;
 
 	public:
 		const std::string& GetName() const { return m_name; }
@@ -66,6 +71,7 @@ namespace client_fw
 		void SetLevelState(eLevelState level_state) { m_level_state = level_state; }
 		void SetRuntime() { m_is_runtime_level = true; }
 		bool IsRuntime() const { return m_is_runtime_level; }
+		const UPtr<GameMode>& GetGameMode() const { return m_game_mode; }
 
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const;

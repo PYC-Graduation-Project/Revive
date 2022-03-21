@@ -18,6 +18,13 @@ namespace client_fw
 		m_mesh = nullptr;
 	}
 
+	void MeshComponent::UpdateWorldMatrix()
+	{
+		RenderComponent::UpdateWorldMatrix();
+		m_world_transpose_matrix = mat4::Transpose(GetWorldMatrix());
+		m_world_inverse_matrix = mat4::InverseVec(GetWorldMatrix());
+	}
+
 	void MeshComponent::UpdateLevelOfDetail(const Vec3& eye)
 	{
 		if (IsUseLevelOfDetail())

@@ -3,7 +3,9 @@
 #include "client/event/packetevent/packet_event_manager.h"
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level.h"
+#include "client/object/level/gamemode/game_mode_base.h"
 #include "client/object/actor/core/actor.h"
+#include "client/object/actor/pawn.h"
 #include "client/core/application.h"
 #include"server/network.h"
 namespace client_fw
@@ -53,6 +55,16 @@ namespace client_fw
 				//ÀÌº¥Æ®
 			}
 		}
+
+		const auto& current_level = LevelManager::GetLevelManager().GetCurrentLevel();
+		if (current_level != nullptr)
+		{
+			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
+			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
+			{
+				LOG_INFO(pawn->GetPosition());
+			}
+		}
 	}
 
 	void PacketEventManager::RegisterPacketEventToActor(SPtr<MessageEventInfo>&& message, UINT id)
@@ -72,15 +84,19 @@ namespace client_fw
 
 	void PacketEventManager::ConnectActorToServer(const SPtr<Actor>& actor, UINT id)
 	{
-		if (m_connected_actor_map[id] != nullptr)
+		if (m_connected_actor_map[id] != nullptr || actor->IsConnectedToServer())
 			LOG_WARN("This id is already registered with the server");
 		else
+		{
 			m_connected_actor_map[id] = actor;
+			actor->ConnectServer(true);
+		}
 	}
 
 	SPtr<Actor> PacketEventManager::DisconnectActorFromServer(UINT id)
 	{
 		SPtr<Actor> actor = m_connected_actor_map[id];
+		actor->ConnectServer(false);
 		m_connected_actor_map[id] = nullptr;
 		return actor;
 	}

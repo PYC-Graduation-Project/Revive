@@ -1,5 +1,6 @@
 #pragma once
 #include "client/object/component/render/billboard_component.h"
+#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
@@ -7,9 +8,10 @@ namespace client_fw
 
 	class MaterialBillboardComponent : public BillboardComponent
 	{
-	//public:
-	private:
-		MaterialBillboardComponent(const std::string& name = "material billboard");
+	public:
+	//private:
+		MaterialBillboardComponent(const std::string& name = "material billboard",
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueMaterialBillboard));
 		virtual ~MaterialBillboardComponent() = default;
 
 	protected:

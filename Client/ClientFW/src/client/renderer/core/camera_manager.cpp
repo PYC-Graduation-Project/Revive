@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "client/renderer/core/camera_manager.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/camera_frame_resource.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/asset/texture/texture.h"
 #include "client/renderer/core/mesh_visualizer.h"
@@ -13,7 +16,6 @@ namespace client_fw
 	CameraManager::CameraManager()
 	{
 		s_camera_manager = this;
-		m_camera_data = CreateUPtr<UploadBuffer<RSCameraData>>(true);
 	}
 
 	CameraManager::~CameraManager()
@@ -22,10 +24,9 @@ namespace client_fw
 
 	void CameraManager::Shutdown()
 	{
-		m_camera_data->Shutdown();
 	}
 
-	void CameraManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void CameraManager::Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
 	{
 		//더 좋은 방법 없을까?
 		if (m_ready_main_camera != nullptr && m_ready_main_camera->GetRenderTexture() != nullptr && 
@@ -34,8 +35,6 @@ namespace client_fw
 			m_main_camera = m_ready_main_camera;
 			m_ready_main_camera = nullptr;
 		}
-
-		UpdateCameraResource();
 
 		if (m_ready_cameras[eCameraUsage::kBasic].empty() == false)
 		{
@@ -49,9 +48,9 @@ namespace client_fw
 				m_cameras[eCameraUsage::kBasic].push_back(camera);
 			}
 			m_ready_cameras[eCameraUsage::kBasic].clear();
-
-			CreateCameraResource(device);
 		}
+
+		UpdateCameraResource(device, std::move(update_shader_function));
 	}
 
 	void CameraManager::UpdateMainCameraViewport(LONG width, LONG height)
@@ -68,6 +67,8 @@ namespace client_fw
 		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function, 
 		std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function)
 	{
+		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
+
 		UINT index = 0;
 
 		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
@@ -76,26 +77,30 @@ namespace client_fw
 
 			if (camera->GetCameraState() == eCameraState::kActive)
 			{
-				gpu_address = m_camera_data->GetResource()->GetGPUVirtualAddress() +
-					index * m_camera_data->GetByteSize();
+				const auto& render_texture = camera->GetRenderTexture();
 
-				//일단 임시, 추후에 resize작업을 하게 되면 설정
-				const auto& cv = camera->GetRenderTexture()->GetTextureSize();
-				D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
-				D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
-				command_list->RSSetViewports(1, &view);
-				command_list->RSSetScissorRects(1, &scissor);
+				if (render_texture->GetResource() != nullptr)
+				{
+					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
+						index * camera_resource->GetCameraData()->GetByteSize();
 
-				command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
-				MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					//일단 임시, 추후에 resize작업을 하게 되면 설정
+					const auto& cv = camera->GetRenderTexture()->GetTextureSize();
+					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
+					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
+					command_list->RSSetViewports(1, &view);
+					command_list->RSSetScissorRects(1, &scissor);
 
-				camera->GetRenderTexture()->GBufferPreDraw(command_list);
-				before_deferred_function(command_list);
-				camera->GetRenderTexture()->GBufferPostDraw(command_list);
+					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
 
-				camera->GetRenderTexture()->PreDraw(command_list);
-				deferred_function(command_list);
-				camera->GetRenderTexture()->PostDraw(command_list);
+					camera->GetRenderTexture()->GBufferPreDraw(command_list);
+					before_deferred_function(command_list);
+					camera->GetRenderTexture()->GBufferPostDraw(command_list);
+
+					camera->GetRenderTexture()->PreDraw(command_list);
+					deferred_function(command_list);
+					camera->GetRenderTexture()->PostDraw(command_list);
+				}
 			}
 			++index;
 		}
@@ -103,8 +108,10 @@ namespace client_fw
 
 	void CameraManager::DrawMainCameraForUI(ID3D12GraphicsCommandList* command_list)
 	{
-		command_list->SetGraphicsRootConstantBufferView(2, m_camera_data->GetResource()->GetGPUVirtualAddress() +
-			m_cameras[eCameraUsage::kBasic].size() * m_camera_data->GetByteSize());
+		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
+
+		command_list->SetGraphicsRootConstantBufferView(2, camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
+			m_cameras[eCameraUsage::kBasic].size() * camera_resource->GetCameraData()->GetByteSize());
 	}
 
 	bool CameraManager::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
@@ -125,42 +132,65 @@ namespace client_fw
 			if (camera_comp == m_main_camera)
 				m_main_camera = nullptr;
 		}
-	}
 
-	void CameraManager::CreateCameraResource(ID3D12Device* device)
-	{
-		m_camera_data->CreateResource(device, static_cast<UINT>(m_cameras.size()) + 1);
-	}
+		auto& ready_cameras = m_ready_cameras[camera_comp->GetCameraUsage()];
 
-	void CameraManager::UpdateCameraResource()
-	{
-		RSCameraData camera_data;
-		UINT index = 0;
-		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
+		iter = std::find(ready_cameras.begin(), ready_cameras.end(), camera_comp);
+		if (iter != ready_cameras.end())
 		{
-			const auto& render_texture = camera->GetRenderTexture();
-
-			camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
-			camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
-			camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
-			camera_data.camera_position = camera->GetWorldPosition();
-			camera_data.final_texture_index = render_texture->GetResourceIndex();
-			camera_data.gbuffer_texture_indices = XMUINT4(
-				render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
-				0, render_texture->GetDSVResourceIndex());
-			m_camera_data->CopyData(index, camera_data);
-
-			if (camera == m_main_camera)
-			{
-				camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
-				m_camera_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
-			}
-
-			++index;
+			std::iter_swap(iter, ready_cameras.end() - 1);
+			ready_cameras.pop_back();
+			if (camera_comp == m_main_camera)
+				m_main_camera = nullptr;
 		}
 	}
 
-	void CameraManager::UpdateCameraResourceBeforeDraw()
+	void CameraManager::UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
 	{
-	}	
+		if (m_cameras[eCameraUsage::kBasic].empty())
+			return;
+
+		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
+		const auto& camera_resource_data = camera_resource->GetCameraData();
+
+		if (camera_resource->GetNumOfCamera() < m_cameras[eCameraUsage::kBasic].size() + 1)
+		{
+			camera_resource_data->CreateResource(device, static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()) + 1);
+		}
+
+		RSCameraData camera_data;
+		UINT index = 0;
+
+		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
+		{
+			if (camera->GetCameraState() == eCameraState::kActive)
+			{
+				const auto& render_texture = camera->GetRenderTexture();
+
+				if (render_texture->GetResource() != nullptr)
+				{
+					camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
+					camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
+					camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
+					camera_data.camera_position = camera->GetWorldPosition();
+					camera_data.final_texture_index = render_texture->GetResourceIndex();
+					camera_data.gbuffer_texture_indices = XMUINT4(
+						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
+						0, render_texture->GetDSVResourceIndex());
+					camera_resource_data->CopyData(index, camera_data);
+
+					if (camera == m_main_camera)
+					{
+						camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
+						camera_resource_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+					}
+
+					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					update_shader_function(device);
+				}
+			}
+			
+			++index;
+		}
+	}
 }

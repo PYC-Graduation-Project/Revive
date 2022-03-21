@@ -18,7 +18,7 @@ namespace client_fw
 	{
 	}
 
-	void DeferredShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void DeferredShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 	}
 

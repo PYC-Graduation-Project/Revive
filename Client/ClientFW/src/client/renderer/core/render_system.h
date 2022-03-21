@@ -25,7 +25,8 @@ namespace client_fw
 		bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device);
+		void PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const;
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
 		void DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const;
 		void DrawUI(ID3D12GraphicsCommandList* command_list) const;

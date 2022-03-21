@@ -15,6 +15,14 @@
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture_loader.h"
 
+//#define __USE_CPU_TIME__
+#ifdef __USE_CPU_TIME__
+#include <stdio.h>
+#include <time.h>
+#endif
+
+
+
 namespace client_fw
 {
 	Application* Application::s_instance = nullptr;
@@ -108,9 +116,17 @@ namespace client_fw
 			{
 				ExecuteEvents();
 				m_timer->Update();
+#ifdef __USE_CPU_TIME__
+				clock_t start, end;
+				start = clock();
+#endif
 				Update(m_timer->GetDeltaTime());
 				SendEventToServer();
 				Render();
+#ifdef __USE_CPU_TIME__
+				end = clock();
+				std::cout << float(end - start) << '\n';
+#endif
 			}
 		}
 	}
@@ -219,7 +235,11 @@ namespace client_fw
 		//SetWindowLong(m_window->hWnd, GWL_STYLE, 0);
 
 #ifndef _DEBUG
+#ifdef __USE_CPU_TIME__
+		ShowWindow(GetConsoleWindow(), SW_SHOW);
+#else
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
 #endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);

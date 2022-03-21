@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "client/renderer/renderitem/mesh_render_item.h"
 #include "client/renderer/core/render.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/mesh_frame_resource.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
@@ -9,11 +12,8 @@
 
 namespace client_fw
 {
-	MeshRenderItem::MeshRenderItem(const SPtr<Mesh>& mesh)
-		: m_mesh(mesh)
+	MeshRenderItem::MeshRenderItem()
 	{
-		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
-		m_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
 	}
 
 	MeshRenderItem::~MeshRenderItem()
@@ -26,140 +26,155 @@ namespace client_fw
 
 	void MeshRenderItem::Shutdown()
 	{
-		m_instance_data->Shutdown();
 	}
 
-	void MeshRenderItem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshRenderItem::Update(ID3D12Device* device)
 	{
-		if (m_mesh_comp_data.empty() == false)
+		MeshesInstanceDrawInfo instance_info;
+		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data.size());
+
+		UINT start_index = 0;
+		for (const auto& mesh_data : m_mesh_data)
 		{
-			if (m_is_need_resource_create)
+			MeshDrawInfo info;
+			info.mesh = mesh_data->mesh;
+			info.num_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
+			info.start_index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
+
+			UINT mesh_count = 0;
+
+			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
 			{
-				CreateResources(device);
-				m_is_need_resource_create = false;
+				mesh_count += mesh_data->mesh->GetLODMeshCount(lod);
+				info.num_of_lod_instance_data[lod] = mesh_data->mesh->GetLODMeshCount(lod);
+				info.start_index_of_lod_instance_data[lod] = mesh_count;
 			}
-			UpdateResources();
+
+			if (mesh_count == 0)
+				continue;
+
+			std::vector<RSInstanceData> instance_data(mesh_count);
+
+			for (const auto& mesh_comp : mesh_data->mesh_comps)
+			{
+				if (mesh_comp->IsVisible())
+				{
+					UINT lod = mesh_comp->GetLevelOfDetail();
+
+					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
+						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
+
+					mesh_comp->SetVisiblity(false);
+				}
+			}
+
+			info.draw_start_index = start_index;
+			start_index += mesh_count;
+
+			mesh_data->mesh->ResetLOD();
+
+			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
+			instance_info.mesh_draw_infos.emplace_back(std::move(info));
+		}
+
+		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
+
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
+	}
+
+	void MeshRenderItem::UpdateFrameResource(ID3D12Device* device)
+	{
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+
+		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
+		if (new_size > 0)
+		{
+			UINT mesh_instance_size = mesh_resource->GetSizeOfInstanceData();
+			bool is_need_resource_create = false;
+
+			while (mesh_instance_size <= new_size)
+			{
+				mesh_instance_size = static_cast<UINT>(roundf(static_cast<float>(mesh_instance_size) * 1.5f));
+				is_need_resource_create = true;
+			}
+
+			if (is_need_resource_create)
+			{
+				mesh_resource->GetInstanceData()->CreateResource(device, mesh_instance_size);
+				mesh_resource->SetSizeOfInstanceData(mesh_instance_size);
+			}
+
+			UINT index = 0;
+			for (const auto& instance_data : m_meshes_instance_data)
+				mesh_resource->GetInstanceData()->CopyData(index++, instance_data);
+
+			m_meshes_instance_data.clear();
 		}
 	}
 
 	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
 	{
-		if (m_mesh != nullptr && m_mesh_comp_data.empty() == false)
-		{
-			UpdateResourcesBeforeDraw();
-			
-			m_mesh->PreDraw(command_list);
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
 
-			for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
+		if (instance_info.num_of_instnace_data > 0)
+		{
+			const auto& instance_data = mesh_resource->GetInstanceData();
+
+			for (const auto& mesh_info : instance_info.mesh_draw_infos)
 			{
-				if (m_mesh->GetLODMeshCount(lod) > 0)
+				mesh_info.mesh->PreDraw(command_list);
+
+				for (UINT lod = 0; lod < mesh_info.mesh->GetLODCount(); ++lod)
 				{
-					command_list->SetGraphicsRootShaderResourceView(1, m_instance_data->GetResource()->GetGPUVirtualAddress() +
-						m_index_of_lod_instance_data[lod] * m_instance_data->GetByteSize());
+					if (mesh_info.num_of_lod_instance_data[lod] > 0)
+					{
+						command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
+							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
+							instance_data->GetByteSize());
 
-					m_mesh->Draw(command_list, lod);
+						mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
+					}
 				}
-				
-			}
-
-			m_mesh->PostDraw(command_list);
-		}
-	}
-
-	void MeshRenderItem::CreateResources(ID3D12Device* device)
-	{
-		//LOG_INFO(m_num_of_instance_data);
-		m_instance_data->CreateResource(device, m_num_of_instance_data);
-	}
-
-	void MeshRenderItem::UpdateResources()
-	{
-		for (auto& mesh_data : m_mesh_comp_data)
-		{
-			const auto& mesh_comp = mesh_data.mesh_comp;
-
-			if (mesh_comp->IsUpdatedWorldMatrix() || mesh_data.is_need_update)
-			{
-				Mat4 world_matrix = mesh_comp->GetWorldMatrix();
-				mesh_data.world_transpose = mat4::Transpose(world_matrix);
-				mesh_data.world_inverse = mat4::InverseVec(world_matrix);
-				mesh_data.is_need_update = false;
-			}
-		}
-	}
-
-	void MeshRenderItem::UpdateResourcesBeforeDraw()
-	{
-		m_index_of_lod_instance_data.resize(m_mesh->GetLODCount(), 0);
-		m_index_of_lod_instance_data[0] = m_mesh->GetLODMeshCount(0);
-		for (size_t lod = 1; lod < m_mesh->GetLODCount(); ++lod)
-		{
-			m_index_of_lod_instance_data[lod] =
-				m_index_of_lod_instance_data[lod - 1] + m_mesh->GetLODMeshCount(static_cast<UINT>(lod));
-		}
-
-		for (auto& mesh_data : m_mesh_comp_data)
-		{
-			const auto& mesh_comp = mesh_data.mesh_comp;
-
-			if (mesh_comp->IsVisible())
-			{
-				UINT lod = mesh_comp->GetLevelOfDetail();
-
-				m_instance_data->CopyData(--m_index_of_lod_instance_data.at(lod),
-					RSInstanceData{ mesh_data.world_transpose, mesh_data.world_inverse });
-
-				mesh_comp->SetVisiblity(false);
 			}
 		}
 	}
 
 	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		MeshComponentData data;
-		data.mesh_comp = mesh_comp;
-		data.mesh_comp->SetRenderItemIndex(static_cast<UINT>(m_mesh_comp_data.size()));
-		data.is_need_update = true;
+		std::string path = mesh_comp->GetMesh()->GetPath();
 
-		m_mesh_comp_data.emplace_back(std::move(data));
+		if (m_mesh_data_map.find(path) != m_mesh_data_map.cend())
+		{
+			mesh_comp->SetRenderItemIndex(static_cast<UINT>(m_mesh_data_map[path]->mesh_comps.size()));
+			m_mesh_data_map[path]->mesh_comps.push_back(mesh_comp);
+		}
+		else
+		{
+			SPtr<MeshData> mesh_data = CreateSPtr<MeshData>();
+			mesh_data->mesh = mesh_comp->GetMesh();
+			mesh_comp->SetRenderItemIndex(0);
+			mesh_data->mesh_comps.push_back(mesh_comp);
 
-		if (m_num_of_instance_data == 0)
-		{
-			m_num_of_instance_data = 1;
-			m_is_need_resource_create = true;
+			m_mesh_data.push_back(mesh_data);
+			m_mesh_data_map.insert({ path, mesh_data });
 		}
-		else if (m_num_of_instance_data < static_cast<UINT>(m_mesh_comp_data.size()))
-		{
-			m_num_of_instance_data = static_cast<UINT>(roundf(static_cast<float>(m_num_of_instance_data) * 1.5f));
-			m_is_need_resource_create = true;
-		}
-		
 	}
 
 	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		UINT index = mesh_comp->GetRenderItemIndex();
+		std::string path = mesh_comp->GetMesh()->GetPath();
 
-		std::swap(*(m_mesh_comp_data.begin() + index), *(m_mesh_comp_data.end() - 1));
-		m_mesh_comp_data[index].mesh_comp->SetRenderItemIndex(index);
-		m_mesh_comp_data[index].is_need_update = true;
-
-		m_mesh_comp_data.pop_back();
-
-
-		UINT size = static_cast<UINT>(roundf(static_cast<float>(m_num_of_instance_data * 0.66f)));
-		if (size >= m_mesh_comp_data.size())
+		if (m_mesh_data_map.find(path) != m_mesh_data_map.cend())
 		{
-			if(m_mesh_comp_data.empty())
-			{
-				m_num_of_instance_data = 0;
-				m_instance_data->Shutdown();
-			}
-			else
-			{
-				m_num_of_instance_data = size;
-				m_is_need_resource_create = true;
-			}
+			UINT index = mesh_comp->GetRenderItemIndex();
+
+			auto& mesh_data = m_mesh_data_map[path];
+
+			std::swap(*(mesh_data->mesh_comps.begin() + index), *(mesh_data->mesh_comps.end() - 1));
+			mesh_data->mesh_comps[index]->SetRenderItemIndex(index);
+			mesh_data->mesh_comps.pop_back();
 		}
 	}
 }

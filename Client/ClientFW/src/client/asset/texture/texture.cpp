@@ -49,18 +49,19 @@ namespace client_fw
 	{
 		m_num_of_gbuffer_texture = static_cast<UINT>(gbuffer_rtv_formats.size());
 
-
 		D3D12_CLEAR_VALUE rtv_clear_value{ DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 1.0f} };
 		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
 		{
 			rtv_clear_value.Format = gbuffer_rtv_formats[i];
 			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1,
 				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
+			D3DUtil::SetObjectName(m_gbuffer_textures[i].Get(), "Render g-buffer texture");
 		}
 
 		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
+		D3DUtil::SetObjectName(m_texture_resource.Get(), "Render rtv texture");
 
 		D3D12_DESCRIPTOR_HEAP_DESC rtv_heap_desc;
 		rtv_heap_desc.NumDescriptors = m_num_of_gbuffer_texture + 1;
@@ -95,6 +96,7 @@ namespace client_fw
 
 		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
+		D3DUtil::SetObjectName(m_dsv_texture.Get(), "Render dsv texture");
 
 		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
 		dsv_heap_desc.NumDescriptors = 1;

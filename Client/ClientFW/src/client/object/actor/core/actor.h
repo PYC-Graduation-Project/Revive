@@ -63,6 +63,8 @@ namespace client_fw
 		std::string m_name;
 		eActorState m_actor_state;
 		eMobilityState m_mobility_state;
+		bool m_is_use_update = false;
+		bool m_is_connected_to_server = false;
 
 	private:
 		std::vector<std::string> m_registered_input_events;
@@ -84,6 +86,10 @@ namespace client_fw
 		eActorState GetActorState() const { return m_actor_state; }
 		void SetActorState(eActorState actor_state) { m_actor_state = actor_state; }
 		eMobilityState GetMobilityState() const { return m_mobility_state; }
+		bool IsUseUpdate() { return m_is_use_update; }
+		void UseUpdate() { m_is_use_update = true; }
+		bool IsConnectedToServer() const { return m_is_connected_to_server; }
+		void ConnectServer(bool value) { m_is_connected_to_server = value; }
 		const UPtr<ActorPhysicsManager>& GetPhysicsManager() const { return m_physics_manager; }
 
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }

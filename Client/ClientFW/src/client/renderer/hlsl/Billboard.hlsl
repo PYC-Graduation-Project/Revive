@@ -61,11 +61,12 @@ void GSBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS_BILL
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
         out_stream.Append(output);
@@ -83,11 +84,12 @@ void GSMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout TriangleSt
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+   [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i];
         
         out_stream.Append(output);
@@ -117,11 +119,12 @@ void GSFixUpBillboard(point VS_BILLBOARD_INPUT input[1], inout TriangleStream<GS
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i] + input[0].coordinate;
         
         out_stream.Append(output);
@@ -139,11 +142,12 @@ void GSFixUpMaterialBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout Trian
     GS_BILLBOARD_OUTPUT output;
     
     output.resource_index = input[0].resource_index;
+    output.normal = look;
     
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         output.sv_position = mul(vertices[i], g_view_projection);
-        output.normal = look;
         output.uv = s_billboard_uvs[i];
         
         out_stream.Append(output);
@@ -154,18 +158,18 @@ PS_GBUFFER_OUTPUT PSBillboard(GS_BILLBOARD_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
     
-    //float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
+    float4 base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
     
-    ////clip(base_color.a - 0.33f);
-    //output.base_color = base_color;
+    clip(base_color.a - 0.333333f);
+    output.base_color = base_color;
+    output.base_color.a = 1.0f;
     
-    output.base_color = g_texture_data[input.resource_index].Sample(g_sampler_point_wrap, input.uv);
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
     
     return output;
 }
 
-PS_GBUFFER_OUTPUT PSMaterialBillboard(GS_BILLBOARD_OUTPUT input)
+PS_GBUFFER_OUTPUT PSOpaqueMaterialBillboard(GS_BILLBOARD_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
     
