@@ -37,7 +37,8 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	lua_pushnumber(L, en->GetDamge());
 	lua_pushnumber(L, (int)en->GetType());
 	error = lua_pcall(L, 7, 0, 0);
-	if (error) { cout << "Error : " << lua_tostring(L, -1); lua_pop(L, 1); }
+	if (error)
+		MoveObjManager::LuaErrorDisplay(L, error);
 	
 	RegisterAPI( L);
 }
@@ -48,6 +49,7 @@ void MoveObjManager::RegisterAPI(lua_State* L)
 	lua_register(L, "API_get_x", API_get_x);
 	lua_register(L, "API_get_y", API_get_y);
 	lua_register(L, "API_get_z", API_get_z);
+	lua_register(L, "API_test_lua", API_test_lua);
 }
 
 int MoveObjManager::API_get_x(lua_State* L)
@@ -78,6 +80,23 @@ int MoveObjManager::API_get_z(lua_State* L)
 	float z = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosZ();
 	lua_pushnumber(L, z);
 	return 1;
+}
+
+int MoveObjManager::API_test_lua(lua_State* L)
+{
+	float x = (float)lua_tonumber(L, -1);
+	float y = (float)lua_tonumber(L, -2);
+	lua_pop(L, 3);
+	cout << " x :" << x << ", y:" << y << endl;
+	return 1;
+}
+
+void MoveObjManager::LuaErrorDisplay(lua_State* L,int err_num)
+{
+	
+		cout << "Error : " << lua_tostring(L, -1)<<endl; 
+		lua_pop(L, 1); 
+	
 }
 
 int MoveObjManager::GetNewID()

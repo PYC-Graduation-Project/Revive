@@ -29,7 +29,8 @@ public:
 	static int API_get_x(lua_State* L);
 	static int API_get_y(lua_State* L);
 	static int API_get_z(lua_State* L);
-
+	static int API_test_lua(lua_State* L);
+	static void LuaErrorDisplay(lua_State* L,int err_num);
 	int GetNewID();
 	void Disconnect(int);
 	void InitPlayer();

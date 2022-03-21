@@ -20,4 +20,21 @@ function initializEnemy(id, x, y, z, hp, damege, type)
 end
 
 
+function event_agro_fallow( player )
+   player_x = API_get_x(player);
+   player_y = API_get_y(player);
+   nowx = API_get_x(myid);
+   nowy = API_get_y(myid);
+   if(player_x <= nowx +math.floor(range/2) and player_x > nowx -math.floor(range/2)) then
+		if(player_y <= nowy + math.floor(range/2) and player_y > nowy -math.floor(range/2)) then
+        
+		end
+	end
+end
 
+
+function event_test(npc_id )
+	nowx=API_get_x(npc_id);
+	nowy=API_get_y(npc_id);
+
+end
