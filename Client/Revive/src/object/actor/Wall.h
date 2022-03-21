@@ -6,21 +6,18 @@ namespace revive
 {
 	using namespace client_fw;
 
-	class Ground : public Actor
+	class Wall : public Actor
 	{
 	public:
-		Ground();
-		Ground(const std::string& path); //직접 생성할 때 사용하는 생성자
-		Ground(const std::vector<SPtr<StaticMeshComponent>>& components);
-		virtual ~Ground() = default;
+		Wall();
+		Wall(const std::vector<SPtr<StaticMeshComponent>>& components);
+		virtual ~Wall() = default;
 
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
-
 		virtual void Update(float delta_time) override;
 
 	private:
 		std::vector<SPtr<StaticMeshComponent>> m_static_mesh_components;
-
 	};
 }
