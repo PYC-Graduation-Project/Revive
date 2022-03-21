@@ -53,7 +53,6 @@ namespace client_fw
 			if (m_cur_level->InitializeLevel())
 			{
 				m_cur_level->SetRuntime();
-				m_ready_level = nullptr;
 			}
 			else
 			{
@@ -62,6 +61,7 @@ namespace client_fw
 				m_cur_level = nullptr;
 				m_octree_manager->UnregisterOctrees();
 			}
+			m_ready_level = nullptr;
 		}
 
 		if (m_cur_level != nullptr)
@@ -82,7 +82,6 @@ namespace client_fw
 	{
 		if (m_ready_level != nullptr)
 		{
-			m_ready_level->ShutdownLevel();
 			m_ready_level = nullptr;
 		}
 		CloseLevel();

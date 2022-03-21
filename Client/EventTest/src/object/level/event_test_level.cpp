@@ -21,13 +21,6 @@ namespace event_test
 
 	bool EventTestLevel::Initialize()
 	{
-		auto player = CreateSPtr<DefaultPawn>();
-		auto controller = CreateSPtr<PlayerController>();
-
-		controller->Possess(player);
-		SpawnActor(player);
-		SpawnActor(controller);
-
 		auto sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });

@@ -38,7 +38,8 @@ namespace client_fw
 
 		UserInterfaceManager::GetUIManager().Reset();
 		m_actor_manager->Shutdown();
-		m_game_mode->Shutdown();
+		if (m_game_mode != nullptr)
+			m_game_mode->Shutdown();
 
 		Shutdown();
 	}

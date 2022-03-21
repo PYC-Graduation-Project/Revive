@@ -49,9 +49,7 @@ namespace client_fw
 		{
 			if (m_is_updated_world_matrix == false)
 			{
-				m_world_previous_matrix = m_world_matrix;
 				m_world_previous_position = m_world_position;
-				m_world_previous_rotation = m_world_rotation;
 			}
 
 			const auto& world = owner->GetWorldMatrix();
