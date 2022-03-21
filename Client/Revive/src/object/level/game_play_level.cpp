@@ -6,7 +6,7 @@
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
 #include "object/level/game_play_level.h"
-//#include "object/actor/ground.h"
+#include "object/actor/ground.h"
 
 namespace revive
 {
@@ -24,14 +24,16 @@ namespace revive
 		SpawnActor(m_player);
 		SpawnActor(m_player_controller);
 
-		auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/police.obj");
-		SpawnActor(police);
-		police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		m_actors = m_map_loader.LoadMap("../Contents/Revive/map.txt",eMapLoadType::kClient);
+		//auto police = CreateSPtr<StaticMeshActor>( "../Contents/Cube.obj");
+		//auto police = CreateSPtr<Ground>("../Contents/Revive/cliff_block_rock.obj");
+		//SpawnActor(police);
+		//police->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
+		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
 			SpawnActor(actor);
 			actor->SetPosition(Vec3{ 0.0f,0.0f,1000.0f });
+			actor->SetScale(Vec3{ 1.0f,1.0f,1.0f });
 		}
 		
 
@@ -52,7 +54,7 @@ namespace revive
 	std::vector<SPtr<VisualOctree>> GamePlayLevel::CreateVisualOctrees() const
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(20000.0f));
 		return visual_octrees;
 	}
 	std::vector<SPtr<CollisionOctree>> GamePlayLevel::CreateCollisionOctrees() const

@@ -9,6 +9,7 @@ namespace revive
 	class Ground : public Actor
 	{
 	public:
+		Ground(const std::string& path); //직접 생성할 때 사용하는 생성자
 		Ground(const std::vector<SPtr<StaticMeshComponent>>& blocks);
 		virtual ~Ground() = default;
 
@@ -16,6 +17,7 @@ namespace revive
 		virtual void Shutdown() override;
 
 		//virtual void Update(float delta_time) override;
+
 	private:
 		std::vector<SPtr<StaticMeshComponent>> m_blocks;
 

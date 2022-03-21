@@ -22,8 +22,6 @@ namespace revive
 			//return;
 		}
 
-
-
 		std::stringstream ss;
 		std::string line;
 		std::string prefix;
@@ -57,19 +55,6 @@ namespace revive
 				ss >> temp_string >> temp_uint;
 				actor_info_data.push_back({ temp_string ,temp_uint });
 
-				//auto iter = std::find_if(actor_info_data.cbegin(), actor_info_data.cend(),
-				//	[temp_string](const ActorInfo& data) {
-				//	return data.name == temp_string;
-				//});
-
-				//if (iter == actor_info_data.cend())
-				//{
-				//	//combine_data_index = static_cast<UINT>(combine_data.size()) - 1;
-				//}
-				//else
-				//{
-				//	//combine_data_index = static_cast<UINT>(std::distance(combine_data.cbegin(), iter));
-				//}
 				if (actor_count.find(temp_string) == actor_count.end())
 				{
 					actor_count.insert({ temp_string,1 });
@@ -99,49 +84,31 @@ namespace revive
 				break;
 			}
 		}
+
 		UINT actor_mesh_index = 0;
-		for (auto actor : actor_info_data)
+		for (auto actor_info : actor_info_data)
 		{
-			switch (HashCode(actor.name.c_str())) //클래스 or 액터 이름
+			components.clear();
+			switch (HashCode(actor_info.name.c_str())) //클래스 or 액터 이름
 			{
 			case HashCode("Ground"):
-				for (UINT index = 0; index < actor_count[actor.name]; ++index) //액터의 갯수만큼 생성
+				
+				for (UINT count = actor_mesh_index; count < actor_mesh_index + actor_info.mesh_count; ++count)
 				{
-					//std::vector<Vec3> temp_pos(actor.mesh_count);
-					//std::vector<Vec3> temp_scale(actor.mesh_count);
-
-					for (UINT count = actor_mesh_index; count < actor.mesh_count; ++count)
-					{
-						SPtr<StaticMeshComponent> component = CreateSPtr<StaticMeshComponent>();
-						component->SetMesh(file_paths[count]);//메시가 다를 수도있음 같을수도있고
-						component->SetLocalPosition(positions[count]);
-						component->SetLocalScale(scales[count]);
-						components.emplace_back(std::move(component));
-					}
-					actor_mesh_index += actor.mesh_count;
-
-					SPtr<Ground> ground = CreateSPtr<Ground>(components);
-					actors.push_back(ground);
+					SPtr<StaticMeshComponent> component = CreateSPtr<StaticMeshComponent>();
+					component->SetMesh(file_paths[count]);//메시가 다를 수도있음 같을수도있고
+					component->SetLocalPosition(positions[count]);
+					component->SetLocalScale(scales[count]);
+					components.emplace_back(std::move(component));
 				}
+				actor_mesh_index += actor_info.mesh_count;
+
+				auto ground = CreateSPtr<Ground>(components);
+				actors.emplace_back(std::move(ground));
 				break;
 			}
 		}
-		
-		//for (const auto& actor : actor_count)
-		//{
-		//	
-		//	switch (HashCode(actor.first.c_str())) //클래스 or 액터 이름
-		//	{
-		//	case HashCode("Ground"):
-		//		for (UINT index = 0; index < actor.second; ++index) //액터의 갯수만큼 생성
-		//		{
-		//			
-		//			file_paths
-
-		//		}
-		//		break;
-		//	}
-		//}
+	
 		return actors;
 	}
 }
