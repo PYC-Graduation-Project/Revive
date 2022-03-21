@@ -3,24 +3,6 @@
 
 namespace revive
 {
-	Ground::Ground()
-		:Actor(eMobilityState::kStatic)
-	{
-	}
-	Ground::Ground(const std::string& path)
-		:Actor(eMobilityState::kStatic)
-	{
-		m_static_mesh_components.resize(5);
-		float i = 30;
-		for (auto& static_mesh_component : m_static_mesh_components)
-		{
-			static_mesh_component = CreateSPtr<StaticMeshComponent>();
-			static_mesh_component->SetMesh(path);
-			//block->SetLocalPosition(Vec3{0.0f, 0.0f, 0.0f+i});
-			//block->SetLocalScale(Vec3{10.0f, 10.0f, 10.0f});
-			i += 30.0f;
-		}
-	}
 	Ground::Ground(const std::vector<SPtr<StaticMeshComponent>>& components)
 		: Actor(eMobilityState::kStatic)
 	{
@@ -32,7 +14,6 @@ namespace revive
 		bool ret = true;
 		for (auto& static_mesh_component : m_static_mesh_components)
 			ret &= AttachComponent(static_mesh_component);
-		
 		return ret;
 	}
 	void Ground::Shutdown()

@@ -1,6 +1,7 @@
 #pragma once
 #include <client/object/actor/core/actor.h>
 #include <client/object/component/mesh/static_mesh_component.h>
+#include <client/object/component/render/box_component.h>
 
 namespace revive
 {
@@ -10,7 +11,9 @@ namespace revive
 	{
 	public:
 		Wall();
-		Wall(const std::vector<SPtr<StaticMeshComponent>>& components);
+		Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components);
+		Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components);
+		Wall(const std::vector<SPtr<BoxComponent>>& box_components);
 		virtual ~Wall() = default;
 
 		virtual bool Initialize() override;
@@ -19,5 +22,6 @@ namespace revive
 
 	private:
 		std::vector<SPtr<StaticMeshComponent>> m_static_mesh_components;
+		std::vector<SPtr<BoxComponent>> m_box_components;
 	};
 }

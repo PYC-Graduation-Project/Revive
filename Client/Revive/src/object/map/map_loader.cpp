@@ -1,11 +1,8 @@
-#include <sstream>
-#include <fstream>
-#include <include/client_core.h>
-#include <client/object/component/mesh/static_mesh_component.h>
-#include <client/object/component/render/box_component.h>
 #include "object/map/map_loader.h"
+
 #include "object/actor/ground.h"
 #include "object/actor/Wall.h"
+#include "object/actor/SpawnArea.h"
 
 namespace revive
 {
@@ -38,8 +35,6 @@ namespace revive
 
 		std::vector<SPtr<Actor>> actors;
 
-		std::vector<SPtr<StaticMeshComponent>> components;
-		std::vector<SPtr<BoxComponent>> box_components;
 		std::vector<ActorInfo> actor_info_data;
 		std::vector<std::string> file_paths;
 		std::vector<Vec3> positions;
@@ -60,6 +55,10 @@ namespace revive
 			case HashCode("ActorName"):
 			{
 				ss >> temp_string >> temp_uint >> temp_uint2;
+				if (temp_string == "ActivityArea")
+				{
+					int i = 0;
+				}
 				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 				actor_info_data.push_back({ temp_string ,temp_vec, temp_uint,temp_uint2 });
 
@@ -77,7 +76,6 @@ namespace revive
 				collision_centers.emplace_back(std::move(temp_vec));
 				ss >> temp_string >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 				collision_extents.emplace_back(std::move(temp_vec));
-				
 			}
 				break;
 			case HashCode("FilePath"):
@@ -103,78 +101,107 @@ namespace revive
 		UINT actor_collision_index = 0;
 		for (auto actor_info : actor_info_data)
 		{
-			components.clear();
+			if (type == eMapLoadType::kServer)
+			{
+				actor_info.mesh_count = 0; //서버는 메시는 필요없으므로 메쉬 갯수를 0으로 만들어버린다.
+				if (actor_info.collision_count <= 0) continue; //서버인데 콜리전 정보가 없으면 다음 액터 정보 확인
+			}
+
+			SPtr<Actor> actor = nullptr;
+			
 			switch (HashCode(actor_info.name.c_str())) //클래스 or 액터 이름
 			{
+			//박스 컴포넌트 없는 애들
+			//서버면 여기는 안올거임
 			case HashCode("Ground"):
 			case HashCode("Bridge"):
 			{
-				
-				for (UINT count = actor_mesh_index; count < actor_mesh_index + actor_info.mesh_count; ++count)
-				{
-					SPtr<StaticMeshComponent> component = CreateSPtr<StaticMeshComponent>();
-					component->SetMesh(file_paths[count]);//메시가 다를 수도있음 같을수도있고
-					component->SetLocalPosition(positions[count]);
-					component->SetLocalRotation(rotations[count]);
-					component->SetLocalScale(scales[count]);
-					components.emplace_back(std::move(component));
-					//components.push_back({ component });
-
-				}
-				auto ground = CreateSPtr<Ground>(components);
-				ground->SetPosition(actor_info.position);
-				ground->SetName(actor_info.name);
-				if (actor_info.name == "Bridge")
-				{
-					int i = 0;
-				}
-				actor_mesh_index += actor_info.mesh_count;
-
-				for (UINT count = actor_collision_index; count < actor_collision_index + actor_info.collision_count; ++count)
-				{
-					//ground->AttachComponent(box_components[count]);
-				}
-				actor_collision_index += actor_info.collision_count;
-
-				actors.emplace_back(std::move(ground));
+				actor = CreateSPtr<Ground>(
+					CreateStaticMeshComponents(actor_mesh_index, actor_info, file_paths, positions, rotations, scales)
+					);
 			}
 			break;
+			
+			//박스 컴포넌트만,혹은 박스랑 스태틱 둘다 있는 애들
+			case HashCode("Base"):
 			case HashCode("Fence"):
 			case HashCode("Wall"):
 			{
-				Vec3 scle{ 1,1,1 };
-				Quaternion quat{ 0,0,0,1 };
-				for (UINT count = actor_mesh_index; count < actor_mesh_index + actor_info.mesh_count; ++count)
+				if (actor_info.mesh_count > 0 && actor_info.collision_count > 0) //박스랑 메시둘다 있다 서버는 박스만 넣어야함
 				{
-					SPtr<StaticMeshComponent> component = CreateSPtr<StaticMeshComponent>();
-					component->SetMesh(file_paths[count]);//메시가 다를 수도있음 같을수도있고
-					component->SetLocalScale(scales[count]);
-					component->SetLocalPosition(positions[count]);
-					component->SetLocalRotation(rotations[count]);
-					components.push_back({ component });
+						actor = CreateSPtr<Wall>(
+							CreateStaticMeshComponents(actor_mesh_index, actor_info, file_paths, positions, rotations, scales),
+							CreateBoxComponents(actor_collision_index, actor_info, collision_extents, collision_centers)
+							);
 				}
-				for (UINT count = actor_collision_index; count < actor_collision_index + actor_info.collision_count; ++count)
+				else if (actor_info.mesh_count > 0) //메시만 있다. 서버는 무시됨
 				{
-					SPtr<BoxComponent> box_component = CreateSPtr<BoxComponent>(collision_extents[count], actor_info.name);
-					box_component->SetLocalPosition(collision_centers[count]);
-					box_components.emplace_back(std::move(box_component));
+					actor = CreateSPtr<Wall>(
+						CreateStaticMeshComponents(actor_mesh_index, actor_info, file_paths, positions, rotations, scales)
+						);
 				}
-				actor_mesh_index += actor_info.mesh_count;
-				actor_collision_index += actor_info.collision_count;
-
-				auto wall = CreateSPtr<Wall>(components);
-				wall->SetName(actor_info.name);
-				wall->SetPosition(actor_info.position);
-
-				actors.emplace_back(std::move(wall));
-				
-
+				else if (actor_info.collision_count > 0) //박스만있다.
+				{
+					actor = CreateSPtr<Wall>(
+						CreateBoxComponents(actor_collision_index, actor_info, collision_extents, collision_centers)
+						);
+				}
+			}
+			break;
+			//박스 컴포넌트만 있는 애들
+			case HashCode("ActivityArea"):
+			case HashCode("SpawnArea"):
+			{
+				if (actor_info.collision_count > 0)
+				{
+					actor = CreateSPtr<SpawnArea>(
+						CreateBoxComponents(actor_collision_index, actor_info, collision_extents, collision_centers)
+						);
+				}
 			}
 			break;
 			}
+			actor_mesh_index += actor_info.mesh_count;
+			actor_collision_index += actor_info.collision_count;
+			actor->SetName(actor_info.name);
+			actor->SetPosition(actor_info.position);
+			actors.emplace_back(std::move(actor));
 		}
 	
 		return actors;
+	}
+	std::vector<SPtr<BoxComponent>> MapLoader::CreateBoxComponents(
+		const UINT& actor_collision_index, const ActorInfo& actor_info,
+		const std::vector<Vec3>& collision_extents, const std::vector<Vec3>& collision_centers)
+	{
+		std::vector<SPtr<BoxComponent>> box_components;
+
+		for (UINT count = actor_collision_index; count < actor_collision_index + actor_info.collision_count; ++count)
+		{
+			SPtr<BoxComponent> box_component = CreateSPtr<BoxComponent>(collision_extents[count], actor_info.name + " box component");
+			box_component->SetLocalPosition(collision_centers[count]);
+			box_components.emplace_back(std::move(box_component));
+		}
+		return box_components;
+	}
+
+
+	std::vector<SPtr<StaticMeshComponent>> MapLoader::CreateStaticMeshComponents(
+		const UINT& actor_mesh_index, const ActorInfo& actor_info, const std::vector<std::string>& file_paths, 
+		const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<Vec3>& scales)
+	{
+		std::vector<SPtr<StaticMeshComponent>> components;
+
+		for (UINT count = actor_mesh_index; count < actor_mesh_index + actor_info.mesh_count; ++count)
+		{
+			SPtr<StaticMeshComponent> component = CreateSPtr<StaticMeshComponent>();
+			component->SetMesh(file_paths[count]);//메시가 다를 수도있음 같을수도있고
+			component->SetLocalPosition(positions[count]);
+			component->SetLocalRotation(rotations[count]);
+			component->SetLocalScale(scales[count]);
+			components.emplace_back(std::move(component));
+		}
+		return components;
 	}
 	
 	
