@@ -28,31 +28,17 @@ VS_SKELETAL_MESH_OUT VSSkeletalMesh(VS_SKELETAL_MESH_IN input, uint instance_id 
     float3 pos = float3(0.0f, 0.0f, 0.0f);
     float3 normal = float3(0.0f, 0.0f, 0.0f);
 	
-
-    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[0]]).xyz * input.weights[0];
-    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[0]]) * input.weights[0];
-    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[1]]).xyz * input.weights[1];
-    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[1]]) * input.weights[1];
-    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[2]]).xyz * input.weights[2];
-    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[2]]) * input.weights[2];
-    pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[3]]).xyz * input.weights[3];
-    normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[3]]) * input.weights[3];
-	
+	[unroll]
+    for (uint i = 0; i < 4; ++i)
+    {
+        pos += mul(float4(input.position, 1.0f), skeletal_data.bone_trans[input.indices[i]]).xyz * input.weights[i];
+		normal += mul(input.normal, (float3x3) skeletal_data.bone_trans[input.indices[i]]) * input.weights[i];
+    }
     
-	//   float4x4 x1 = b_data.bone_trans[input.indices[0]] * input.weights[0];
-	//   float4x4 x2 = b_data.bone_trans[input.indices[1]] * input.weights[1];
-	//   float4x4 x3 = b_data.bone_trans[input.indices[2]] * input.weights[2];
-	//   float4x4 x4 = b_data.bone_trans[input.indices[3]] * input.weights[3];
-	//float4x4 vertex_to_bone_world = x1 + x2 + x3 + x4;
-	
-	//float4 position = mul(float4(input.position, 1.0f), i_data.world);
-	//float4 position = mul(float4(input.position, 1.0f), vertex_to_bone_world);
-	//float4 position = mul(mul(float4(input.position, 1.0f), vertex_to_bone_world), i_data.world);
 	output.position = pos;
     output.sv_position = mul(mul(float4(pos, 1.0f), g_view), g_projection);
     output.normal = normal;
-	//output.normal = normalize(output.normal);
-	//output.normal = float3(input.indices.xxx);
+
 	output.uv = input.uv;
 
 	return output;

@@ -78,10 +78,13 @@ namespace anim_test
 				}
 				else
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/skel.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/violet.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);
+					police->SetPosition(Vec3{ x, y - 35.0f, z });
+					police->SetRotation(80.0f, 0.0f, 0.0f);
+					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
 					police->SetRotation(80.0f, 0.0f, 0.0f);
 					++count;
 				}
