@@ -2,12 +2,14 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"
 #include "client/renderer/renderlevel/core/render_level.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
 
 namespace client_fw
 {
 	OpaqueMeshShader::OpaqueMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
+		m_render_item = CreateSPtr<StaticMeshRenderItem>();
 	}
 
 	void OpaqueMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)

@@ -3,7 +3,7 @@
 namespace client_fw
 {
 	class CameraFrameResource;
-	class MeshFrameResource;
+	class StaticMeshFrameResource;
 	class BillboardFrameResource;
 	class WidgetFrameResource;
 	class UserInterfaceFrameResource;
@@ -28,14 +28,14 @@ namespace client_fw
 
 	private:
 		UPtr<CameraFrameResource> m_camera_frame_resource;
-		UPtr<MeshFrameResource> m_mesh_frame_resource;
+		UPtr<StaticMeshFrameResource> m_static_mesh_frame_resource;
 		UPtr<BillboardFrameResource> m_billboard_frame_resource;
 		UPtr<WidgetFrameResource> m_widget_frame_resource;
 		UPtr<UserInterfaceFrameResource> m_ui_frame_resource;
 
 	public:
 		const UPtr<CameraFrameResource>& GetCameraFrameResource() const { return m_camera_frame_resource; }
-		const UPtr<MeshFrameResource>& GetMeshFrameResource() const { return m_mesh_frame_resource; }
+		const UPtr<StaticMeshFrameResource>& GetStaticMeshFrameResource() const { return m_static_mesh_frame_resource; }
 		const UPtr<BillboardFrameResource>& GetBillboardFrameResource() const { return m_billboard_frame_resource; }
 		const UPtr<WidgetFrameResource>& GetWidgetFrameResource() const { return m_widget_frame_resource; }
 		const UPtr<UserInterfaceFrameResource>& GetUserInterfaceFrameResource() const { return m_ui_frame_resource; }

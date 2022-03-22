@@ -11,6 +11,13 @@ namespace client_fw
 		Mat4 world_inverse_transpose;
 	};
 
+	struct RSSkinnedInstanceData
+	{
+		Mat4 world_matrix;
+		Mat4 world_inverse_transpose;
+		IVec2 bone_info; //start index, count
+	};
+
 	//Mesh¸¶´Ù
 	struct MeshDrawInfo
 	{
@@ -32,27 +39,39 @@ namespace client_fw
 	{
 	public:
 		MeshFrameResource();
-		~MeshFrameResource();
+		virtual ~MeshFrameResource();
 
-		bool Initialize(ID3D12Device* device);
-		void Shutdown();
-			
+		virtual bool Initialize(ID3D12Device* device) { return true; }
+		virtual void Shutdown() {}
+
 	private:
-		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
-
 		UINT m_size_of_instance_data = 1;
 
 		std::queue<MeshesInstanceDrawInfo> m_meshes_instance_draw_info;
 
 	public:
-		const UPtr<UploadBuffer<RSInstanceData>>& GetInstanceData() const { return m_instance_data; }
-
 		UINT GetSizeOfInstanceData() const { return m_size_of_instance_data; }
 		void SetSizeOfInstanceData(UINT value) { m_size_of_instance_data = value; }
 
 		void AddMeshesInstanceDrawInfo(MeshesInstanceDrawInfo&& info) { m_meshes_instance_draw_info.emplace(std::move(info)); }
 
 		MeshesInstanceDrawInfo GetMeshesInstanceDrawInfo();
+	};
+
+	class StaticMeshFrameResource : public MeshFrameResource
+	{
+	public:
+		StaticMeshFrameResource();
+		virtual ~StaticMeshFrameResource();
+
+		virtual bool Initialize(ID3D12Device* device);
+		virtual void Shutdown();
+			
+	private:
+		UPtr<UploadBuffer<RSInstanceData>> m_instance_data;
+
+	public:
+		const UPtr<UploadBuffer<RSInstanceData>>& GetInstanceData() const { return m_instance_data; }
 	};
 }
 

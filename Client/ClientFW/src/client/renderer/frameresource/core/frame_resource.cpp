@@ -11,7 +11,7 @@ namespace client_fw
 	FrameResource::FrameResource()
 	{
 		m_camera_frame_resource = CreateUPtr<CameraFrameResource>();
-		m_mesh_frame_resource = CreateUPtr<MeshFrameResource>();
+		m_static_mesh_frame_resource = CreateUPtr<StaticMeshFrameResource>();
 		m_billboard_frame_resource = CreateUPtr<BillboardFrameResource>();
 		m_widget_frame_resource = CreateUPtr<WidgetFrameResource>();
 		m_ui_frame_resource = CreateUPtr<UserInterfaceFrameResource>();
@@ -33,7 +33,7 @@ namespace client_fw
 		}
 
 		ret &= m_camera_frame_resource->Initialize(device);
-		ret &= m_mesh_frame_resource->Initialize(device);
+		ret &= m_static_mesh_frame_resource->Initialize(device);
 		ret &= m_billboard_frame_resource->Initialize(device);
 		ret &= m_widget_frame_resource->Initialize(device);
 		ret &= m_ui_frame_resource->Initialize(device);
@@ -46,7 +46,7 @@ namespace client_fw
 		m_ui_frame_resource->Shutdown();
 		m_widget_frame_resource->Shutdown();
 		m_billboard_frame_resource->Shutdown();
-		m_mesh_frame_resource->Shutdown();
+		m_static_mesh_frame_resource->Shutdown();
 		m_camera_frame_resource->Shutdown();
 	}
 }

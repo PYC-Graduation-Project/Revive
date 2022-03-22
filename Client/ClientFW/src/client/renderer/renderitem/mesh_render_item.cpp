@@ -7,28 +7,22 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/mesh/static_mesh_component.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
 {
-	MeshRenderItem::MeshRenderItem()
+	StaticMeshRenderItem::StaticMeshRenderItem()
+		: MeshRenderItem()
 	{
 	}
 
-	MeshRenderItem::~MeshRenderItem()
+	StaticMeshRenderItem::~StaticMeshRenderItem()
 	{
 	}
 
-	void MeshRenderItem::Initialize(ID3D12Device* device)
-	{
-	}
-
-	void MeshRenderItem::Shutdown()
-	{
-	}
-
-	void MeshRenderItem::Update(ID3D12Device* device)
+	void StaticMeshRenderItem::Update(ID3D12Device* device)
 	{
 		MeshesInstanceDrawInfo instance_info;
 		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data.size());
@@ -53,6 +47,9 @@ namespace client_fw
 			if (mesh_count == 0)
 				continue;
 
+			info.draw_start_index = start_index;
+			start_index += mesh_count;
+
 			std::vector<RSInstanceData> instance_data(mesh_count);
 
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
@@ -68,24 +65,21 @@ namespace client_fw
 				}
 			}
 
-			info.draw_start_index = start_index;
-			start_index += mesh_count;
+			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
 
 			mesh_data->mesh->ResetLOD();
-
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 
 		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
-	void MeshRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
 
 		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
 		if (new_size > 0)
@@ -113,9 +107,9 @@ namespace client_fw
 		}
 	}
 
-	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
+	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
 
 		if (instance_info.num_of_instnace_data > 0)
@@ -141,28 +135,28 @@ namespace client_fw
 		}
 	}
 
-	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void StaticMeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 
 		if (m_mesh_data_map.find(path) != m_mesh_data_map.cend())
 		{
 			mesh_comp->SetRenderItemIndex(static_cast<UINT>(m_mesh_data_map[path]->mesh_comps.size()));
-			m_mesh_data_map[path]->mesh_comps.push_back(mesh_comp);
+			m_mesh_data_map[path]->mesh_comps.push_back(std::static_pointer_cast<StaticMeshComponent>(mesh_comp));
 		}
 		else
 		{
-			SPtr<MeshData> mesh_data = CreateSPtr<MeshData>();
+			SPtr<StaticMeshData> mesh_data = CreateSPtr<StaticMeshData>();
 			mesh_data->mesh = mesh_comp->GetMesh();
 			mesh_comp->SetRenderItemIndex(0);
-			mesh_data->mesh_comps.push_back(mesh_comp);
+			mesh_data->mesh_comps.push_back(std::static_pointer_cast<StaticMeshComponent>(mesh_comp));
 
 			m_mesh_data.push_back(mesh_data);
 			m_mesh_data_map.insert({ path, mesh_data });
 		}
 	}
 
-	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void StaticMeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 
@@ -177,5 +171,6 @@ namespace client_fw
 			mesh_data->mesh_comps.pop_back();
 		}
 	}
+
 }
 
