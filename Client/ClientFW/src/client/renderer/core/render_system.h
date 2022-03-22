@@ -12,6 +12,8 @@ namespace client_fw
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
 	class CameraManager;
+	class LightComponent;
+	class LightManager;
 
 	class RenderSystem final
 	{
@@ -65,6 +67,8 @@ namespace client_fw
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
+		bool RegisterLightComponent(const SPtr<LightComponent>& light_comp);
+		void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	private:
 		WPtr<Window> m_window;
@@ -78,7 +82,7 @@ namespace client_fw
 
 		UPtr<RenderResourceManager> m_render_asset_manager;
 		UPtr<CameraManager> m_camera_manager;
-		
+		UPtr<LightManager> m_light_manager;
 
 	public:
 		ID3D12Device* GetDevice() const { return m_device; }

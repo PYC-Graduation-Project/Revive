@@ -1,0 +1,68 @@
+#include <include/client_core.h>
+#include <client/input/input.h>
+#include <client/object/actor/static_mesh_actor.h>
+#include <client/object/actor/directional_light.h>
+#include <client/util/octree/octree.h>
+#include "object/level/light_test_level.h"
+#include "object/actor/rotating_cube.h"
+
+namespace event_test
+{
+	LightTestLevel::LightTestLevel()
+		: Level("light test level")
+	{
+	}
+
+	bool LightTestLevel::Initialize()
+	{
+		auto cube = CreateSPtr<RotatingCube>();
+		SpawnActor(cube);
+		cube->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
+
+		cube = CreateSPtr<RotatingCube>();
+		SpawnActor(cube);
+		cube->SetPosition(Vec3{ -500.0f, 0.0f, 800.0f });
+
+		cube = CreateSPtr<RotatingCube>();
+		SpawnActor(cube);
+		cube->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
+
+		auto siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
+		SpawnActor(siege);
+		siege->SetPosition(Vec3{ 0.0f, 0.0f, 2000.0f });
+		siege->SetScale(0.5f);
+
+		auto d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(1.0f, 0.0f, 0.0f));
+		SpawnActor(d_light);
+
+		d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(0.0f, 1.0f, 0.0f));
+		SpawnActor(d_light);
+
+		d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(0.0f, 0.0f, 1.0f));
+		SpawnActor(d_light);
+
+		d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(0.0f, 0.0f, 1.0f));
+		SpawnActor(d_light);
+		
+		return true;
+	}
+
+	void LightTestLevel::Shutdown()
+	{
+	}
+
+	void LightTestLevel::Update(float delta_time)
+	{
+	}
+
+	std::vector<SPtr<VisualOctree>> LightTestLevel::CreateVisualOctrees() const
+	{
+		std::vector<SPtr<VisualOctree>> visual_octrees;
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(10000.0f));
+		return visual_octrees;
+	}
+}

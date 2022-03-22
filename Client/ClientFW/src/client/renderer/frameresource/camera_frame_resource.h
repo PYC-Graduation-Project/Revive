@@ -12,6 +12,7 @@ namespace client_fw
 		Vec3 camera_position;
 		UINT final_texture_index;
 		XMUINT4 gbuffer_texture_indices;
+		UINT num_of_directional_light;
 	};
 
 	class CameraFrameResource
