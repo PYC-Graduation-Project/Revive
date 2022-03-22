@@ -16,8 +16,7 @@ namespace revive
 
 		virtual void Update(float delta_time) override;
 	private:
-		SPtr<class DefaultCharacter> m_player;
-		SPtr<class PlayerController> m_player_controller;
+		virtual UPtr<GameMode> CreateGameMode() const override;
 
 		std::vector<SPtr<Actor>> m_actors;
 

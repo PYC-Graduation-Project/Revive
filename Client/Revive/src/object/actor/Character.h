@@ -2,6 +2,7 @@
 
 #include <client/object/actor/pawn.h>
 #include <client/object/actor/default_pawn.h>
+#include <client/object/component/core/scene_component.h>
 
 namespace revive
 {
