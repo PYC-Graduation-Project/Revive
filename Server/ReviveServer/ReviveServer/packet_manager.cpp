@@ -557,6 +557,10 @@ void PacketManager::StartGame(int room_id)
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
 			m_moveobj_manager->InitLua("enemy_king.lua",e->GetID());
+			lua_getglobal(e->GetLua(), "event_test");
+			lua_pushnumber(e->GetLua(),e->GetID());
+			int error_num=lua_pcall(e->GetLua(), 1, 0, 0);
+			MoveObjManager::LuaErrorDisplay()
 		}
 	}
 
@@ -581,6 +585,7 @@ void PacketManager::StartGame(int room_id)
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));//30초다되면 넣어주는걸로 수정?
 	m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
 		EVENT_TYPE::EVENT_TIME, 1000));
+	
 }
 
 
