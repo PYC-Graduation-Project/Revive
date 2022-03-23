@@ -35,12 +35,8 @@ namespace client_fw
 		}
 
 		ret &= m_camera_frame_resource->Initialize(device);
-<<<<<<< HEAD
 		ret &= m_static_mesh_frame_resource->Initialize(device);
-=======
 		ret &= m_light_frame_resource->Initialize(device);
-		ret &= m_mesh_frame_resource->Initialize(device);
->>>>>>> client/render_system
 		ret &= m_billboard_frame_resource->Initialize(device);
 		ret &= m_widget_frame_resource->Initialize(device);
 		ret &= m_ui_frame_resource->Initialize(device);
@@ -53,12 +49,8 @@ namespace client_fw
 		m_ui_frame_resource->Shutdown();
 		m_widget_frame_resource->Shutdown();
 		m_billboard_frame_resource->Shutdown();
-<<<<<<< HEAD
 		m_static_mesh_frame_resource->Shutdown();
-=======
-		m_mesh_frame_resource->Shutdown();
 		m_light_frame_resource->Shutdown();
->>>>>>> client/render_system
 		m_camera_frame_resource->Shutdown();
 	}
 }
