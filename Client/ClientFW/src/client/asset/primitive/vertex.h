@@ -33,13 +33,20 @@ namespace client_fw
 	{
 	public:
 		TextureLightVertex();
-		TextureLightVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord);
+		TextureLightVertex(const Vec3& position, const Vec2& tex_coord, 
+			const Vec3& normal, const Vec3& tangent, const Vec3& bitangent);
 
 		const Vec3& GetNormal() const { return m_normal; }
 		void SetNormal(const Vec3& normal) { m_normal = normal; }
+		const Vec3& GetTangent() const { return m_tangent; }
+		void SetTangent(const Vec3& tangent) { m_tangent = tangent; }
+		const Vec3& GetBitangent() const { return m_bitangent; }
+		void SetBitangent(const Vec3& bitangent) { m_bitangent = bitangent; }
 
 	protected:
 		Vec3 m_normal;
+		Vec3 m_tangent;
+		Vec3 m_bitangent;
 	};
 
 	class ShapeVertex : public Vertex

@@ -20,6 +20,7 @@
 
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
+#include "client/renderer/core/light_manager.h"
 
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
@@ -27,6 +28,8 @@
 #include "client/object/component/render/billboard_component.h"
 #include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
+#include "client/object/component/light/core/light_component.h"
+#include "client/object/component/light/directional_light_component.h"
 
 namespace client_fw
 {
@@ -40,6 +43,7 @@ namespace client_fw
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 		m_camera_manager = CreateUPtr<CameraManager>();
+		m_light_manager = CreateUPtr<LightManager>();
 	}
 
 	RenderSystem::~RenderSystem()
@@ -79,6 +83,7 @@ namespace client_fw
 			shader->Shutdown();
 		m_graphics_super_root_signature->Shutdown();
 		m_render_asset_manager->Shutdown();
+		m_light_manager->Shutdown();
 		m_camera_manager->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
@@ -86,6 +91,8 @@ namespace client_fw
 
 	void RenderSystem::Update(ID3D12Device* device)
 	{
+		m_light_manager->Update(device);
+
 		m_camera_manager->Update(device, 
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
@@ -117,6 +124,7 @@ namespace client_fw
 
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
+		m_light_manager->Draw(command_list);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
@@ -260,5 +268,15 @@ namespace client_fw
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);
 		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
+	}
+
+	bool RenderSystem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
+	{
+		return m_light_manager->RegisterLightComponent(light_comp);
+	}
+
+	void RenderSystem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	{
+		m_light_manager->UnregisterLightComponent(light_comp);
 	}
 }

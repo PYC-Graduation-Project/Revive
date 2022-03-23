@@ -8,7 +8,7 @@ namespace client_fw
 	class Shader;
 	class RenderComponent;
 	class CameraComponent;
-
+	class LightComponent;
 
 	//현재 전략은 Opaque -> Deferred -> Transparent -> Compute -> UI
 	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
@@ -44,6 +44,9 @@ namespace client_fw
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
+
+		static bool RegisterLightComponent(const SPtr<LightComponent>& light_comp);
+		static void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	public:
 		static Vec2 GetWindowSize();

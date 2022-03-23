@@ -130,7 +130,10 @@ namespace client_fw
 			INT diffuse_index = -1;
 			if(material->GetDiffuseTexture() != nullptr)
 				diffuse_index = material->GetDiffuseTexture()->GetResourceIndex();
-			RSMaterialData data{ material->GetBaseColor(), diffuse_index };
+			INT normal_index = -1;
+			if (material->GetNormalTexture() != nullptr)
+				normal_index = material->GetNormalTexture()->GetResourceIndex();
+			RSMaterialData data{ material->GetBaseColor(), diffuse_index, normal_index };
 
 			m_material_data->CopyData(m_num_of_material_data++, data);
 		}
@@ -165,7 +168,7 @@ namespace client_fw
 		for (const auto& texture : m_ready_render_textures)
 		{
 			//이 데이터를 넣는 구간을 따로 지정해서 그 부분만 초기화 한다.
-			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM });
+			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R11G11B10_FLOAT });
 
 			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
 			{

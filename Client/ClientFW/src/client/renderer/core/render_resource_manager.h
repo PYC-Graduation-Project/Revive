@@ -19,6 +19,7 @@ namespace client_fw
 	{
 		Vec4 base_color;
 		INT diffuse_texture_index;
+		INT normal_texture_index;
 	};
 
 	class RenderResourceManager final

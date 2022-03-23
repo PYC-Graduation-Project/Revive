@@ -4,6 +4,7 @@
 #include "object/level/physics_test_level.h"
 #include "object/level/message_test_level.h"
 #include "object/level/frame_test_level.h"
+#include "object/level/light_test_level.h"
 
 using namespace client_fw;
 
@@ -38,6 +39,9 @@ namespace event_test
 
 			RegisterPressedEvent("open frame test level", { {eKey::k4} },
 				[this]()->bool {OpenLevel(CreateSPtr<FrameTestLevel>()); return true; });
+
+			RegisterPressedEvent("open light test level", { {eKey::k5} },
+				[this]()->bool {OpenLevel(CreateSPtr<LightTestLevel>()); return true; });
 
 			return result;
 		}
