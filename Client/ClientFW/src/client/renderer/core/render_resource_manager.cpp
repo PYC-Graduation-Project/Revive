@@ -130,7 +130,10 @@ namespace client_fw
 			INT diffuse_index = -1;
 			if(material->GetDiffuseTexture() != nullptr)
 				diffuse_index = material->GetDiffuseTexture()->GetResourceIndex();
-			RSMaterialData data{ material->GetBaseColor(), diffuse_index };
+			INT normal_index = -1;
+			if (material->GetNormalTexture() != nullptr)
+				normal_index = material->GetNormalTexture()->GetResourceIndex();
+			RSMaterialData data{ material->GetBaseColor(), diffuse_index, normal_index };
 
 			m_material_data->CopyData(m_num_of_material_data++, data);
 		}

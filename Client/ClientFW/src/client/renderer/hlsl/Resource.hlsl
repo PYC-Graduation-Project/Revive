@@ -14,6 +14,7 @@ struct MaterialData
 {
     float4 base_color;
     int diffuse_texture_index;
+    int normal_texture_index;
 };
 
 struct LightData

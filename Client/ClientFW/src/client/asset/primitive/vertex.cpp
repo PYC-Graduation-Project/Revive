@@ -28,8 +28,10 @@ namespace client_fw
 	{
 	}
 
-	TextureLightVertex::TextureLightVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord)
+	TextureLightVertex::TextureLightVertex(const Vec3& position, const Vec2& tex_coord,
+		const Vec3& normal, const Vec3& tangent, const Vec3& bitangent)
 		: TextureVertex(position, tex_coord), m_normal(normal)
+		, m_tangent(tangent), m_bitangent(bitangent)
 	{
 	}
 

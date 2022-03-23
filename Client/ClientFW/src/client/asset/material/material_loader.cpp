@@ -92,6 +92,18 @@ namespace client_fw
 					}
 					break;
 				}
+				case HashCode("map_Bump"):
+				{
+					if (is_new_mtl)
+					{
+						ss >> temp_name;
+						std::string texture_path = parent_path + "/" + temp_name;
+						SPtr<ExternalTexture> normal_texture = AssetStore::LoadTexture(texture_path);
+						if (normal_texture != nullptr)
+							material->SetNormalTexture(normal_texture);
+					}
+					break;
+				}
 				case HashCode("map_Kd"):
 				{
 					if (is_new_mtl)
