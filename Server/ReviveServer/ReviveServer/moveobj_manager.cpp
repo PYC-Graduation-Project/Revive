@@ -58,6 +58,7 @@ int MoveObjManager::API_get_x(lua_State* L)
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
 	float x=MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosX();
+	cout << "manager x:" << x << endl;
 	lua_pushnumber(L, x);
 	return 1;
 }
@@ -67,7 +68,9 @@ int MoveObjManager::API_get_y(lua_State* L)
 	int user_id =
 		(int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
+	
 	float y = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosY();
+	cout << "manager y:" << y << endl;
 	lua_pushnumber(L, y);
 	return 1;
 }

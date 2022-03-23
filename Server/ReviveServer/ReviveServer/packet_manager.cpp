@@ -76,8 +76,8 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
-		m_timer_queue.push(SetTimerEvent(new_id, new_id,
-			EVENT_TYPE::EVENT_TIME, 1000));
+		//m_timer_queue.push(SetTimerEvent(new_id, new_id,
+		//	EVENT_TYPE::EVENT_TIME, 1000));
 	}
 
 	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
@@ -305,7 +305,7 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.type = SC_PACKET_OBJ_INFO;
 	packet.damage = obj->GetDamge();
 	packet.maxhp = obj->GetHP();
-	strcpy_s(packet.name, obj->GetName());
+	strcpy_s(packet.name,MAX_NAME_SIZE+1 ,obj->GetName());
 	packet.object_type = static_cast<char>(obj->GetType());
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
@@ -550,17 +550,27 @@ void PacketManager::StartGame(int room_id)
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
 			m_moveobj_manager->InitLua("enemy_sordier.lua",e->GetID());
-			
+			e->lua_lock.lock();
+			lua_State* L = e->GetLua();
+			//lua_getglobal(L, "event_test");
+			//lua_pushnumber(L, e->GetID());
+			//int error_num = lua_pcall(L, 1, 0, 0);
+			//MoveObjManager::LuaErrorDisplay(L, error_num);
+			e->lua_lock.unlock();
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
 			m_moveobj_manager->InitLua("enemy_king.lua",e->GetID());
-			lua_getglobal(e->GetLua(), "event_test");
-			lua_pushnumber(e->GetLua(),e->GetID());
-			int error_num=lua_pcall(e->GetLua(), 1, 0, 0);
-			MoveObjManager::LuaErrorDisplay()
+			e->lua_lock.lock();
+			lua_State* L = e->GetLua();
+			//lua_getglobal(L, "event_test");
+			//lua_pushnumber(L,e->GetID());
+			cout << "루아에 넣어주는 npc_id:" << e->GetID() << endl;
+			//nt error_num=lua_pcall(L, 1, 0, 0);
+			//MoveObjManager::LuaErrorDisplay(L, error_num);
+			e->lua_lock.unlock();
 		}
 	}
 
@@ -573,11 +583,13 @@ void PacketManager::StartGame(int room_id)
 			continue;
 	
 		pl = m_moveobj_manager->GetPlayer(c_id);
+		cout << "SendObj 이름:" << pl->GetName() << endl;
 		SendObjInfo(c_id, c_id);//자기자신
 		for (int i=0; i<room->GetMaxUser(); ++i)
 		{
-			if (c_id == room->GetObjList()[i])continue;
-			SendObjInfo(c_id, room->GetObjList()[i]);
+			if (c_id == room->GetObjList().at(i))continue;
+			SendObjInfo(c_id, room->GetObjList().at(i));
+			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
@@ -613,8 +625,15 @@ void PacketManager::ProcessDBTask(db_task& dt)
 	{
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			pl = m_moveobj_manager->GetPlayer(i);
-			if (strcmp(pl->GetName(), dt.user_id) == 0)
+			Player*other_pl = m_moveobj_manager->GetPlayer(i);
+			other_pl->state_lock.lock();
+			if (other_pl->GetState() == STATE::ST_FREE)
+			{
+				other_pl->state_lock.unlock();
+				continue;
+			}
+			other_pl->state_lock.unlock();
+			if (strcmp(other_pl->GetName(), dt.user_id) == 0)
 			{
 				ret = LOGINFAIL_TYPE::AREADY_SIGHN_IN;
 				SendLoginFailPacket(dt.obj_id, (int)ret);
@@ -637,6 +656,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 				pl->state_lock.unlock();
 			strcpy_s(pl->GetName(),MAX_NAME_SIZE ,dt.user_id);
 			strcpy_s(pl->GetPassword(), MAX_NAME_SIZE, dt.user_password);
+			cout << "이름 : " << pl->GetName() << "비번 : " << pl->GetPassword();
 			//여기오면 성공패킷 보내주기
 			SendSignInOK(pl->GetID());
 		}

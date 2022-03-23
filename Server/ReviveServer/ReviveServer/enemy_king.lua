@@ -33,7 +33,7 @@ function event_agro_fallow( player )
 end
 
 
-function event_test(npc_id )
+function event_test(npc_id)
 	nowx=API_get_x(npc_id);
 	nowy=API_get_y(npc_id);
 	API_test_lua(nowx,nowy);

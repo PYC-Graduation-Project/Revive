@@ -10,8 +10,9 @@
 #include<random>
 std::default_random_engine dre;
 std::uniform_int_distribution uid{1,100000000};
-std::string g_id{ std::to_string(uid(dre)) };
-std::string g_pw{ std::to_string(uid(dre)) };
+std::string g_id{ std::to_string(rand()%1000) };
+std::string g_pw{ std::to_string(rand()%1000) };
+
 namespace event_test
 {
 	MessageTestLevel::MessageTestLevel()
@@ -45,6 +46,10 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
+		std::cin >> g_id;
+		std::cin >> g_pw;
+		std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
+		
 		RegisterPressedEvent("send sign up", { { eKey::k5 } },
 			[this]()->bool {
 				
