@@ -9,6 +9,8 @@ namespace client_fw
 		Mat4 view_matrix;
 		Mat4 projection_matrix;
 		Mat4 view_projection_matrix;
+		Mat4 inverse_view_matrix;
+		Vec4 perspective_values;
 		Vec3 camera_position;
 		UINT final_texture_index;
 		XMUINT4 gbuffer_texture_indices;

@@ -1,7 +1,8 @@
 #ifndef __RESOURCE_HLSL__
 #define __RESOURCE_HLSL__
 
-#define MASKED_ALPHA        0.333333f
+static const float MASKED_ALPHA = 0.333333f;
+static const float PI = 3.14159265359;
 
 struct InstanceData
 {
@@ -39,6 +40,8 @@ cbuffer cbCameraData : register(b1, space0)
     matrix g_view;
     matrix g_projection;
     matrix g_view_projection;
+    matrix g_inverse_view;
+    float4 g_perspective_values;
     float3 g_camera_pos;
     uint g_final_texture_index;
     uint4 g_gbuffer_texture_indices;

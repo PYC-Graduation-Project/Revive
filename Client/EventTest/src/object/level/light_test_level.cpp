@@ -5,6 +5,7 @@
 #include <client/util/octree/octree.h>
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
+#include "object/actor/billboard_actor.h"
 
 namespace event_test
 {
@@ -33,20 +34,13 @@ namespace event_test
 		siege->SetScale(0.5f);
 
 		auto d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(1.0f, 0.0f, 0.0f));
+		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
+		d_light->SetLightDirection(Vec3(0.0f, -1.0f, 1.0f));
 		SpawnActor(d_light);
 
-		d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(0.0f, 1.0f, 0.0f));
-		SpawnActor(d_light);
-
-		d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(0.0f, 0.0f, 1.0f));
-		SpawnActor(d_light);
-
-		d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(0.0f, 0.0f, 1.0f));
-		SpawnActor(d_light);
+		auto tree = CreateSPtr<BillboardActor>(eMobilityState::kStatic, "../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), true);
+		SpawnActor(tree);
+		tree->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
 		
 		return true;
 	}

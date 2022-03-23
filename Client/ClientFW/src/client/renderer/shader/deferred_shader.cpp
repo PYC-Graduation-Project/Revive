@@ -34,8 +34,8 @@ namespace client_fw
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			else
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[1].Get());
-			command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			command_list->DrawInstanced(6, 1, 0, 0);
+			command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+			command_list->DrawInstanced(4, 1, 0, 0);
 			break;
 		}
 		default:

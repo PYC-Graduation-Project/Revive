@@ -178,6 +178,11 @@ namespace client_fw
 					camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
 					camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
 					camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
+					camera_data.inverse_view_matrix = mat4::Inverse(camera_data.view_matrix);
+					camera_data.perspective_values = Vec4(1.0f,
+						camera_data.projection_matrix._11,
+						camera_data.projection_matrix._34,
+						-camera_data.projection_matrix._33);
 					camera_data.camera_position = camera->GetWorldPosition();
 					camera_data.final_texture_index = render_texture->GetResourceIndex();
 					camera_data.gbuffer_texture_indices = XMUINT4(
