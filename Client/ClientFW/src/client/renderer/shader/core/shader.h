@@ -13,7 +13,8 @@ namespace client_fw
 	public:
 		virtual void Initialize(ID3D12Device* device) = 0;
 		virtual void Shutdown() = 0;
-		virtual void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) = 0;
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) = 0;
+		virtual void UpdateFrameResource(ID3D12Device* device) = 0;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const = 0;
 
 		D3D12_SHADER_BYTECODE CompileShader(std::wstring_view file_name,

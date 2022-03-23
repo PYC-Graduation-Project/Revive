@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/core/window.h"
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 
@@ -30,14 +31,15 @@ namespace client_fw
 		s_render_system->UnregisterCameraComponent(camera_comp);
 	}
 
-	bool Render::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
+	void Render::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
 	{
-		return s_render_system->RegisterSkeletalMeshComponent(skeletal_mesh_component,shader_name);
+		s_render_system->SetMainCamera(camera_comp);
 	}
 
-	void Render::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name)
+	Vec2 Render::GetWindowSize()
 	{
-		s_render_system->UnregisterSkeletalMeshComponent(skeletal_mesh_component, shader_name);
+		const auto& window = s_render_system->GetWindow();
+		return Vec2(static_cast<float>(window->width), static_cast<float>(window->height));
 	}
 
 	std::string Render::ConvertRenderLevelType(eRenderLevelType type)
@@ -46,6 +48,8 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 			return "opaque";
+		case eRenderLevelType::kTransparent:
+			return "transparent";
 		default:
 			return "unknown";
 		}
@@ -58,6 +62,14 @@ namespace client_fw
 			return "opaque mesh";
 		case eShaderType::kShapeBox:
 			return "shape box";
+		case eShaderType::kTextureBillboard:
+			return "texture billboard";
+		case eShaderType::kOpaqueMaterialBillboard:
+			return "opaque material billboard";
+		case eShaderType::kOpaqueWidget:
+			return "opaque widget";
+		case eShaderType::kMaskedWidget:
+			return "masked widget";
 		case eShaderType::kSkeletalMesh:
 			return "skeletal mesh";
 		default:

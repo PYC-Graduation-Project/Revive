@@ -24,11 +24,6 @@ namespace client_fw
 			data->Shutdown();
 	}
 
-	void Mesh::PostDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		std::fill(m_lod_mesh_counts.begin(), m_lod_mesh_counts.end(), 0);
-	}
-
 	void Mesh::CreateDataForLodMesh(UINT lod)
 	{
 		if (lod == m_lod_count)
@@ -42,6 +37,11 @@ namespace client_fw
 
 			++m_lod_count;
 		}
+	}
+
+	void Mesh::ResetLOD()
+	{
+		std::fill(m_lod_mesh_counts.begin(), m_lod_mesh_counts.end(), 0);
 	}
 
 	void Mesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
@@ -84,7 +84,7 @@ namespace client_fw
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 	}
 
-	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
+	void StaticMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const
 	{
 		m_vertex_infos.at(lod)->Draw(command_list);
 		if (m_is_draw_index)
@@ -97,9 +97,9 @@ namespace client_fw
 				mat_index * m_material_index_data.at(lod)->GetByteSize());
 			const auto& [count, start_location] = m_instance_info.at(lod)[mat_index];
 			if (m_is_draw_index)
-				command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
+				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);
 			else
-				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
+				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
 		}
 	}
 
@@ -138,7 +138,7 @@ namespace client_fw
 		command_list->IASetPrimitiveTopology(m_primitive_topology);
 	}
 
-	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT lod) const
+	void SkeletalMesh::Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const
 	{
 		m_vertex_infos.at(lod)->Draw(command_list);
 		if (m_is_draw_index)
@@ -150,9 +150,9 @@ namespace client_fw
 				mat_index * m_material_index_data.at(lod)->GetByteSize());
 			const auto& [count, start_location] = m_instance_info.at(lod)[mat_index];
 			if (m_is_draw_index)
-				command_list->DrawIndexedInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0, 0);
+				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);
 			else
-				command_list->DrawInstanced(count, m_lod_mesh_counts.at(lod), start_location, 0);
+				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
 		}
 	}
 

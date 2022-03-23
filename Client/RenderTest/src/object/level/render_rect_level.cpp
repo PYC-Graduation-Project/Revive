@@ -44,16 +44,12 @@ namespace render_test
 
 		Render::RegisterGraphicsShader<RenderRectShader>("render rect shader", eRenderLevelType::kOpaque);
 
-		Input::SetInputMode(eInputMode::kUIAndGame);
-
 		return true;
 	}
 
 	void RenderRectLevel::Shutdown()
 	{
 		Render::UnregisterGraphicsShader("render rect shader", eRenderLevelType::kOpaque);
-
-		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
 	void RenderRectLevel::Update(float delta_time)

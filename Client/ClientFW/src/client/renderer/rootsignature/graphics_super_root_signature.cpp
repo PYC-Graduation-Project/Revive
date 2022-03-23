@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/util/d3d_util.h"
-#include "client/util/upload_buffer.h"
+
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/util/camera_component.h"
 
@@ -10,7 +10,6 @@ namespace client_fw
 {
 	GraphicsSuperRootSignature::GraphicsSuperRootSignature()
 	{
-		m_camera_data = CreateUPtr<UploadBuffer<RSCameraData>>(true);
 	}
 
 	GraphicsSuperRootSignature::~GraphicsSuperRootSignature()
@@ -20,7 +19,6 @@ namespace client_fw
 
 	void GraphicsSuperRootSignature::Shutdown()
 	{
-		m_camera_data->Shutdown();
 	}
 
 	void GraphicsSuperRootSignature::Draw(ID3D12GraphicsCommandList* command_list) const
@@ -66,26 +64,5 @@ namespace client_fw
 		return SUCCEEDED(device->CreateRootSignature(0, signature_blob->GetBufferPointer(),
 			signature_blob->GetBufferSize(), IID_PPV_ARGS(&m_root_signature)));
 
-	}
-
-	void GraphicsSuperRootSignature::CreateResources(ID3D12Device* device)
-	{
-		m_camera_data->CreateResource(device, 1);
-	}
-
-	void GraphicsSuperRootSignature::UpdateResources()
-	{
-	}
-
-	void GraphicsSuperRootSignature::SetCameraResource(ID3D12GraphicsCommandList* command_list, const SPtr<CameraComponent>& camera_comp)
-	{
-		RSCameraData camera_data;
-		camera_data.view_matrix = mat4::Transpose(camera_comp->GetViewMatrix());
-		camera_data.projection_matrix = mat4::Transpose(camera_comp->GetProjectionMatrix());
-		camera_data.camera_position = camera_comp->GetWorldPosition();
-
-		m_camera_data->CopyData(0, camera_data);
-
-		command_list->SetGraphicsRootConstantBufferView(2, m_camera_data->GetResource()->GetGPUVirtualAddress());
 	}
 }

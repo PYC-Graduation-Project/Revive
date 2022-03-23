@@ -6,6 +6,8 @@
 #include "object/level/render_rect_level.h"
 #include "object/level/player_test_level.h"
 
+#include"server/network.h"
+#include"server/packet_manager.h"
 using namespace client_fw;
 
 namespace render_test
@@ -20,7 +22,7 @@ namespace render_test
 		bool Initialize() override
 		{
 			bool result = Application::Initialize();
-
+			
 			RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
 				[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
 			RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
@@ -30,7 +32,8 @@ namespace render_test
 				[this]()->bool {OpenLevel(CreateSPtr<RenderRectLevel>());  return true; });
 			RegisterPressedEvent("open player test level", { {eKey::k2} },
 				[this]()->bool {OpenLevel(CreateSPtr<PlayerTestLevel>()); return true; });
-
+			Network::GetInst()->Init();
+			Network::GetInst()->CreateWorker();
 			return result;
 		}
 

@@ -1,8 +1,12 @@
 #include "stdafx.h"
 #include "client/renderer/core/renderer.h"
 #include "client/renderer/core/render_system.h"
+#include "client/renderer/text/text_render_system.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
 #include "client/core/window.h"
 #include "client/util/d3d_util.h"
+#include "client/object/level/core/level_manager.h"
 
 namespace client_fw
 {
@@ -10,6 +14,8 @@ namespace client_fw
 		: m_window(window)
 	{
 		m_render_system = CreateUPtr<RenderSystem>(window);
+		m_text_render_system = CreateUPtr<TextRenderSystem>();
+		m_frame_resource_manager = CreateUPtr<FrameResourceManager>();
 	}
 
 	Renderer::~Renderer()
@@ -43,21 +49,39 @@ namespace client_fw
 			LOG_ERROR("Could not resize window");
 			return false;
 		}
-		if (InitializeRenderSystem())
+		if (InitializeRenderSystem() == false)
 		{
 			LOG_ERROR("Could not initialize render system");
 			return false;
 		}
+		if (InitializeTextRenderSystem() == false)
+		{
+			LOG_ERROR("Could not initialize text render system");
+			return false;
+		}
+		if (InitializeFrameResourceManager() == false)
+		{
+			LOG_ERROR("Could not initialize frame resource manager");
+			return false;
+		}
+
+		LevelManager::GetLevelManager().AddLevelCloseEvent([this]() {
+			m_is_level_changed = true;
+			});
 		
 		return true;
 	}
 
 	void Renderer::Shutdown()
 	{
-		WaitForGpuCompelete();
+		//WaitForGpuCompelete();
 
-		CloseHandle(m_fence_event);
+		//CloseHandle(m_fence_event);
+
+		FlushCommandQueue();
 		
+		m_frame_resource_manager->Shutdown();
+		m_text_render_system->Shutdown();
 		m_render_system->Shutdown();
 	}
 
@@ -71,57 +95,124 @@ namespace client_fw
 			ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
 			m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
 
-			WaitForGpuCompelete();
+			//WaitForGpuCompelete();
+			FlushCommandQueue();
+
+			return true;
 		}
 		return false;
 	}
 
+	bool Renderer::InitializeTextRenderSystem()
+	{
+		if (m_text_render_system->Initialize(m_device.Get(), m_command_queue.Get()) == false)
+		{
+			LOG_ERROR("Could not initialize ui render system");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Renderer::InitializeFrameResourceManager()
+	{
+		return m_frame_resource_manager->Initialize(m_device.Get());
+	}
+
 	bool Renderer::Render()
 	{
-		if (FAILED(m_command_allocator->Reset()))
+		if (m_is_level_changed)
 		{
-			LOG_ERROR("Could not reset command allocator");
-			return false;
-		}
+			const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
 
-		if (FAILED(m_command_list->Reset(m_command_allocator.Get(), nullptr)))
+			if (frame_resource->GetFence() != 0 &&
+				m_fence->GetCompletedValue() < frame_resource->GetFence())
+			{
+				HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+				if (FAILED(m_fence->SetEventOnCompletion(frame_resource->GetFence(), event_handle)))
+				{
+					LOG_WARN("Failed to reach fence value");
+					return false;
+				}
+				WaitForSingleObject(event_handle, INFINITE);
+				CloseHandle(event_handle);
+			}
+			m_is_level_changed = false;
+		}
+		else
 		{
-			LOG_ERROR("Could not reset command list");
-			return false;
+			m_frame_resource_manager->MoveToNextFrame();
+
+			const auto& frame_resource = m_frame_resource_manager->GetCurrentFrameResource();
+
+			if (frame_resource->GetFence() != 0 &&
+				m_fence->GetCompletedValue() < frame_resource->GetFence())
+			{
+				HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+				if (FAILED(m_fence->SetEventOnCompletion(frame_resource->GetFence(), event_handle)))
+				{
+					LOG_WARN("Failed to reach fence value");
+					return false;
+				}
+				WaitForSingleObject(event_handle, INFINITE);
+				CloseHandle(event_handle);
+			}
+
+			m_text_render_system->Update(m_device.Get());
+			m_render_system->Update(m_device.Get());
+
+			const auto& allocator = frame_resource->GetCommandAllocator();
+
+			if (FAILED(allocator->Reset()))
+			{
+				LOG_ERROR("Could not reset command allocator");
+				return false;
+			}
+
+			if (FAILED(m_command_list->Reset(allocator.Get(), nullptr)))
+			{
+				LOG_ERROR("Could not reset command list");
+				return false;
+			}
+
+			m_text_render_system->Draw();
+			m_render_system->Draw(m_command_list.Get());
+			m_render_system->PreDraw(m_device.Get(), m_command_list.Get());
+
+			m_command_list->RSSetViewports(1, &m_viewport);
+			m_command_list->RSSetScissorRects(1, &m_scissor_rect);
+
+			m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
+				D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+			m_command_list->OMSetRenderTargets(1, &m_rtv_cpu_handles[m_cur_swapchain_buffer], true, &m_dsv_cpu_handles);
+			m_command_list->ClearRenderTargetView(m_rtv_cpu_handles[m_cur_swapchain_buffer], Colors::Black, 0, nullptr);
+			m_command_list->ClearDepthStencilView(m_dsv_cpu_handles,
+				D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+			m_render_system->DrawMainCameraView(m_command_list.Get());
+			m_render_system->DrawUI(m_command_list.Get());
+
+			m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
+				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+			m_text_render_system->PostDraw(m_command_list.Get());
+
+			if (FAILED(m_command_list->Close()))
+			{
+				LOG_ERROR("Could not close command list");
+				return false;
+			}
+
+			ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
+			m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
+
+			m_swap_chain->Present(0, 0);
+			m_cur_swapchain_buffer = (m_cur_swapchain_buffer + 1) % s_swap_chain_buffer_count;
+
+			frame_resource->SetFence(++m_current_fence);
+
+			m_command_queue->Signal(m_fence.Get(), m_current_fence);
 		}
-
-		m_render_system->Update(m_device.Get(), m_command_list.Get());
-
-		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
-			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-		m_command_list->RSSetViewports(1, &m_viewport);
-		m_command_list->RSSetScissorRects(1, &m_scissor_rect);
-
-		m_command_list->ClearRenderTargetView(m_rtv_cpu_handles[m_cur_swapchain_buffer], Colors::Black, 0, nullptr);
-		m_command_list->ClearDepthStencilView(m_dsv_cpu_handles, 
-			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		m_command_list->OMSetRenderTargets(1, &m_rtv_cpu_handles[m_cur_swapchain_buffer], true, &m_dsv_cpu_handles);
-
-		m_render_system->Draw(m_command_list.Get());
-
-		m_command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentRenderTarget().Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-		if (FAILED(m_command_list->Close()))
-		{
-			LOG_ERROR("Could not close command list");
-			return false;
-		}
-
-		ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
-		m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
-
-		WaitForGpuCompelete();
-
-		m_swap_chain->Present(1, 0);
-
-		MoveToNextFrame();
 
 		return true;
 	}
@@ -150,6 +241,7 @@ namespace client_fw
 			ComPtr<ID3D12Debug> debug_controller;
 			result = D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller));
 			if (FAILED(result)) return false;
+
 			debug_controller->EnableDebugLayer();
 			factory_flags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
@@ -190,10 +282,7 @@ namespace client_fw
 			LOG_ERROR("Could not create fence");
 			return false;
 		}
-		for (auto& fence_value : m_fence_values)
-			fence_value = 0;
 		D3DUtil::SetObjectName(m_fence.Get(), "renderer_fence");
-		m_fence_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 		D3DUtil::s_cbvsrvuav_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3DUtil::s_rtv_descirptor_increment_size = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -252,7 +341,8 @@ namespace client_fw
 	{
 		const auto& window = m_window.lock();
 
-		m_swap_chain.Reset();
+		//만약 resize가 필요 없는 상태라면
+		/*m_swap_chain.Reset();
 
 		DXGI_SWAP_CHAIN_DESC sc_desc;
 		sc_desc.BufferDesc.Width = window->width;
@@ -273,7 +363,30 @@ namespace client_fw
 
 		if (FAILED(m_factory->CreateSwapChain(m_command_queue.Get(), &sc_desc,
 			reinterpret_cast<IDXGISwapChain**>(m_swap_chain.GetAddressOf()))))
+			return false;*/
+
+		DXGI_SWAP_CHAIN_DESC1 sc_desc = {};
+		sc_desc.BufferCount = s_swap_chain_buffer_count;
+		sc_desc.Width = window->width;
+		sc_desc.Height = window->height;
+		sc_desc.Format = m_rtv_format;
+		sc_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sc_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		sc_desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+		sc_desc.SampleDesc.Count = 1;
+
+
+		ComPtr<IDXGISwapChain1> swap_chain;
+		if (FAILED(m_factory->CreateSwapChainForHwnd(m_command_queue.Get(), 
+			window->hWnd, &sc_desc, nullptr, nullptr, &swap_chain)))
 			return false;
+		if (FAILED(swap_chain.As(&m_swap_chain)))
+			return false;
+
+
+		m_factory->MakeWindowAssociation(window->hWnd, DXGI_MWA_NO_ALT_ENTER);
+		
+		
 
 		D3DUtil::SetObjectName(m_swap_chain.Get(), "renderer_swap_chain");
 		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
@@ -372,7 +485,8 @@ namespace client_fw
 
 	bool Renderer::ResizeViewport()
 	{
-		WaitForGpuCompelete();
+		//WaitForGpuCompelete();
+		FlushCommandQueue();
 
 		if (FAILED(m_command_list->Reset(m_command_allocator.Get(), nullptr)))
 		{
@@ -419,7 +533,7 @@ namespace client_fw
 		ID3D12CommandList* cmd_lists[] = { m_command_list.Get() };
 		m_command_queue->ExecuteCommandLists(_countof(cmd_lists), cmd_lists);
 
-		WaitForGpuCompelete();
+		FlushCommandQueue();
 
 		SetViewAndScissor(0.0f, 0.0f, static_cast<float>(window->width), static_cast<float>(window->height));
 
@@ -441,30 +555,24 @@ namespace client_fw
 		m_scissor_rect.bottom = static_cast<LONG>(top + height);
 	}
 
-	void Renderer::WaitForGpuCompelete()
+	void Renderer::FlushCommandQueue()
 	{
-		UINT64 fence_value = ++m_fence_values[m_cur_swapchain_buffer];
+		++m_current_fence;
 
-		if (FAILED(m_command_queue->Signal(m_fence.Get(), fence_value)))
+		if (FAILED(m_command_queue->Signal(m_fence.Get(), m_current_fence)))
 		{
 			LOG_WARN("Gpu cannot excute signal");
 		}
 
-		if (m_fence->GetCompletedValue() < fence_value)
+		if (m_fence->GetCompletedValue() < m_current_fence)
 		{
-			if (FAILED(m_fence->SetEventOnCompletion(fence_value, m_fence_event)))
+			HANDLE event_handle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+			if (FAILED(m_fence->SetEventOnCompletion(m_current_fence, event_handle)))
 			{
 				LOG_WARN("Failed to reach fence value");
 			}
-			WaitForSingleObject(m_fence_event, INFINITE);
+			WaitForSingleObject(event_handle, INFINITE);
+			CloseHandle(event_handle);
 		}
-
-	}
-
-	void Renderer::MoveToNextFrame()
-	{
-		m_cur_swapchain_buffer = m_swap_chain->GetCurrentBackBufferIndex();
-
-		WaitForGpuCompelete();
 	}
 }

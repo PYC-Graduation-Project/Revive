@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "client/object/level/core/level_manager.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/material/material.h"
@@ -8,8 +9,11 @@
 
 namespace client_fw
 {
+	RenderResourceManager* RenderResourceManager::s_render_resource_manager = nullptr;
+
 	RenderResourceManager::RenderResourceManager()
 	{
+		s_render_resource_manager = this;
 		m_material_data = CreateUPtr<UploadBuffer<RSMaterialData>>();
 	}
 
@@ -20,7 +24,7 @@ namespace client_fw
 	bool RenderResourceManager::Initialize(ID3D12Device* device)
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC texture_heap_desc;
-		texture_heap_desc.NumDescriptors = 1024;
+		texture_heap_desc.NumDescriptors = 8192 + 1024 + 2048 + 1024;
 		texture_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		texture_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		texture_heap_desc.NodeMask = 0;
@@ -31,7 +35,11 @@ namespace client_fw
 			return false;
 		}
 		m_texture_desciptor_heap->SetName(L"Texture descriptor");
-		m_num_of_texture_data = 0;
+
+		LevelManager::GetLevelManager().AddLevelCloseEvent([this]() {
+			m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
+			m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;
+			});
 
 		return true;
 	}
@@ -41,14 +49,9 @@ namespace client_fw
 		m_material_data->Shutdown();
 	}
 
-	void RenderResourceManager::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderResourceManager::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		if (m_ready_textures.empty() == false)
-		{
-			CreateTextureResource(device);
-			UpdateTextureResource(device, command_list);
-			m_ready_textures.clear();
-		}
+		UpdateTextureResource(device, command_list);
 
 		if (m_ready_materials.empty() == false)
 		{
@@ -78,38 +81,37 @@ namespace client_fw
 
 	void RenderResourceManager::RegisterMesh(const SPtr<Mesh>& mesh)
 	{
-		if (m_initialized_assets.find(mesh->GetPath()) == m_initialized_assets.cend())
-		{
-			m_initialized_assets.insert(mesh->GetPath());
-			m_ready_meshes.push_back(mesh);
-			
-			for (UINT i = 0; i < mesh->GetLODCount(); ++i)
-				RegisterMaterials(mesh->GetMaterials(i));
-		}
+		m_ready_meshes.push_back(mesh);
+	}
+
+	void RenderResourceManager::RegisterMaterial(const SPtr<Material>& material)
+	{
+		m_ready_materials.push_back(material);
 	}
 
 	void RenderResourceManager::RegisterTexture(const SPtr<Texture>& texture)
 	{
 		if (texture != nullptr)
 		{
-			if (m_initialized_assets.find(texture->GetPath()) == m_initialized_assets.cend())
+			switch (texture->GetTextureType())
 			{
-				m_initialized_assets.insert(texture->GetPath());
-				m_ready_textures.push_back(texture);
+			case eTextureType::kExternal:
+			{
+				m_ready_external_textures.push_back(std::static_pointer_cast<ExternalTexture>(texture));
+				break;
 			}
-		}
-	}
-
-	void RenderResourceManager::RegisterMaterials(const std::vector<SPtr<Material>>& materials)
-	{
-		for (const auto& material : materials)
-		{
-			if (m_initialized_assets.find(material->GetPath()) == m_initialized_assets.cend())
+			case eTextureType::kRedner:
 			{
-				m_initialized_assets.insert(material->GetPath());
-				m_ready_materials.push_back(material);
-
-				RegisterTexture(material->GetDiffuseTexture());
+				m_ready_render_textures.push_back(std::static_pointer_cast<RenderTexture>(texture));
+				break;
+			}
+			case eTextureType::kRenderUI:
+			{
+				m_ready_render_text_texture.push_back(std::static_pointer_cast<RenderTextTexture>(texture));
+				break;
+			}
+			default:
+				break;
 			}
 		}
 	}
@@ -134,29 +136,70 @@ namespace client_fw
 		}
 	}
 
-	void RenderResourceManager::CreateTextureResource(ID3D12Device* device)
-	{
-	}
-
 	void RenderResourceManager::UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		//D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
 
-		cpu_handle.Offset(m_num_of_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		cpu_handle.Offset(m_num_of_external_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
-		for (const auto& texture : m_ready_textures)
+		for (const auto& texture : m_ready_external_textures)
 		{
 			texture->Initialize(device, command_list);
 			
 			device->CreateShaderResourceView(texture->GetResource(), 
-				&TextureCreator::GetShaderResourceViewDesc(texture), cpu_handle);
+				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
 
-			texture->SetResourceIndex(m_num_of_texture_data++);
+			texture->SetResourceIndex(m_num_of_external_texture_data++);
 			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 			//gpu_handle.ptr += num_of_data * D3DUtil::s_cbvsrvuav_descirptor_increment_size;
 
 			LOG_INFO(texture->GetPath());
 		}
+
+		m_ready_external_textures.clear();
+
+		cpu_handle = m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart();
+		cpu_handle.Offset(m_num_of_render_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+
+		for (const auto& texture : m_ready_render_textures)
+		{
+			//이 데이터를 넣는 구간을 따로 지정해서 그 부분만 초기화 한다.
+			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R8G8B8A8_UNORM });
+
+			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
+			{
+				device->CreateShaderResourceView(texture->GetGBufferTexture(i),
+					&TextureCreator::GetShaderResourceViewDesc(texture->GetGBufferTexture(i)), cpu_handle);
+				texture->SetGBufferResourceIndex(i, m_num_of_render_texture_data++);
+				cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+			}
+
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
+			texture->SetResourceIndex(m_num_of_render_texture_data++);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+			
+			device->CreateShaderResourceView(texture->GetDSVTexture(),
+				&TextureCreator::GetShaderResourceViewDescForDSV(texture->GetDSVTexture()), cpu_handle);
+			texture->SetDSVResourceIndex(m_num_of_render_texture_data++);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		}
+
+		m_ready_render_textures.clear();
+
+		cpu_handle = m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart();
+		cpu_handle.Offset(m_num_of_render_text_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+
+		for (const auto& texture : m_ready_render_text_texture)
+		{
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
+
+			texture->SetResourceIndex(m_num_of_render_text_texture_data++);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		}
+
+		m_ready_render_text_texture.clear();
 	}
 }

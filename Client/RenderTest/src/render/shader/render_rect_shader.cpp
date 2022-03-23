@@ -19,9 +19,9 @@ namespace render_test
 	{
 	}
 
-	void RenderRectShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
+	void RenderRectShader::Update(ID3D12Device* device,eRenderLevelType level_type)
 	{
-		UpdateRenderItem(device, command_list);
+		UpdateRenderItem(device);
 	}
 
 	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const

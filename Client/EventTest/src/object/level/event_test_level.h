@@ -1,5 +1,6 @@
 #pragma once
 #include <client/object/level/core/level.h>
+#include <queue>
 
 namespace event_test
 {
@@ -22,6 +23,10 @@ namespace event_test
 
 	private:
 		Vec3 m_spawn_pos;
+		Vec2 m_spawn_ui_pos;
+
+		std::queue<SPtr<class BillboardActor>> m_move_cube_queue;
+		std::queue<SPtr<class MaterialBillboardActor>> m_mat_bb_queue;
 	};
 }
 

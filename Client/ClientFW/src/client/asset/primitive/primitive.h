@@ -18,6 +18,7 @@ namespace client_fw
 
 			m_vertex_buffer = D3DUtil::CreateDefaultBuffer(device, command_list, vertices, vertices_size,
 				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, m_vertex_upload_buffer);
+			D3DUtil::SetObjectName(m_vertex_buffer.Get(), "vertex buffer");
 
 			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
 			m_vertex_buffer_view.SizeInBytes = vertices_size;
@@ -89,7 +90,11 @@ namespace client_fw
 		template <class VertexType>
 		bool CreateResource(ID3D12Device* device, UINT num_of_data)
 		{
-			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data, &m_vertex_mapped_data);
+			Shutdown();
+
+			m_vertex_buffer = D3DUtil::CreateUploadBuffer(device, sizeof(VertexType) * num_of_data,
+				D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_vertex_mapped_data);
+			D3DUtil::SetObjectName(m_vertex_buffer.Get(), "upload vertex buffer");
 
 			m_vertex_buffer_view.BufferLocation = m_vertex_buffer->GetGPUVirtualAddress();
 			m_vertex_buffer_view.SizeInBytes = sizeof(VertexType) * num_of_data;
@@ -122,7 +127,7 @@ namespace client_fw
 		template <class VertexType>
 		void CopyData(const VertexType& data, UINT index)
 		{
-			memcpy(&m_vertex_mapped_data[index * sizeof(VertexType), &data, sizeof(VertexType)]);
+			memcpy(&m_vertex_mapped_data[index * sizeof(VertexType)], &data, sizeof(VertexType));
 		}
 
 	private:
@@ -141,9 +146,60 @@ namespace client_fw
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
 		virtual void Shutdown() = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT lod = 0) const = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod = 0) const = 0;
 
 	protected:
+		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	public:
+		void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) { m_primitive_topology = topology; }
+	};
+
+	template<class VertexType>
+	class UploadPrimitive
+	{
+	public:
+		UploadPrimitive()
+		{
+			m_vertex_info = CreateSPtr<UploadVertexInfo>();
+		}
+		virtual ~UploadPrimitive() = default;
+
+		virtual bool Initialize(ID3D12Device* device) { return true; }
+
+		virtual void Shutdown()
+		{ 
+			m_vertex_info->Shutdown();
+		}
+
+		virtual void Update(ID3D12Device* device, UINT num_of_data)
+		{
+			m_vertex_info->CreateResource<VertexType>(device, num_of_data);
+		}
+
+		virtual void UpdateVertices(const std::vector<VertexType>& vertices)
+		{
+			m_vertex_info->CopyData(vertices.data(), vertices.size());
+		}
+
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const
+		{
+			command_list->IASetPrimitiveTopology(m_primitive_topology);
+			m_vertex_info->Draw(command_list);
+		}
+
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex) const
+		{
+			command_list->DrawInstanced(num_of_vertex, 1, 0, 0);
+		}
+
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, UINT num_of_vertex, UINT start_vertex_location) const
+		{
+			command_list->DrawInstanced(num_of_vertex, 1, start_vertex_location, 0);
+		}
+
+	protected:
+		SPtr<UploadVertexInfo> m_vertex_info;
 		D3D12_PRIMITIVE_TOPOLOGY m_primitive_topology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
 
 	public:

@@ -6,10 +6,11 @@ namespace client_fw
 	class SphereCollisioner : public Collisioner
 	{
 	public:
-		SphereCollisioner(const WPtr<SphereComponent>& owner);
+		SphereCollisioner();
 		virtual ~SphereCollisioner() = default;
 
-		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>&other) override;
+		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual void BlockOtherComponent(const SPtr<SceneComponent>& other) override;
 	};
 }
 

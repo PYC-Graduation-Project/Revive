@@ -26,26 +26,64 @@ namespace client_fw
 		{
 			if (node->movable_scene_components.empty() == false)
 			{
-				for (size_t i = 0; i < node->movable_scene_components.size(); ++i)
-				{
-					const auto& comp = node->movable_scene_components[i];
-					
-					for (size_t j = i + 1; j < node->movable_scene_components.size(); ++j)
-					{
-						const auto& other = node->movable_scene_components[j];
-						if (comp->GetCollisioner() != nullptr && other->GetCollisioner() != nullptr &&
-							comp->GetOwner().lock() != other->GetOwner().lock())
+				auto CheckCollision([](const std::string& type, const SPtr<SceneComponent>& comp,
+					const SPtr<SceneComponent>& other_comp) {
+						const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
+						if (other_col_types.find(type) != other_col_types.cend() &&
+							comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
+							comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr &&
+							comp->IsCollidedComponent(other_comp) == false &&
+							other_comp->IsCollidedComponent(comp) == false)
 						{
-							comp->GetCollisioner()->CheckCollisionWithOtherComponent(other);
-						}
-					}
+							if (comp->GetCollisioner()->CheckCollisionWithOtherComponent(other_comp))
+							{
+								comp->AddCollidedComponent(other_comp);
+								other_comp->AddCollidedComponent(comp);
 
-					for (const auto& static_comp : node->static_scene_components)
+								const auto& col_info = comp->GetCollisioner()->GetCollisionInfo();
+								const auto& other_col_info = other_comp->GetCollisioner()->GetCollisionInfo();
+
+								if (col_info.is_blocking == true && other_col_info.is_blocking == true)
+									comp->GetCollisioner()->BlockOtherComponent(other_comp);
+
+								if (col_info.generate_collision_event == true)
+									comp->ExecuteCollisionResponse(comp, other_comp->GetOwner().lock(), other_comp);
+								if (other_col_info.generate_collision_event == true)
+									other_comp->ExecuteCollisionResponse(other_comp, comp->GetOwner().lock(), comp);
+							}
+						}
+					});
+
+				for (const auto& [type, mov_comps] : node->movable_scene_components)
+				{
+					for (auto iter_comp = mov_comps.cbegin(); iter_comp != mov_comps.cend(); ++iter_comp)
 					{
-						if (comp->GetCollisioner() != nullptr && static_comp->GetCollisioner() != nullptr &&
-							comp->GetOwner().lock() != static_comp->GetOwner().lock())
+						const auto mov_comp = *iter_comp;
+
+						const auto& col_types = mov_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
+
+						auto col_iter = std::lower_bound(col_types.cbegin(), col_types.cend(), type);
+
+						if (col_iter != col_types.cend() && *col_iter == type)
 						{
-							comp->GetCollisioner()->CheckCollisionWithOtherComponent(static_comp);
+							for (auto iter_other_comp = iter_comp; iter_other_comp != mov_comps.cend(); ++iter_other_comp)
+							{
+								const auto& other_comp = *iter_other_comp;
+								CheckCollision(type, mov_comp, other_comp);
+							}
+							++col_iter;
+						}
+
+						for (col_iter; col_iter != col_types.cend(); ++col_iter)
+						{
+							for (const auto& other_comp : node->movable_scene_components[*col_iter])
+								CheckCollision(type, mov_comp, other_comp);
+						}
+
+						for (const auto& other_type : col_types)
+						{
+							for (const auto& other_comp : node->static_scene_components[other_type])
+								CheckCollision(type, mov_comp, other_comp);
 						}
 					}
 				}

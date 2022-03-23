@@ -5,37 +5,29 @@
 
 namespace client_fw
 {
-	BoxCollisioner::BoxCollisioner(const WPtr<BoxComponent>& owner)
-		: Collisioner(owner, eMeshCollisionType::kBox)
+	BoxCollisioner::BoxCollisioner()
+		: Collisioner(eMeshCollisionType::kBox)
 	{
 	}
 
-	void BoxCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
+	bool BoxCollisioner::CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other)
 	{
 		switch (other->GetCollisioner()->GetMeshCollisionType())
 		{
 		case eMeshCollisionType::kStaticMesh:
 		case eMeshCollisionType::kBox:
-		{
-			if (GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox()))
-			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
-			}
-			break;
-		}
+			return GetOwner()->GetOrientedBox()->Intersects(*other->GetOrientedBox());
 		case eMeshCollisionType::kSphere:
 		{
 			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
-			if (GetOwner()->GetOrientedBox()->Intersects(sphere2))
-			{
-				LOG_INFO("{0} col {1}", GetOwner()->GetOwner().lock()->GetName(),
-					other->GetOwner().lock()->GetName());
-			}
-			break;
+			return GetOwner()->GetOrientedBox()->Intersects(sphere2);
 		}
 		default:
 			break;
 		}
+		return false;
+	}
+	void BoxCollisioner::BlockOtherComponent(const SPtr<SceneComponent>& other)
+	{
 	}
 }

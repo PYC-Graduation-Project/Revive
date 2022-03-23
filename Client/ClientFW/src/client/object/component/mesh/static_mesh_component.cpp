@@ -2,14 +2,15 @@
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/renderer/core/render.h"
 #include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 
 namespace client_fw
 {
-	StaticMeshComponent::StaticMeshComponent(const std::string& name)
-		: MeshComponent(name, Render::ConvertShaderType(eShaderType::kOpaqueMesh))
+	StaticMeshComponent::StaticMeshComponent(const std::string& name, const std::string& draw_shader_name)
+		: MeshComponent(name, draw_shader_name)
 	{
+		if (m_collisioner == nullptr)
+			m_collisioner = CreateUPtr<StaticMeshCollisioner>();
 	}
 
 	bool StaticMeshComponent::Initialize()
@@ -36,11 +37,6 @@ namespace client_fw
 			return false;
 		}
 		return true;
-	}
-
-	UPtr<Collisioner> StaticMeshComponent::CreateCollisioner()
-	{
-		return CreateUPtr<StaticMeshCollisioner>(SharedFromThis());
 	}
 
 	SPtr<StaticMeshComponent> StaticMeshComponent::SharedFromThis()

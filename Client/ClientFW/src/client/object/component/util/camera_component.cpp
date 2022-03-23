@@ -42,16 +42,23 @@ namespace client_fw
 		m_view_matrix = mat4::LookAt(eye, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
+
+		if (m_is_updated_viewport)
+		{
+			SetAspectRatio(static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height));
+			UpdateProjectionMatrix();
+			m_is_updated_viewport = false;
+		}
 	}
 
-	void CameraComponent::UpdateViewport(float left, float top, float width, float height)
+	void CameraComponent::UpdateViewport(LONG left, LONG top, LONG width, LONG height)
 	{
 		m_viewport.left = left;
 		m_viewport.width = width;
 		m_viewport.top = top;
 		m_viewport.height = height;
-		SetAspectRatio(width / height);
-		UpdateProjectionMatrix();
+		m_is_updated_viewport = true;
+		UpdateWorldMatrix();
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -80,6 +87,11 @@ namespace client_fw
 		Render::UnregisterCameraComponent(SharedFromThis());
 	}
 
+	void CameraComponent::SetMainCamera()
+	{
+		Render::SetMainCamera(SharedFromThis());
+	}
+
 	void CameraComponent::SetOwnerController(const WPtr<Actor>& owner)
 	{
 		m_owner_controller = owner; 
@@ -93,8 +105,10 @@ namespace client_fw
 
 	Mat4 CameraComponent::GetOrthoMatrix() const
 	{
-		return  mat4::Ortho(m_viewport.left, m_viewport.left + m_viewport.width,
-			m_viewport.top + m_viewport.height, m_viewport.top, m_near_z, m_far_z);
+		return  mat4::Ortho(static_cast<float>(m_viewport.left),
+			static_cast<float>(m_viewport.left + m_viewport.width),
+			static_cast<float>(m_viewport.top + m_viewport.height),
+			static_cast<float>(m_viewport.top), m_near_z, m_far_z);
 	}
 
 	SPtr<CameraComponent> CameraComponent::SharedFromThis()

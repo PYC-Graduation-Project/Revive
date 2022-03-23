@@ -4,9 +4,13 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
+#include <client/object/component/render/billboard_component.h>
 #include "object/level/event_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/move_cube.h"
+#include "object/actor/billboard_actor.h"
+#include "object/actor/material_billboard_actor.h"
+#include "object/ui/event_test_ui_layer.h"
 
 namespace event_test
 {
@@ -17,13 +21,6 @@ namespace event_test
 
 	bool EventTestLevel::Initialize()
 	{
-		auto player = CreateSPtr<DefaultPawn>();
-		auto controller = CreateSPtr<PlayerController>();
-
-		controller->Possess(player);
-		SpawnActor(player);
-		SpawnActor(controller);
-
 		auto sphere = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/sphere.obj");
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3{ 300.0f, 0.0f, 1000.0f });
@@ -66,26 +63,62 @@ namespace event_test
 		SpawnActor(police);
 		police->SetPosition(Vec3{ 0.0f, -110.0f, 650.0f });*/
 
-		Input::SetInputMode(eInputMode::kUIAndGame);
-		Input::SetHideCursor(true);
+		auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kStatic, "../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), false);
+		SpawnActor(test_billboard);
+		test_billboard->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
+
+		auto event_test_ui_layer = CreateSPtr<EventTestUILayer>();
+		RegisterUILayer(event_test_ui_layer);
+
+		Input::SetInputMode(eInputMode::kGameOnly);
 
 		RegisterPressedEvent("spawn movable actor", { EventKeyInfo{eKey::kP} },
 			[this]()->bool {
-				auto move_cube = CreateSPtr<MoveCube>();
-				SpawnActor(move_cube);
-				move_cube->SetPosition(m_spawn_pos);
+				auto test_billboard = CreateSPtr<BillboardActor>(eMobilityState::kDestructible,
+					"../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), m_move_cube_queue.size() % 2);
+				SpawnActor(test_billboard);
+				test_billboard->SetPosition(m_spawn_pos);
 				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
+				m_move_cube_queue.push(test_billboard);
 				return true;
 			});
 
+		RegisterPressedEvent("kill movable actor", { EventKeyInfo{eKey::kO} },
+			[this]()->bool {
+				if (m_move_cube_queue.empty() == false)
+				{
+					m_move_cube_queue.front()->SetActorState(eActorState::kDead);
+					m_move_cube_queue.pop();
+				}
+				return true;
+			});
+
+		RegisterPressedEvent("spawn material billboard", { EventKeyInfo{eKey::kL} },
+			[this]()->bool {
+				auto test_mat_billboard = CreateSPtr<MaterialBillboardActor>(eMobilityState::kDestructible, 
+					"../Contents/Castle/SiegeRam_LOD0.mtl", Vec2(100.0f, 100.0f), m_mat_bb_queue.size() % 2);
+				SpawnActor(test_mat_billboard);
+				test_mat_billboard->SetPosition(m_spawn_pos);
+				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);
+				m_mat_bb_queue.push(test_mat_billboard);
+				return true;
+			});
+
+		RegisterPressedEvent("kill mat movable actor", { EventKeyInfo{eKey::kK} },
+			[this]()->bool {
+				if (m_mat_bb_queue.empty() == false)
+				{
+					m_mat_bb_queue.front()->SetActorState(eActorState::kDead);
+					m_mat_bb_queue.pop();
+				}
+				return true;
+			});
 
 		return true;
 	}
 
 	void EventTestLevel::Shutdown()
 	{
-		Input::SetHideCursor(false);
-		Input::SetClipCursor(false);
 		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 

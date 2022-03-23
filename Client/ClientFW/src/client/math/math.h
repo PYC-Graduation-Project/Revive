@@ -438,5 +438,19 @@ namespace client_fw
 		{
 			XMQuaternionToAxisAngle(&XMLoadFloat3(&axis), &radian, XMLoadFloat4(&q));
 		}
+
+		inline Vec3 QuaternionToEuler(const Quaternion& q)
+		{
+			float sqx = q.x * q.x;
+			float sqy = q.y * q.y;
+			float sqz = q.z * q.z;
+			float sqw = q.w * q.w;
+
+			float pitch = std::asinf(std::clamp(2.0f * (q.w * q.x - q.y * q.z), -1.0f, 1.0f));
+			float yaw = std::atan2(2.0f * (q.x * q.z + q.w * q.y), -sqx - sqy + sqz + sqw);
+			float roll = std::atan2(2.0f * (q.x * q.y + q.w * q.z), -sqx + sqy - sqz + sqw);
+
+			return Vec3(pitch, yaw, roll);
+		}
 	}
 }

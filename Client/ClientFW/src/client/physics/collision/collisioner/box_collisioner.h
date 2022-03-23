@@ -6,9 +6,10 @@ namespace client_fw
 	class BoxCollisioner : public Collisioner
 	{
 	public:
-		BoxCollisioner(const WPtr<BoxComponent>& owner);
+		BoxCollisioner();
 		virtual ~BoxCollisioner() = default;
 
-		virtual void CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual bool CheckCollisionWithOtherComponent(const SPtr<SceneComponent>& other) override;
+		virtual void BlockOtherComponent(const SPtr<SceneComponent>& other) override;
 	};
 }

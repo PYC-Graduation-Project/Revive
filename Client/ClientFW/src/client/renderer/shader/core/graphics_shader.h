@@ -4,10 +4,14 @@
 namespace client_fw
 {
 	class GraphicsRenderLevel;
+
 	class MeshComponent;
 	class ShapeComponent;
-	class SkeletalMeshComponent;
+	class BillboardComponent;
+	class WidgetComponent;
+
 	class MeshRenderItem;
+	class BillboardRenderItem;
 
 	class GraphicsShader : public Shader
 	{
@@ -15,8 +19,10 @@ namespace client_fw
 		GraphicsShader(const std::string& name);
 		virtual ~GraphicsShader() = default;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const = 0;
+	public:
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override {}
+		virtual void UpdateFrameResource(ID3D12Device* device) override {}
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override {}
 
 	public:
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)  const= 0;
@@ -46,9 +52,10 @@ namespace client_fw
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp);
 		virtual bool RegisterShapeComponent(ID3D12Device* device, const SPtr<ShapeComponent>& shape_comp);
 		virtual void UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp);
-		virtual bool RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp);
-		virtual void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp);
-		//virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& comp) = 0;
+		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp);
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp);
+		virtual bool RegisterWidgetComponent(ID3D12Device* device, const SPtr<WidgetComponent>& widget_comp);
+		virtual void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 	};
 
 	class MeshShader : public GraphicsShader
@@ -60,18 +67,15 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override final;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const override final;
+		virtual void UpdateRenderItem(ID3D12Device* device);
+		virtual void UpdateRenderItemResource(ID3D12Device* device);
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
 
-		virtual bool RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp) override final;
-		virtual void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp) override final;
-
-	private:
-		std::vector<SPtr<MeshRenderItem>> m_render_items;
-		std::unordered_map<std::string, SPtr<MeshRenderItem>> m_render_items_map;
+	protected:
+		SPtr<MeshRenderItem> m_render_item;
 	};
 
 	class ShapeShader : public GraphicsShader
@@ -83,8 +87,9 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list) override final;
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const override final;
+		virtual void UpdateRenderItem(ID3D12Device* device);
+		virtual void UpdateRenderItemResource(ID3D12Device* device);
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
 
 		virtual D3D12_RASTERIZER_DESC CreateRasterizerState(eRenderLevelType level_type, int pso_index) const override;
 
@@ -95,6 +100,29 @@ namespace client_fw
 
 	private:
 
+	};
+
+	class BillboardShader : public GraphicsShader
+	{
+	protected:
+		BillboardShader(const std::string& name);
+		virtual ~BillboardShader() = default;
+
+		virtual void Initialize(ID3D12Device* device) override;
+		virtual void Shutdown() override;
+
+		virtual void UpdateRenderItem(ID3D12Device* device);
+		virtual void UpdateRenderItemResource(ID3D12Device* device);
+		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) const;
+
+		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const override;
+
+		virtual bool RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp) override;
+		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
+
+	protected:
+		SPtr<BillboardRenderItem> m_billboard_render_item;
 	};
 }
 

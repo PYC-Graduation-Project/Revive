@@ -213,9 +213,9 @@ namespace client_fw
 #endif // SHOW_TREE_INFO
 				BOrientedBox box = BOrientedBox(std::move(positions));
 				mesh->SetOrientBox(box);
-				auto bounding_tree = CreateSPtr<KDTree>();
+				/*auto bounding_tree = CreateSPtr<KDTree>();
 				bounding_tree->Initialize(box, triangles);
-				mesh->SetBoundingTree(std::move(bounding_tree));
+				mesh->SetBoundingTree(std::move(bounding_tree));*/
 			}
 
 			++lod;
@@ -1035,12 +1035,9 @@ namespace client_fw
 			material->SetBaseColor(Vec4(0.3f, 0.3f, 0.3f, 1.0f)); //베이스컬러 회색
 
 			material->SetAssetInfo({ mtl_name, texture_path, ".png" }); //텍스처 경로 = 마테리얼 경로(마테리얼 파일이없기때문에)
-			SPtr<Texture> diffuse_texture = AssetStore::LoadTexture(texture_path);
+			SPtr<ExternalTexture> diffuse_texture = AssetStore::LoadTexture(texture_path);
 			if (diffuse_texture != nullptr)
-			{
-				diffuse_texture->SetTextureType(eTextureType::kDiffuse);
 				material->SetDiffuseTexture(diffuse_texture);
-			}
 			AddMaterial();
 
 		}

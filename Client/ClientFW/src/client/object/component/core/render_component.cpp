@@ -2,6 +2,7 @@
 #include "client/object/component/core/render_component.h"
 #include "client/renderer/core/render.h"
 #include "client/util/octree/octree_manager.h"
+#include "client/object/actor/core/actor.h"
 
 namespace client_fw
 {
@@ -15,15 +16,22 @@ namespace client_fw
 	bool RenderComponent::InitializeComponent()
 	{
 		bool ret = SceneComponent::InitializeComponent();
-		RegisterToVisualOctree();
-		ret = RegisterToRenderSystem();
+		if (m_is_register_render_system)
+		{
+			RegisterToVisualOctree();
+			ret &= RegisterToRenderSystem();
+		}
 		return ret;
 	}
 
 	void RenderComponent::ShutdownComponent()
 	{
-		UnregisterFromRenderSystem();
-		UnregisterFromVisualOctree();
+		if (m_is_register_render_system)
+		{
+			UnregisterFromRenderSystem();
+			UnregisterFromVisualOctree();
+		}
+		SceneComponent::ShutdownComponent();
 	}
 
 	void RenderComponent::UpdateComponent(float delta_time)

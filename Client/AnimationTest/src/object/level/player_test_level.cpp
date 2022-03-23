@@ -20,14 +20,9 @@ namespace anim_test
 
 	bool PlayerTestLevel::Initialize()
 	{
-		m_player = CreateSPtr<DefaultPawn>();
-		m_player_controller = CreateSPtr<PlayerController>();
-
-		m_player_controller->Possess(m_player);
-
-		SpawnActor(m_player);
-		SpawnActor(m_player_controller);
-
+		auto cube = CreateSPtr<StaticMeshActor>(eMobilityState::kMovable, "../Contents/Cube.obj");
+		SpawnActor(cube);
+		cube->SetPosition(Vec3{ 0,0,1000.0f });
 		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
 		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","run");
 		SpawnActor(violet_idle);
@@ -69,7 +64,7 @@ namespace anim_test
 			{
 				if (i % 2 == 0)
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/violet.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y- 35.0f, z });
 					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
@@ -78,7 +73,7 @@ namespace anim_test
 				}
 				else
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kDestructable, "../Contents/Revive/violet.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);

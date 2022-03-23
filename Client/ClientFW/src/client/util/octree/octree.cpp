@@ -2,6 +2,8 @@
 #include "client/util/octree/octree.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/physics/collision/collisioner/collisioner.h"
+#include "client/physics/collision/collision_util.h"
 
 namespace client_fw
 {
@@ -35,10 +37,11 @@ namespace client_fw
 	{
 		if (node->child_nodes[0] == nullptr)
 		{
+			const auto& type = scene_comp->GetCollisioner()->GetCollisionInfo().collision_type;
 			if (scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
-				node->movable_scene_components.push_back(scene_comp);
+				node->movable_scene_components[type].push_back(scene_comp);
 			else
-				node->static_scene_components.push_back(scene_comp);
+				node->static_scene_components[type].push_back(scene_comp);
 			scene_comp->AddCollisionTreeNode(node);
 			return;
 		}

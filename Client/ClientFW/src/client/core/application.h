@@ -13,11 +13,13 @@ namespace client_fw
 	class Timer;
 	class Renderer;
 
-	class InputEventSystem;
+	class EventSystem;
 	struct EventKeyInfo;
+	class MessageEventInfo;
 	class LevelManager;
 	class LevelLoader;
 	class Level;
+	class UserInterfaceManager;
 	class PhysicsWorld;
 
 	class AssetManager;
@@ -40,7 +42,8 @@ namespace client_fw
 		void Run();
 
 	private:
-		void ProcessInput();
+		void ExecuteEvents();
+		void SendEventToServer();
 		void Update(float delta_time);
 		void Render();
 
@@ -48,7 +51,7 @@ namespace client_fw
 		virtual bool InitializeWindow();
 		void DestroyWindow();
 		void ShowFpsToWindowTitle(UINT fps);
-		void UpdateWindowSize();
+		void UpdateWindowSize(LONG x, LONG y);
 		void UpdateWindowRect();
 
 	protected:
@@ -69,8 +72,9 @@ namespace client_fw
 
 	private:
 		UPtr<Timer> m_timer;
-		UPtr<InputEventSystem> m_input_event_system;
+		UPtr<EventSystem> m_event_system;
 		UPtr<LevelManager> m_level_manager;
+		UPtr<UserInterfaceManager> m_user_interface_manager;
 		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;
 

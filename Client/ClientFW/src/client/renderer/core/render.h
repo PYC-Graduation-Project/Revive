@@ -8,21 +8,23 @@ namespace client_fw
 	class Shader;
 	class RenderComponent;
 	class CameraComponent;
-	class SkeletalMeshComponent;
 
+
+	//현재 전략은 Opaque -> Deferred -> Transparent -> Compute -> UI
+	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque
+		kOpaque, kDeferred, kTransparent, kUI, kFinalView
 	};
 
 	enum class eShaderType
 	{
-		kOpaqueMesh, kShapeBox, kSkeletalMesh
+		kOpaqueMesh, kShapeBox, kTextureBillboard, kOpaqueMaterialBillboard, kOpaqueWidget, kMaskedWidget, kSkeletalMesh
 	};
 
 	enum class eKindOfRenderLevel
 	{
-		kGraphics, kCompute, kDeferred,
+		kGraphics, kCompute
 	};
 
 	class Render final
@@ -41,12 +43,11 @@ namespace client_fw
 
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
-
-		static bool RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
-		static void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_component, const std::string& shader_name);
-
+		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
 
 	public:
+		static Vec2 GetWindowSize();
+
 		static std::string ConvertRenderLevelType(eRenderLevelType type);
 		static std::string ConvertShaderType(eShaderType type);
 

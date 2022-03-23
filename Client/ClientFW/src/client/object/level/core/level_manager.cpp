@@ -30,29 +30,38 @@ namespace client_fw
 
 	void LevelManager::Update(float delta_time)
 	{
-		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
+		if (m_dead_level != nullptr)
 		{
 			m_octree_manager->UnregisterOctrees();
-			m_cur_level->ShutdownLevel();
+			m_dead_level->ShutdownLevel();
+			m_dead_level = nullptr;
+		}
+
+		if (m_cur_level != nullptr && m_cur_level->GetLevelState() == eLevelState::kDead)
+		{
+			m_dead_level = std::move(m_cur_level);
+			for (const auto& event : m_level_close_events)
+				event();
 			m_cur_level = nullptr;
 		}
 
-		if (m_ready_level != nullptr)
+		if (m_ready_level != nullptr && m_dead_level == nullptr)
 		{
 			m_octree_manager->RegisterVisualOctrees(std::move(m_ready_level->CreateVisualOctrees()));
 			m_octree_manager->RegisterCollisionOctrees(std::move(m_ready_level->CreateCollisionOctrees()));
-			if (m_ready_level->InitializeLevel())
+			m_cur_level = std::move(m_ready_level);
+			if (m_cur_level->InitializeLevel())
 			{
-				m_cur_level = std::move(m_ready_level);
 				m_cur_level->SetRuntime();
-				m_ready_level = nullptr;
 			}
 			else
 			{
-				LOG_WARN("Could not initailize level : {0}", m_ready_level->GetName());
-				m_ready_level->ShutdownLevel();
+				LOG_WARN("Could not initailize level : {0}", m_cur_level->GetName());
+				m_cur_level->ShutdownLevel();
+				m_cur_level = nullptr;
 				m_octree_manager->UnregisterOctrees();
 			}
+			m_ready_level = nullptr;
 		}
 
 		if (m_cur_level != nullptr)
@@ -61,11 +70,18 @@ namespace client_fw
 		}
 	}
 
+	void LevelManager::UpdateWorldMatrix()
+	{
+		if (m_cur_level != nullptr)
+		{
+			m_cur_level->UpdateWorldMatrix();
+		}
+	}
+
 	void LevelManager::OpenLevel(const SPtr<Level> new_level, UPtr<LevelLoader>&& level_loader)
 	{
 		if (m_ready_level != nullptr)
 		{
-			m_ready_level->ShutdownLevel();
 			m_ready_level = nullptr;
 		}
 		CloseLevel();
@@ -88,5 +104,10 @@ namespace client_fw
 			m_cur_level->SpawnActor(actor);
 		else
 			LOG_WARN("Could not create \"{0}\" : current level is nullptr", actor->GetName());
+	}
+
+	void LevelManager::AddLevelCloseEvent(const std::function<void()>& function)
+	{
+		m_level_close_events.push_back(function);
 	}
 }

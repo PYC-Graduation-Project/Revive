@@ -30,6 +30,7 @@ namespace client_fw
 	private:
 		Mat4 m_world_matrix;
 		Vec3 m_world_position;
+		Vec3 m_world_previous_position;
 		Quaternion m_world_rotation;
 		Vec3 m_world_scale;
 		bool m_is_updated_world_matrix = false;
@@ -43,13 +44,25 @@ namespace client_fw
 	protected:
 		SPtr<BOrientedBox> m_oriented_box;
 		UPtr<Collisioner> m_collisioner;
+		bool m_is_physics = false;
+		std::function<void(const SPtr<SceneComponent>&, const SPtr<Actor>&,
+			const SPtr<SceneComponent>&)> m_collision_responce_function = nullptr;
 
 	private:
 		std::vector<WPtr<CollisionTreeNode>> m_collision_tree_node;
+		std::map<std::string, std::set<std::string>> m_collided_components;
+
+	public:
+		void OnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
+			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)
+		{ m_collision_responce_function = function; }
+		virtual void ExecuteCollisionResponse(const SPtr<SceneComponent>& comp,
+			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp);
 
 	public:
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
 		const Vec3& GetWorldPosition() const { return m_world_position; }
+		const Vec3& GetWorldPreviousPosition() const { return m_world_previous_position; }
 		const Quaternion& GetWorldRotation() const { return m_world_rotation; }
 		const Vec3& GetWorldScale() const { return m_world_scale; }
 		Vec3 GetWorldForward() const { return vec3::TransformNormal(vec3::AXIS_Z, m_world_rotation); }
@@ -70,11 +83,14 @@ namespace client_fw
 		Vec3 GetLocalUp() const { return vec3::TransformNormal(vec3::AXIS_Y, m_local_rotation); }
 
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
-		const UPtr<Collisioner>& GetCollisioner() const { return m_collisioner; }
-		virtual UPtr<Collisioner> CreateCollisioner();
+		const UPtr<Collisioner>& GetCollisioner() const;
+		bool IsPhysics() const { return m_is_physics; }
+		void SetPhysics(bool value);
 		void AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node);
 		void ResetCollisionTreeNode() { m_collision_tree_node.clear(); }
 		const std::vector<WPtr<CollisionTreeNode>>& GetCollisionTreeNodes() const { return m_collision_tree_node; }
+		bool IsCollidedComponent(const SPtr<SceneComponent>& component);
+		void AddCollidedComponent(const SPtr<SceneComponent>& component);
 	};
 
 }

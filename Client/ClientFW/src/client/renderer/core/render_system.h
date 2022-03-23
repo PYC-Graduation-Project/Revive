@@ -9,9 +9,9 @@ namespace client_fw
 	class GraphicsShader;
 	class RenderComponent;
 	class CameraComponent;
-	class SkeletalMeshComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
+	class CameraManager;
 
 	class RenderSystem final
 	{
@@ -25,8 +25,11 @@ namespace client_fw
 		bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Shutdown();
 
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void Update(ID3D12Device* device);
+		void PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const;
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
+		void DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const;
+		void DrawUI(ID3D12GraphicsCommandList* command_list) const;
 
 		void UpdateViewport();
 
@@ -34,27 +37,14 @@ namespace client_fw
 		template <class T>
 		bool RegisterGraphicsRenderLevel(eRenderLevelType level_type)
 		{
-			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(),
-				std::make_pair(level_type, eKindOfRenderLevel::kGraphics))
-				!= m_render_level_order.cend())
-			{
-				m_graphics_render_levels[level_type] = CreateSPtr<T>(level_type, m_graphics_super_root_signature);
-				m_graphics_render_levels[level_type]->Initialize(m_device);
-				return true;
-			}
-			else
-			{
-				LOG_WARN("Could not find {0} from render system", Render::ConvertRenderLevelType(level_type));
-				return false;
-			}
+			m_graphics_render_levels[level_type] = CreateSPtr<T>(m_graphics_super_root_signature);
+			return m_graphics_render_levels[level_type]->Initialize(m_device);
 		}
 
 		template <class T>
 		bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type, bool is_custom = false)
 		{
-			if (std::find(m_render_level_order.cbegin(), m_render_level_order.cend(), 
-				std::make_pair(level_type, eKindOfRenderLevel::kGraphics))
-				!= m_render_level_order.cend())
+			if (m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
 			{
 				m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
 				m_graphics_shaders[shader_name]->Initialize(m_device);
@@ -74,8 +64,8 @@ namespace client_fw
 		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
-		bool RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name);
-		void UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name);
+		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
+
 	private:
 		WPtr<Window> m_window;
 		ID3D12Device* m_device;
@@ -84,14 +74,14 @@ namespace client_fw
 		std::map<eRenderLevelType, SPtr<GraphicsRenderLevel>> m_graphics_render_levels;
 		std::map<std::string, SPtr<GraphicsShader>> m_graphics_shaders;
 
-		std::vector<std::pair<eRenderLevelType, eKindOfRenderLevel>> m_render_level_order;
 		std::set<std::string> m_added_shaders;
 
-		std::vector<SPtr<CameraComponent>> m_basic_cameras;
-
 		UPtr<RenderResourceManager> m_render_asset_manager;
+		UPtr<CameraManager> m_camera_manager;
+		
 
 	public:
 		ID3D12Device* GetDevice() const { return m_device; }
+		SPtr<Window> GetWindow() const { return m_window.lock(); }
 	};
 }

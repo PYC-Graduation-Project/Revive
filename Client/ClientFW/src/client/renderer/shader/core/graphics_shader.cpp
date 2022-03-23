@@ -2,9 +2,10 @@
 #include "client/renderer/shader/core/graphics_shader.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/renderer/renderlevel/core/render_level.h"
-#include "client/renderer/core/render_item.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
+#include "client/renderer/renderitem/billboard_render_item.h"
+
 #include "client/object/component/mesh/core/mesh_component.h"
-#include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/util/d3d_util.h"
 
@@ -143,15 +144,26 @@ namespace client_fw
 		LOG_WARN("Could not supported shape component at {0}", m_name);
 	}
 
-	bool GraphicsShader::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	bool GraphicsShader::RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp)
 	{
-		LOG_WARN("Could not supported skeletal mesh component at {0}", m_name);
+		LOG_WARN("Could not supported billboard component at {0}", m_name);
 		return false;
 	}
 
-	void GraphicsShader::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
+	void GraphicsShader::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
 	{
-		LOG_WARN("Could not supported skeletal mesh component at {0}", m_name);
+		LOG_WARN("Could not supported billboard component at {0}", m_name);
+	}
+
+	bool GraphicsShader::RegisterWidgetComponent(ID3D12Device* device, const SPtr<WidgetComponent>& widget_comp)
+	{
+		LOG_WARN("Could not supported widget component at {0}", m_name);
+		return false;
+	}
+
+	void GraphicsShader::UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp)
+	{
+		LOG_WARN("Could not supported widget component at {0}", m_name);
 	}
 
 	MeshShader::MeshShader(const std::string& name)
@@ -161,78 +173,38 @@ namespace client_fw
 
 	void MeshShader::Initialize(ID3D12Device* device)
 	{
+		m_render_item->Initialize(device);
 	}
 
 	void MeshShader::Shutdown()
 	{
+		m_render_item->Shutdown();
 	}
 
-	void MeshShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void MeshShader::UpdateRenderItem(ID3D12Device* device)
 	{
-		for (const auto& render_item : m_render_items)
-			render_item->Update(device, command_list);
+		m_render_item->Update(device);
+	}
+
+	void MeshShader::UpdateRenderItemResource(ID3D12Device* device)
+	{
+		m_render_item->UpdateFrameResource(device);
 	}
 
 	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
 	{
-		for (const auto& render_item : m_render_items)
-			render_item->Draw(command_list);
+		m_render_item->Draw(command_list);
 	}
 
 	bool MeshShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
 	{
-		std::string path = mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->RegisterMeshComponent(mesh_comp);
-		}
-		else
-		{
-			SPtr<MeshRenderItem> render_item = CreateSPtr<MeshRenderItem>(mesh_comp->GetMesh());
-			render_item->Initialize(device);
-			render_item->RegisterMeshComponent(mesh_comp);
-			m_render_items_map.insert({ path, render_item });
-			m_render_items.push_back(render_item);
-		}
-
+		m_render_item->RegisterMeshComponent(mesh_comp);
 		return true;
 	}
 
 	void MeshShader::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
-		std::string path = mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->UnregisterMeshComponent(mesh_comp);
-		}
-	}
-
-	bool MeshShader::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
-	{
-		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->RegisterSkeletalMeshComponent(skeletal_mesh_comp);
-		}
-		else
-		{
-			LOG_WARN("Animation Controller isn't initialized at SkeletalMesh");
-			return false;
-		}
-		return true;
-	}
-
-	void MeshShader::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp)
-	{
-		std::string path = skeletal_mesh_comp->GetMesh()->GetPath();
-
-		if (m_render_items_map.find(path) != m_render_items_map.cend())
-		{
-			m_render_items_map[path]->UnregisterSkeletalMeshComponent(skeletal_mesh_comp);
-		}
+		m_render_item->UnregisterMeshComponent(mesh_comp);
 	}
 
 	ShapeShader::ShapeShader(const std::string& name)
@@ -248,7 +220,11 @@ namespace client_fw
 	{
 	}
 
-	void ShapeShader::UpdateRenderItem(ID3D12Device* device, ID3D12GraphicsCommandList* commad_list)
+	void ShapeShader::UpdateRenderItem(ID3D12Device* device)
+	{
+	}
+
+	void ShapeShader::UpdateRenderItemResource(ID3D12Device* device)
 	{
 	}
 
@@ -275,6 +251,53 @@ namespace client_fw
 
 	void ShapeShader::UnregisterShapeComponent(const SPtr<ShapeComponent>& shape_comp)
 	{
+	}
+
+	BillboardShader::BillboardShader(const std::string& name)
+		: GraphicsShader(name)
+	{
+	}
+
+	void BillboardShader::Initialize(ID3D12Device* device)
+	{
+		m_billboard_render_item->Initialize(device);
+	}
+
+	void BillboardShader::Shutdown()
+	{
+		m_billboard_render_item->Shutdown();
+	}
+
+	void BillboardShader::UpdateRenderItem(ID3D12Device* device)
+	{
+		m_billboard_render_item->Update(device);
+	}
+
+	void BillboardShader::UpdateRenderItemResource(ID3D12Device* device)
+	{
+		m_billboard_render_item->UpdateFrameResource(device);
+	}
+
+	void BillboardShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list,
+		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) const
+	{
+		m_billboard_render_item->Draw(command_list, std::move(draw_function), std::move(fix_up_draw_function));
+	}
+
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE BillboardShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const
+	{
+		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	}
+
+	bool BillboardShader::RegisterBillboardComponent(ID3D12Device* device, const SPtr<BillboardComponent>& bb_comp)
+	{
+		m_billboard_render_item->RegisterBillboardComponent(bb_comp);
+		return true;
+	}
+
+	void BillboardShader::UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp)
+	{
+		m_billboard_render_item->UnregisterBillboardComponent(bb_comp);
 	}
 
 }

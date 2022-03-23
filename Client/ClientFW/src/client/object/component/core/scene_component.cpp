@@ -3,6 +3,7 @@
 #include "client/object/actor/core/actor.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/physics/collision/collisioner/collisioner.h"
+#include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
 {
@@ -18,7 +19,8 @@ namespace client_fw
 
 	bool SceneComponent::InitializeComponent()
 	{
-		m_collisioner = std::move(CreateCollisioner());
+		if (m_collisioner != nullptr)
+			m_collisioner->SetOwner(shared_from_this());
 		UpdateLocalMatrix();
 		bool ret = Initialize();
 		return ret;
@@ -33,6 +35,7 @@ namespace client_fw
 	void SceneComponent::UpdateComponent(float delta_time)
 	{
 		m_is_updated_world_matrix = false;
+		m_collided_components.clear();
 
 		UpdateLocalMatrix();
 
@@ -44,11 +47,16 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
+			if (m_is_updated_world_matrix == false)
+			{
+				m_world_previous_position = m_world_position;
+			}
+
 			const auto& world = owner->GetWorldMatrix();
 			m_world_matrix = m_local_matrix * world;
 			m_world_position = vec3::TransformCoord(m_local_position, world);
-			m_world_rotation *= owner->GetRotation();
-			m_world_scale *= owner->GetScale();
+			m_world_rotation = m_local_rotation * owner->GetRotation();
+			m_world_scale = m_local_scale * owner->GetScale();
 			UpdateOrientedBox();
 
 			m_is_updated_world_matrix = true;
@@ -78,7 +86,7 @@ namespace client_fw
 	{
 		if (m_collisioner != nullptr)
 		{
-			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+			if (m_collisioner->GetCollisionInfo().is_collision == true)
 				CollisionOctreeManager::GetOctreeManager().ReregisterSceneComponent(shared_from_this());
 		}
 	}
@@ -87,9 +95,16 @@ namespace client_fw
 	{
 		if (m_collisioner != nullptr)
 		{
-			if (m_collisioner->GetCollisionInfo().preset != eCollisionPreset::kNoCollision)
+			if (m_collisioner->GetCollisionInfo().is_collision == true)
 				CollisionOctreeManager::GetOctreeManager().UnregisterSceneComponent(shared_from_this());
 		}
+	}
+
+	void SceneComponent::ExecuteCollisionResponse(const SPtr<SceneComponent>& comp,
+		const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)
+	{
+		if (m_collision_responce_function != nullptr)
+			m_collision_responce_function(comp, other_actor, other_comp);
 	}
 
 	void SceneComponent::SetLocalPosition(const Vec3& pos)
@@ -122,13 +137,44 @@ namespace client_fw
 		m_update_local_matrix = true;
 	}
 
-	UPtr<Collisioner> SceneComponent::CreateCollisioner()
+	const UPtr<Collisioner>& SceneComponent::GetCollisioner() const
 	{
-		return nullptr;
+		if (m_collisioner == nullptr)
+			LOG_ERROR("Register component and call ""GetCollisioner"" function");
+		return m_collisioner;
+	}
+
+	void SceneComponent::SetPhysics(bool value)
+	{
+		if (m_is_physics != value && m_collisioner != nullptr)
+		{
+			m_is_physics = value;
+			m_owner.lock()->GetPhysicsManager()->SetActive(m_is_physics);
+		}
 	}
 
 	void SceneComponent::AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node)
 	{
 		m_collision_tree_node.push_back(tree_node);
+	}
+
+	bool SceneComponent::IsCollidedComponent(const SPtr<SceneComponent>& component)
+	{
+		const auto& actor_name = component->GetOwner().lock()->GetName();
+		if (m_collided_components.find(actor_name) == m_collided_components.cend())
+			return false;
+		else
+		{
+			auto& collided_components = m_collided_components[actor_name];
+			if (collided_components.find(component->GetName()) == collided_components.cend())
+				return false;
+		}
+		return true;
+	}
+
+	void SceneComponent::AddCollidedComponent(const SPtr<SceneComponent>& component)
+	{
+		if (GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+			m_collided_components[component->GetOwner().lock()->GetName()].insert(component->GetName());
 	}
 }

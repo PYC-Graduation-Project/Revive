@@ -45,6 +45,11 @@ namespace client_fw
 			return m_bounding.Intersects(bounding_mesh.GetBounding());
 		}
 
+		ContainmentType Contains(const Vec3& point) const
+		{
+			return m_bounding.Contains(XMLoadFloat3(&point));
+		}
+
 		ContainmentType Contains(const Vec3& v1, const Vec3& v2, const Vec3& v3) const
 		{
 			return m_bounding.Contains(XMLoadFloat3(&v1), XMLoadFloat3(&v2), XMLoadFloat3(&v3));
@@ -90,6 +95,8 @@ namespace client_fw
 		Vec3 GetExtents() const { return Vec3(m_bounding.Extents); }
 		void SetCenter(const Vec3& center) { m_bounding.Center = center; }
 		void SetExtents(const Vec3& extents) { m_bounding.Extents = extents; }
+
+		std::array<Vec3, 8> GetCorners() const;
 	};
 
 	class BFrustum : public Bounding<BoundingFrustum>

@@ -35,11 +35,12 @@ namespace client_fw
 	}
 	bool SkeletalMeshComponent::RegisterSkeletalMeshComponent()
 	{
-		return Render::RegisterSkeletalMeshComponent(SharedFromThis(),m_draw_shader_name);
+		//return Render::RegisterSkeletalMeshComponent(SharedFromThis(),m_draw_shader_name);
+		return true;
 	}
 	void SkeletalMeshComponent::UnregisterSkeletalMeshComponent()
 	{
-		return Render::UnregisterSkeletalMeshComponent(SharedFromThis(), m_draw_shader_name);
+		//return Render::UnregisterSkeletalMeshComponent(SharedFromThis(), m_draw_shader_name);
 	}
 	SPtr<SkeletalMesh> SkeletalMeshComponent::GetSkeletalMesh() const
 	{

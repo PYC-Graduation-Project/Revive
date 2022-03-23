@@ -3,14 +3,29 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+
 #include "client/renderer/renderlevel/opaque_render_level.h"
+#include "client/renderer/renderlevel/deferred_render_level.h"
+#include "client/renderer/renderlevel/final_view_render_level.h"
+#include "client/renderer/renderlevel/ui_render_level.h"
+
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
+#include "client/renderer/shader/deferred_shader.h"
+#include "client/renderer/shader/main_camera_ui_shader.h"
+#include "client/renderer/shader/ui_shader.h"
+#include "client/renderer/shader/texture_billboard_shader.h"
+#include "client/renderer/shader/material_billboard_shader.h"
+#include "client/renderer/shader/widget_shader.h"
 #include "client/renderer/shader/skeletal_mesh_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/renderer/core/camera_manager.h"
+
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/render/shape_component.h"
+#include "client/object/component/render/billboard_component.h"
+#include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
 
@@ -23,9 +38,9 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
-		m_render_level_order = { {eRenderLevelType::kOpaque, eKindOfRenderLevel::kGraphics} };
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
+		m_camera_manager = CreateUPtr<CameraManager>();
 	}
 
 	RenderSystem::~RenderSystem()
@@ -39,9 +54,19 @@ namespace client_fw
 		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
+		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
+		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
+		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -55,58 +80,82 @@ namespace client_fw
 		for (const auto& [name, shader] : m_graphics_shaders)
 			shader->Shutdown();
 		m_graphics_super_root_signature->Shutdown();
+		m_render_asset_manager->Shutdown();
+		m_camera_manager->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
 	}
 
-	void RenderSystem::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void RenderSystem::Update(ID3D12Device* device)
 	{
-		m_render_asset_manager->Update(device, command_list);
+		m_camera_manager->Update(device, 
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+			});
 
-		for (const auto& [level_name, kind] : m_render_level_order)
+		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
+
+		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			switch (kind)
-			{
-			case eKindOfRenderLevel::kGraphics:
-				m_graphics_render_levels.at(level_name)->Update(device, command_list);
-				break;
-			case eKindOfRenderLevel::kDeferred:
-				break;
-			case eKindOfRenderLevel::kCompute:
-				break;
-			}
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
+
+		for (const auto& [name, shader] : m_graphics_shaders)
+			shader->UpdateFrameResource(device);
+	}
+
+
+	void RenderSystem::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) const
+	{
+		m_render_asset_manager->PreDraw(device, command_list);
 	}
 
 	void RenderSystem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
+		//지금 이 부분은 Shadow나 Compute가 생길 경우 많이 바뀔 부분이다.
+		//일단은 Opaque정도만 신경써서 코딩을 하였다.
+		//지금으로서는 능력 부족으로 정확한 예측은 커녕 50%의 예측도 불가능하다.
+
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
 
-		for (const auto& [level_name, kind] : m_render_level_order)
+		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
-			switch (kind)
-			{
-			case eKindOfRenderLevel::kGraphics:
-				m_graphics_render_levels.at(level_name)->Draw(command_list, m_basic_cameras);
-				break;
-			case eKindOfRenderLevel::kDeferred:
-				break;
-			case eKindOfRenderLevel::kCompute:
-				break;
-			}
+			m_camera_manager->Draw(command_list,
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+				});
 		}
+		
+	}
+
+	void RenderSystem::DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const
+	{
+		if (m_camera_manager->GetMainCamera() != nullptr)
+		{
+			m_camera_manager->DrawMainCameraForUI(command_list);
+			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Draw(command_list);
+		}
+	}
+
+	void RenderSystem::DrawUI(ID3D12GraphicsCommandList* command_list) const
+	{
+		m_graphics_render_levels.at(eRenderLevelType::kUI)->Draw(command_list);
 	}
 
 	void RenderSystem::UpdateViewport()
 	{
 		const auto& window = m_window.lock();
-		for (const auto& camera : m_basic_cameras)
-		{
-			camera->UpdateViewport(static_cast<float>(window->rect.left),
-				static_cast<float>(window->rect.top), static_cast<float>(window->width),
-				static_cast<float>(window->height));
-		}
+		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 
 	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type)
@@ -135,13 +184,22 @@ namespace client_fw
 		case eRenderType::kMesh:
 		{
 			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
-			m_render_asset_manager->RegisterMesh(mesh_comp->GetMesh());
 			return m_graphics_shaders.at(shader_name)->RegisterMeshComponent(m_device, mesh_comp);
 		}
 		case eRenderType::kShape:
 		{
-			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
+			const auto& shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterShapeComponent(m_device, shape_comp);
+		}
+		case eRenderType::kBillboard:
+		{
+			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterBillboardComponent(m_device, billboard_comp);
+		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			return m_graphics_shaders.at(shader_name)->RegisterWidgetComponent(m_device, widget_comp);
 		}
 		default:
 			break;
@@ -152,65 +210,57 @@ namespace client_fw
 
 	void RenderSystem::UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)
 	{
-		if (m_graphics_shaders.find(shader_name) != m_graphics_shaders.cend())
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
 		{
-			switch (render_comp->GetRenderType())
-			{
-			case eRenderType::kMesh:
-			{	
-				const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
-				m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
-				break;
-			}
-			default:
-				break;
-			}
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return;
 		}
-			
+
+		switch (render_comp->GetRenderType())
+		{
+		case eRenderType::kMesh:
+		{
+			const auto& mesh_comp = std::static_pointer_cast<MeshComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterMeshComponent(mesh_comp);
+			break;
+		}
+		case eRenderType::kShape:
+		{
+			const auto shape_comp = std::static_pointer_cast<ShapeComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterShapeComponent(shape_comp);
+			break;
+		}
+		case eRenderType::kBillboard:
+		{
+			const auto& billboard_comp = std::static_pointer_cast<BillboardComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterBillboardComponent(billboard_comp);
+			break;
+		}
+		case eRenderType::kWidget:
+		{
+			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
+			m_graphics_shaders.at(shader_name)->UnregisterWidgetComponent(widget_comp);
+			break;
+		}
+		default:
+			break;
+		}
 	}
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		const auto& window = m_window.lock();
-		switch (camera_comp->GetCameraUsage())
-		{
-		case eCameraUsage::kBasic:
-			m_basic_cameras.push_back(camera_comp);
-			camera_comp->UpdateViewport(static_cast<float>(window->rect.left), 
-				static_cast<float>(window->rect.top), static_cast<float>(window->width),
-				static_cast<float>(window->height));
-			break;
-		case eCameraUsage::kLight:
-			break;
-		}
-		return true;
+		return m_camera_manager->RegisterCameraComponent(camera_comp);
 	}
 
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		switch (camera_comp->GetCameraUsage())
-		{
-		case eCameraUsage::kBasic:
-		{
-			auto iter = std::find(m_basic_cameras.begin(), m_basic_cameras.end(), camera_comp);
-			if (iter != m_basic_cameras.end())
-			{
-				std::iter_swap(iter, m_basic_cameras.end() - 1);
-				m_basic_cameras.pop_back();
-			}
-			break;
-		}
-		case eCameraUsage::kLight:
-			break;
-		}
+		m_camera_manager->UnregisterCameraComponent(camera_comp);
 	}
-	bool RenderSystem::RegisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
-	{
-		return m_graphics_shaders.at(shader_name)->RegisterSkeletalMeshComponent(skeletal_mesh_comp);
-	}
-	void RenderSystem::UnregisterSkeletalMeshComponent(const SPtr<SkeletalMeshComponent>& skeletal_mesh_comp, const std::string& shader_name)
-	{
-		return m_graphics_shaders.at(shader_name)->UnregisterSkeletalMeshComponent(skeletal_mesh_comp);
 
+	void RenderSystem::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	{
+		const auto& window = m_window.lock();
+		m_camera_manager->SetMainCamera(camera_comp);
+		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 }

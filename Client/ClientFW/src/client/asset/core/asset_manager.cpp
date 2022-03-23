@@ -8,6 +8,7 @@
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture.h"
 #include "client/asset/texture/texture_loader.h"
+#include "client/renderer/core/render_resource_manager.h"
 #include "client/asset/bone/skeleton.h"
 #include "client/asset/animation/animation_sequence.h"
 
@@ -79,7 +80,10 @@ namespace client_fw
 			std::string extension = file_help::GetExtentionFromPath(path);
 			asset = m_mesh_loader->LoadMesh(path, extension);
 			if (asset != nullptr)
+			{
 				SaveAsset(eAssetType::kMesh, stem, path, extension, asset);
+				RenderResourceManager::GetRenderResourceManager().RegisterMesh(std::static_pointer_cast<Mesh>(asset));
+			}
 		}
 
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Mesh>(asset);
@@ -97,12 +101,19 @@ namespace client_fw
 		std::map<std::string, SPtr<Material>> materials = m_material_loader->LoadMaterials(path, extension);
 
 		for (const auto& [name, material] : materials)
-			m_asset_caches[eAssetType::kMaterial].insert({ material->GetPath(), material });
-
+		{
+			if (m_asset_caches[eAssetType::kMaterial].find(material->GetPath()) ==
+				m_asset_caches[eAssetType::kMaterial].cend())
+			{
+				m_asset_caches[eAssetType::kMaterial].insert({ material->GetPath(), material });
+				RenderResourceManager::GetRenderResourceManager().RegisterMaterial(material);
+			}
+		}
+			
 		return materials;
 	}
 
-	SPtr<Texture> AssetManager::LoadTexture(const std::string& path)
+	SPtr<ExternalTexture> AssetManager::LoadTexture(const std::string& path)
 	{
 		auto asset = LoadAsset(eAssetType::kTexture, path);
 		if (asset == nullptr)
@@ -115,10 +126,11 @@ namespace client_fw
 			{
 				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
 				SaveAsset(eAssetType::kTexture, stem, path, extension, asset);
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(std::static_pointer_cast<ExternalTexture>(asset));
 			}
 		}
 
-		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Texture>(asset);
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalTexture>(asset);
 	}
 
 	SPtr<AnimationSequence> AssetManager::LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path)

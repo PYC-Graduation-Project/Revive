@@ -12,7 +12,6 @@ namespace client_fw
 				LOG_ERROR("Could not create root signature");
 				return false;
 			}
-			CreateResources(device);
 		}
 		return true;
 	}

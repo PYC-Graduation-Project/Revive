@@ -4,6 +4,8 @@
 #include "client/object/component/core/component.h"
 #include "client/object/component/core/component_manager.h"
 #include "client/input/input.h"
+#include "client/event/messageevent/message_helper.h"
+#include "client/physics/core/actor_physics_manager.h"
 
 namespace client_fw
 {
@@ -13,6 +15,11 @@ namespace client_fw
 		, m_position(vec3::ZERO), m_scale(Vec3(1.0f, 1.0f, 1.0f))
 	{
 		m_component_manager = CreateUPtr<ComponentManager>();
+		if (m_mobility_state == eMobilityState::kMovable)
+		{
+			UseUpdate();
+			m_physics_manager = CreateUPtr<ActorPhysicsManager>();
+		}
 	}
 
 	Actor::~Actor()
@@ -21,6 +28,9 @@ namespace client_fw
 
 	bool Actor::InitializeActor()
 	{
+		if (m_physics_manager != nullptr)
+			m_physics_manager->SetOwner(shared_from_this());
+
 		UpdateWorldMatrix();
 		bool ret = Initialize();
 		UpdateWorldMatrix();
@@ -29,8 +39,10 @@ namespace client_fw
 
 	void Actor::ShutdownActor()
 	{
-		for (auto name : m_registered_input_event)
+		for (const auto& name : m_registered_input_events)
 			Input::UnregisterInputEvent(name);
+		for (const auto& name : m_registered_message_events)
+		MessageHelper::UnregisterMessageReceiver(name, shared_from_this());
 
 		m_component_manager->Shutdown();
 
@@ -39,9 +51,11 @@ namespace client_fw
 
 	void Actor::UpdateActor(float delta_time)
 	{
+		m_previous_position = m_position;
 		m_is_updated_world_matrix = false;
 
-		UpdateWorldMatrix();
+		if (m_physics_manager != nullptr && m_physics_manager->IsActive())
+			m_physics_manager->Update(delta_time);
 
 		m_component_manager->Update(delta_time);
 		Update(delta_time);
@@ -58,7 +72,7 @@ namespace client_fw
 			m_world_matrix *= mat4::CreateTranslation(m_position);
 
 			m_component_manager->UpdateWorldMatrix();
-
+			
 			m_is_updated_world_matrix = true;
 			m_update_world_matrix = false;
 		}
@@ -71,6 +85,8 @@ namespace client_fw
 
 	bool Actor::AttachComponent(const SPtr<Component> comp)
 	{
+		if (GetActorState() == eActorState::kDead)
+			return false;
 		comp->SetOwner(weak_from_this());
 		return m_component_manager->RegisterComponent(comp);
 	}
@@ -106,7 +122,13 @@ namespace client_fw
 
 	void Actor::RegisterInputEvent(const std::string& name)
 	{
-		m_registered_input_event.emplace_back(std::move(name));
+		m_registered_input_events.push_back(name);
+	}
+
+	void Actor::RegisterReceiveMessage(UINT event_id)
+	{
+		MessageHelper::RegisterMessageReceiver(event_id, shared_from_this());
+		m_registered_message_events.push_back(event_id);
 	}
 
 	void Actor::SetPosition(const Vec3& pos)

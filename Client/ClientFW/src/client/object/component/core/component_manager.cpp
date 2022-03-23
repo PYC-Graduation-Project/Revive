@@ -30,6 +30,9 @@ namespace client_fw
 				[](const SPtr<Component>& comp1, const SPtr<Component>& comp2)
 				{ return comp1->GetUpdateOrder() < comp2->GetUpdateOrder(); });
 
+			UINT index = ++m_component_names[component->GetName()];
+			component->SetName(component->GetName() + std::to_string(index));
+
 			if (iter == m_components.cend())
 				m_components.push_back(component);
 			else

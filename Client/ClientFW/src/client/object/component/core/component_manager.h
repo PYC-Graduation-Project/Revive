@@ -23,6 +23,8 @@ namespace client_fw
 
 	private:
 		std::vector<SPtr<Component>> m_components;
+
+		std::map<std::string, UINT> m_component_names;
 	};
 
 }

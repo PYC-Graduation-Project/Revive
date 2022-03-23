@@ -30,6 +30,7 @@ namespace client_fw
 
 	public:
 		const std::string& GetName() const { return m_name; }
+		void SetName(const std::string& name) { m_name = name; }
 		int GetUpdateOrder() const { return m_update_order; }
 		const WPtr<Actor>& GetOwner() const { return m_owner; }
 		void SetOwner(const WPtr<Actor>& owner) { m_owner = owner; }

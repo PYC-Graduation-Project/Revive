@@ -6,6 +6,9 @@ namespace client_fw
 	IVec2::IVec2() : XMINT2(0, 0) {}
 
 	IVec2::IVec2(int x, int y) : XMINT2(x, y) {}
+
+	IVec2::IVec2(const Vec2& vec) : XMINT2(static_cast<UINT>(vec.x), static_cast<UINT>(vec.y)) {}
+
 	IVec2& IVec2::operator+=(const IVec2& rhs)
 	{
 		XMStoreSInt2(this, XMVectorAdd(XMLoadSInt2(this), XMLoadSInt2(&rhs)));

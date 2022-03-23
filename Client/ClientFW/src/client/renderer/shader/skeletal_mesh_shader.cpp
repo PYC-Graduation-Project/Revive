@@ -2,25 +2,31 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/shader/skeletal_mesh_shader.h"
 #include "client/renderer/renderlevel/core/render_level.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
 
 namespace client_fw
 {
 	SkeletalMeshShader::SkeletalMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
+		m_render_item = CreateSPtr<SkeletalMeshRenderItem>();
 	}
 
-	void SkeletalMeshShader::Initialize(ID3D12Device* device)
+	void SkeletalMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
+		switch (level_type)
+		{
+		case eRenderLevelType::kOpaque:
+			UpdateRenderItem(device);
+			break;
+		default:
+			break;
+		}
 	}
 
-	void SkeletalMeshShader::Shutdown()
+	void SkeletalMeshShader::UpdateFrameResource(ID3D12Device* device)
 	{
-	}
-
-	void SkeletalMeshShader::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type)
-	{
-		UpdateRenderItem(device, command_list);
+		UpdateRenderItemResource(device);
 	}
 
 	void SkeletalMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const

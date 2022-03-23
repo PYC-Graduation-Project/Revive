@@ -2,9 +2,16 @@
 
 namespace client_fw
 {
+#define START_INDEX_EXTERNAL_TEXTURE		0
+#define START_INDEX_RENDER_TEXTURE			8192
+#define START_INDEX_RENDER_TEXT_TEXTURE		11264
+
 	class Mesh;
 	class Material;
 	class Texture;
+	class RenderTextTexture;
+	class ExternalTexture;
+	class RenderTexture;
 	enum class eTextureType;
 	template<class T> class UploadBuffer;
 
@@ -25,33 +32,39 @@ namespace client_fw
 
 		bool Initialize(ID3D12Device* device);
 		void Shutdown();
-		void Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		void RegisterMesh(const SPtr<Mesh>& mesh);
+		void RegisterMaterial(const SPtr<Material>& material);
 		void RegisterTexture(const SPtr<Texture>& texture);
 
 	private:
-		void RegisterMaterials(const std::vector<SPtr<Material>>& materials);
 		void CreateMaterialResource(ID3D12Device* device);
 		void UpdateMaterialResource();
 
-		void CreateTextureResource(ID3D12Device* device);
 		void UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 
 	private:
-		std::unordered_set<std::string> m_initialized_assets; //Level Load Asset시스템을 사용하면, 이것도 초기화 해줘야 한다. 
+		static RenderResourceManager* s_render_resource_manager;
 
 		std::vector<SPtr<Mesh>> m_ready_meshes;
 		std::vector<SPtr<Material>> m_ready_materials;
-		std::vector<SPtr<Texture>> m_ready_textures;
+		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
+		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
+		std::vector<SPtr<RenderTextTexture>> m_ready_render_text_texture;
 
 	private:
 		UINT m_num_of_material_data = 0;
 		UPtr<UploadBuffer<RSMaterialData>> m_material_data;
-		UINT m_num_of_texture_data;
+
+		UINT m_num_of_external_texture_data = START_INDEX_EXTERNAL_TEXTURE;
+		UINT m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
+		UINT m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;
 		ComPtr<ID3D12DescriptorHeap> m_texture_desciptor_heap;
 
+	public:
+		static RenderResourceManager& GetRenderResourceManager() { return *s_render_resource_manager; }
 	};
 }
 

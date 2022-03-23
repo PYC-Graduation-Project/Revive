@@ -5,7 +5,7 @@
 namespace render_test
 {
 	RectActor::RectActor()
-		: StaticMeshActor(eMobilityState::kDestructable, "../Contents/plane.obj")
+		: StaticMeshActor(eMobilityState::kDestructible, "../Contents/plane.obj")
 	{
 		m_static_mesh_component->SetDrawShaderName("render rect shader");
 	}

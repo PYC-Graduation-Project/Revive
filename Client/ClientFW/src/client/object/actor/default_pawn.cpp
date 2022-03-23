@@ -20,6 +20,7 @@ namespace client_fw
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
 		ret &= mesh->SetMesh("../Contents/cube.obj");
+		//mesh->GetCollisioner()->SetCollisionInfo("pawn", { "default" });
 		ret &= AttachComponent(mesh);
 
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },

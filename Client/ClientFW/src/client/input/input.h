@@ -3,7 +3,7 @@
 namespace client_fw
 {
 	class IVec2;
-	class InputEventSystem;
+	class EventSystem;
 
 	enum class eKey
 	{
@@ -144,7 +144,7 @@ namespace client_fw
 
 	enum class eInputOwnerType
 	{
-		kApplication, kLevel, kActor, kPawn,
+		kApplication, kLevel, kActor, kPawn, kPlayerController,
 	};
 
 	class Input final
@@ -167,6 +167,10 @@ namespace client_fw
 		static void SetClipCursor(bool clip);
 		static bool IsClipCursor();
 
+		static void StartInputMethodEditor();
+		static void EndInputMethodEditor();
+		static void OnChangeTextFromIME(const std::function<void(wchar_t)>& function);
+
 		static bool RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
 			const std::function<bool()>& func, bool consumption, eInputOwnerType type);
 		static bool RegisterReleasedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,
@@ -176,10 +180,7 @@ namespace client_fw
 		static void UnregisterInputEvent(const std::string& name);
 
 		static eInputMode GetInputMode();
-		static void SetInputMode(eInputMode input_mode);
-
-	private:
-		friend InputEventSystem;
-		static InputEventSystem* s_input_event_system;
+		static void SetInputMode(eInputMode input_mode);		
+		static void SetOnlyInputMode(eInputMode input_mode);		
 	};
 }

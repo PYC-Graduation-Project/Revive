@@ -62,4 +62,26 @@ namespace client_fw
 		
 		return buffer;
 	}
+
+	ComPtr<ID3D12Resource> D3DUtil::CreateUploadBuffer(ID3D12Device* device, UINT byte_size,
+		D3D12_RESOURCE_STATES resource_state, BYTE** mapped_data)
+	{
+		ComPtr<ID3D12Resource> buffer;
+
+		if (FAILED(device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(byte_size),
+			resource_state | D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(buffer.GetAddressOf()))))
+		{
+			LOG_ERROR("Could not create committed resource");
+			return nullptr;
+		}
+
+		if (FAILED(buffer->Map(0, nullptr, reinterpret_cast<void**>(mapped_data))))
+		{
+			LOG_ERROR("Could not mapped data");
+			return nullptr;
+		}
+
+		return buffer;
+	}
 }

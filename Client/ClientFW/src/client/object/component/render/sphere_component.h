@@ -13,7 +13,6 @@ namespace client_fw
 		void SetExtents(float radius) { m_extents = Vec3(radius, radius, radius); }
 
 	protected:
-		virtual UPtr<Collisioner> CreateCollisioner();
 		SPtr<SphereComponent> SharedFromThis();
 	};
 }
