@@ -52,12 +52,15 @@ PS_GBUFFER_OUTPUT PSOpaqueMesh(VS_OPAQUE_MESH_OUT input)
     PS_GBUFFER_OUTPUT output;
     
     MaterialData material_data = g_material_data[g_material_index];
+    
+    [branch]
     if(material_data.diffuse_texture_index >= 0)
         output.base_color = g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);
     else
         output.base_color = g_material_data[g_material_index].base_color;
     
     float3 normal;
+    [branch]
     if(material_data.normal_texture_index >= 0)
         normal = GetNormalFromNormalMap(g_texture_data[material_data.normal_texture_index].Sample(g_sampler_point_wrap, input.uv).xyz,
         input.normal, input.tangent, input.bitangent);

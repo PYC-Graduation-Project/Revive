@@ -11,7 +11,7 @@ namespace client_fw
 	public:
 	//private:
 		MaterialBillboardComponent(const std::string& name = "material billboard",
-			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueMaterialBillboard));
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kMaskedMaterialBillboard));
 		virtual ~MaterialBillboardComponent() = default;
 
 	protected:

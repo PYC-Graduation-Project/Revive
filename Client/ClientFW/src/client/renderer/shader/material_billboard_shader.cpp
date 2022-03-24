@@ -97,4 +97,14 @@ namespace client_fw
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "PSOpaqueMaterialBillboard", "ps_5_1", shader_blob);
 	}
+
+	MaskedMaterialBillboardShader::MaskedMaterialBillboardShader(const std::string& name)
+		: MaterialBillboardShader(name)
+	{
+	}
+
+	D3D12_SHADER_BYTECODE MaskedMaterialBillboardShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Billboard.hlsl", "PSMaskedMaterialBillboard", "ps_5_1", shader_blob);
+	}
 }

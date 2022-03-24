@@ -188,4 +188,30 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialBillboard(GS_BILLBOARD_OUTPUT input)
     return output;
 }
 
+PS_GBUFFER_OUTPUT PSMaskedMaterialBillboard(GS_BILLBOARD_OUTPUT input)
+{
+    PS_GBUFFER_OUTPUT output;
+    
+    float4 base_color;
+    
+    int diffuse_index = g_material_data[input.resource_index].diffuse_texture_index;
+    
+    [branch]
+    if (diffuse_index >= 0)
+        base_color = g_texture_data[diffuse_index].Sample(g_sampler_point_wrap, input.uv);
+    else
+        base_color = g_material_data[input.resource_index].base_color;
+    
+    clip(base_color.a - MASKED_ALPHA);
+    
+    output.base_color = base_color;
+    
+    int normal_index = g_material_data[input.resource_index].normal_texture_index;
+    
+    
+    output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    
+    return output;
+}
+
 #endif // __BILLBOARD_HLSL__

@@ -67,6 +67,7 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialBillboardShader>("masked material billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 

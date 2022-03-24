@@ -30,4 +30,13 @@ namespace client_fw
 
 		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 	};
+
+	class MaskedMaterialBillboardShader : public MaterialBillboardShader
+	{
+	public:
+		MaskedMaterialBillboardShader(const std::string& name);
+		virtual ~MaskedMaterialBillboardShader() = default;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
 }
