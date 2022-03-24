@@ -9,7 +9,7 @@ namespace client_fw
 	TextureBillboardShader::TextureBillboardShader(const std::string& name)
 		: BillboardShader(name)
 	{
-		m_billboard_render_item = CreateSPtr<TextureBillboardRenderItem>();
+		m_billboard_render_item = CreateSPtr<TextureBillboardRenderItem>(name);
 	}
 
 	void TextureBillboardShader::Update(ID3D12Device* device, eRenderLevelType level_type)

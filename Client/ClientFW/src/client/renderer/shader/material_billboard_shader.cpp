@@ -9,7 +9,7 @@ namespace client_fw
 	MaterialBillboardShader::MaterialBillboardShader(const std::string& name)
 		: BillboardShader(name)
 	{
-		m_billboard_render_item = CreateSPtr<MaterialBillboardRenderItem>();
+		m_billboard_render_item = CreateSPtr<MaterialBillboardRenderItem>(name);
 	}
 
 	void MaterialBillboardShader::Update(ID3D12Device* device, eRenderLevelType level_type)

@@ -13,13 +13,25 @@
 
 namespace client_fw
 {
-	StaticMeshRenderItem::StaticMeshRenderItem()
-		: MeshRenderItem()
+	MeshRenderItem::MeshRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
+	{
+	}
+
+	StaticMeshRenderItem::StaticMeshRenderItem(const std::string& owner_shader_name)
+		: MeshRenderItem(owner_shader_name)
 	{
 	}
 
 	StaticMeshRenderItem::~StaticMeshRenderItem()
 	{
+	}
+
+	void StaticMeshRenderItem::Initialize(ID3D12Device* device)
+	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateStaticMeshFrameResource(device, m_owner_shader_name);
 	}
 
 	void StaticMeshRenderItem::Update(ID3D12Device* device)
@@ -73,13 +85,13 @@ namespace client_fw
 
 		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
 	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 
 		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
 		if (new_size > 0)
@@ -109,7 +121,7 @@ namespace client_fw
 
 	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
 
 		if (instance_info.num_of_instnace_data > 0)
@@ -171,6 +183,5 @@ namespace client_fw
 			mesh_data->mesh_comps.pop_back();
 		}
 	}
-
 }
 

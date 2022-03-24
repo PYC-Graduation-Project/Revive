@@ -13,7 +13,7 @@ namespace client_fw
 	class BillboardRenderItem
 	{
 	public:
-		BillboardRenderItem();
+		BillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~BillboardRenderItem();
 
 		void Initialize(ID3D12Device* device);
@@ -28,13 +28,14 @@ namespace client_fw
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 
 	protected:
+		std::string m_owner_shader_name;
 		std::vector<BillboardVertex> m_vertices;
 	};
 	
 	class TextureBillboardRenderItem final : public BillboardRenderItem
 	{
 	public:
-		TextureBillboardRenderItem();
+		TextureBillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~TextureBillboardRenderItem();
 
 		virtual void Update(ID3D12Device* device) override;
@@ -52,7 +53,7 @@ namespace client_fw
 	class MaterialBillboardRenderItem final : public BillboardRenderItem
 	{
 	public:
-		MaterialBillboardRenderItem();
+		MaterialBillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~MaterialBillboardRenderItem();
 
 		virtual void Update(ID3D12Device* device) override;

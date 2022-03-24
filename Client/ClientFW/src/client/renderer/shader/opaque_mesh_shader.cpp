@@ -9,7 +9,7 @@ namespace client_fw
 	OpaqueMeshShader::OpaqueMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
-		m_render_item = CreateSPtr<StaticMeshRenderItem>();
+		m_render_item = CreateSPtr<StaticMeshRenderItem>(name);
 	}
 
 	void OpaqueMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)

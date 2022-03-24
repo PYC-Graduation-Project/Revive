@@ -14,11 +14,7 @@ namespace client_fw
 	{
 		m_render_resource_frame_resource = CreateUPtr<RenderResourceFrameResource>();
 		m_camera_frame_resource = CreateUPtr<CameraFrameResource>();
-		m_static_mesh_frame_resource = CreateUPtr<StaticMeshFrameResource>();
 		m_light_frame_resource = CreateUPtr<LightFrameResource>();
-		m_billboard_frame_resource = CreateUPtr<BillboardFrameResource>();
-		m_widget_frame_resource = CreateUPtr<WidgetFrameResource>();
-		m_ui_frame_resource = CreateUPtr<UserInterfaceFrameResource>();
 	}
 
 	FrameResource::~FrameResource()
@@ -27,8 +23,6 @@ namespace client_fw
 
 	bool FrameResource::Initialize(ID3D12Device* device)
 	{
-		bool ret = true;
-
 		if (FAILED(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
 			IID_PPV_ARGS(m_command_allocator.GetAddressOf()))))
 		{
@@ -36,25 +30,45 @@ namespace client_fw
 			return false;
 		}
 
-		ret &= m_render_resource_frame_resource->Initialize(device);
-		ret &= m_camera_frame_resource->Initialize(device);
-		ret &= m_static_mesh_frame_resource->Initialize(device);
-		ret &= m_light_frame_resource->Initialize(device);
-		ret &= m_billboard_frame_resource->Initialize(device);
-		ret &= m_widget_frame_resource->Initialize(device);
-		ret &= m_ui_frame_resource->Initialize(device);
-
-		return ret;
+		return true;
 	}
 
 	void FrameResource::Shutdown()
 	{
-		m_ui_frame_resource->Shutdown();
-		m_widget_frame_resource->Shutdown();
-		m_billboard_frame_resource->Shutdown();
-		m_static_mesh_frame_resource->Shutdown();
+		for (const auto& [shader_name, frame_resource] : m_ui_frame_resource)
+			frame_resource->Shutdown();
+		for (const auto& [shader_name, frame_resource] : m_widget_frame_resource)
+			frame_resource->Shutdown();
+		for (const auto& [shader_name, frame_resource] : m_billboard_frame_resource)
+			frame_resource->Shutdown();
+		for (const auto& [shader_name, frame_resource] : m_static_mesh_frame_resource)
+			frame_resource->Shutdown();
 		m_light_frame_resource->Shutdown();
 		m_camera_frame_resource->Shutdown();
 		m_render_resource_frame_resource->Shutdown();
+	}
+
+	void FrameResource::CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name)
+	{
+		m_static_mesh_frame_resource.emplace(shader_name, CreateUPtr<StaticMeshFrameResource>());
+		m_static_mesh_frame_resource[shader_name]->Initialize(device);
+	}
+
+	void FrameResource::CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name)
+	{
+		m_billboard_frame_resource.emplace(shader_name, CreateUPtr<BillboardFrameResource>());
+		m_billboard_frame_resource[shader_name]->Initialize(device);
+	}
+
+	void FrameResource::CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name)
+	{
+		m_widget_frame_resource.emplace(shader_name, CreateUPtr<WidgetFrameResource>());
+		m_widget_frame_resource[shader_name]->Initialize(device);
+	}
+
+	void FrameResource::CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name)
+	{
+		m_ui_frame_resource.emplace(shader_name, CreateUPtr<UserInterfaceFrameResource>());
+		m_ui_frame_resource[shader_name]->Initialize(device);
 	}
 }

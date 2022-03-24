@@ -26,7 +26,8 @@ namespace client_fw
 
 	public:
 		static FrameResourceManager& GetManager() { return *s_resource_manager; }
-		const UPtr<FrameResource>& GetCurrentFrameResource() { return m_frame_resources[m_current_frame]; }
+		const UPtr<FrameResource>& GetCurrentFrameResource() const { return m_frame_resources[m_current_frame]; }
+		const std::array<UPtr<FrameResource>, s_num_of_frame_resource>& GetFrameResources() const { return m_frame_resources; }
 		void MoveToNextFrame() { m_current_frame = (m_current_frame + 1) % s_num_of_frame_resource; }
 	};
 }
