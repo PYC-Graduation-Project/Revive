@@ -13,14 +13,6 @@ namespace client_fw
 	class ExternalTexture;
 	class RenderTexture;
 	enum class eTextureType;
-	template<class T> class UploadBuffer;
-
-	struct RSMaterialData
-	{
-		Vec4 base_color;
-		INT diffuse_texture_index;
-		INT normal_texture_index;
-	};
 
 	class RenderResourceManager final
 	{
@@ -41,24 +33,21 @@ namespace client_fw
 		void RegisterTexture(const SPtr<Texture>& texture);
 
 	private:
-		void CreateMaterialResource(ID3D12Device* device);
-		void UpdateMaterialResource();
+		void UpdateMaterialResource(ID3D12Device* device);
 
 		void UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 
 	private:
 		static RenderResourceManager* s_render_resource_manager;
 
+		std::vector<SPtr<Material>> m_materials;
+		
 		std::vector<SPtr<Mesh>> m_ready_meshes;
-		std::vector<SPtr<Material>> m_ready_materials;
 		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
 		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
 		std::vector<SPtr<RenderTextTexture>> m_ready_render_text_texture;
 
 	private:
-		UINT m_num_of_material_data = 0;
-		UPtr<UploadBuffer<RSMaterialData>> m_material_data;
-
 		UINT m_num_of_external_texture_data = START_INDEX_EXTERNAL_TEXTURE;
 		UINT m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
 		UINT m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;

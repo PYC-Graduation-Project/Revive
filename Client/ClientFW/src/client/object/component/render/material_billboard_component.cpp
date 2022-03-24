@@ -11,12 +11,21 @@ namespace client_fw
 	{
 	}
 
-	void MaterialBillboardComponent::SetMaterial(const std::string& path)
+	void MaterialBillboardComponent::SetMaterial(const std::string& mtl_path)
 	{
-		const auto& material = AssetStore::LoadMaterial(path);
+		const auto& material = AssetStore::LoadMaterial(mtl_path);
 		if (material != nullptr)
 			SetMaterial(material);
 		else
-			LOG_WARN("Could not find material : {0}", path);
+			LOG_ERROR("Could not find material : {0}", mtl_path);
+	}
+
+	void MaterialBillboardComponent::SetMaterial(const std::string& path, const std::string& mtl_name)
+	{
+		const auto& material = AssetStore::LoadMaterial(path, mtl_name);
+		if (material != nullptr)
+			SetMaterial(material);
+		else
+			LOG_ERROR("Could not find material : {0} - {1}", path, mtl_name);
 	}
 }

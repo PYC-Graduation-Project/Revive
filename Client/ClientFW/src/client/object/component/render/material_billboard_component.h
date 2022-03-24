@@ -19,7 +19,12 @@ namespace client_fw
 
 	public:
 		const SPtr<Material>& GetMaterial() const { return m_material; }
-		void SetMaterial(const std::string& path);
+
+		//if .mtl file (parent releative path + mtl's newmtl name)
+		void SetMaterial(const std::string& mtl_path);
+
+		//if .mtl file (path = releative path, mtl_name = mtl's newmtl name)
+		void SetMaterial(const std::string& path, const std::string& mtl_name);
 		void SetMaterial(const SPtr<Material>& material) { m_material = material; }
 	};
 

@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "client/object/level/core/level_manager.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource_manager.h"
+#include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/render_resource_frame_resource.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/material/material.h"
 #include "client/asset/texture/texture.h"
@@ -14,7 +17,6 @@ namespace client_fw
 	RenderResourceManager::RenderResourceManager()
 	{
 		s_render_resource_manager = this;
-		m_material_data = CreateUPtr<UploadBuffer<RSMaterialData>>();
 	}
 
 	RenderResourceManager::~RenderResourceManager()
@@ -46,19 +48,12 @@ namespace client_fw
 
 	void RenderResourceManager::Shutdown()
 	{
-		m_material_data->Shutdown();
 	}
 
 	void RenderResourceManager::PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		UpdateTextureResource(device, command_list);
-
-		if (m_ready_materials.empty() == false)
-		{
-			CreateMaterialResource(device);
-			UpdateMaterialResource();
-			m_ready_materials.clear();
-		}
+		UpdateMaterialResource(device);
 
 		for (const auto& mesh : m_ready_meshes)
 		{
@@ -73,8 +68,10 @@ namespace client_fw
 		ID3D12DescriptorHeap* descriptor_heaps[] = { m_texture_desciptor_heap.Get() };
 		command_list->SetDescriptorHeaps(_countof(descriptor_heaps), descriptor_heaps);
 
-		if (m_material_data->GetResource() != nullptr)
-			command_list->SetGraphicsRootShaderResourceView(3, m_material_data->GetResource()->GetGPUVirtualAddress());
+		const auto& render_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetRenderResourceFrameResource();
+
+		if(m_materials.empty() == false)
+			command_list->SetGraphicsRootShaderResourceView(3, render_resource->GetMaterialData()->GetResource()->GetGPUVirtualAddress());
 
 		command_list->SetGraphicsRootDescriptorTable(4, m_texture_desciptor_heap->GetGPUDescriptorHandleForHeapStart());
 	}
@@ -86,7 +83,7 @@ namespace client_fw
 
 	void RenderResourceManager::RegisterMaterial(const SPtr<Material>& material)
 	{
-		m_ready_materials.push_back(material);
+		m_materials.push_back(material);
 	}
 
 	void RenderResourceManager::RegisterTexture(const SPtr<Texture>& texture)
@@ -116,26 +113,51 @@ namespace client_fw
 		}
 	}
 
-	void RenderResourceManager::CreateMaterialResource(ID3D12Device* device)
+	void RenderResourceManager::UpdateMaterialResource(ID3D12Device* device)
 	{
-		m_material_data->CreateAndCopyResource(device, m_num_of_material_data +
-			static_cast<UINT>(m_ready_materials.size()));
-	}
-
-	void RenderResourceManager::UpdateMaterialResource()
-	{
-		for (const auto& material : m_ready_materials)
+		UINT new_size = static_cast<UINT>(m_materials.size());
+		if (new_size > 0)
 		{
-			material->SetResourceIndex(m_num_of_material_data);
-			INT diffuse_index = -1;
-			if(material->GetDiffuseTexture() != nullptr)
-				diffuse_index = material->GetDiffuseTexture()->GetResourceIndex();
-			INT normal_index = -1;
-			if (material->GetNormalTexture() != nullptr)
-				normal_index = material->GetNormalTexture()->GetResourceIndex();
-			RSMaterialData data{ material->GetBaseColor(), diffuse_index, normal_index };
+			const auto& render_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetRenderResourceFrameResource();
 
-			m_material_data->CopyData(m_num_of_material_data++, data);
+			UINT material_size = render_resource->GetSizeOfMaterialData();
+			bool is_need_create_resource = false;
+
+			while (material_size <= new_size)
+			{
+				material_size = static_cast<UINT>(roundf(static_cast<float>(material_size) * 1.5f));
+				is_need_create_resource = true;
+			}
+
+			if (is_need_create_resource)
+			{
+				render_resource->GetMaterialData()->CreateAndCopyResource(device, material_size);
+				render_resource->SetSizeOfMaterialData(material_size);
+			}
+
+			if (new_size > render_resource->GetNumOfMaterial())
+			{
+				UINT index = render_resource->GetNumOfMaterial();
+
+				for (auto iter = m_materials.cbegin() + index;
+					iter != m_materials.cend(); ++iter)
+				{
+					const auto& material = *iter;
+
+					material->SetResourceIndex(index);
+					INT diffuse_index = -1;
+					if (material->GetDiffuseTexture() != nullptr)
+						diffuse_index = material->GetDiffuseTexture()->GetResourceIndex();
+					INT normal_index = -1;
+					if (material->GetNormalTexture() != nullptr)
+						normal_index = material->GetNormalTexture()->GetResourceIndex();
+					RSMaterialData data{ material->GetBaseColor(), diffuse_index, normal_index };
+
+					render_resource->GetMaterialData()->CopyData(index++, data);
+				}
+
+				render_resource->SetNumOfMaterial(new_size);
+			}
 		}
 	}
 

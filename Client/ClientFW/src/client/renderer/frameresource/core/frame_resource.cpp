@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/frameresource/core/frame_resource.h"
+#include "client/renderer/frameresource/render_resource_frame_resource.h"
 #include "client/renderer/frameresource/camera_frame_resource.h"
 #include "client/renderer/frameresource/light_frame_resource.h"
 #include "client/renderer/frameresource/mesh_frame_resource.h"
@@ -11,6 +12,7 @@ namespace client_fw
 {
 	FrameResource::FrameResource()
 	{
+		m_render_resource_frame_resource = CreateUPtr<RenderResourceFrameResource>();
 		m_camera_frame_resource = CreateUPtr<CameraFrameResource>();
 		m_static_mesh_frame_resource = CreateUPtr<StaticMeshFrameResource>();
 		m_light_frame_resource = CreateUPtr<LightFrameResource>();
@@ -34,6 +36,7 @@ namespace client_fw
 			return false;
 		}
 
+		ret &= m_render_resource_frame_resource->Initialize(device);
 		ret &= m_camera_frame_resource->Initialize(device);
 		ret &= m_static_mesh_frame_resource->Initialize(device);
 		ret &= m_light_frame_resource->Initialize(device);
@@ -52,5 +55,6 @@ namespace client_fw
 		m_static_mesh_frame_resource->Shutdown();
 		m_light_frame_resource->Shutdown();
 		m_camera_frame_resource->Shutdown();
+		m_render_resource_frame_resource->Shutdown();
 	}
 }

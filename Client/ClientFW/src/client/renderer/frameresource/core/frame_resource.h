@@ -2,6 +2,7 @@
 
 namespace client_fw
 {
+	class RenderResourceFrameResource;
 	class CameraFrameResource;
 	class StaticMeshFrameResource;
 	class LightFrameResource;
@@ -28,6 +29,7 @@ namespace client_fw
 		void SetFence(UINT64 value) { m_fence = value; }
 
 	private:
+		UPtr<RenderResourceFrameResource> m_render_resource_frame_resource;
 		UPtr<CameraFrameResource> m_camera_frame_resource;
 		UPtr<StaticMeshFrameResource> m_static_mesh_frame_resource;
 		UPtr<LightFrameResource> m_light_frame_resource;
@@ -36,6 +38,7 @@ namespace client_fw
 		UPtr<UserInterfaceFrameResource> m_ui_frame_resource;
 
 	public:
+		const UPtr<RenderResourceFrameResource>& GetRenderResourceFrameResource() const { return m_render_resource_frame_resource; }
 		const UPtr<CameraFrameResource>& GetCameraFrameResource() const { return m_camera_frame_resource; }
 		const UPtr<StaticMeshFrameResource>& GetStaticMeshFrameResource() const { return m_static_mesh_frame_resource; }
 		const UPtr<LightFrameResource>& GetLightFrameResource() const { return m_light_frame_resource; }

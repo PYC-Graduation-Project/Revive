@@ -34,6 +34,7 @@ namespace client_fw
 		static CameraManager* s_camera_manager;
 		std::map<eCameraUsage, UINT> m_camera_counts;
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_ready_cameras;
+		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_wait_resource_cameras;
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_cameras;
 		SPtr<CameraComponent> m_ready_main_camera;
 		SPtr<CameraComponent> m_main_camera;

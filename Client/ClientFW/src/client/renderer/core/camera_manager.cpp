@@ -29,12 +29,18 @@ namespace client_fw
 
 	void CameraManager::Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
 	{
-		//더 좋은 방법 없을까?
-		if (m_ready_main_camera != nullptr && m_ready_main_camera->GetRenderTexture() != nullptr && 
+		if (m_ready_main_camera != nullptr && m_ready_main_camera->GetRenderTexture() != nullptr &&
 			m_main_camera != m_ready_main_camera)
 		{
 			m_main_camera = m_ready_main_camera;
 			m_ready_main_camera = nullptr;
+		}
+
+		if (m_wait_resource_cameras[eCameraUsage::kBasic].empty() == false)
+		{
+			for (const auto& camera : m_wait_resource_cameras[eCameraUsage::kBasic])
+				m_cameras[eCameraUsage::kBasic].push_back(camera);
+			m_wait_resource_cameras[eCameraUsage::kBasic].clear();
 		}
 
 		if (m_ready_cameras[eCameraUsage::kBasic].empty() == false)
@@ -46,12 +52,72 @@ namespace client_fw
 				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
-				m_cameras[eCameraUsage::kBasic].push_back(camera);
+				m_wait_resource_cameras[eCameraUsage::kBasic].push_back(camera);
 			}
 			m_ready_cameras[eCameraUsage::kBasic].clear();
 		}
 
 		UpdateCameraResource(device, std::move(update_shader_function));
+	}
+
+	void CameraManager::UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
+	{
+		if (m_cameras[eCameraUsage::kBasic].empty())
+			return;
+
+		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
+		const auto& camera_resource_data = camera_resource->GetCameraData();
+
+		if (camera_resource->GetNumOfCamera() < m_cameras[eCameraUsage::kBasic].size() + 1)
+		{
+			UINT count = static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()) + 1;
+			camera_resource_data->CreateResource(device, count);
+			camera_resource->SetNumOfCamera(count);
+		}
+
+		const auto& light_manager = LightManager::GetLightManager();
+		UINT num_of_directional_light = static_cast<UINT>(light_manager.GetDirectionalLights().size());
+
+		RSCameraData camera_data;
+		UINT index = 0;
+
+		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
+		{
+			if (camera->GetCameraState() == eCameraState::kActive)
+			{
+				const auto& render_texture = camera->GetRenderTexture();
+
+				if (render_texture->GetResource() != nullptr)
+				{
+					camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
+					camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
+					camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
+					camera_data.inverse_view_matrix = mat4::Inverse(camera_data.view_matrix);
+					camera_data.perspective_values = Vec4(1.0f,
+						camera_data.projection_matrix._11,
+						camera_data.projection_matrix._34,
+						-camera_data.projection_matrix._33);
+					camera_data.camera_position = camera->GetWorldPosition();
+					camera_data.final_texture_index = render_texture->GetResourceIndex();
+					camera_data.gbuffer_texture_indices = XMUINT4(
+						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
+						0, render_texture->GetDSVResourceIndex());
+					camera_data.num_of_directional_light = num_of_directional_light;
+					camera_resource_data->CopyData(index, camera_data);
+
+					if (camera == m_main_camera)
+					{
+						camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
+						camera_resource_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+					}
+
+					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					update_shader_function(device);
+				}
+			}
+
+			++index;
+		}
 	}
 
 	void CameraManager::UpdateMainCameraViewport(LONG width, LONG height)
@@ -143,66 +209,6 @@ namespace client_fw
 			ready_cameras.pop_back();
 			if (camera_comp == m_main_camera)
 				m_main_camera = nullptr;
-		}
-	}
-
-	void CameraManager::UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
-	{
-		if (m_cameras[eCameraUsage::kBasic].empty())
-			return;
-
-		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
-		const auto& camera_resource_data = camera_resource->GetCameraData();
-
-		if (camera_resource->GetNumOfCamera() < m_cameras[eCameraUsage::kBasic].size() + 1)
-		{
-			UINT count = static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()) + 1;
-			camera_resource_data->CreateResource(device, count);
-			camera_resource->SetNumOfCamera(count);
-		}
-
-		const auto& light_manager = LightManager::GetLightManager();
-		UINT num_of_directional_light = static_cast<UINT>(light_manager.GetDirectionalLights().size());
-
-		RSCameraData camera_data;
-		UINT index = 0;
-
-		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
-		{
-			if (camera->GetCameraState() == eCameraState::kActive)
-			{
-				const auto& render_texture = camera->GetRenderTexture();
-
-				if (render_texture->GetResource() != nullptr)
-				{
-					camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
-					camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
-					camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
-					camera_data.inverse_view_matrix = mat4::Inverse(camera_data.view_matrix);
-					camera_data.perspective_values = Vec4(1.0f,
-						camera_data.projection_matrix._11,
-						camera_data.projection_matrix._34,
-						-camera_data.projection_matrix._33);
-					camera_data.camera_position = camera->GetWorldPosition();
-					camera_data.final_texture_index = render_texture->GetResourceIndex();
-					camera_data.gbuffer_texture_indices = XMUINT4(
-						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
-						0, render_texture->GetDSVResourceIndex());
-					camera_data.num_of_directional_light = num_of_directional_light;
-					camera_resource_data->CopyData(index, camera_data);
-
-					if (camera == m_main_camera)
-					{
-						camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
-						camera_resource_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
-					}
-
-					MeshVisualizer::UpdateVisibilityFromCamera(camera);
-					update_shader_function(device);
-				}
-			}
-			
-			++index;
 		}
 	}
 }
