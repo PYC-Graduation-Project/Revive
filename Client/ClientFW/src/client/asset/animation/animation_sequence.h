@@ -5,11 +5,6 @@ namespace client_fw
 {
 	class Skeleton;
 
-	struct RSSkletalData
-	{
-		std::array<Mat4,32> bone_transforms;
-	};
-
 	struct KeyFrame
 	{
 		float key_time;

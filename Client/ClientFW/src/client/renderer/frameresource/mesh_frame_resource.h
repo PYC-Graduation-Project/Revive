@@ -9,13 +9,12 @@ namespace client_fw
 	{
 		Mat4 world_matrix;
 		Mat4 world_inverse_transpose;
+		UINT bone_info; //start index
 	};
 
-	struct RSSkeletalInstanceData
+	struct RSSkeletalData
 	{
-		Mat4 world_matrix;
-		Mat4 world_inverse_transpose;
-		UINT bone_info; //start index
+		Mat4 bone_transform;
 	};
 
 	//Mesh¸¶´Ù
@@ -83,9 +82,16 @@ namespace client_fw
 		virtual bool Initialize(ID3D12Device* device);
 		virtual void Shutdown();
 	private:
-		UPtr<UploadBuffer<RSSkeletalInstanceData>> m_skeletal_instance_data;
+		UINT m_size_of_skeletal_transform_data = 1;
+
+		UPtr<UploadBuffer<RSInstanceData>> m_skeletal_instance_data;
+		UPtr<UploadBuffer<RSSkeletalData>> m_skeletal_transform_data;
 	public:
-		const UPtr<UploadBuffer<RSSkeletalInstanceData>>& GetInstanceData() const { return m_skeletal_instance_data; }
+		UINT GetSizeOfSkeletalTransformData() const { return m_size_of_skeletal_transform_data; }
+		void SetSizeOfSkeletalTransformData(UINT value) { m_size_of_skeletal_transform_data = value; }
+
+		const UPtr<UploadBuffer<RSInstanceData>>& GetInstanceData() const { return m_skeletal_instance_data; }
+		const UPtr<UploadBuffer<RSSkeletalData>>& GetSkeletalTransformData() const { return m_skeletal_transform_data; }
 	};
 }
 

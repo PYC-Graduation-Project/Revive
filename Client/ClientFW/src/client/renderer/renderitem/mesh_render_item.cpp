@@ -9,6 +9,7 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
+#include "client/object/animation/animation_controller.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 
@@ -60,7 +61,7 @@ namespace client_fw
 					UINT lod = mesh_comp->GetLevelOfDetail();
 
 					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
+						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),0 };
 
 					mesh_comp->SetVisiblity(false);
 				}
@@ -81,7 +82,7 @@ namespace client_fw
 	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
 		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
-
+	
 		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
 		if (new_size > 0)
 		{
@@ -112,7 +113,7 @@ namespace client_fw
 	{
 		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
-
+		
 		if (instance_info.num_of_instnace_data > 0)
 		{
 			const auto& instance_data = mesh_resource->GetInstanceData();
@@ -186,9 +187,8 @@ namespace client_fw
 	{
 		MeshesInstanceDrawInfo instance_info;
 		instance_info.start_index = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
-
+		UINT skeletal_transform_start_index = 0;
 		UINT start_index = 0;
-
 		for (const auto& mesh_data : m_skeletal_mesh_data)
 		{
 			MeshDrawInfo info;
@@ -197,7 +197,6 @@ namespace client_fw
 			info.start_index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
 
 			UINT mesh_count = 0;
-
 			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
 			{
 				mesh_count += mesh_data->mesh->GetLODMeshCount(lod);
@@ -211,22 +210,34 @@ namespace client_fw
 			info.draw_start_index = start_index;
 			start_index += mesh_count;
 
-			std::vector<RSSkeletalInstanceData> instance_data(mesh_count);
+			UINT bone_count = mesh_data->mesh_comps[0]->GetSkeletalMesh()->GetBoneCount();
+			std::vector<RSInstanceData> instance_data(mesh_count);
+			std::vector<RSSkeletalData> skeletal_transform_data(bone_count*mesh_count);
+			UINT transform_start_index = bone_count * mesh_count;
 
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
 			{
 				if (mesh_comp->IsVisible())
 				{
 					UINT lod = mesh_comp->GetLevelOfDetail();
-					UINT bone_count = mesh_count * mesh_comp->GetSkeletalMesh()->GetBoneCount();
+
+					transform_start_index -= bone_count;
+
+					auto bone_transform_data = mesh_comp->GetAnimationController()->GetBoneTransformData();
+					for (UINT index = 0; index < bone_count; ++index)
+						skeletal_transform_data[transform_start_index + index].bone_transform = bone_transform_data[index];
+
 					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSSkeletalInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),bone_count };
+						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),
+						transform_start_index + skeletal_transform_start_index };
 
 					mesh_comp->SetVisiblity(false);
 				}
 			}
+			skeletal_transform_start_index += bone_count * mesh_count;
 
 			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_skeletal_meshes_instance_data));
+			std::move(skeletal_transform_data.begin(), skeletal_transform_data.end(), std::back_inserter(m_skeletal_transforms_data));
 
 			mesh_data->mesh->ResetLOD();
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
@@ -243,19 +254,21 @@ namespace client_fw
 		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource();
 
 		UINT new_size = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
+
 		if (new_size > 0)
 		{
 			UINT skeletal_mesh_instance_size = skeletal_mesh_resource->GetSizeOfInstanceData();
-			bool is_need_resource_create = false;
+			bool is_need_skeletal_mesh_resource_create = false;
 
 			while (skeletal_mesh_instance_size <= new_size)
 			{
 				skeletal_mesh_instance_size = static_cast<UINT>(roundf(static_cast<float>(skeletal_mesh_instance_size) * 1.5f));
-				is_need_resource_create = true;
+				is_need_skeletal_mesh_resource_create = true;
 			}
 
-			if (is_need_resource_create)
+			if (is_need_skeletal_mesh_resource_create)
 			{
+				
 				skeletal_mesh_resource->GetInstanceData()->CreateResource(device, skeletal_mesh_instance_size);
 				skeletal_mesh_resource->SetSizeOfInstanceData(skeletal_mesh_instance_size);
 			}
@@ -263,8 +276,32 @@ namespace client_fw
 			UINT index = 0;
 			for (const auto& instance_data : m_skeletal_meshes_instance_data)
 				skeletal_mesh_resource->GetInstanceData()->CopyData(index++, instance_data);
+			m_skeletal_meshes_instance_data.clear();
 
-			m_skeletal_mesh_data.clear();
+			UINT new_skeletal_transform_data_size = static_cast<UINT>(m_skeletal_transforms_data.size());
+
+			if (new_skeletal_transform_data_size > 0)
+			{
+				UINT skeletal_transfrom_size = skeletal_mesh_resource->GetSizeOfSkeletalTransformData();
+				bool is_need_skeletal_transform_resource_create = false;
+
+				while (skeletal_transfrom_size <= new_skeletal_transform_data_size)
+				{
+					skeletal_transfrom_size = static_cast<UINT>(roundf(static_cast<float>(skeletal_transfrom_size) * 1.5f));
+					is_need_skeletal_transform_resource_create = true;
+				}
+
+				if (is_need_skeletal_transform_resource_create)
+				{
+					skeletal_mesh_resource->GetSkeletalTransformData()->CreateResource(device, skeletal_transfrom_size);
+					skeletal_mesh_resource->SetSizeOfSkeletalTransformData(skeletal_transfrom_size);
+				}
+				UINT skeletal_transform_index = 0;
+				for (const auto& skeletal_transform_data : m_skeletal_transforms_data)
+					skeletal_mesh_resource->GetSkeletalTransformData()->CopyData(skeletal_transform_index++, skeletal_transform_data);
+				m_skeletal_transforms_data.clear();
+			}
+
 		}
 	}
 
@@ -272,10 +309,14 @@ namespace client_fw
 	{
 		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource();
 		MeshesInstanceDrawInfo instance_info = skeletal_mesh_resource->GetMeshesInstanceDrawInfo();
-
+		
 		if (instance_info.num_of_instnace_data > 0)
 		{
 			const auto& instance_data = skeletal_mesh_resource->GetInstanceData();
+			const auto& skeletal_transform_data = skeletal_mesh_resource->GetSkeletalTransformData();
+			command_list->SetGraphicsRootShaderResourceView(5, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
+
+		
 
 			for (const auto& mesh_info : instance_info.mesh_draw_infos)
 			{
@@ -285,6 +326,7 @@ namespace client_fw
 				{
 					if (mesh_info.num_of_lod_instance_data[lod] > 0)
 					{
+
 						command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
 							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
 							instance_data->GetByteSize());

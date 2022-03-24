@@ -47,17 +47,17 @@ namespace client_fw
                 m_cahce_skeleton.emplace_back(skeleton->FindBone(name));
             }
         }
-       
+        m_bone_transform_data.resize(m_cahce_skeleton.size());
         m_bone_offset = bone_data->bone_offsets;
     }
 
-    void AnimationController::CopyAnimationData()
+    void AnimationController::CopyBoneTransformData()
     {
-        for (int i = 0; i < m_cahce_skeleton.size(); ++i)
+        for (UINT index = 0; index < m_cahce_skeleton.size(); ++index)
         {
-           Mat4 final_transform = m_bone_offset[i] * m_cahce_skeleton[i]->GetWorld();
-           final_transform.Transpose();
-           m_bone_trans_data.bone_transforms.at(i) = final_transform;
+            Mat4 final_transform = m_bone_offset[index] * m_cahce_skeleton[index]->GetWorld();
+            final_transform.Transpose();
+            m_bone_transform_data[index] = final_transform;
         }
     }
 }

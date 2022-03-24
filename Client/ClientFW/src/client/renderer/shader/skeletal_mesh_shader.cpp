@@ -44,12 +44,12 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE SkeletalMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/skeletal_mesh.hlsl", "VSSkeletalMesh", "vs_5_1", shader_blob);
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "VSSkeletalMesh", "vs_5_1", shader_blob);
 	}
 
 	D3D12_SHADER_BYTECODE SkeletalMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/skeletal_mesh.hlsl", "PSSkeletalMesh", "ps_5_1", shader_blob);
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "PSSkeletalMesh", "ps_5_1", shader_blob);
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> SkeletalMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const

@@ -20,9 +20,9 @@ namespace anim_test
 
 	bool PlayerTestLevel::Initialize()
 	{
-		auto cube = CreateSPtr<StaticMeshActor>(eMobilityState::kMovable, "../Contents/Cube.obj");
+		/*auto cube = CreateSPtr<StaticMeshActor>(eMobilityState::kMovable, "../Contents/Cube.obj");
 		SpawnActor(cube);
-		cube->SetPosition(Vec3{ 0,0,1000.0f });
+		cube->SetPosition(Vec3{ 0,0,1000.0f });*/
 		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
 		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","run");
 		SpawnActor(violet_idle);
@@ -35,7 +35,7 @@ namespace anim_test
 		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
 		
 
-		Input::SetInputMode(eInputMode::kUIAndGame);
+		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
 
 		return true;
@@ -64,22 +64,20 @@ namespace anim_test
 			{
 				if (i % 2 == 0)
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
-					SpawnActor(police);
+					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","run");
 					police->SetPosition(Vec3{ x, y- 35.0f, z });
-					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
+					SpawnActor(police);
+					police->SetScale(Vec3(50.0f, 50.0f, 50.0f));
 					police->SetRotation(80.0f, 0.0f, 0.0f);
 					++count;
 				}
 				else
 				{
-					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
+					auto police = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","idle");
 					SpawnActor(police);
 					police->SetPosition(Vec3{ x, y, z });
 					police->SetScale(50.f);
-					police->SetPosition(Vec3{ x, y - 35.0f, z });
-					police->SetRotation(80.0f, 0.0f, 0.0f);
-					police->SetScale(Vec3(0.5f, 0.5f, 0.5f));
+					police->SetScale(Vec3(50.0f, 50.0f, 50.0f));
 					police->SetRotation(80.0f, 0.0f, 0.0f);
 					++count;
 				}

@@ -2,12 +2,12 @@
 #define __OPAQUE_HLSL__
 
 #define MASKED_ALPHA        0.333333f
-#define ANIMATED_BONES 32
 
 struct InstanceData
 {
     matrix world;
     matrix world_inverse_transpose;
+    uint bone_start_index;
 };
 
 struct MaterialData
@@ -18,12 +18,12 @@ struct MaterialData
 
 struct SkeletalData
 {
-    matrix bone_trans[ANIMATED_BONES];
+    matrix bone_transform;
 };
 
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
 StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
-StructuredBuffer<SkeletalData> g_transform_data : register(t2, space0);
+StructuredBuffer<SkeletalData> g_bone_transform_data : register(t2, space0);
 Texture2D g_texture_data[] : register(t0, space1);
 
 SamplerState g_sampler_point_wrap : register(s0);

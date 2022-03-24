@@ -7,9 +7,8 @@ namespace client_fw
 	class Skeleton;
 
 	struct BoneData;
-	struct RSSkletalData;
 
-	class AnimationController :public std::enable_shared_from_this<AnimationController>
+	class AnimationController : public std::enable_shared_from_this<AnimationController>
 	{
 	public:
 		AnimationController();
@@ -17,9 +16,8 @@ namespace client_fw
 
 		bool Initialize();
 
-		void CopyAnimationData();
-		const RSSkletalData& GetBoneTransformData() { return m_bone_trans_data; }
-
+		const std::vector<Mat4>& GetBoneTransformData() { return m_bone_transform_data; }
+		void CopyBoneTransformData();
 	public:
 		void SetAnimation(const std::string& animation_path, const SPtr<Skeleton>& skeleton);
 		void AnimToPlay(float delta_time, bool m_looping);
@@ -52,6 +50,6 @@ namespace client_fw
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
-		RSSkletalData m_bone_trans_data;
+		std::vector<Mat4> m_bone_transform_data;
 	};
 }

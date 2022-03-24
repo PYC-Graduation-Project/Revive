@@ -6,8 +6,8 @@ namespace client_fw
 	class MeshComponent;
 	class StaticMeshComponent;
 	class SkeletalMeshComponent;
-	struct RSSkeletalInstanceData;
 	struct RSInstanceData;
+	struct RSSkeletalData;
 	struct MeshesInstanceDrawInfo;
 
 	struct StaticMeshData
@@ -75,6 +75,9 @@ namespace client_fw
 		std::vector<SPtr<SkeletalMeshData>> m_skeletal_mesh_data;
 		std::map<std::string, SPtr<SkeletalMeshData>> m_skeletal_mesh_data_map;
 
-		std::vector<RSSkeletalInstanceData> m_skeletal_meshes_instance_data;
+		std::vector<RSInstanceData> m_skeletal_meshes_instance_data;
+		std::vector<RSSkeletalData> m_skeletal_transforms_data;
+
+		std::vector<UINT> m_bone_count_data;
 	};
 }

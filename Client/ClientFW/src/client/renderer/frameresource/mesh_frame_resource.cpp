@@ -39,7 +39,8 @@ namespace client_fw
 	}	
 	SkeletalMeshFrameResource::SkeletalMeshFrameResource()
 	{
-		m_skeletal_instance_data = CreateUPtr<UploadBuffer<RSSkeletalInstanceData>>(false);
+		m_skeletal_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
+		m_skeletal_transform_data = CreateUPtr<UploadBuffer<RSSkeletalData>>(false);
 	}
 	SkeletalMeshFrameResource::~SkeletalMeshFrameResource()
 	{
@@ -50,6 +51,7 @@ namespace client_fw
 	}
 	void SkeletalMeshFrameResource::Shutdown()
 	{
-		m_skeletal_instance_data = CreateUPtr<UploadBuffer<RSSkeletalInstanceData>>(false);
+		m_skeletal_instance_data->Shutdown();
+		m_skeletal_transform_data->Shutdown();
 	}
 }

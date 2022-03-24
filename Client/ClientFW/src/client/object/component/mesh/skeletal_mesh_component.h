@@ -2,6 +2,7 @@
 #include "client/object/animation/animation_controller.h"
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/asset/bone/skeleton.h"
+#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
@@ -12,7 +13,8 @@ namespace client_fw
 	class SkeletalMeshComponent : public MeshComponent
 	{
 	public:
-		SkeletalMeshComponent(const std::string& name = "skeletal mesh component");
+		SkeletalMeshComponent(const std::string& name = "skeletal mesh component",
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kSkeletalMesh));
 		virtual ~SkeletalMeshComponent() = default;
 
 		virtual bool Initialize() override;
@@ -26,13 +28,7 @@ namespace client_fw
 		bool m_looping = true;
 		bool m_is_playing = true;
 
-		bool RegisterSkeletalMeshComponent();
-		void UnregisterSkeletalMeshComponent();
 	public:
-
-		bool GetIsRegistered() { return m_animation_controller->GetIsRegistered(); }
-		void SetIsRegistered(bool value) { m_animation_controller->SetIsRegistered(value); }
-
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;
 		virtual bool SetMesh(const std::string& file_path);
 
@@ -42,7 +38,6 @@ namespace client_fw
 
 		void SetAnimation(const std::string& animation_path, const std::string& animation_name);
 	protected:
-		virtual UPtr<Collisioner> CreateCollisioner(); //추후 추가
 		SPtr<SkeletalMeshComponent> SharedFromThis();
 	};
 
