@@ -32,17 +32,6 @@ namespace client_fw
 			return true;
 		}
 		return false;
-
-	/*	m_camera_component->SetActive();
-		m_camera_component->SetOwnerController(shared_from_this());
-		m_camera_component->SetMainCamera();*/
-
-		//if (m_controlled_pawn != nullptr)
-		//{
-		//	bool ret = m_controlled_pawn->AttachComponent(m_camera_component);
-		//	return ret;
-		//}
-		return true;
 	}
 
 	void PlayerController::Shutdown()

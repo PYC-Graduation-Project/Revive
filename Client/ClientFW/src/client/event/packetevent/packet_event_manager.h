@@ -12,6 +12,10 @@ namespace client_fw
 		UINT id;
 	};
 	
+	// PacketEvent는 client와 server와의 통신을 위해 보내는 Message가 필요할 때 사용할 수 있다.
+	// 사용하기 위한 방법은 packet_helper.h 함수를 참조하길 바란다.
+	//
+
 	class PacketEventManager
 	{
 	public:

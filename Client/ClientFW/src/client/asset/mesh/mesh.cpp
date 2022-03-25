@@ -32,7 +32,7 @@ namespace client_fw
 			m_vertex_infos.emplace_back(CreateSPtr<VertexInfo>());
 			m_index_infos.emplace_back(CreateSPtr<IndexInfo>());
 
-			m_instance_info.emplace_back(std::vector<InstanceInfo>());
+			m_mesh_vertex_info.emplace_back(std::vector<MeshVertexInfo>());
 			m_materials.emplace_back(std::vector<SPtr<Material>>());
 
 			++m_lod_count;
@@ -44,10 +44,10 @@ namespace client_fw
 		std::fill(m_lod_mesh_counts.begin(), m_lod_mesh_counts.end(), 0);
 	}
 
-	void Mesh::AddInstanceInfo(UINT lod, InstanceInfo&& info)
+	void Mesh::AddMeshVertexInfo(UINT lod, MeshVertexInfo&& info)
 	{
 		if (lod < m_lod_count)
-			m_instance_info.at(lod).emplace_back(std::move(info));
+			m_mesh_vertex_info.at(lod).emplace_back(std::move(info));
 	}
 
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -95,7 +95,9 @@ namespace client_fw
 		{
 			command_list->SetGraphicsRootConstantBufferView(0, m_material_index_data.at(lod)->GetResource()->GetGPUVirtualAddress() +
 				mat_index * m_material_index_data.at(lod)->GetByteSize());
-			const auto& [count, start_location] = m_instance_info.at(lod)[mat_index];
+
+			//현재 material으로 그리는 정점들의 수와 시작 정보를 통해 그린다.
+			const auto& [count, start_location] = m_mesh_vertex_info.at(lod)[mat_index];
 			if (m_is_draw_index)
 				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);
 			else

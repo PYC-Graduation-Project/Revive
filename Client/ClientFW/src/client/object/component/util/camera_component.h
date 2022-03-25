@@ -24,6 +24,7 @@ namespace client_fw
 		kBasic, kLight,
 	};
 
+	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)
 	struct Viewport
 	{
 		LONG left = 0;
@@ -92,6 +93,8 @@ namespace client_fw
 
 	public:
 		const SPtr<RenderTexture>& GetRenderTexture() const { return m_render_texture; }
+		// 카메라가 생성되면 카메라가 보는 장면을 그릴 Texture가 필요한데, 그 Texture를 뜻한다. 
+		// 사용자가 직접적으로 호출할 필요는 없다.
 		void SetRenderTexture(const SPtr<RenderTexture>& texture) { m_render_texture = texture; }
 
 	protected:

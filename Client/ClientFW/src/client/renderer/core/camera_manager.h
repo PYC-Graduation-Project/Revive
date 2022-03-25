@@ -5,6 +5,7 @@ namespace client_fw
 	enum class eCameraUsage;
 	class CameraComponent;
 
+	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
 	class CameraManager final
 	{
 	public:

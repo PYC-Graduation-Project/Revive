@@ -13,7 +13,7 @@ namespace client_fw
 
 	protected:
 		SPtr<Texture> m_texture;
-		Vec2 m_coordinate;
+		Vec2 m_coordinate = Vec2(0.5f, 0.5f);
 
 	public:
 		const SPtr<Texture>& GetTexture() const { return m_texture; }

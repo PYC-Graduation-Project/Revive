@@ -22,12 +22,12 @@ namespace client_fw
 
 	private:
 		UPtr<UploadBuffer<RSLightData>> m_light_data;
-		UINT m_num_of_light = 1;
+		UINT m_size_of_light = 1;
 
 	public:
 		const UPtr<UploadBuffer<RSLightData>>& GetLightData() const { return m_light_data; }
-		UINT GetNumOfLight() const { return m_num_of_light; }
-		void SetNumOfLight(UINT count) { m_num_of_light = count; }
+		UINT GetSizeOfLight() const { return m_size_of_light; }
+		void SetSizeOfLight(UINT count) { m_size_of_light = count; }
 	};
 }
 

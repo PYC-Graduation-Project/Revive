@@ -30,13 +30,13 @@ namespace client_fw
 		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLightFrameResource();
 		const auto& light_resource_data = light_resource->GetLightData();
 
-		UINT num_of_light = light_resource->GetNumOfLight();
+		UINT size_of_light = light_resource->GetSizeOfLight();
 
-		if (num_of_light <= m_num_of_light)
+		if (size_of_light <= m_num_of_light)
 		{
-			num_of_light = static_cast<UINT>(roundf(static_cast<float>(num_of_light) * 1.5f));
-			light_resource_data->CreateResource(device, num_of_light);
-			light_resource->SetNumOfLight(num_of_light);
+			size_of_light = static_cast<UINT>(roundf(static_cast<float>(size_of_light) * 1.5f));
+			light_resource_data->CreateResource(device, size_of_light);
+			light_resource->SetSizeOfLight(size_of_light);
 		}
 
 		RSLightData light_data;

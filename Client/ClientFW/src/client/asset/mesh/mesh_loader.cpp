@@ -211,7 +211,7 @@ namespace client_fw
 					count += 3;
 				}
 
-				mesh->AddInstanceInfo(lod, { count, vertex_count });
+				mesh->AddMeshVertexInfo(lod, { count, vertex_count });
 				mesh->AddMaterial(lod, std::move(materials[data.mtl_name]));
 
 				vertex_count += count;

@@ -10,6 +10,8 @@ namespace client_fw
 	class WidgetFrameResource;
 	class UserInterfaceFrameResource;
 
+	//GPU가 사용할 데이터들을 관리하는 곳
+	//CPU와 GPU의 병렬성을 위해서 필요하다.
 	class FrameResource
 	{
 	public:

@@ -29,7 +29,7 @@ namespace client_fw
 		const Vec2& GetSize() const { return m_size; }
 		void SetSize(const Vec2& size);
 		bool IsFixUpVector() const { return m_fix_up_vector; }
-		void SetFixUpVector(bool fix) { m_fix_up_vector = fix; }
+		void SetFixUpVector(bool fix) { m_fix_up_vector = fix; }	//Up Vector를 y축으로 고정하는지 여부
 
 	protected:
 		SPtr<BillboardComponent> SharedFromThis();

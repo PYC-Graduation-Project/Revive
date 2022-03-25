@@ -73,6 +73,10 @@ namespace client_fw
 		bool IsRuntime() const { return m_is_runtime_level; }
 		const UPtr<GameMode>& GetGameMode() const { return m_game_mode; }
 
+		// Level에 rendering 되는 공간과 collision되는 공간을 생성한다.
+		// 시스템 내부적으로 Octree를 통해서 렌더링 여부, 충돌 여부를 판단하는데, 
+		// Octree는 기본적으로 정육면체이기 때문에 직육면체를 정의하기 위해서 vector를 통해
+		// 여러개의 Octree를 생성하도록 하고 있다.
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const;
 	};

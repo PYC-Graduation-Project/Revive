@@ -163,6 +163,13 @@ namespace client_fw
 
 	void RenderResourceManager::UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
+		UpdateExternalTextureResource(device, command_list);
+		UpdateRenderTextureResource(device, command_list);
+		UpdateRenderTextTextureResource(device, command_list);
+	}
+
+	void RenderResourceManager::UpdateExternalTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		//D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle = heap->GetGPUDescriptorHandleForHeapStart();
 
@@ -171,8 +178,8 @@ namespace client_fw
 		for (const auto& texture : m_ready_external_textures)
 		{
 			texture->Initialize(device, command_list);
-			
-			device->CreateShaderResourceView(texture->GetResource(), 
+
+			device->CreateShaderResourceView(texture->GetResource(),
 				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
 
 			texture->SetResourceIndex(m_num_of_external_texture_data++);
@@ -183,13 +190,16 @@ namespace client_fw
 		}
 
 		m_ready_external_textures.clear();
+	}
 
-		cpu_handle = m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart();
+	void RenderResourceManager::UpdateRenderTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		cpu_handle.Offset(m_num_of_render_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
 		for (const auto& texture : m_ready_render_textures)
 		{
-			//이 데이터를 넣는 구간을 따로 지정해서 그 부분만 초기화 한다.
+			//GBuffer의 Format이 달라지게 된다면 변경이 필요하다.
 			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R11G11B10_FLOAT });
 
 			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
@@ -204,7 +214,7 @@ namespace client_fw
 				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
 			texture->SetResourceIndex(m_num_of_render_texture_data++);
 			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
-			
+
 			device->CreateShaderResourceView(texture->GetDSVTexture(),
 				&TextureCreator::GetShaderResourceViewDescForDSV(texture->GetDSVTexture()), cpu_handle);
 			texture->SetDSVResourceIndex(m_num_of_render_texture_data++);
@@ -212,8 +222,11 @@ namespace client_fw
 		}
 
 		m_ready_render_textures.clear();
+	}
 
-		cpu_handle = m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart();
+	void RenderResourceManager::UpdateRenderTextTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		cpu_handle.Offset(m_num_of_render_text_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
 		for (const auto& texture : m_ready_render_text_texture)

@@ -8,9 +8,6 @@ namespace client_fw
 	public:
 		UIRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
 		virtual ~UIRenderLevel() = default;
-
-	protected:
-
 	};
 }
 

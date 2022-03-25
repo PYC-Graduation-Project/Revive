@@ -36,6 +36,9 @@ namespace client_fw
 		void UpdateMaterialResource(ID3D12Device* device);
 
 		void UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void UpdateExternalTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void UpdateRenderTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void UpdateRenderTextTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 
 	private:
 		static RenderResourceManager* s_render_resource_manager;

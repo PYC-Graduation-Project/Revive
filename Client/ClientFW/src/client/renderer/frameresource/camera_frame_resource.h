@@ -28,12 +28,12 @@ namespace client_fw
 
 	private:
 		UPtr<UploadBuffer<RSCameraData>> m_camera_data;
-		UINT m_num_of_camera = 0;
+		UINT m_size_of_camera = 0;
 
 	public:
 		const UPtr<UploadBuffer<RSCameraData>>& GetCameraData() const { return m_camera_data; }
-		UINT GetNumOfCamera() const { return m_num_of_camera; }
-		void SetNumOfCamera(UINT count) { m_num_of_camera = count; }
+		UINT GetSizeOfCamera() const { return m_size_of_camera; }
+		void SetSizeOfCamera(UINT count) { m_size_of_camera = count; }
 
 	};
 }

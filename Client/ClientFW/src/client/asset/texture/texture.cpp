@@ -49,20 +49,20 @@ namespace client_fw
 	{
 		m_num_of_gbuffer_texture = static_cast<UINT>(gbuffer_rtv_formats.size());
 
-		D3D12_CLEAR_VALUE rtv_clear_value{ DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 1.0f} };
-		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
+		if (CreateDescriptorHeaps(device, command_list) == false)
 		{
-			rtv_clear_value.Format = gbuffer_rtv_formats[i];
-			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1,
-				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
-			D3DUtil::SetObjectName(m_gbuffer_textures[i].Get(), "Render g-buffer texture");
+			LOG_ERROR("Could not create descriptor heaps : [render texture]");
+			return false;
 		}
+		
+		CreateGBufferAndRTVTexture(device, command_list, gbuffer_rtv_formats);
+		CreateDSVTexture(device, command_list);
 
-		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1,
-			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
-		D3DUtil::SetObjectName(m_texture_resource.Get(), "Render rtv texture");
+		return true;
+	}
 
+	bool RenderTexture::CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
 		D3D12_DESCRIPTOR_HEAP_DESC rtv_heap_desc;
 		rtv_heap_desc.NumDescriptors = m_num_of_gbuffer_texture + 1;
 		rtv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
@@ -73,6 +73,39 @@ namespace client_fw
 			LOG_ERROR("Could not create RTV descriptor heap");
 			return false;
 		}
+
+		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
+		dsv_heap_desc.NumDescriptors = 1;
+		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		dsv_heap_desc.NodeMask = 0;
+		if (FAILED(device->CreateDescriptorHeap(&dsv_heap_desc, IID_PPV_ARGS(&m_dsv_descriptor_heap))))
+		{
+			LOG_ERROR("Could not create DSV descriptor heap");
+			return false;
+		}
+
+		return true;
+	}
+
+	void RenderTexture::CreateGBufferAndRTVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
+		const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats)
+	{
+		//g-buffer texture를 생성한다.
+		D3D12_CLEAR_VALUE rtv_clear_value{ DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 1.0f} };
+		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
+		{
+			rtv_clear_value.Format = gbuffer_rtv_formats[i];
+			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1,
+				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
+			D3DUtil::SetObjectName(m_gbuffer_textures[i].Get(), "Render g-buffer texture");
+		}
+
+		//최종 rendering texture를 생성한다.
+		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1,
+			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
+		D3DUtil::SetObjectName(m_texture_resource.Get(), "Render rtv texture");
 
 		D3D12_RENDER_TARGET_VIEW_DESC rtv_desc;
 		rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -91,23 +124,16 @@ namespace client_fw
 		rtv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		device->CreateRenderTargetView(m_texture_resource.Get(), &rtv_desc, rtv_heap_handle);
 		m_rtv_cpu_handle = rtv_heap_handle;
+	}
 
+	void RenderTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		//depth stencil buffer를 생성한다.
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
 
 		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
 		D3DUtil::SetObjectName(m_dsv_texture.Get(), "Render dsv texture");
-
-		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
-		dsv_heap_desc.NumDescriptors = 1;
-		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		dsv_heap_desc.NodeMask = 0;
-		if (FAILED(device->CreateDescriptorHeap(&dsv_heap_desc, IID_PPV_ARGS(&m_dsv_descriptor_heap))))
-		{
-			LOG_ERROR("Could not create DSV descriptor heap");
-			return false;
-		}
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
 		dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -118,9 +144,8 @@ namespace client_fw
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
 		device->CreateDepthStencilView(m_dsv_texture.Get(), &dsv_desc, dsv_heap_handle);
 		m_dsv_cpu_handle = dsv_heap_handle;
-
-		return true;
 	}
+
 
 	bool RenderTexture::Update(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
@@ -164,6 +189,7 @@ namespace client_fw
 		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 			m_texture_resource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
+
 
 	ID3D12Resource* RenderTexture::GetGBufferTexture(UINT buffer_index) const
 	{

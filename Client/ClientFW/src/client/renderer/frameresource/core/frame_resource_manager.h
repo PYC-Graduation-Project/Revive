@@ -6,6 +6,8 @@ namespace client_fw
 
 	class FrameResource;
 
+	//GPU가 사용할 데이터들을 Frmae(3개)마다 관리하는 곳
+	//CPU와 GPU의 병렬성을 위해서 필요하다.
 	class FrameResourceManager
 	{
 	public:

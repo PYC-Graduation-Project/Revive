@@ -5,6 +5,7 @@ namespace client_fw
 	class LightComponent;
 	class DirectionalLightComponent;
 
+	// Light의 정보를 GPU에서 사용하기 위해 Light를 관리하는 클래스
 	class LightManager final
 	{
 	public:
