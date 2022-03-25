@@ -15,27 +15,104 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
 
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
-		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 
 		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(eRenderLevelType level_type, int pso_index) const override;
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
 	};
 
-	class OpaqueMaterialBillboardShader : public MaterialBillboardShader
+	//
+	// Material Base Color
+	//
+
+	class MaterialBaseColorBillboardShader : public MaterialBillboardShader
+	{
+	protected:
+		MaterialBaseColorBillboardShader(const std::string& name);
+		virtual ~MaterialBaseColorBillboardShader() = default;
+		
+	public:
+		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	class OpaqueMaterialBaseColorBillboardShader : public MaterialBaseColorBillboardShader
 	{
 	public:
-		OpaqueMaterialBillboardShader(const std::string& name);
-		virtual ~OpaqueMaterialBillboardShader() = default;
+		OpaqueMaterialBaseColorBillboardShader(const std::string& name);
+		virtual ~OpaqueMaterialBaseColorBillboardShader() = default;
 
 		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 	};
 
-	class MaskedMaterialBillboardShader : public MaterialBillboardShader
+	class MaskedMaterialBaseColorBillboardShader : public MaterialBaseColorBillboardShader
 	{
 	public:
-		MaskedMaterialBillboardShader(const std::string& name);
-		virtual ~MaskedMaterialBillboardShader() = default;
+		MaskedMaterialBaseColorBillboardShader(const std::string& name);
+		virtual ~MaskedMaterialBaseColorBillboardShader() = default;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	//
+	// Material Texture (Diffuse)
+	//
+
+	class MaterialTextureBillboardShader : public MaterialBillboardShader
+	{
+	protected:
+		MaterialTextureBillboardShader(const std::string& name);
+		virtual ~MaterialTextureBillboardShader() = default;
+
+	public:
+		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	class OpaqueMaterialTextureBillboardShader : public MaterialTextureBillboardShader
+	{
+	public:
+		OpaqueMaterialTextureBillboardShader(const std::string& name);
+		virtual ~OpaqueMaterialTextureBillboardShader() = default;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	class MaskedMaterialTextureBillboardShader : public MaterialTextureBillboardShader
+	{
+	public:
+		MaskedMaterialTextureBillboardShader(const std::string& name);
+		virtual ~MaskedMaterialTextureBillboardShader() = default;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	//
+	// Material Normal Map 
+	//
+
+	class MaterialNormalMapBillboardShader : public MaterialBillboardShader
+	{
+	protected:
+		MaterialNormalMapBillboardShader(const std::string& name);
+		virtual ~MaterialNormalMapBillboardShader() = default;
+
+	public:
+		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	class OpaqueMaterialNormalMapBillboardShader : public MaterialNormalMapBillboardShader
+	{
+	public:
+		OpaqueMaterialNormalMapBillboardShader(const std::string& name);
+		virtual ~OpaqueMaterialNormalMapBillboardShader() = default;
+
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
+
+	class MaskedMaterialNormalMapBillboardShader : public MaterialNormalMapBillboardShader
+	{
+	public:
+		MaskedMaterialNormalMapBillboardShader(const std::string& name);
+		virtual ~MaskedMaterialNormalMapBillboardShader() = default;
 
 		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 	};

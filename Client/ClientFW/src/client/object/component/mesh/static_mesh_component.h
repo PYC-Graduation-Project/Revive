@@ -21,6 +21,8 @@ namespace client_fw
 
 	public:
 		SPtr<StaticMesh> GetStaticMesh() const;
+
+		//runtime에 Mesh를 바꾸게 되면 제대로 렌더링이 안될 가능성이 높습니다.
 		virtual bool SetMesh(const std::string& file_path);
 
 	protected:

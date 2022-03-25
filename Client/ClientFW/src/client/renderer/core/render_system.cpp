@@ -68,8 +68,18 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<MaskedMaterialBillboardShader>("masked material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialBaseColorBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialTextureBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialTextureBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialNormalMapBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialNormalMapBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 

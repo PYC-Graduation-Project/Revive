@@ -79,10 +79,18 @@ namespace client_fw
 			return "shape box";
 		case eShaderType::kTextureBillboard:
 			return "texture billboard";
-		case eShaderType::kOpaqueMaterialBillboard:
-			return "opaque material billboard";
-		case eShaderType::kMaskedMaterialBillboard:
-			return "masked material billboard";
+		case eShaderType::kOpaqueMaterialBaseColorBillboard:
+			return "opaque material base color billboard";
+		case eShaderType::kMaskedMaterialBaseColorBillboard:
+			return "masked material base color billboard";
+		case eShaderType::kOpaqueMaterialTextureBillboard:
+			return "opaque material texture billboard";
+		case eShaderType::kMaskedMaterialTextureBillboard:
+			return "masked material texture billboard";
+		case eShaderType::kOpaqueMaterialNormalMapBillboard:
+			return "opaque material normal map billboard";
+		case eShaderType::kMaskedMaterialNormalMapBillboard:
+			return "masked material normal map billboard";
 		case eShaderType::kOpaqueWidget:
 			return "opaque widget";
 		case eShaderType::kMaskedWidget:

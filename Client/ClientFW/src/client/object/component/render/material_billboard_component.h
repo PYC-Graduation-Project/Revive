@@ -11,8 +11,11 @@ namespace client_fw
 	public:
 	//private:
 		MaterialBillboardComponent(const std::string& name = "material billboard",
-			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kMaskedMaterialBillboard));
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard));
 		virtual ~MaterialBillboardComponent() = default;
+
+	private:
+		virtual bool RegisterToRenderSystem() override;
 
 	protected:
 		SPtr<Material> m_material;
@@ -20,6 +23,7 @@ namespace client_fw
 	public:
 		const SPtr<Material>& GetMaterial() const { return m_material; }
 
+		//runtime에 Material을 바꾸게 되면 제대로 렌더링이 안될 가능성이 높습니다.
 		//if .mtl file (parent releative path + mtl's newmtl name)
 		void SetMaterial(const std::string& mtl_path);
 
