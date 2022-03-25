@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "moveobj_manager.h"
-MoveObjManager* MoveObjManager::m_pisnt = nullptr;
+#include"lua_functions.h"
+MoveObjManager* MoveObjManager::m_pInst = nullptr;
 
 using namespace std;
 
@@ -20,8 +21,8 @@ bool MoveObjManager::IsNear(int a, int b)
 void MoveObjManager::InitLua(const char* script_name, int obj_id)
 {
 	Enemy* en = GetEnemy(obj_id);
-	lua_State*L = en->GetLua();
-	L = luaL_newstate();
+	lua_State* L = en->GetLua();
+	
 	luaL_openlibs(L);
 	
 	int error = luaL_loadfile(L, script_name) ||
@@ -40,59 +41,21 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	if (error)
 		MoveObjManager::LuaErrorDisplay(L, error);
 	
-	RegisterAPI( L);
-}
-
-void MoveObjManager::RegisterAPI(lua_State* L)
-{
-
 	lua_register(L, "API_get_x", API_get_x);
 	lua_register(L, "API_get_y", API_get_y);
 	lua_register(L, "API_get_z", API_get_z);
 	lua_register(L, "API_test_lua", API_test_lua);
 }
 
-int MoveObjManager::API_get_x(lua_State* L)
+void MoveObjManager::RegisterAPI(lua_State* L)
 {
-	int user_id =
-		(int)lua_tointeger(L, -1);
-	lua_pop(L, 2);
-	float x=MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosX();
-	cout << "manager x:" << x << endl;
-	lua_pushnumber(L, x);
-	return 1;
-}
 
-int MoveObjManager::API_get_y(lua_State* L)
-{
-	int user_id =
-		(int)lua_tointeger(L, -1);
-	lua_pop(L, 2);
 	
-	float y = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosY();
-	cout << "manager y:" << y << endl;
-	lua_pushnumber(L, y);
-	return 1;
 }
 
-int MoveObjManager::API_get_z(lua_State* L)
-{
-	int user_id =
-		(int)lua_tointeger(L, -1);
-	lua_pop(L, 2);
-	float z = MoveObjManager::m_pisnt->GetPlayer(user_id)->GetPosZ();
-	lua_pushnumber(L, z);
-	return 1;
-}
 
-int MoveObjManager::API_test_lua(lua_State* L)
-{
-	float x = (float)lua_tonumber(L, -1);
-	float y = (float)lua_tonumber(L, -2);
-	lua_pop(L, 3);
-	cout << " x :" << x << ", y:" << y << endl;
-	return 1;
-}
+
+
 
 void MoveObjManager::LuaErrorDisplay(lua_State* L,int err_num)
 {

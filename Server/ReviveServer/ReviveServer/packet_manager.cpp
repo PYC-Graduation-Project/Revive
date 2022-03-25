@@ -9,7 +9,7 @@ using namespace std;
 
 PacketManager::PacketManager()
 {
-	m_moveobj_manager = new MoveObjManager;
+	MoveObjManager::GetInst();
 	m_room_manager = new RoomManager;
 	m_db = new DB;
 	m_db2 = new DB;
@@ -18,8 +18,8 @@ PacketManager::PacketManager()
 void PacketManager::Init()
 {
 	
-	m_moveobj_manager->InitPlayer();
-	m_moveobj_manager->InitNPC();
+	MoveObjManager::GetInst()->InitPlayer();
+	MoveObjManager::GetInst()->InitNPC();
 	m_room_manager->InitRoom();
 	
 	m_db->Init();
@@ -65,13 +65,13 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 {
 	std::cout << "억셉트처리옴" << endl;
 	SOCKET c_socket = *(reinterpret_cast<SOCKET*>(exp_over->_net_buf));
-	int new_id = m_moveobj_manager->GetNewID();
+	int new_id = MoveObjManager::GetInst()->GetNewID();
 	if (-1 == new_id) {
 		std::cout << "Maxmum user overflow. Accept aborted.\n";
 		SendLoginFailPacket(c_socket, static_cast<int>(LOGINFAIL_TYPE::FULL));
 	}
 	else {//다시제작
-		Player* cl = m_moveobj_manager->GetPlayer(new_id);
+		Player* cl = MoveObjManager::GetInst()->GetPlayer(new_id);
 		cl->SetID(new_id);
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
@@ -91,10 +91,10 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 {
 
 	if (num_bytes == 0) {
-		m_moveobj_manager->Disconnect(c_id);
+		MoveObjManager::GetInst()->Disconnect(c_id);
 		
 	}
-	Player* cl = m_moveobj_manager->GetPlayer(c_id);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	int remain_data = num_bytes+ cl->m_prev_size;
 	unsigned char* packet_start = exp_over->_net_buf;
 	int packet_size = packet_start[0];
@@ -142,9 +142,9 @@ void PacketManager::SpawnEnemy(int room_id)
 	{
 		if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
 			break;
-		if (true == m_moveobj_manager->IsPlayer(e_id))
+		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
 			continue;
-		Enemy* enemy = m_moveobj_manager->GetEnemy(e_id);
+		Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
 		if (true == enemy->GetIsActive())
 			continue;
 		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
@@ -167,7 +167,7 @@ void PacketManager::SpawnEnemy(int room_id)
 	{
 		for (auto& en : enemy_list)
 		{
-			enemy = m_moveobj_manager->GetEnemy(en);
+			enemy = MoveObjManager::GetInst()->GetEnemy(en);
 			enemy->SetSpawnPoint(x + rand() % 300, z + rand() % 300);
 			SendObjInfo(room->GetObjList()[i], en);
 			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 1));
@@ -181,7 +181,7 @@ void PacketManager::SpawnEnemy(int room_id)
 void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
-	Enemy* enemy = m_moveobj_manager->GetEnemy(enemy_id);
+	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
 	Vector3 nlook;
@@ -194,7 +194,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	else
 	{
 		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
-		Vector3 nlook = Vector3{ m_moveobj_manager->GetPlayer(enemy->GetTargetId())->GetPos() - npos }.Normalrize();
+		Vector3 nlook = Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos }.Normalrize();
 	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
 	npos+=(nlook* MAX_SPEED);//이동거리 16ms보내주는거
@@ -206,7 +206,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	for (int i = 0; i < room->GetMaxUser(); i++)
 	{
 		SendMovePacket(i, enemy_id);
-		if (true == m_moveobj_manager->IsNear(i, enemy_id))//이거는 시야범위안에 있는지 확인
+		if (true == MoveObjManager::GetInst()->IsNear(i, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
 			//여기서 기지와 플레이어 거리 비교후
 			//플레이어가 더 가까우면 target_id 플레이어로
@@ -222,7 +222,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 void PacketManager::SendMovePacket(int c_id, int mover)
 {
 	sc_packet_move packet;
-	MoveObj* p = m_moveobj_manager->GetMoveObj(mover);
+	MoveObj* p = MoveObjManager::GetInst()->GetMoveObj(mover);
 	packet.id = mover;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_MOVE;
@@ -234,13 +234,13 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.r_y = p->GetRotation().y;
 	packet.r_z = p->GetRotation().z;
 	packet.r_w = p->GetRotation().w;
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendLoginFailPacket(int c_id, int reason)
 {
 	sc_packet_login_fail packet;
-	Player* pl = m_moveobj_manager->GetPlayer(c_id);
+	Player* pl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_LOGIN_FAIL;
 	packet.reason = reason;
@@ -264,7 +264,7 @@ void PacketManager::SendSignInOK(int c_id)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_SIGN_IN_OK;
 	packet.id = c_id;
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendSignUpOK(int c_id)
@@ -272,7 +272,7 @@ void PacketManager::SendSignUpOK(int c_id)
 	sc_packet_sign_up_ok packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_SIGN_UP_OK;
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendMatchingOK(int c_id)
@@ -280,7 +280,7 @@ void PacketManager::SendMatchingOK(int c_id)
 	sc_packet_matching packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_MATCHING;
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type)
@@ -290,16 +290,16 @@ void PacketManager::SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_PUT_OBJECT;
 	packet.object_type = (char)obj_type;
-	packet.x = m_moveobj_manager->GetMoveObj(obj_id)->GetPosX();
-	packet.y = m_moveobj_manager->GetMoveObj(obj_id)->GetPosY();
-	packet.z = m_moveobj_manager->GetMoveObj(obj_id)->GetPosZ();
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	packet.x = MoveObjManager::GetInst()->GetMoveObj(obj_id)->GetPosX();
+	packet.y = MoveObjManager::GetInst()->GetMoveObj(obj_id)->GetPosY();
+	packet.z = MoveObjManager::GetInst()->GetMoveObj(obj_id)->GetPosZ();
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendObjInfo(int c_id, int obj_id)
 {
 	sc_packet_obj_info packet;
-	MoveObj *obj= m_moveobj_manager->GetMoveObj(obj_id);
+	MoveObj *obj= MoveObjManager::GetInst()->GetMoveObj(obj_id);
 	packet.id = obj_id;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_OBJ_INFO;
@@ -310,7 +310,7 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
 	packet.z = obj->GetPosZ();
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendTime(int c_id, float round_time)
@@ -320,7 +320,7 @@ void PacketManager::SendTime(int c_id, float round_time)
 	packet.type = SC_PACKET_TIME;
 	packet.time = round_time;
 	
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendTestPacket(int c_id, int obj_id, float x, float y, float z)
@@ -332,7 +332,7 @@ void PacketManager::SendTestPacket(int c_id, int obj_id, float x, float y, float
 	packet.x = x;
 	packet.y = y;
 	packet.z = z;
-	m_moveobj_manager->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 
@@ -362,8 +362,8 @@ timer_event PacketManager::SetTimerEvent(int obj_id, int target_id, int room_id,
 
 void PacketManager::End()
 {
-	m_moveobj_manager->DestroyObject();
-	if (m_moveobj_manager)delete m_moveobj_manager;
+	MoveObjManager::GetInst()->DestroyObject();
+	if (MoveObjManager::GetInst())delete MoveObjManager::GetInst();
 	if (m_db)delete m_db;
 	if (m_db2)delete m_db2;
 	if (m_room_manager)delete m_room_manager;
@@ -371,7 +371,7 @@ void PacketManager::End()
 
 void PacketManager::Disconnect(int c_id)
 {
-	m_moveobj_manager->Disconnect(c_id);
+	MoveObjManager::GetInst()->Disconnect(c_id);
 }
 
 
@@ -406,7 +406,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 void PacketManager::ProcessMove(int c_id,unsigned char* p)
 {
 	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
-	Player* cl = m_moveobj_manager->GetPlayer(c_id);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
 	
 	//Room* room = m_room_manager->GetRoom(cl->GetRoomID());
@@ -441,7 +441,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 		<< packet->r_z<< ", w : " << packet->r_w << endl;
 	//for (auto other_pl : room->GetObjList())
 	//{
-	//	if (false == m_moveobj_manager->IsPlayer(other_pl))
+	//	if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
 	//		continue;
 	//	if (c_id == other_pl)
 	//		continue;
@@ -453,7 +453,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 {
 	cs_packet_matching* packet = reinterpret_cast<cs_packet_matching*>(p);
-	Player*pl=m_moveobj_manager->GetPlayer(c_id);
+	Player*pl=MoveObjManager::GetInst()->GetPlayer(c_id);
 	pl->SetMatchUserSize(packet->user_num);
 	pl->is_matching = true;
 	Player* other_pl = NULL;
@@ -462,7 +462,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	//match_list.insert(c_id);
 	for (int i = 0; i < MAX_USER; ++i)
 	{
-		other_pl = m_moveobj_manager->GetPlayer(i);
+		other_pl = MoveObjManager::GetInst()->GetPlayer(i);
 		if (match_list.size() == pl->GetMatchUserSize())
 			break;
 		if (false == other_pl->is_matching)
@@ -485,7 +485,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		room->Init(pl->GetMatchUserSize());
 		for (auto id : match_list)
 		{
-			Player* player = m_moveobj_manager->GetPlayer(id);
+			Player* player = MoveObjManager::GetInst()->GetPlayer(id);
 			player->SetRoomID(r_id);
 			player->is_matching = false;
 			player->state_lock.lock();
@@ -504,7 +504,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			if (match_list.size()-pl->GetMatchUserSize() == room->GetMaxEnemy())
 				break;
 	
-			e=m_moveobj_manager->GetEnemy(i);
+			e=MoveObjManager::GetInst()->GetEnemy(i);
 			
 			if (!e->in_use)
 			{
@@ -539,37 +539,39 @@ void PacketManager::StartGame(int room_id)
 	{
 		if (i<room->GetMaxUser())
 		{
-			pl = m_moveobj_manager->GetPlayer(obj_list[i]);
+			pl = MoveObjManager::GetInst()->GetPlayer(obj_list[i]);
 			pl->SetPos(PLAYER_SPAWN_POINT[i]);
 			continue;
 		}
-		e = m_moveobj_manager->GetEnemy(obj_list[i]);
+		e = MoveObjManager::GetInst()->GetEnemy(obj_list[i]);
 		if (i<room->GetMaxUser() * SORDIER_PER_USER)
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
-			m_moveobj_manager->InitLua("enemy_sordier.lua",e->GetID());
+			MoveObjManager::GetInst()->InitLua("enemy_sordier.lua",e->GetID());
 			e->lua_lock.lock();
 			lua_State* L = e->GetLua();
-			//lua_getglobal(L, "event_test");
-			//lua_pushnumber(L, e->GetID());
-			//int error_num = lua_pcall(L, 1, 0, 0);
-			//MoveObjManager::LuaErrorDisplay(L, error_num);
+			lua_getglobal(L, "event_test");
+			lua_pushnumber(L, e->GetID());
+			int error_num = lua_pcall(L, 1, 0, 0);
+			if(error_num)
+				MoveObjManager::LuaErrorDisplay(L, error_num);
 			e->lua_lock.unlock();
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
-			m_moveobj_manager->InitLua("enemy_king.lua",e->GetID());
+			MoveObjManager::GetInst()->InitLua("enemy_king.lua",e->GetID());
 			e->lua_lock.lock();
 			lua_State* L = e->GetLua();
-			//lua_getglobal(L, "event_test");
-			//lua_pushnumber(L,e->GetID());
+			lua_getglobal(L, "event_test");
+			lua_pushnumber(L,e->GetID());
 			cout << "루아에 넣어주는 npc_id:" << e->GetID() << endl;
-			//nt error_num=lua_pcall(L, 1, 0, 0);
-			//MoveObjManager::LuaErrorDisplay(L, error_num);
+			int error_num=lua_pcall(L, 1, 0, 0);
+			if(error_num)
+				MoveObjManager::LuaErrorDisplay(L, error_num);
 			e->lua_lock.unlock();
 		}
 	}
@@ -579,10 +581,10 @@ void PacketManager::StartGame(int room_id)
 	//플레이어에게 플레이어 보내주기
 	for (auto c_id : room->GetObjList())
 	{
-		if (false == m_moveobj_manager->IsPlayer(c_id))
+		if (false == MoveObjManager::GetInst()->IsPlayer(c_id))
 			continue;
 	
-		pl = m_moveobj_manager->GetPlayer(c_id);
+		pl = MoveObjManager::GetInst()->GetPlayer(c_id);
 		cout << "SendObj 이름:" << pl->GetName() << endl;
 		SendObjInfo(c_id, c_id);//자기자신
 		for (int i=0; i<room->GetMaxUser(); ++i)
@@ -618,14 +620,14 @@ void PacketManager::DBThread()
 void PacketManager::ProcessDBTask(db_task& dt)
 {
 	LOGINFAIL_TYPE ret;//m_db->CheckLoginData(dt.user_id, dt.user_password);
-	Player* pl = m_moveobj_manager->GetPlayer(dt.obj_id);
+	Player* pl = MoveObjManager::GetInst()->GetPlayer(dt.obj_id);
 	switch (dt.dt)
 	{
 	case DB_TASK_TYPE::SIGN_IN:
 	{
 		for (int i = 0; i < MAX_USER; ++i)
 		{
-			Player*other_pl = m_moveobj_manager->GetPlayer(i);
+			Player*other_pl = MoveObjManager::GetInst()->GetPlayer(i);
 			other_pl->state_lock.lock();
 			if (other_pl->GetState() == STATE::ST_FREE)
 			{
@@ -750,7 +752,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		//cout << "duration:" << elapsed.count() << endl;
 		for (int pl : room->GetObjList())
 		{
-			if (false == m_moveobj_manager->IsPlayer(pl))
+			if (false == MoveObjManager::GetInst()->IsPlayer(pl))
 				break;
 			SendTime(pl, room->GetRoundTime());
 		}

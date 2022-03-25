@@ -6,6 +6,7 @@
 class MoveObjManager;
 class DB;
 class RoomManager;
+
 class PacketManager
 {
 public:
@@ -49,7 +50,7 @@ public:
 	void ProcessEvent(HANDLE hiocp, timer_event& ev);
 
 private:
-	MoveObjManager* m_moveobj_manager;
+	
 	
 	RoomManager* m_room_manager;
 	DB* m_db;
