@@ -5,9 +5,12 @@ namespace client_fw
 {
 	class UserInterfaceLayer;
 
+	// World는 WidgetComponent의 월드 행렬에 따라서 설정됩니다.
+	// Billboard는 카메라를 바라보고
+	// FixUp은 Y축이 고정됩니다.
 	enum class eWidgetSpaceType
 	{
-		kWorld, kBillboard, kFixUpBillboard, kScreen
+		kWorld, kBillboard, kFixUpBillboard
 	};
 
 	enum class eWidgetBlendMode
@@ -41,7 +44,9 @@ namespace client_fw
 		const SPtr<UserInterfaceLayer>& GetUserInterfaceLayer() const { return m_user_interface_layer; }
 		const Vec2& GetSize() const { return m_size; }
 		void SetSize(const Vec2& size);
+
 		const Vec2& GetPivot() const { return m_pivot; }
+		// 0.0~1.0 까지 입력 가능 왼쪽 정렬, 가운데 정렬, 오른쪽 정렬과 같은 기능이라 보면 된다.
 		void SetPivot(const Vec2& pivot);
 
 	protected:

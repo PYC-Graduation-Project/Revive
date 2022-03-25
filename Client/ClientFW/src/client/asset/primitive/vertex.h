@@ -16,11 +16,24 @@ namespace client_fw
 	
 	};
 
-	class TextureVertex : public Vertex
+	class LightVertex : public Vertex
 	{
 	public:
-		TextureVertex();
-		TextureVertex(const Vec3& position, const Vec2& tex_coord);
+		LightVertex();
+		LightVertex(const Vec3& position, const Vec3& normal);
+
+		const Vec3& GetNormal() const { return m_normal; }
+		void SetNormal(const Vec3& normal) { m_normal = normal; }
+
+	protected:
+		Vec3 m_normal;
+	};
+
+	class TextureLightVertex : public LightVertex
+	{
+	public:
+		TextureLightVertex();
+		TextureLightVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord);
 
 		const Vec2& GetTexCoord() const { return m_tex_coord; }
 		void SetTexCoord(const Vec2& tex_coord) { m_tex_coord = tex_coord; }
@@ -29,17 +42,21 @@ namespace client_fw
 		Vec2 m_tex_coord;
 	};
 
-	class TextureLightVertex : public TextureVertex
+	class TextureLightNormalMapVertex : public TextureLightVertex
 	{
 	public:
-		TextureLightVertex();
-		TextureLightVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord);
+		TextureLightNormalMapVertex();
+		TextureLightNormalMapVertex(const Vec3& position, const Vec2& tex_coord,
+			const Vec3& normal, const Vec3& tangent, const Vec3& bitangent);
 
-		const Vec3& GetNormal() const { return m_normal; }
-		void SetNormal(const Vec3& normal) { m_normal = normal; }
+		const Vec3& GetTangent() const { return m_tangent; }
+		void SetTangent(const Vec3& tangent) { m_tangent = tangent; }
+		const Vec3& GetBitangent() const { return m_bitangent; }
+		void SetBitangent(const Vec3& bitangent) { m_bitangent = bitangent; }
 
 	protected:
-		Vec3 m_normal;
+		Vec3 m_tangent;
+		Vec3 m_bitangent;
 	};
 
 	class ShapeVertex : public Vertex

@@ -8,10 +8,6 @@ namespace client_fw
 	public:
 		OpaqueRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
 		virtual ~OpaqueRenderLevel() = default;
-
-	protected:
-		//virtual void UpdateCommonResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override final;
-		//virtual void SetRootCommonResource(ID3D12GraphicsCommandList* command_list) override final;
 	};
 }
 

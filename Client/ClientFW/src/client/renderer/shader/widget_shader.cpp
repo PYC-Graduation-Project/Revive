@@ -10,6 +10,7 @@ namespace client_fw
 	WidgetShader::WidgetShader(const std::string& name)
 		: GraphicsShader(name)
 	{
+		m_widget_render_item = CreateSPtr<WidgetRenderItem>(name);
 	}
 
 	void WidgetShader::Initialize(ID3D12Device* device)
@@ -139,7 +140,6 @@ namespace client_fw
 	OpaqueWidgetShader::OpaqueWidgetShader(const std::string& name)
 		: WidgetShader(name)
 	{
-		m_widget_render_item = CreateSPtr<WidgetRenderItem>();
 	}
 
 	void OpaqueWidgetShader::Update(ID3D12Device* device, eRenderLevelType level_type)
@@ -192,7 +192,6 @@ namespace client_fw
 	MaskedWidgetShader::MaskedWidgetShader(const std::string& name)
 		: WidgetShader(name)
 	{
-		m_widget_render_item = CreateSPtr<WidgetRenderItem>();
 	}
 
 	void MaskedWidgetShader::Update(ID3D12Device* device, eRenderLevelType level_type)

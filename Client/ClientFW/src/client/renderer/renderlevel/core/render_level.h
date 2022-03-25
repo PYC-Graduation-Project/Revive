@@ -21,7 +21,6 @@ namespace client_fw
 		
 	protected:
 		eRenderLevelType m_level_type;
-		bool m_is_custom_root_signature = false;
 
 	public:
 		eRenderLevelType GetRenderLevelType() const { return m_level_type; }

@@ -169,7 +169,6 @@ namespace client_fw
 	MeshShader::MeshShader(const std::string& name)
 		: GraphicsShader(name)
 	{
-		m_render_item = CreateSPtr<MeshRenderItem>();
 	}
 
 	void MeshShader::Initialize(ID3D12Device* device)

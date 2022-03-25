@@ -7,33 +7,40 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/object/actor/core/actor.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/mesh/static_mesh_component.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
 {
-	MeshRenderItem::MeshRenderItem()
+	MeshRenderItem::MeshRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
 	{
 	}
 
-	MeshRenderItem::~MeshRenderItem()
+	StaticMeshRenderItem::StaticMeshRenderItem(const std::string& owner_shader_name)
+		: MeshRenderItem(owner_shader_name)
 	{
 	}
 
-	void MeshRenderItem::Initialize(ID3D12Device* device)
+	StaticMeshRenderItem::~StaticMeshRenderItem()
 	{
 	}
 
-	void MeshRenderItem::Shutdown()
+	void StaticMeshRenderItem::Initialize(ID3D12Device* device)
 	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateStaticMeshFrameResource(device, m_owner_shader_name);
 	}
 
-	void MeshRenderItem::Update(ID3D12Device* device)
+	void StaticMeshRenderItem::Update(ID3D12Device* device)
 	{
 		MeshesInstanceDrawInfo instance_info;
+		//카메라마다의 시작 위치 저장
 		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data.size());
 
-		UINT start_index = 0;
+		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_mesh_data)
 		{
 			MeshDrawInfo info;
@@ -53,6 +60,9 @@ namespace client_fw
 			if (mesh_count == 0)
 				continue;
 
+			info.draw_start_index = mesh_start_index_for_camera;
+			mesh_start_index_for_camera += mesh_count;
+
 			std::vector<RSInstanceData> instance_data(mesh_count);
 
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
@@ -68,24 +78,22 @@ namespace client_fw
 				}
 			}
 
-			info.draw_start_index = start_index;
-			start_index += mesh_count;
+			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
 
 			mesh_data->mesh->ResetLOD();
-
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 
-		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
+		//mesh start index for camera는 mesh마다 그려지는 count를 더했기 때문에 최종적으로는 카메라가 그릴 데이터의 수가 된다.
+		instance_info.num_of_instnace_data = static_cast<UINT>(mesh_start_index_for_camera);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
-	void MeshRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 
 		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
 		if (new_size > 0)
@@ -113,9 +121,9 @@ namespace client_fw
 		}
 	}
 
-	void MeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list)
+	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
 
 		if (instance_info.num_of_instnace_data > 0)
@@ -130,6 +138,12 @@ namespace client_fw
 				{
 					if (mesh_info.num_of_lod_instance_data[lod] > 0)
 					{
+						//
+						// 최종적으로 그릴 때는 카메라 마다의 시작 위치인 (instance_info.start_index) + 
+						// 각 카메라가 그리는 mesh의 정보 시작 위치 (mesh_info.draw_start_index) +
+						// 각 mesh의 lod의 시작 위치 (mesh_info.start_index_of_lod_instance_data) 를 더한 값을
+						// 지정한다. {설명 참고 : MeshesInstanceDrawInfo,  MeshDrawInfo
+						//
 						command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
 							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
 							instance_data->GetByteSize());
@@ -141,28 +155,28 @@ namespace client_fw
 		}
 	}
 
-	void MeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void StaticMeshRenderItem::RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 
 		if (m_mesh_data_map.find(path) != m_mesh_data_map.cend())
 		{
 			mesh_comp->SetRenderItemIndex(static_cast<UINT>(m_mesh_data_map[path]->mesh_comps.size()));
-			m_mesh_data_map[path]->mesh_comps.push_back(mesh_comp);
+			m_mesh_data_map[path]->mesh_comps.push_back(std::static_pointer_cast<StaticMeshComponent>(mesh_comp));
 		}
 		else
 		{
-			SPtr<MeshData> mesh_data = CreateSPtr<MeshData>();
+			SPtr<StaticMeshData> mesh_data = CreateSPtr<StaticMeshData>();
 			mesh_data->mesh = mesh_comp->GetMesh();
 			mesh_comp->SetRenderItemIndex(0);
-			mesh_data->mesh_comps.push_back(mesh_comp);
+			mesh_data->mesh_comps.push_back(std::static_pointer_cast<StaticMeshComponent>(mesh_comp));
 
 			m_mesh_data.push_back(mesh_data);
 			m_mesh_data_map.insert({ path, mesh_data });
 		}
 	}
 
-	void MeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
+	void StaticMeshRenderItem::UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp)
 	{
 		std::string path = mesh_comp->GetMesh()->GetPath();
 

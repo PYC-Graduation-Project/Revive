@@ -153,7 +153,7 @@ namespace client_fw
 			for (const auto& data : combine_data)
 				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
-			std::vector<TextureLightVertex> vertices;
+			std::vector<TextureLightNormalMapVertex> vertices;
 			vertices.reserve(vertex_count);
 			std::vector<Triangle> triangles;
 			triangles.reserve(vertex_count / 3);
@@ -175,26 +175,50 @@ namespace client_fw
 
 					triangles.emplace_back(Triangle{ v1, v2, v3, normal });
 
+					Vec2 uv1 = tex_coords[data.tex_indices[index + 2]];
+					Vec2 uv2 = tex_coords[data.tex_indices[index + 1]];
+					Vec2 uv3 = tex_coords[data.tex_indices[index]];
+
+					Vec3 delta_pos1 = v2 - v1;
+					Vec3 delta_pos2 = v3 - v1;
+
+					Vec2 delta_uv1 = uv2 - uv1;
+					Vec2 delta_uv2 = uv3 - uv1;
+
+					float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x + delta_uv1.y);
+
+					Vec3 tangent;
+					tangent.x = f * (delta_uv2.y * delta_pos1.x - delta_uv1.y * delta_pos2.x);
+					tangent.y = f * (delta_uv2.y * delta_pos1.y - delta_uv1.y * delta_pos2.y);
+					tangent.z = f * (delta_uv2.y * delta_pos1.z - delta_uv1.y * delta_pos2.z);
+
+					Vec3 bitangent;
+					bitangent.x = f * (-delta_uv2.x * delta_pos1.x + delta_uv1.x * delta_pos2.x);
+					bitangent.y = f * (-delta_uv2.x * delta_pos1.y + delta_uv1.x * delta_pos2.y);
+					bitangent.z = f * (-delta_uv2.x * delta_pos1.z + delta_uv1.x * delta_pos2.z);
+
 					for (INT j = 2; j >= 0; --j)
 					{
-						TextureLightVertex vertex;
+						TextureLightNormalMapVertex vertex;
 						vertex.SetPosition(positions[data.pos_indices[index + j]]);
 						vertex.SetTexCoord(tex_coords[data.tex_indices[index + j]]);
 						vertex.SetNormal(normals[data.normal_indices[index + j]]);
+						vertex.SetTangent(tangent);
+						vertex.SetBitangent(bitangent);
 						vertices.emplace_back(std::move(vertex));
 					}			
 
 					count += 3;
 				}
 
-				mesh->AddInstanceInfo(lod, { count, vertex_count });
+				mesh->AddMeshVertexInfo(lod, { count, vertex_count });
 				mesh->AddMaterial(lod, std::move(materials[data.mtl_name]));
 
 				vertex_count += count;
 			}
 
 			const auto& vertex_info = mesh->GetVertexInfo(lod);
-			if(vertex_info->CreateVertexBlob<TextureLightVertex>(vertex_count)==false)
+			if(vertex_info->CreateVertexBlob<TextureLightNormalMapVertex>(vertex_count)==false)
 			{
 				LOG_ERROR("Could not create blob for vertex");
 				return nullptr;

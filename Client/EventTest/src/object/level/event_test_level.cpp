@@ -96,7 +96,7 @@ namespace event_test
 		RegisterPressedEvent("spawn material billboard", { EventKeyInfo{eKey::kL} },
 			[this]()->bool {
 				auto test_mat_billboard = CreateSPtr<MaterialBillboardActor>(eMobilityState::kDestructible, 
-					"../Contents/Castle/SiegeRam_LOD0.mtl", Vec2(100.0f, 100.0f), m_mat_bb_queue.size() % 2);
+					"../Contents/Castle/SiegeRam.mtl", "SiegeRam_LOD0", Vec2(100.0f, 100.0f), m_mat_bb_queue.size() % 2);
 				SpawnActor(test_mat_billboard);
 				test_mat_billboard->SetPosition(m_spawn_pos);
 				m_spawn_pos += Vec3(0.0f, 0.0f, 100.0f);

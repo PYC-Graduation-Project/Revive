@@ -2,6 +2,8 @@
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
+#include "client/asset/material/material.h"
+#include "client/renderer/core/render.h"
 #include "client/physics/collision/collisioner/static_mesh_collisioner.h"
 
 namespace client_fw
@@ -21,6 +23,36 @@ namespace client_fw
 	void StaticMeshComponent::Shutdown()
 	{
 		MeshComponent::Shutdown();
+	}
+
+	bool StaticMeshComponent::RegisterToRenderSystem()
+	{
+		if (m_mesh != nullptr)
+		{
+			if (m_draw_shader_name == Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh))
+			{
+				bool is_convert_texture = false;
+				for (UINT lod = 0; lod < m_mesh->GetLODCount(); ++lod)
+				{
+					const auto& materials = m_mesh->GetMaterials(lod);
+					for (const auto& material : materials)
+					{
+						//Diffuse Texture를 사용하는 경우는 OpaqueTextureMesh Shader를 사용해서 그린다.
+						if (is_convert_texture == false && material->GetDiffuseTexture() != nullptr)
+						{
+							m_draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh);
+							is_convert_texture = true;
+						}
+
+						//Diffuse Texture뿐만 아니라 Normal Texture까지 사용하는 경우는 OpaqueNormalMapMesh Shader를 사용해서 그린다.
+						if (is_convert_texture == true && material->GetNormalTexture() != nullptr)
+							m_draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh);
+					}
+				}
+			}
+		}
+
+		return RenderComponent::RegisterToRenderSystem();
 	}
 
 	SPtr<StaticMesh> StaticMeshComponent::GetStaticMesh() const

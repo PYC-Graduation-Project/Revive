@@ -62,7 +62,7 @@ namespace client_fw
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
 			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
 			{
-				LOG_INFO(pawn->GetPosition());
+				//LOG_INFO(pawn->GetPosition());
 			}
 		}
 	}

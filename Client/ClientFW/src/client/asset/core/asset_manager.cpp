@@ -93,6 +93,23 @@ namespace client_fw
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<Material>(asset);
 	}
 
+	SPtr<Material> AssetManager::LoadMaterial(const std::string& path, const std::string& mtl_name)
+	{
+		std::string mtl_path = file_help::GetParentPathFromPath(path) + "/" + 
+			mtl_name + file_help::GetExtentionFromPath(path);
+		const SPtr<Material> material = LoadMaterial(mtl_path);
+		if (material == nullptr)
+		{
+			const std::map<std::string, SPtr<Material>> materials = LoadMaterials(path);
+			if (materials.find(mtl_name) != materials.cend())
+				return materials.at(mtl_name);
+			else
+				return nullptr;
+		}
+		else
+			return material;
+	}
+
 	std::map<std::string, SPtr<Material>> AssetManager::LoadMaterials(const std::string& path)
 	{
 		std::string extension = file_help::GetExtentionFromPath(path);

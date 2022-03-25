@@ -53,9 +53,13 @@ namespace client_fw
 		std::map<std::string, std::set<std::string>> m_collided_components;
 
 	public:
+		// 충돌 Event에 발생할 Event를 사용자가 등록합니다.
 		void OnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
 			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)
 		{ m_collision_responce_function = function; }
+
+		// 충돌 알고리즘에서 서로 충돌이 되었을 때 Event 발생 여부에 따라(CollisionUtil 구조체의 generate_collision_event가 true여야 호출)
+		// 충돌 검출 시스템에서 호출하는 함수입니다. 사용자가 호출할 필요가 없습니다.
 		virtual void ExecuteCollisionResponse(const SPtr<SceneComponent>& comp,
 			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp);
 
@@ -84,11 +88,19 @@ namespace client_fw
 
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
 		const UPtr<Collisioner>& GetCollisioner() const;
+
 		bool IsPhysics() const { return m_is_physics; }
+		// 물리 기능을 설정합니다. (중력)
 		void SetPhysics(bool value);
+
+		// 충돌에 필요한 Octree에서 어떤 Node에 있는지 추가하는 함수입니다.
+		// 삭제 시 빠르게 삭제하기 위한 기능입니다. 사용자가 따로 호출할 필요는 없는 함수입니다. 
 		void AddCollisionTreeNode(const WPtr<CollisionTreeNode>& tree_node);
 		void ResetCollisionTreeNode() { m_collision_tree_node.clear(); }
 		const std::vector<WPtr<CollisionTreeNode>>& GetCollisionTreeNodes() const { return m_collision_tree_node; }
+
+		// 충돌 알고리즘에 함수입니다. Octree를 사용해서 충돌 알고리즘을 검출하기 때문에
+		// 서로 충돌을 했는지 여부를 판단합니다. 사용자가 따로 호출할 필요는 없는 함수입니다.
 		bool IsCollidedComponent(const SPtr<SceneComponent>& component);
 		void AddCollidedComponent(const SPtr<SceneComponent>& component);
 	};
