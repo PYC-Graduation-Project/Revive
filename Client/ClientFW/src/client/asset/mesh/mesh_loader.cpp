@@ -153,7 +153,7 @@ namespace client_fw
 			for (const auto& data : combine_data)
 				vertex_count += static_cast<UINT>(data.pos_indices.size());
 
-			std::vector<TextureLightVertex> vertices;
+			std::vector<TextureLightNormalMapVertex> vertices;
 			vertices.reserve(vertex_count);
 			std::vector<Triangle> triangles;
 			triangles.reserve(vertex_count / 3);
@@ -199,7 +199,7 @@ namespace client_fw
 
 					for (INT j = 2; j >= 0; --j)
 					{
-						TextureLightVertex vertex;
+						TextureLightNormalMapVertex vertex;
 						vertex.SetPosition(positions[data.pos_indices[index + j]]);
 						vertex.SetTexCoord(tex_coords[data.tex_indices[index + j]]);
 						vertex.SetNormal(normals[data.normal_indices[index + j]]);
@@ -218,7 +218,7 @@ namespace client_fw
 			}
 
 			const auto& vertex_info = mesh->GetVertexInfo(lod);
-			if(vertex_info->CreateVertexBlob<TextureLightVertex>(vertex_count)==false)
+			if(vertex_info->CreateVertexBlob<TextureLightNormalMapVertex>(vertex_count)==false)
 			{
 				LOG_ERROR("Could not create blob for vertex");
 				return nullptr;

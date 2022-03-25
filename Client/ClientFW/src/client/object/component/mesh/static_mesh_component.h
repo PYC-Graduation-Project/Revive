@@ -10,11 +10,14 @@ namespace client_fw
 	{
 	public:
 		StaticMeshComponent(const std::string& name = "static mesh component",
-			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueMesh));
+			const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh));
 		virtual ~StaticMeshComponent() = default;
 
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
+
+	private:
+		virtual bool RegisterToRenderSystem() override;
 
 	public:
 		SPtr<StaticMesh> GetStaticMesh() const;

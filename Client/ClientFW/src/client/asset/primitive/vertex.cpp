@@ -13,24 +13,39 @@ namespace client_fw
 	{
 	}
 
-	TextureVertex::TextureVertex()
-		: Vertex(), m_tex_coord(vec2::ZERO)
+	LightVertex::LightVertex()
+		: Vertex()
+		, m_normal(vec3::AXIS_Y)
 	{
 	}
 
-	TextureVertex::TextureVertex(const Vec3& position, const Vec2& tex_coord)
-		: Vertex(position), m_tex_coord(tex_coord)
+	LightVertex::LightVertex(const Vec3& position, const Vec3& normal)
+		: Vertex(position)
+		, m_normal(normal)
 	{
 	}
 
 	TextureLightVertex::TextureLightVertex()
-		: TextureVertex(), m_normal(vec3::AXIS_Y)
+		: LightVertex()
+		, m_tex_coord(vec2::ZERO)
 	{
 	}
 
-	TextureLightVertex::TextureLightVertex(const Vec3& position, const Vec2& tex_coord,
+	TextureLightVertex::TextureLightVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord)
+		: LightVertex(position, normal)
+		, m_tex_coord(tex_coord)
+	{
+	}
+
+	TextureLightNormalMapVertex::TextureLightNormalMapVertex()
+		: TextureLightVertex()
+		, m_tangent(vec3::AXIS_X), m_bitangent(vec3::AXIS_Z)
+	{
+	}
+
+	TextureLightNormalMapVertex::TextureLightNormalMapVertex(const Vec3& position, const Vec2& tex_coord,
 		const Vec3& normal, const Vec3& tangent, const Vec3& bitangent)
-		: TextureVertex(position, tex_coord), m_normal(normal)
+		: TextureLightVertex(position, normal, tex_coord)
 		, m_tangent(tangent), m_bitangent(bitangent)
 	{
 	}
@@ -116,5 +131,4 @@ namespace client_fw
 		, m_pivot(pivot)
 	{
 	}
-
 }

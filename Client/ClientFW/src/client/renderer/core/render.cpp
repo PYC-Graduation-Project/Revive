@@ -64,12 +64,17 @@ namespace client_fw
 			return "unknown";
 		}
 	}
+
 	std::string Render::ConvertShaderType(eShaderType type)
 	{
 		switch (type)
 		{
-		case eShaderType::kOpaqueMesh:
-			return "opaque mesh";
+		case eShaderType::kOpaqueMaterialMesh:
+			return "opaque material mesh";
+		case eShaderType::kOpaqueTextureMesh:
+			return "opaque texture mesh";
+		case eShaderType::kOpaqueNormalMapMesh:
+			return "opaque normal map mesh";
 		case eShaderType::kShapeBox:
 			return "shape box";
 		case eShaderType::kTextureBillboard:

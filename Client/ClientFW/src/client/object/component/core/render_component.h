@@ -24,8 +24,8 @@ namespace client_fw
 	public:
 		virtual void UpdateLevelOfDetail(const Vec3& eye) {}
 
-	private:
-		bool RegisterToRenderSystem();
+	protected:
+		virtual bool RegisterToRenderSystem();
 		void UnregisterFromRenderSystem();
 		void RegisterToVisualOctree();
 		void UnregisterFromVisualOctree();
@@ -45,8 +45,12 @@ namespace client_fw
 		void SetVisiblity(bool value) { m_visibility = value; }
 		bool IsHiddenInGame() const { return m_hidden_in_game; }
 		void SetHiddenInGame(bool value) { m_hidden_in_game = value; }
+
+		//render item index는 이 render component가 등록된 render item에서의 index위치를 알려줍니다.
+		//삭제할 때 find등으로 찾지 말고 바로 삭제하기 위한 변수
 		UINT GetRenderItemIndex() const { return m_render_item_index; }
 		void SetRenderItemIndex(UINT index) { m_render_item_index = index; }
+
 		void SetDrawShaderName(const std::string& shader_name) { m_draw_shader_name = shader_name; }
 		void AddVisualTreeNode(const WPtr<VisualTreeNode>& tree_node);
 		void ResetVisualTreeNode() { m_visual_tree_node.clear(); }

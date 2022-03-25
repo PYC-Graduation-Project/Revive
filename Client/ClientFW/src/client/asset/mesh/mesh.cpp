@@ -2,6 +2,7 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/primitive/vertex.h"
 #include "client/asset/material/material.h"
+#include "client/asset/texture/texture.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 #include "client/object/component/mesh/core/mesh_component.h"
@@ -53,7 +54,7 @@ namespace client_fw
 	{
 		for (UINT i = 0; i < m_lod_count; ++i)
 		{
-			if (m_vertex_infos.at(i)->Initialize<TextureLightVertex>(device, command_list) == false)
+			if (m_vertex_infos.at(i)->Initialize<TextureLightNormalMapVertex>(device, command_list) == false)
 			{
 				LOG_ERROR("Could not create vertex buffer : {0}", m_asset_info.name);
 				return false;
