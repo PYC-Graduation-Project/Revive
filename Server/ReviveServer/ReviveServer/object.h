@@ -36,7 +36,7 @@ public:
 	void SetPosX(float val) { m_pos.x = val; };
 	void SetPosY(float val) {m_pos.y = val; };
 	void SetPosZ(float val) {m_pos.z = val; };
-	void SetPos(Vector3& val) { m_pos = val; }
+	void SetPos(const Vector3& val) { m_pos = val; }
 protected:
 	int m_id;
 	OBJ_TYPE m_type;

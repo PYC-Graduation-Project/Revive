@@ -7,13 +7,14 @@ class Enemy :
     public MoveObj
 {
 public:
-    Enemy(int i) :in_use(false),L(NULL){
+    Enemy(int i) :in_use(false),m_L(NULL){
         m_id = i;
         target_id = -1;
+        
     };
     ~Enemy() 
     {
-        lua_close(L);
+        lua_close(m_L);
     };
     
 
@@ -23,13 +24,13 @@ public:
     void SetSpawnPoint(float x,float z);
     Vector3 GetLookVec() { return m_look; }
     //void RegisterAPI();
-    lua_State* GetLua() { return L; }
+    lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
     void SetTargetId(const int val) { target_id = val; }
     std::atomic_bool in_use;
-private:
-    lua_State* L;
     std::mutex lua_lock;
+private:
+    lua_State* m_L;
     Vector3 m_look;
     std::atomic_int target_id;
 };

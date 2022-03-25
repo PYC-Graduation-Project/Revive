@@ -2,8 +2,6 @@
 #include <client/core/entry_point.h>
 #include "object/level/game_play_level.h"
 
-//#include"server/network.h"
-//#include"server/packet_manager.h"
 using namespace client_fw;
 
 namespace revive
@@ -25,12 +23,14 @@ namespace revive
 				LOG_INFO("Welcome to Revive Application");
 				//Network::GetInst()->Init();
 				//Network::GetInst()->CreateWorker();
+
 				RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
 					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
 				RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
 					[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
 				RegisterPressedEvent("open render rect level", { {eKey::k1} },
 					[this]()->bool {OpenLevel(CreateSPtr<GamePlayLevel>());  return true; });
+
 			}
 
 			

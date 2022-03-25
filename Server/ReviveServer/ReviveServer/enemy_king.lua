@@ -20,4 +20,17 @@ function initializEnemy(id, x, y, z, hp, damege, type)
 end
 
 
+function event_agro_fallow( player )
+   player_x = API_get_x(player);
+   player_y = API_get_y(player);
+   nowx = API_get_x(myid);
+   nowy = API_get_y(myid);
+   
+end
 
+
+function event_test(npc_id)
+	nowx = API_get_x(npc_id);
+    nowy = API_get_y(npc_id);
+	API_test_lua(nowx,nowy);
+end

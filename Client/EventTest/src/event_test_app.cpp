@@ -3,7 +3,13 @@
 #include "object/level/event_test_level.h"
 #include "object/level/physics_test_level.h"
 #include "object/level/message_test_level.h"
+
+#include"server/network.h"
+#include"server/revive_send_manager.h"
+#include"server/revive_packet_manager.h"
+
 #include "object/level/frame_test_level.h"
+
 
 using namespace client_fw;
 
@@ -19,7 +25,8 @@ namespace event_test
 		bool Initialize() override
 		{
 			bool result = Application::Initialize();
-
+			Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
+			Network::GetInst()->CreateWorker();
 			RegisterPressedEvent("Input Mode Game Only", std::vector{ EventKeyInfo{eKey::k1, {eAdditionalKey::kControl}} },
 				[]()->bool { Input::SetInputMode(eInputMode::kGameOnly); return true;  });
 			RegisterPressedEvent("Input Mode Game And UI", std::vector{ EventKeyInfo{eKey::k2, {eAdditionalKey::kControl}} },
@@ -44,7 +51,10 @@ namespace event_test
 
 		void Shutdown() override
 		{
+			Network::GetInst()->DestroyWorker();
+			Network::DestroyInst();
 			Application::Shutdown();
+			
 		}
 	};
 }
