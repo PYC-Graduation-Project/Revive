@@ -17,7 +17,7 @@
 #include "client/renderer/shader/texture_billboard_shader.h"
 #include "client/renderer/shader/material_billboard_shader.h"
 #include "client/renderer/shader/widget_shader.h"
-
+#include "client/renderer/shader/skeletal_mesh_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
 
@@ -27,6 +27,7 @@
 #include "client/object/component/render/billboard_component.h"
 #include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 
 namespace client_fw
 {
@@ -57,6 +58,7 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);

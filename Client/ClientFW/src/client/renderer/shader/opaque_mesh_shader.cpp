@@ -2,12 +2,14 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/shader/opaque_mesh_shader.h"
 #include "client/renderer/renderlevel/core/render_level.h"
+#include "client/renderer/renderitem/mesh_render_item.h"
 
 namespace client_fw
 {
 	OpaqueMeshShader::OpaqueMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
+		m_render_item = CreateSPtr<StaticMeshRenderItem>();
 	}
 
 	void OpaqueMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)
@@ -52,13 +54,13 @@ namespace client_fw
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
+		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
 		input_element_descs.resize(3);
 
 		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 		input_element_descs[1] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 		input_element_descs[2] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
+		
 		return input_element_descs;
 	}
 
