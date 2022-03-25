@@ -2,7 +2,6 @@
 #include <client/object/actor/core/actor.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 
-//Pawn을 상속하는 Character클래스 추가바람
 namespace anim_test
 {
 	using namespace client_fw;

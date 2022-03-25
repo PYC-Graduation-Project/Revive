@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/asset/animation/animation_sequence.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
+#include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 
@@ -49,15 +50,25 @@ namespace client_fw
 
 		return true;
 	}
-	void SkeletalMeshComponent::SetAnimation(const std::string& animation_path,const std::string& animation_name)
+	void SkeletalMeshComponent::SetAnimation(const std::string& mesh_path,const std::string& animation_name)
 	{
 		m_animation_name = animation_name;
-		m_animation_controller->SetAnimation(animation_path, GetSkeletalMesh()->GetSkeleton());
-		m_animation_controller->SetAnimationName(animation_name);
+
+		std::string parent_path = file_help::GetParentPathFromPath(mesh_path);
+		std::string stem = file_help::GetStemFromPath(mesh_path);
+		std::string animation_path = parent_path + "/" + stem + "_" + animation_name + ".rev";
+
+
+		if (animation_name.compare("Null") == 0)
+			SetIsPlaying(false);
+		else if (animation_name.compare("Null") != 0)
+		{
+			m_animation_controller->SetAnimation(animation_path, GetSkeletalMesh()->GetSkeleton());
+			m_animation_controller->SetAnimationName(animation_name);
+		}
 	}
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()
 	{
 		return std::static_pointer_cast<SkeletalMeshComponent>(shared_from_this());
-
 	}
 }
