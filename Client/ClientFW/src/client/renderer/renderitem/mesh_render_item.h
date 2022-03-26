@@ -25,10 +25,10 @@ namespace client_fw
 	class MeshRenderItem
 	{
 	public:
-		MeshRenderItem() {}
+		MeshRenderItem(const std::string& owner_shader_name);
 		virtual ~MeshRenderItem() {}
 
-		virtual void Initialize(ID3D12Device* device) {}
+		virtual void Initialize(ID3D12Device* device) = 0;
 		virtual void Shutdown() {}
 
 		virtual void Update(ID3D12Device* device) = 0;
@@ -37,13 +37,18 @@ namespace client_fw
 
 		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) = 0;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) = 0;
+
+	protected:
+		std::string m_owner_shader_name;
 	};
 
 	class StaticMeshRenderItem final : public MeshRenderItem
 	{
 	public:
-		StaticMeshRenderItem();
+		StaticMeshRenderItem(const std::string& owner_shader_name);
 		virtual ~StaticMeshRenderItem();
+
+		virtual void Initialize(ID3D12Device* device) override;
 
 		virtual void Update(ID3D12Device* device) override;
 		virtual void UpdateFrameResource(ID3D12Device* device) override;
@@ -62,9 +67,10 @@ namespace client_fw
 	class SkeletalMeshRenderItem final : public MeshRenderItem
 	{
 	public:
-		SkeletalMeshRenderItem();
+		SkeletalMeshRenderItem(const std::string& owner_shader_name);
 		virtual ~SkeletalMeshRenderItem();
 
+		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Update(ID3D12Device* device) override;
 		virtual void UpdateFrameResource(ID3D12Device* device) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list) const override;

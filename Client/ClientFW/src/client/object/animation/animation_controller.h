@@ -29,9 +29,6 @@ namespace client_fw
 
 		bool GetIsNeedUpdate() { return m_is_need_update; }
 		void SetIsNeedUpdate(bool value) { m_is_need_update = value; }
-		
-		bool GetIsRegistered() { return m_is_registered; }
-		void SetIsRegistered(bool value) { m_is_registered = value; }
 
 	private:
 		float m_start_time;

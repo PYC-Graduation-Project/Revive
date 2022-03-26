@@ -5,8 +5,27 @@
 #include"enemy.h"
 class MoveObjManager
 {
+private:
+	static MoveObjManager* m_pInst;
+
 public:
-	MoveObjManager() { MoveObjManager::m_pisnt = this; };
+	static MoveObjManager* GetInst()
+	{
+		if (!m_pInst)
+			m_pInst = new MoveObjManager;
+		return m_pInst;
+	}
+
+	static void DestroyInst()
+	{
+		if (m_pInst)
+		{
+			delete m_pInst;
+			m_pInst = NULL;
+		}
+	}
+public:
+	MoveObjManager() {  };
 	~MoveObjManager() = default;
 
 	Player* GetPlayer(int id) { 
@@ -26,16 +45,14 @@ public:
 
 	void InitLua(const char* script_name,int obj_id);
 	void RegisterAPI(lua_State* L);
-	static int API_get_x(lua_State* L);
-	static int API_get_y(lua_State* L);
-	static int API_get_z(lua_State* L);
-
+	
+	static void LuaErrorDisplay(lua_State* L,int err_num);
 	int GetNewID();
 	void Disconnect(int);
 	void InitPlayer();
 	void InitNPC();
 	void DestroyObject();
-	static MoveObjManager* m_pisnt;
+	
 private:
 	std::array <MoveObj*, MAX_USER + MAX_NPC>m_moveobj_arr;
 	

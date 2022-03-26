@@ -8,29 +8,11 @@ class NetworkObj;
 enum class NW_OBJ_TYPE;
 class NetworkObjManager
 {
-private:
-	static NetworkObjManager* m_pInst;
 
-public:
-	static NetworkObjManager* GetInst()
-	{
-		if (!m_pInst)
-			m_pInst = new NetworkObjManager;
-		return m_pInst;
-	}
-
-	static void DestroyInst()
-	{
-		if (m_pInst)
-		{
-			delete m_pInst;
-			m_pInst = NULL;
-		}
-	}
 public:
 	NetworkObjManager() {};
 	~NetworkObjManager() {};
-	void InitObj(int obj_id, NW_OBJ_TYPE m_type, float hp, float damage,client_fw::Vec3& pos);
+
 	void AddObj(int id, NetworkObj*);
 	NetworkObj* GetObj(int id) { 
 		auto p = m_obj_map.find(id);

@@ -34,6 +34,8 @@ namespace client_fw
 
 		SPtr<AnimationController>& GetAnimationController() { return m_animation_controller; }
 
+		const std::vector<Mat4>& GetBoneTransformData() { return m_animation_controller->GetBoneTransformData(); }
+
 		void SetIsPlaying(const bool is_playing) { m_is_playing = is_playing; }
 
 		void SetAnimation(const std::string& animation_path, const std::string& animation_name);

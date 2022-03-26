@@ -12,7 +12,8 @@
 
 namespace client_fw
 {
-	WidgetRenderItem::WidgetRenderItem()
+	WidgetRenderItem::WidgetRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
 	{
 	}
 
@@ -22,6 +23,9 @@ namespace client_fw
 
 	void WidgetRenderItem::Initialize(ID3D12Device* device)
 	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateWidgetFrameResource(device, m_owner_shader_name);
 	}
 
 	void WidgetRenderItem::Shutdown()
@@ -84,7 +88,7 @@ namespace client_fw
 
 		info.num_of_draw_data = static_cast<UINT>(m_world_widget_vertices.size() - info.start_index);
 	
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
 		widget_resource->AddWorldWidgetDrawInfo(std::move(info));
 	}
 
@@ -139,7 +143,7 @@ namespace client_fw
 			}
 		}
 
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
 
 		PivotWidgetDrawInfo info;
 		info.billboard_start_index = static_cast<UINT>(m_pivot_widget_vertices.size());
@@ -154,7 +158,7 @@ namespace client_fw
 
 	void WidgetRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
 
 		UINT new_size = static_cast<UINT>(m_world_widget_vertices.size());
 		if (new_size > 0)
@@ -205,7 +209,7 @@ namespace client_fw
 		std::function<void()>&& world_function, std::function<void()>&& billboard_function,
 		std::function<void()>&& fix_up_function)
 	{
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource();
+		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
 		WorldWidgetDrawInfo world_info = widget_resource->GetWorldWidgetDrawInfo();
 
 		if (world_info.num_of_draw_data > 0)

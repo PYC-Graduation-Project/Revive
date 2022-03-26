@@ -10,7 +10,7 @@ namespace client_fw
 	class UIRenderItem final
 	{
 	public:
-		UIRenderItem();
+		UIRenderItem(const std::string& owner_shader_name);
 		virtual ~UIRenderItem();
 
 		void Initialize(ID3D12Device* device);
@@ -21,6 +21,8 @@ namespace client_fw
 		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function);
 
 	private:
+		std::string m_owner_shader_name;
+
 		UINT m_num_of_draw_ui_data = 0;
 
 		std::vector<UIVertex> m_vertices;

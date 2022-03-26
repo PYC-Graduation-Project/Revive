@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "room.h"
-
+#include"object.h"
 
 Room::Room(int room_id):room_id(room_id),max_user(0),max_npc(0)
 {
 	m_round_time = 30.0f;
+	m_base = new Object;
 }
 
 Room::~Room()

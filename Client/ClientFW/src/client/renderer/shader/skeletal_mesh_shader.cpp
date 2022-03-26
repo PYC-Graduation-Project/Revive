@@ -9,7 +9,7 @@ namespace client_fw
 	SkeletalMeshShader::SkeletalMeshShader(const std::string& name)
 		: MeshShader(name)
 	{
-		m_render_item = CreateSPtr<SkeletalMeshRenderItem>();
+		m_render_item = CreateSPtr<SkeletalMeshRenderItem>(name);
 	}
 
 	void SkeletalMeshShader::Update(ID3D12Device* device, eRenderLevelType level_type)

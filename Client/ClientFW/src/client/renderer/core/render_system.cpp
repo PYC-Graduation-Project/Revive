@@ -20,14 +20,17 @@
 #include "client/renderer/shader/skeletal_mesh_shader.h"
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
+#include "client/renderer/core/light_manager.h"
 
 #include "client/object/component/core/render_component.h"
 #include "client/object/component/mesh/core/mesh_component.h"
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/render/billboard_component.h"
 #include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
-#include "client/object/component/mesh/skeletal_mesh_component.h"
+#include "client/object/component/light/core/light_component.h"
+#include "client/object/component/light/directional_light_component.h"
 
 namespace client_fw
 {
@@ -41,6 +44,7 @@ namespace client_fw
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 		m_camera_manager = CreateUPtr<CameraManager>();
+		m_light_manager = CreateUPtr<LightManager>();
 	}
 
 	RenderSystem::~RenderSystem()
@@ -57,14 +61,27 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
-		ret &= RegisterGraphicsShader<OpaqueMeshShader>("opaque mesh", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<OpaqueMaterialBillboardShader>("opaque material billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialBaseColorBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialTextureBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialTextureBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialNormalMapBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<MaskedMaterialNormalMapBillboardShader>
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 
@@ -81,6 +98,7 @@ namespace client_fw
 			shader->Shutdown();
 		m_graphics_super_root_signature->Shutdown();
 		m_render_asset_manager->Shutdown();
+		m_light_manager->Shutdown();
 		m_camera_manager->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
@@ -88,6 +106,8 @@ namespace client_fw
 
 	void RenderSystem::Update(ID3D12Device* device)
 	{
+		m_light_manager->Update(device);
+
 		m_camera_manager->Update(device, 
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
@@ -119,6 +139,7 @@ namespace client_fw
 
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
+		m_light_manager->Draw(command_list);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
@@ -262,5 +283,15 @@ namespace client_fw
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);
 		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
+	}
+
+	bool RenderSystem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
+	{
+		return m_light_manager->RegisterLightComponent(light_comp);
+	}
+
+	void RenderSystem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	{
+		m_light_manager->UnregisterLightComponent(light_comp);
 	}
 }

@@ -19,7 +19,7 @@ namespace revive
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
 		ret &= mesh->SetMesh("../Contents/cube.obj");
-		mesh->GetCollisioner()->SetCollisionInfo("default", { "default" });
+		mesh->SetCollisionInfo(true, false, "default", { "default" },true);
 		mesh->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			CollisionResponse(component, other_actor, other_component);

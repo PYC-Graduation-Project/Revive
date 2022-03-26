@@ -1,5 +1,4 @@
 #include "object/map/map_loader.h"
-
 #include "object/actor/ground.h"
 #include "object/actor/Wall.h"
 #include "object/actor/SpawnArea.h"
@@ -180,6 +179,7 @@ namespace revive
 		{
 			SPtr<BoxComponent> box_component = CreateSPtr<BoxComponent>(collision_extents[count], actor_info.name + " box component");
 			box_component->SetLocalPosition(collision_centers[count]);
+			box_component->SetCollisionInfo(true, false, "default", { "default" }, true);
 			box_components.emplace_back(std::move(box_component));
 		}
 		return box_components;

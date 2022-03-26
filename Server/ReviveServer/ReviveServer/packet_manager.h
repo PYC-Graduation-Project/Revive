@@ -6,6 +6,7 @@
 class MoveObjManager;
 class DB;
 class RoomManager;
+
 class PacketManager
 {
 public:
@@ -33,7 +34,7 @@ public:
 	void SendPutObjPacket(int c_id, int obj_id, OBJ_TYPE obj_type);
 	void SendObjInfo(int c_id, int obj_id);
 	void SendTime(int c_id,float round_time);
-
+	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
 
 	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
 	timer_event SetTimerEvent(int obj_id, int target_id,int room_id, EVENT_TYPE ev, int seconds);
@@ -49,7 +50,7 @@ public:
 	void ProcessEvent(HANDLE hiocp, timer_event& ev);
 
 private:
-	MoveObjManager* m_moveobj_manager;
+	
 	
 	RoomManager* m_room_manager;
 	DB* m_db;
@@ -83,7 +84,7 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
-	void ProcessRotation(int c_id, unsigned char* p);//이거 보류
+	
 
 	void StartGame(int room_id);
 };

@@ -11,6 +11,7 @@ namespace client_fw
 		virtual ~BoxComponent() = default;
 
 	public:
+		//DirectX의 AABB나 OBB는 extents를 절반 크기로 받고있다.
 		void SetExtents(const Vec3& extents) { m_extents = extents; }
 		void SetExtentX(float x) { m_extents.x = x; }
 		void SetExtentY(float y) { m_extents.y = y; }

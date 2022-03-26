@@ -10,6 +10,7 @@ void Enemy::InitEnemy(OBJ_TYPE type, int room_id,
 	m_room_id = room_id;
 	m_hp = max_hp;
 	m_maxhp = max_hp;
+	m_L = luaL_newstate();
 	SetPos(pos);
 	m_damage = damage;
 	strcpy_s(m_name, name);

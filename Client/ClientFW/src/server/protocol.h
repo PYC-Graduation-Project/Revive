@@ -18,7 +18,8 @@ const int  SORDIER_PER_USER = 9;//사람하나당 최대 해골 병사
 const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER * NPC_PER_USER; //최대 npc 개수
 
-const float MAX_SPEED = 10000; //추후 수정, 플레이어 이동 속도
+const float FramePerSecond = 0.016f;
+const float MAX_SPEED = 225 * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;
@@ -39,7 +40,7 @@ const char CS_PACKET_MOVE = 3;
 const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
-const char CS_PACKET_ROTATION = 7;
+const char CS_PACKET_TEST = 7;
 
 const char SC_PACKET_SIGN_IN_OK = 1;
 const char SC_PACKET_SIGN_UP_OK = 2;
@@ -51,8 +52,8 @@ const char SC_PACKET_LOGIN_FAIL = 7;
 const char SC_PACKET_STATUS_CHANGE = 8;
 const char SC_PACKET_MATCHING = 9;
 const char SC_PACKET_OBJ_INFO = 10;
-
-
+const char SC_PACKET_TIME = 11;
+const char SC_PACKET_TEST = 12;
 
 
 
@@ -78,10 +79,11 @@ struct cs_packet_matching {
 	short	user_num;//원하는 인원수
 };
 
-struct cs_packet_rotation {
+struct cs_packet_test {
 	unsigned char size;
 	char	type;
-	float x, y, z, w;
+	int id;
+	float x, y, z;
 };
 
 struct cs_packet_move {
@@ -129,6 +131,7 @@ struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
 	char	type;
 	//short	user_num;//원하는 인원수
 };
+
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
@@ -140,10 +143,12 @@ struct sc_packet_move {
 	float x, y, z;
 	float r_x, r_y, r_z, r_w;
 };
-struct sc_packet_rotation {
+struct sc_packet_test {
 	unsigned char size;
 	char	type;
-	float x, y, z, w;
+	int id;
+	int obj_id;
+	float x, y, z;
 };
 struct sc_packet_obj_info {
 	unsigned char size;
@@ -190,5 +195,11 @@ struct sc_packet_status_change {
 	int id;
 	float	hp, maxhp;
 };
+struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
+	unsigned char size;
+	char	type;
+	float time;
+	//float send_time;//추후에 없애야될수도 있음
 
+};
 #pragma pack(pop)

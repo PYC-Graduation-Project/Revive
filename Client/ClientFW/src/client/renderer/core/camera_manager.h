@@ -5,6 +5,7 @@ namespace client_fw
 	enum class eCameraUsage;
 	class CameraComponent;
 
+	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
 	class CameraManager final
 	{
 	public:
@@ -34,6 +35,7 @@ namespace client_fw
 		static CameraManager* s_camera_manager;
 		std::map<eCameraUsage, UINT> m_camera_counts;
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_ready_cameras;
+		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_wait_resource_cameras;
 		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_cameras;
 		SPtr<CameraComponent> m_ready_main_camera;
 		SPtr<CameraComponent> m_main_camera;
