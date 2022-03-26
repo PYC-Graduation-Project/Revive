@@ -1,5 +1,7 @@
+#include <include/client_core.h>
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
+#include <client/asset/mesh/mesh_loader.h>
 #include "object/level/game_play_level.h"
 
 using namespace client_fw;
@@ -33,8 +35,12 @@ namespace revive
 
 			}
 
-			
 			return result;
+		}
+
+		UPtr<MeshLoader> CreateMeshLoader() const override
+		{
+			return CreateUPtr<RevLoader>();
 		}
 
 		void Shutdown() override
