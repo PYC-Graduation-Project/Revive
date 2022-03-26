@@ -26,6 +26,7 @@ namespace client_fw
 	class MeshLoader;
 	class MaterialLoader;
 	class TextureLoader;
+	class AnimationLoader;
 
 	class Application
 	{
@@ -87,6 +88,7 @@ namespace client_fw
 		virtual UPtr<MeshLoader> CreateMeshLoader() const;
 		virtual UPtr<MaterialLoader> CreateMaterialLoader() const;
 		virtual UPtr<TextureLoader> CreateTextureLoader() const;
+		virtual UPtr<AnimationLoader> CreateAnimationLoader() const;
 
 	public:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

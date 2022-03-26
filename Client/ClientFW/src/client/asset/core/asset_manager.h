@@ -5,7 +5,6 @@ namespace client_fw
 	class Asset;
 	class Mesh;
 	class MeshLoader;
-	class RevLoader;
 	class Material;
 	class MaterialLoader;
 	class ExternalTexture;
@@ -13,6 +12,7 @@ namespace client_fw
 	class RenderTexture;
 	class Skeleton;
 	class AnimationSequence;
+	class AnimationLoader;
 
 	enum class eAssetType
 	{
@@ -28,7 +28,8 @@ namespace client_fw
 		~AssetManager();
 		
 		void Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader, 
-			UPtr<TextureLoader>&& texture_loader, bool level_cache = true);
+			UPtr<TextureLoader>&& texture_loader, UPtr<AnimationLoader>&& animation_loader,
+			bool level_cache = true);
 
 		//void LoadAssets();
 		//void LoadAssetsForLevel();
@@ -40,9 +41,9 @@ namespace client_fw
 
 	private:
 		UPtr<MeshLoader> m_mesh_loader;
-		UPtr<RevLoader> m_rev_loader;
 		UPtr<MaterialLoader> m_material_loader;
 		UPtr<TextureLoader> m_texture_loader;
+		UPtr<AnimationLoader> m_animation_loader;
 
 		bool m_is_level_cache;
 		std::map<eAssetType, AssetCache> m_asset_caches;
