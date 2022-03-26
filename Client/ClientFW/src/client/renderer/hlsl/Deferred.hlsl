@@ -38,34 +38,43 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
     float3 position = GetWolrdPoisition(input.uv, depth);
     float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Sample(g_sampler_point_wrap, input.uv).xyz;
     normal = normalize(normal * 2.0f - 1.0f);
-    float3 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Sample(g_sampler_point_wrap, input.uv).xyz;
+    float4 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Sample(g_sampler_point_wrap, input.uv);
     
     float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Sample(g_sampler_point_wrap, input.uv);
     
-    Material material;
-    material.base_color = base_color;
-    material.normal = normal;
-    material.roughness = additional_info.x;
-    material.metalic = additional_info.y;
-    
-    float3 color = float3(0.f, 0.f, 0.f);
-    [unroll(4)]
-    for (uint i = 0; i < g_num_of_directional_light; ++i)
+    if(base_color.a > 0.0f)
     {
-        Light light;
-        light.light_color = g_light_data[i].light_color;
-        light.direction = g_light_data[i].light_direction;
+        Material material;
+        material.base_color = base_color.xyz;
+        material.normal = normal;
+        material.roughness = additional_info.x;
+        material.metalic = additional_info.y;
+    
+        float3 color = float3(0.f, 0.f, 0.f);
+        [unroll(4)]
+        for (uint i = 0; i < g_num_of_directional_light; ++i)
+        {
+            Light light;
+            light.light_color = g_light_data[i].light_color;
+            light.direction = g_light_data[i].light_direction;
 
-        color += CalcDiretionalLight(position, material, light);
-    }
+            color += CalcDiretionalLight(position, material, light);
+        }
     
      
-    float3 ambient = 0.03f * material.base_color;
-    color += ambient;
-    color = color / (color + 1.0f);
-    color = pow(color, (1.0f / 2.2f));
+        float3 ambient = 0.03f * material.base_color;
+        color += ambient;
+        color = color / (color + 1.0f);
+        color = pow(color, (1.0f / 2.2f));
     
-    return float4(color, 1.0f);
+        return float4(color, 1.0f);
+    }
+    else
+    {
+        return float4(base_color.xyz, 1.0f);
+    }
+    
+  
 }
 
 #endif // __DEFERRED_HLSL__
