@@ -7,8 +7,12 @@ namespace client_fw
 	struct RSMaterialData
 	{
 		Vec4 base_color;
+		FLOAT roughness;
+		FLOAT metallic;
 		INT diffuse_texture_index;
 		INT normal_texture_index;
+		INT roughness_texture_index;
+		INT metalic_texture_index;
 	};
 
 	class RenderResourceFrameResource

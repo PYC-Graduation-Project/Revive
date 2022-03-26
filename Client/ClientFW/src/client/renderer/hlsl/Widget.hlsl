@@ -1,4 +1,5 @@
-#include "Opaque.hlsl"
+#include "Resource.hlsl"
+#include "Common.hlsl"
 
 #ifndef __WIDGET_HLSL__
 #define __WIDGET_HLSL__
@@ -172,6 +173,7 @@ PS_GBUFFER_OUTPUT PSOpaqueWidget(GS_WIDGET_OUTPUT input)
         output.base_color = input.color;
     
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(1.0f, 0.0f, 1.0f, 1.0f);
     
     return output;
 }
@@ -191,6 +193,7 @@ PS_GBUFFER_OUTPUT PSMaskedWidget(GS_WIDGET_OUTPUT input)
     output.base_color = base_color;
     
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(1.0f, 0.0f, 1.0f, 1.0f);
     
     return output;
 }

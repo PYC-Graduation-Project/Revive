@@ -108,7 +108,7 @@ namespace client_fw
 					camera_data.final_texture_index = render_texture->GetResourceIndex();
 					camera_data.gbuffer_texture_indices = XMUINT4(
 						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
-						0, render_texture->GetDSVResourceIndex());
+						render_texture->GetGBufferResourceIndex(2), render_texture->GetDSVResourceIndex());
 					camera_data.num_of_directional_light = num_of_directional_light;
 					camera_resource_data->CopyData(index, camera_data);
 

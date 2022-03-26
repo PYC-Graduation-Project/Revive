@@ -151,7 +151,10 @@ namespace client_fw
 					INT normal_index = -1;
 					if (material->GetNormalTexture() != nullptr)
 						normal_index = material->GetNormalTexture()->GetResourceIndex();
-					RSMaterialData data{ material->GetBaseColor(), diffuse_index, normal_index };
+					INT roughness_index = -1;
+					INT metallic_index = -1;
+					RSMaterialData data{ material->GetBaseColor(), material->GetRoughness(), material->GetMetallic(),
+						diffuse_index, normal_index, roughness_index, metallic_index };
 
 					render_resource->GetMaterialData()->CopyData(index++, data);
 				}
@@ -200,7 +203,8 @@ namespace client_fw
 		for (const auto& texture : m_ready_render_textures)
 		{
 			//GBuffer의 Format이 달라지게 된다면 변경이 필요하다.
-			texture->Initialize(device, command_list, { DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R11G11B10_FLOAT });
+			texture->Initialize(device, command_list,
+				{ DXGI_FORMAT_R8G8B8A8_UNORM,  DXGI_FORMAT_R11G11B10_FLOAT, DXGI_FORMAT_R8G8B8A8_UNORM });
 
 			for (UINT i = 0; i < texture->GetNumOfGBufferTexture(); ++i)
 			{

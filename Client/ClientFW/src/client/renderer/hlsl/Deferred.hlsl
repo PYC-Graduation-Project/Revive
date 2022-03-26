@@ -40,11 +40,13 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
     normal = normalize(normal * 2.0f - 1.0f);
     float3 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Sample(g_sampler_point_wrap, input.uv).xyz;
     
+    float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Sample(g_sampler_point_wrap, input.uv);
+    
     Material material;
     material.base_color = base_color;
     material.normal = normal;
-    material.roughness = 0.2f;
-    material.metalic = 0.0f;
+    material.roughness = additional_info.x;
+    material.metalic = additional_info.y;
     
     float3 color = float3(0.f, 0.f, 0.f);
     [unroll(4)]

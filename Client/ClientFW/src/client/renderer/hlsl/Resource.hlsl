@@ -13,8 +13,12 @@ struct InstanceData
 struct MaterialData
 {
     float4 base_color;
+    float roughness;
+    float metallic;
     int diffuse_texture_index;
     int normal_texture_index;
+    int roughness_texture_index;
+    int metallic_texture_index;
 };
 
 struct LightData
