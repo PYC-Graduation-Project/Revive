@@ -24,7 +24,18 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
 	sc_packet_move* packet = reinterpret_cast<sc_packet_move*>(p);
 	//cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
-	//NetworkMoveObj* mover = static_cast<NetworkMoveObj*>(NetworkObjManager::GetInst()->GetObj(packet->id));
+	auto mover = m_obj_map.find(packet->id);
+	Vec3 recv_pos{ packet->x,packet->y,packet->z };
+	Quaternion recv_rot{ packet->r_x,packet->r_y,packet->r_z,packet->r_w };
+	if (mover != m_obj_map.end())
+	{
+		mover->second->SetPosition(move(recv_pos));
+		mover->second->SetRotation(move(recv_rot));
+	}
+	else
+	{
+		LOG_INFO("No Object");
+	}
 	//if (!mover) {
 	//	cout << "없는 객체입니다!" << endl;
 	//	return;
@@ -33,7 +44,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//client_fw::Quaternion rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
 	//mover->SetPosition(pos);
 	//mover->SetRotation(rot);
-
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<event_test::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
 }
 
 void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)

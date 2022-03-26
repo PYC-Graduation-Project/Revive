@@ -188,21 +188,23 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	Vector3 npos = enemy->GetPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-		Vector3 nlook = Vector3{ BASE_POINT - npos }.Normalrize();
+		Vector3 nlook = Vector3{ BASE_POINT - npos };
 		//적 look벡터 설정
 	}
 	else
 	{
 		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
-		Vector3 nlook = Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos }.Normalrize();
+		Vector3 nlook = Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos };
 	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
+	nlook.Normalrize();
 	npos+=(nlook* MAX_SPEED);//이동거리 16ms보내주는거
 	
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	enemy->SetPos(npos);
-
+	if(enemy_id==71)
+		cout << "id" << enemy_id << "pos x:" << npos.x << ", y:" << npos.y << ", z:" << npos.z<<endl;
 	for (int i = 0; i < room->GetMaxUser(); i++)
 	{
 		SendMovePacket(i, enemy_id);
@@ -213,7 +215,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//아니면 기지 그대로
 		}
 	}
-
+	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 16));
 }
 
 
@@ -409,7 +411,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
 	
-	//Room* room = m_room_manager->GetRoom(cl->GetRoomID());
+	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
 	case 0://앞
@@ -435,18 +437,18 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}
 	}*/
 
-	//cl->SetPos(pos);
+	cl->SetPos(pos);
 	std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 		<< packet->r_z<< ", w : " << packet->r_w << endl;
-	//for (auto other_pl : room->GetObjList())
-	//{
-	//	if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
-	//		continue;
-	//	if (c_id == other_pl)
-	//		continue;
-	//	SendMovePacket(other_pl, c_id);
-	//}
+	for (auto other_pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
+			break;
+		if (c_id == other_pl)
+			continue;
+		SendMovePacket(other_pl, c_id);
+	}
 	
 }
 
@@ -668,10 +670,10 @@ void PacketManager::ProcessDBTask(db_task& dt)
 			SendLoginFailPacket(dt.obj_id, static_cast<int>(ret));
 		}
 		//test용 코드 이후에 꼭 지우자
-		for (int i = 0; i < 10; ++i)
-		{
-			SendTestPacket(pl->GetID(), i * 20, i * 100.0f, 0, i * 100.0f);
-		}
+		//for (int i = 0; i < 10; ++i)
+		//{
+		//	SendTestPacket(pl->GetID(), i * 20, i * 100.0f, 0, i * 100.0f);
+		//}
 		break;
 	}
 	case DB_TASK_TYPE::SIGN_UP:
@@ -756,7 +758,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 				break;
 			SendTime(pl, room->GetRoundTime());
 		}
-		if (0.01f >= room->GetRoundTime())
+		if (0.01f >= room->GetRoundTime()-20.0f)
 		{
 			room->SetRoundTime(30.0f);
 			room->SetRound(room->GetRound() + 1);

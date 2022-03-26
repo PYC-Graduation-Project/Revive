@@ -74,6 +74,15 @@ namespace event_test
 			m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			break;
+		case HashCode("move object"): {
+			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
+			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
+			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			SetPosition(msg->GetObjPosition());
+			//Vec3 a{ msg->GetObjPosition() };
+			//LOG_INFO(a);
+			break;
+		}	
 		default:
 			break;
 		}

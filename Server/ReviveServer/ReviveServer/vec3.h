@@ -30,7 +30,12 @@ public:
 		return Vector3(a.x * b, a.y * b, a.z * b);
 
 	}
+	friend Vector3 operator /(Vector3& a, const float b)
+	{
 
+		return Vector3(a.x / b, a.y / b, a.z / b);
+
+	}
 #endif // 연산자 오버로딩
 	float VectorScale()
 	{

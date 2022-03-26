@@ -19,7 +19,7 @@ const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER* NPC_PER_USER; //최대 npc 개수
 
 const float FramePerSecond = 0.016f;
-const float MAX_SPEED=225* FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
+const float MAX_SPEED=22500* FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;

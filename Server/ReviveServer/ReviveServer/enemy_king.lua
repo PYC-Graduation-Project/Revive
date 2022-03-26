@@ -8,7 +8,8 @@ enemy_maxhp=0;
 enemy_hp=0;
 enemy_damege = 0;
 enemy_type = 0;
-
+now_x=0.1;
+now_y=0.1;
 function initializEnemy(id, x, y, z, hp, damege, type)
 	enemy_id = id;
 	enemy_x = x;
@@ -30,7 +31,7 @@ end
 
 
 function event_test(npc_id)
-	nowx = API_get_x(npc_id);
-    nowy = API_get_y(npc_id);
-	API_test_lua(nowx,nowy);
+	now_x = API_get_x(npc_id);
+    now_y = API_get_y(npc_id);
+	API_test_lua(now_x,now_y);
 end
