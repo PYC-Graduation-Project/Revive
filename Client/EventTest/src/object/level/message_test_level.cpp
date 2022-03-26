@@ -7,11 +7,9 @@
 #include "object/actor/rotating_cube.h"
 #include"server/network_move_object.h"
 #include <client/event/packetevent/packet_helper.h>
-#include<random>
-std::default_random_engine dre;
-std::uniform_int_distribution uid{1,100000000};
-std::string g_id{ std::to_string(rand()%1000) };
-std::string g_pw{ std::to_string(rand()%1000) };
+
+std::string g_id;
+std::string g_pw;
 
 namespace event_test
 {
@@ -46,9 +44,9 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
-		std::cin >> g_id;
-		std::cin >> g_pw;
-		std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
+		//std::cin >> g_id;
+		//std::cin >> g_pw;
+		//std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
 		
 		RegisterPressedEvent("send sign up", { { eKey::k5 } },
 			[this]()->bool {
