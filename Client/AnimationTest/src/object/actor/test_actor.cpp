@@ -30,6 +30,6 @@ namespace anim_test
 	}
 	void TestActor::SetAnimation(const std::string& animation_name)
 	{
-		m_skeletal_mesh_component->SetAnimation(m_mesh_path, animation_name);
+		m_skeletal_mesh_component->SetAnimation(animation_name);
 	}
 }

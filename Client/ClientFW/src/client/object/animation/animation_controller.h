@@ -19,11 +19,14 @@ namespace client_fw
 		const std::vector<Mat4>& GetBoneTransformData() { return m_bone_transform_data; }
 		void CopyBoneTransformData();
 	public:
-		void SetAnimation(const std::string& animation_path, const SPtr<Skeleton>& skeleton);
+		void SetMeshPath(const std::string& mesh_path) { m_mesh_path = mesh_path; }
+		const std::string GetAnimationPath(const std::string& animation_name);
+
+		void SetAnimation(const SPtr<Skeleton>& skeleton);
 		void AnimToPlay(float delta_time, bool m_looping);
 
-		void SetAnimationName(const std::string& animation_name) { m_anim_seq->anim_name = animation_name; }
-		const std::string GetAnimationName() { return m_anim_seq->anim_name; }
+		void SetAnimationName(const std::string& animation_name) { m_animation_name = animation_name; }
+		const std::string GetAnimationName() { return m_animation_name; }
 
 		void SetBoneData(const SPtr<BoneData>& bone_data, const SPtr<Skeleton>& skeleton);
 
@@ -31,6 +34,9 @@ namespace client_fw
 		void SetIsNeedUpdate(bool value) { m_is_need_update = value; }
 
 	private:
+		std::string m_mesh_path;
+		std::string m_animation_name;
+
 		float m_start_time;
 		float m_end_time;
 
