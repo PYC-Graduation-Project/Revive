@@ -144,6 +144,21 @@ namespace client_fw
 		return m_collisioner;
 	}
 
+	void SceneComponent::SetCollisionInfo(std::string&& collision_type, 
+		std::set<std::string>&& collisionable_types, bool generate_collision_event)
+	{
+		if (m_collisioner != nullptr)
+			m_collisioner->SetCollisionInfo(std::move(collision_type), std::move(collisionable_types), generate_collision_event);
+	}
+
+	void SceneComponent::SetCollisionInfo(bool is_collision, bool is_blocking,
+		std::string&& collision_type, std::set<std::string>&& collisionable_types, bool generate_collision_event)
+	{
+		if (m_collisioner != nullptr)
+			m_collisioner->SetCollisionInfo(is_collision, is_blocking,
+				std::move(collision_type), std::move(collisionable_types), generate_collision_event);
+	}
+
 	void SceneComponent::SetPhysics(bool value)
 	{
 		if (m_is_physics != value && m_collisioner != nullptr)

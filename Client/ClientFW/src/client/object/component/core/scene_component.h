@@ -5,6 +5,7 @@
 namespace client_fw
 {
 	class Collisioner;
+	struct CollisionInfo;
 	struct CollisionTreeNode;
 
 	class SceneComponent : public Component, public std::enable_shared_from_this<SceneComponent>
@@ -87,7 +88,12 @@ namespace client_fw
 		Vec3 GetLocalUp() const { return vec3::TransformNormal(vec3::AXIS_Y, m_local_rotation); }
 
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
+
 		const UPtr<Collisioner>& GetCollisioner() const;
+		void SetCollisionInfo(std::string&& collision_type,
+			std::set<std::string>&& collisionable_types, bool generate_collision_event = true);
+		void SetCollisionInfo(bool is_collision, bool is_blocking, std::string&& collision_type,
+			std::set<std::string>&& collisionable_types, bool generate_collision_event);
 
 		bool IsPhysics() const { return m_is_physics; }
 		// 물리 기능을 설정합니다. (중력)
