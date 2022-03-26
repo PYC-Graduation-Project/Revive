@@ -9,7 +9,6 @@
 #include "client/object/component/mesh/core/mesh_component.h"
 #include "client/object/component/mesh/static_mesh_component.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
-#include "client/object/animation/animation_controller.h"
 #include "client/util/d3d_util.h"
 #include "client/util/upload_buffer.h"
 
@@ -223,7 +222,7 @@ namespace client_fw
 
 					transform_start_index -= bone_count;
 
-					auto bone_transform_data = mesh_comp->GetAnimationController()->GetBoneTransformData();
+					auto bone_transform_data = mesh_comp->GetBoneTransformData();
 					for (UINT index = 0; index < bone_count; ++index)
 						skeletal_transform_data[transform_start_index + index].bone_transform = bone_transform_data[index];
 

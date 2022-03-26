@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/asset/bone/skeleton.h"
+#include "client/asset/core/asset_manager.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/renderer/core/render.h"
@@ -14,9 +15,9 @@ namespace client_fw
     {
         return true;
     }
-    void AnimationController::SetAnimation(const std::string& animation_path, const SPtr<Skeleton>& skeleton)
+    void AnimationController::SetAnimation( const SPtr<Skeleton>& skeleton)
     {
-        m_anim_seq = AssetStore::LoadAnimation(animation_path, skeleton);
+        m_anim_seq = AssetStore::LoadAnimation(GetAnimationPath(GetAnimationName()), skeleton);
         m_anim_seq->GetDefaultTime(m_start_time,m_end_time);
         
     }
@@ -59,5 +60,12 @@ namespace client_fw
             final_transform.Transpose();
             m_bone_transform_data[index] = final_transform;
         }
+    }
+    const std::string AnimationController::GetAnimationPath(const std::string& animation_name)
+    {
+        std::string parent_path = file_help::GetParentPathFromPath(m_mesh_path);
+        std::string stem = file_help::GetStemFromPath(m_mesh_path);
+        std::string animation_path = parent_path + "/" + stem + "_" + animation_name + ".rev";
+        return animation_path;
     }
 }
