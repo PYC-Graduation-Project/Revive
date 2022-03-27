@@ -27,7 +27,7 @@ namespace revive
 	private:
 		std::vector<SPtr<StaticMeshComponent>> CreateStaticMeshComponents(
 			const UINT& actor_mesh_index, const ActorInfo& actor_info, const std::vector<std::string>& file_paths,
-			const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<Vec3>& scales);
+			const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<float>& scales);
 		std::vector<SPtr<BoxComponent>> CreateBoxComponents(const UINT& actor_collision_index, const ActorInfo& actor_info, 
 			const std::vector<Vec3>& collision_extents, const std::vector<Vec3>& collision_centers);
 	};

@@ -30,6 +30,7 @@ namespace revive
 		Quaternion temp_quat;
 		std::string temp_string;
 		UINT temp_uint, temp_uint2;
+		float temp_float;
 		std::map<std::string, int> actor_count;
 
 		std::vector<SPtr<Actor>> actors;
@@ -38,7 +39,7 @@ namespace revive
 		std::vector<std::string> file_paths;
 		std::vector<Vec3> positions;
 		std::vector<Quaternion> rotations;
-		std::vector<Vec3> scales;
+		std::vector<float> scales;
 		std::vector<Vec3> collision_centers;
 		std::vector<Vec3> collision_extents;
 
@@ -90,8 +91,8 @@ namespace revive
 				rotations.emplace_back(std::move(temp_quat));
 				break;
 			case HashCode("Scale"):
-				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-				scales.emplace_back(std::move(temp_vec));
+				ss >> temp_float;
+				scales.emplace_back(std::move(temp_float));
 				break;
 			}
 		}
@@ -188,7 +189,7 @@ namespace revive
 
 	std::vector<SPtr<StaticMeshComponent>> MapLoader::CreateStaticMeshComponents(
 		const UINT& actor_mesh_index, const ActorInfo& actor_info, const std::vector<std::string>& file_paths, 
-		const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<Vec3>& scales)
+		const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<float>& scales)
 	{
 		std::vector<SPtr<StaticMeshComponent>> components;
 
