@@ -44,6 +44,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//client_fw::Quaternion rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
 	//mover->SetPosition(pos);
 	//mover->SetRotation(rot);
+	//std::cout << recv_pos << std::endl;
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<event_test::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
 }
 

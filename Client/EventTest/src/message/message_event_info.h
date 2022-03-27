@@ -1,6 +1,7 @@
 #pragma once
 #include <client/event/messageevent/message_event_info.h>
 #include"server/protocol.h"
+#include<mutex>
 enum class NW_OBJ_TYPE;
 class NetworkMoveObj;
 namespace event_test
@@ -62,6 +63,7 @@ namespace event_test
     {
     public:
         ObjectInfoMessageEventInfo(UINT event_id,const SPtr<NetworkMoveObj>& other);
+        std::mutex m_obj_lock;
     private:
         SPtr<NetworkMoveObj>m_network_object;
     public:
@@ -72,9 +74,10 @@ namespace event_test
     {
     public:
         MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos,const Quaternion& rot);
+        std::mutex m_move_lock;
     private:
         Vec3 m_pos;
-   
+        
         Quaternion m_rot;
     public:
         const Vec3& GetObjPosition()const { return m_pos; }

@@ -7,7 +7,8 @@
 #include "object/actor/rotating_cube.h"
 #include"server/network_move_object.h"
 #include <client/event/packetevent/packet_helper.h>
-
+#include<object/actor/move_cube.h>
+#include<mutex>
 std::string g_id;
 std::string g_pw;
 
@@ -32,6 +33,9 @@ namespace event_test
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
 
+		//auto m_cube = CreateSPtr<MoveCube>();
+		//SpawnActor(m_cube);
+		//m_cube->SetPosition(Vec3{ 0.0f,0.0f,0.0f });
 		RegisterAxisEvent("rotating speed up", { {eKey::kLArrow, -1.0f}, {eKey::kRArrow, 1.0f} },
 			[this](float axis)->bool {
 				MessageHelper::RegisterMessageEvent(CreateSPtr<RotSpeedMessageEventInfo>(HashCode("change rotating speed"), axis));
@@ -127,25 +131,24 @@ namespace event_test
 		{
 			
 			auto msg = std::static_pointer_cast<event_test::ObjectInfoMessageEventInfo>(message);
+		
 			auto obj =msg->GetNetworkObj();
-			//LOG_INFO("id : {0}",obj->GetID());
+			LOG_INFO("id : {0}",obj->GetID());
 			LOG_INFO("name : {0}", obj->GetName());
 			//LOG_INFO("hp : {0}", obj->GetHp());
 			//LOG_INFO("damage : {0}", obj->GetDamage());
-			LOG_INFO("position :{0}", obj->GetPosition());
-			
+			//LOG_INFO("position :{0}", obj->GetPosition());
+			std::cout <<"pos: " << obj->GetPosition() << std::endl;
 			auto cube = CreateSPtr<RotatingCube>();
 			SpawnActor(cube);
-			PacketHelper::ConnectActorToServer(cube, msg->GetNetworkObj()->GetID());
+			LOG_INFO("rotation : {0}", cube->GetRotation());
 			cube->SetPosition(msg->GetNetworkObj()->GetPosition());
+			PacketHelper::ConnectActorToServer(cube, msg->GetNetworkObj()->GetID());
+			
 			//spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
 			break;
 		}
-		case HashCode("move object"): {
-			auto msg = std::static_pointer_cast<event_test::MoveObjectMessageEventInfo>(message);
-			
-			break;
-		}
+		
 		default:
 			break;
 		}

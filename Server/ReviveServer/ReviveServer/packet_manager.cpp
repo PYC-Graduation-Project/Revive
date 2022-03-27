@@ -82,6 +82,7 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 
 	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
 	c_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
+	
 	*(reinterpret_cast<SOCKET*>(exp_over->_net_buf)) = c_socket;
 	AcceptEx(s_socket, c_socket, exp_over->_net_buf + 8, 0, sizeof(SOCKADDR_IN) + 16,
 		sizeof(SOCKADDR_IN) + 16, NULL, &exp_over->_wsa_over);
@@ -159,6 +160,7 @@ void PacketManager::SpawnEnemy(int room_id)
 		}
 
 	}
+	
 	int spawn_idx = rand() % 2;
 	float x = ENEMY_SPAWN_POINT[spawn_idx][0];
 	float z = ENEMY_SPAWN_POINT[spawn_idx][1];
@@ -168,9 +170,10 @@ void PacketManager::SpawnEnemy(int room_id)
 		for (auto& en : enemy_list)
 		{
 			enemy = MoveObjManager::GetInst()->GetEnemy(en);
-			enemy->SetSpawnPoint(x + rand() % 300, z + rand() % 300);
-			SendObjInfo(room->GetObjList()[i], en);
-			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 1));
+			enemy->SetSpawnPoint(x+rand()%3000 ,z + rand() % 3000);
+			SendObjInfo(room->GetObjList().at(i), en);
+			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 16));
+
 		}
 	}
 	cout << "round" << curr_round << "Wave Start" << endl;
@@ -185,26 +188,26 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
 	Vector3 nlook;
-	Vector3 npos = enemy->GetPos();
+	Vector3& npos = enemy->GetPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-		Vector3 nlook = Vector3{ BASE_POINT - npos };
+		nlook= Vector3{ BASE_POINT - npos };
 		//적 look벡터 설정
 	}
 	else
 	{
 		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
-		Vector3 nlook = Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos };
+		 nlook= Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos };
 	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
-	nlook.Normalrize();
-	npos+=(nlook* MAX_SPEED);//이동거리 16ms보내주는거
-	
+	Vector3 move_vec=nlook.Normalrize();
+	npos+=(move_vec * MAX_SPEED);//이동거리 16ms보내주는거
+	cout << move_vec.x << move_vec.y << move_vec.z << endl;
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	enemy->SetPos(npos);
-	if(enemy_id==71)
-		cout << "id" << enemy_id << "pos x:" << npos.x << ", y:" << npos.y << ", z:" << npos.z<<endl;
+	//if(enemy_id==10)
+	//	cout << "id" << enemy_id << "pos x:" << npos.x << ", y:" << npos.y << ", z:" << npos.z<<endl;
 	for (int i = 0; i < room->GetMaxUser(); i++)
 	{
 		SendMovePacket(i, enemy_id);
@@ -597,10 +600,10 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	//m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
-	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 3000));//30초다되면 넣어주는걸로 수정?
-	m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
-		EVENT_TYPE::EVENT_TIME, 1000));
+	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
+		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10000));//30초다되면 넣어주는걸로 수정?
+	//m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+	//	EVENT_TYPE::EVENT_TIME, 1000));
 	
 }
 
@@ -758,7 +761,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 				break;
 			SendTime(pl, room->GetRoundTime());
 		}
-		if (0.01f >= room->GetRoundTime()-20.0f)
+		if (0.01f >= room->GetRoundTime())
 		{
 			room->SetRoundTime(30.0f);
 			room->SetRound(room->GetRound() + 1);

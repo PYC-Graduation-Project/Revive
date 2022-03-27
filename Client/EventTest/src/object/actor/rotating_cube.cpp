@@ -28,9 +28,9 @@ namespace event_test
 		m_widget_component->SetLocalPosition(Vec3(0.0f, 90.0f, 0.0f));
 		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
 		//ret &= AttachComponent(CreateSPtr<CameraComponent>());
-
+		//m_rotating_component->SetRotatingRate(Vec3(0.0f, 0.0f, 0.0f));
 		RegisterReceiveMessage(HashCode("change rotating speed"));
-
+		RegisterReceiveMessage(HashCode("move object"));
 		return ret;
 	}
 
@@ -70,17 +70,21 @@ namespace event_test
 	{
 		switch (message->GetEventID())
 		{
-		case HashCode("change rotating speed"):
+		case HashCode("change rotating speed"): {
 			m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			break;
+		}
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
+			//msg->m_move_lock.lock();
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			SetPosition(msg->GetObjPosition());
+			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
 			//LOG_INFO(a);
+			//msg->m_move_lock.unlock();
 			break;
 		}	
 		default:
