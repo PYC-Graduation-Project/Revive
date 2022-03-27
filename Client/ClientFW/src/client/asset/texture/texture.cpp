@@ -34,6 +34,25 @@ namespace client_fw
 		return (m_texture_resource != nullptr);
 	}
 
+	ExternalCubeMapTexture::ExternalCubeMapTexture()
+		: Asset(), Texture(eTextureType::kExternalCubeMap)
+	{
+	}
+
+	bool ExternalCubeMapTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		m_texture_resource = TextureCreator::LoadTextureFromFile(device,
+			command_list, GetPath(), GetExtension(), m_upload_heap);
+
+		if (m_texture_resource != nullptr)
+		{
+			std::wstring w_name(GetName().begin(), GetName().end());
+			m_texture_resource->SetName(w_name.c_str());
+		}
+
+		return (m_texture_resource != nullptr);
+	}
+
 	RenderTexture::RenderTexture(const IVec2& size)
 		: Texture(eTextureType::kRedner)
 		, m_texture_size(size)

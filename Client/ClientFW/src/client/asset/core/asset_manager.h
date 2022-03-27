@@ -8,12 +8,13 @@ namespace client_fw
 	class Material;
 	class MaterialLoader;
 	class ExternalTexture;
+	class ExternalCubeMapTexture;
 	class TextureLoader;
 	class RenderTexture;
 
 	enum class eAssetType
 	{
-		kMesh, kMaterial, kTexture, kRenderTexture,
+		kMesh, kMaterial, kTexture,
 	};
 
 	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
@@ -56,6 +57,7 @@ namespace client_fw
 		SPtr<Material> LoadMaterial(const std::string& path, const std::string& mtl_name);
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		SPtr<ExternalTexture> LoadTexture(const std::string& path);
+		SPtr<ExternalCubeMapTexture> LoadCubeMapTexture(const std::string& path);
 	};
 
 	namespace file_help

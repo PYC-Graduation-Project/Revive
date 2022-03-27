@@ -148,6 +148,26 @@ namespace client_fw
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalTexture>(asset);
 	}
 
+	SPtr<ExternalCubeMapTexture> AssetManager::LoadCubeMapTexture(const std::string& path)
+	{
+		auto asset = LoadAsset(eAssetType::kTexture, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			asset = m_texture_loader->LoadCubeMapTexture(path, extension);
+
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extenion : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kTexture, stem, path, extension, asset);
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(std::static_pointer_cast<ExternalCubeMapTexture>(asset));
+			}
+		}
+
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalCubeMapTexture>(asset);
+	}
+
 	namespace file_help
 	{
 		std::string GetStemFromPath(const std::string& path)

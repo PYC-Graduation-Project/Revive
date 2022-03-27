@@ -6,6 +6,7 @@ namespace client_fw
 	class Mesh;
 	class Material;
 	class ExternalTexture;
+	class ExternalCubeMapTexture;
 	class RenderTexture;
 
 	// 외부에서 Asset을 불러오기 위해서 사용하는 함수들을 제공하는 클래스
@@ -23,7 +24,9 @@ namespace client_fw
 		//if .mtl file (releative path) 
 		//return value (mtl name, mtl name's material)
 		static std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
+
 		static SPtr<ExternalTexture> LoadTexture(const std::string& path);
+		static SPtr<ExternalCubeMapTexture> LoadCubeMapTexture(const std::string& path);
 
 	private:
 		friend AssetManager;

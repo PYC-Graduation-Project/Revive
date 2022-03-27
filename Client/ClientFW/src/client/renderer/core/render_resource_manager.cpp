@@ -26,7 +26,7 @@ namespace client_fw
 	bool RenderResourceManager::Initialize(ID3D12Device* device)
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC texture_heap_desc;
-		texture_heap_desc.NumDescriptors = 8192 + 1024 + 2048 + 1024;
+		texture_heap_desc.NumDescriptors = 8192 + 1024 + 1024 + 2048 + 1024;
 		texture_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		texture_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		texture_heap_desc.NodeMask = 0;
@@ -73,7 +73,12 @@ namespace client_fw
 		if(m_materials.empty() == false)
 			command_list->SetGraphicsRootShaderResourceView(3, render_resource->GetMaterialData()->GetResource()->GetGPUVirtualAddress());
 
-		command_list->SetGraphicsRootDescriptorTable(4, m_texture_desciptor_heap->GetGPUDescriptorHandleForHeapStart());
+		CD3DX12_GPU_DESCRIPTOR_HANDLE gpu_handle(m_texture_desciptor_heap->GetGPUDescriptorHandleForHeapStart());
+		command_list->SetGraphicsRootDescriptorTable(4, gpu_handle);
+
+		gpu_handle.Offset(START_INDEX_CUBE_MAP_TEXTURE, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		command_list->SetGraphicsRootDescriptorTable(6, gpu_handle);
+	
 	}
 
 	void RenderResourceManager::RegisterMesh(const SPtr<Mesh>& mesh)
@@ -97,6 +102,11 @@ namespace client_fw
 				m_ready_external_textures.push_back(std::static_pointer_cast<ExternalTexture>(texture));
 				break;
 			}
+			case eTextureType::kExternalCubeMap:
+			{
+				m_ready_external_cube_map_textures.push_back(std::static_pointer_cast<ExternalCubeMapTexture>(texture));
+				break;
+			}
 			case eTextureType::kRedner:
 			{
 				m_ready_render_textures.push_back(std::static_pointer_cast<RenderTexture>(texture));
@@ -104,7 +114,7 @@ namespace client_fw
 			}
 			case eTextureType::kRenderUI:
 			{
-				m_ready_render_text_texture.push_back(std::static_pointer_cast<RenderTextTexture>(texture));
+				m_ready_render_text_textures.push_back(std::static_pointer_cast<RenderTextTexture>(texture));
 				break;
 			}
 			default:
@@ -167,6 +177,7 @@ namespace client_fw
 	void RenderResourceManager::UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		UpdateExternalTextureResource(device, command_list);
+		UpdateExternalCubeMapTextureResource(device, command_list);
 		UpdateRenderTextureResource(device, command_list);
 		UpdateRenderTextTextureResource(device, command_list);
 	}
@@ -193,6 +204,27 @@ namespace client_fw
 		}
 
 		m_ready_external_textures.clear();
+	}
+
+	void RenderResourceManager::UpdateExternalCubeMapTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
+		cpu_handle.Offset(m_num_of_external_cube_map_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+
+		for (const auto& texture : m_ready_external_cube_map_textures)
+		{
+			texture->Initialize(device, command_list);
+
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDescForCube(texture->GetResource()), cpu_handle);
+
+			texture->SetResourceIndex(m_num_of_external_cube_map_texture_data++);
+			cpu_handle.Offset(6, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+
+			LOG_INFO(texture->GetPath());
+		}
+
+		m_ready_external_cube_map_textures.clear();
 	}
 
 	void RenderResourceManager::UpdateRenderTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -233,7 +265,7 @@ namespace client_fw
 		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
 		cpu_handle.Offset(m_num_of_render_text_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
-		for (const auto& texture : m_ready_render_text_texture)
+		for (const auto& texture : m_ready_render_text_textures)
 		{
 			device->CreateShaderResourceView(texture->GetResource(),
 				&TextureCreator::GetShaderResourceViewDesc(texture->GetResource()), cpu_handle);
@@ -242,6 +274,6 @@ namespace client_fw
 			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 		}
 
-		m_ready_render_text_texture.clear();
+		m_ready_render_text_textures.clear();
 	}
 }

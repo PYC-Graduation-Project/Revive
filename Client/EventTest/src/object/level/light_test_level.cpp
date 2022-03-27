@@ -2,10 +2,12 @@
 #include <client/input/input.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/object/actor/directional_light.h>
+#include <client/object/actor/sky_cube.h>
 #include <client/util/octree/octree.h>
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
+#include <client/asset/core/asset_store.h>
 
 namespace event_test
 {
@@ -42,7 +44,10 @@ namespace event_test
 			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);
 		SpawnActor(tree);
 		tree->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
-		
+
+		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
+		SpawnActor(sky_cube);
+
 		return true;
 	}
 

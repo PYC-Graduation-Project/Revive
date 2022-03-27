@@ -30,4 +30,9 @@ namespace client_fw
 	{
 		return s_asset_manager->LoadTexture(path);
 	}
+
+	SPtr<ExternalCubeMapTexture> AssetStore::LoadCubeMapTexture(const std::string& path)
+	{
+		return s_asset_manager->LoadCubeMapTexture(path);
+	}
 }
