@@ -40,6 +40,7 @@ namespace client_fw
 	class UserInterface : public std::enable_shared_from_this<UserInterface>
 	{
 	protected:
+		// num of visible texture는 이 UI가 한번에 그리는 texture의 수이다.
 		UserInterface(const std::string& name, const Vec2& size, size_t num_of_visible_texture);
 		virtual ~UserInterface();
 
@@ -73,6 +74,9 @@ namespace client_fw
 		bool IsHovered() const;
 
 	protected:
+		// 생성자에서 한번에 그릴 수 있는 texture의 수를 지정했다면
+		// 여기는 그 texture의 수의 index를 지정하고(1개면 index : 0) (2개면 index : 0 or 1)
+		// 그릴 Texture를 설정한다.
 		void SetVisibleTexture(const SPtr<UITexture>& texture, UINT index);
 	};
 }

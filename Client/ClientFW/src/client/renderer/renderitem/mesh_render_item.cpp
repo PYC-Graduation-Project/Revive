@@ -14,8 +14,13 @@
 
 namespace client_fw
 {
-	StaticMeshRenderItem::StaticMeshRenderItem()
-		: MeshRenderItem()
+	MeshRenderItem::MeshRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
+	{
+	}
+
+	StaticMeshRenderItem::StaticMeshRenderItem(const std::string& owner_shader_name)
+		: MeshRenderItem(owner_shader_name)
 	{
 	}
 
@@ -23,12 +28,20 @@ namespace client_fw
 	{
 	}
 
+	void StaticMeshRenderItem::Initialize(ID3D12Device* device)
+	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateStaticMeshFrameResource(device, m_owner_shader_name);
+	}
+
 	void StaticMeshRenderItem::Update(ID3D12Device* device)
 	{
 		MeshesInstanceDrawInfo instance_info;
+		//카메라마다의 시작 위치 저장
 		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data.size());
 
-		UINT start_index = 0;
+		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_mesh_data)
 		{
 			MeshDrawInfo info;
@@ -48,8 +61,8 @@ namespace client_fw
 			if (mesh_count == 0)
 				continue;
 
-			info.draw_start_index = start_index;
-			start_index += mesh_count;
+			info.draw_start_index = mesh_start_index_for_camera;
+			mesh_start_index_for_camera += mesh_count;
 
 			std::vector<RSInstanceData> instance_data(mesh_count);
 
@@ -72,16 +85,17 @@ namespace client_fw
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 
-		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
+		//mesh start index for camera는 mesh마다 그려지는 count를 더했기 때문에 최종적으로는 카메라가 그릴 데이터의 수가 된다.
+		instance_info.num_of_instnace_data = static_cast<UINT>(mesh_start_index_for_camera);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
 	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
-	
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
+
 		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
 		if (new_size > 0)
 		{
@@ -110,9 +124,9 @@ namespace client_fw
 
 	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
-		
+
 		if (instance_info.num_of_instnace_data > 0)
 		{
 			const auto& instance_data = mesh_resource->GetInstanceData();
@@ -125,6 +139,12 @@ namespace client_fw
 				{
 					if (mesh_info.num_of_lod_instance_data[lod] > 0)
 					{
+						//
+						// 최종적으로 그릴 때는 카메라 마다의 시작 위치인 (instance_info.start_index) + 
+						// 각 카메라가 그리는 mesh의 정보 시작 위치 (mesh_info.draw_start_index) +
+						// 각 mesh의 lod의 시작 위치 (mesh_info.start_index_of_lod_instance_data) 를 더한 값을
+						// 지정한다. {설명 참고 : MeshesInstanceDrawInfo,  MeshDrawInfo
+						//
 						command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
 							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
 							instance_data->GetByteSize());
@@ -173,8 +193,8 @@ namespace client_fw
 		}
 	}
 
-	SkeletalMeshRenderItem::SkeletalMeshRenderItem()
-		:MeshRenderItem()
+	SkeletalMeshRenderItem::SkeletalMeshRenderItem(const std::string& owner_shader_name)
+		:MeshRenderItem(owner_shader_name)
 	{
 	}
 
@@ -182,12 +202,19 @@ namespace client_fw
 	{
 	}
 
+	void SkeletalMeshRenderItem::Initialize(ID3D12Device* device)
+	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateSkeletalMeshFrameResource(device, m_owner_shader_name);
+	}
+
 	void SkeletalMeshRenderItem::Update(ID3D12Device* device)
 	{
 		MeshesInstanceDrawInfo instance_info;
 		instance_info.start_index = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
 		UINT skeletal_transform_start_index = 0;
-		UINT start_index = 0;
+		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_skeletal_mesh_data)
 		{
 			MeshDrawInfo info;
@@ -206,8 +233,8 @@ namespace client_fw
 			if (mesh_count == 0)
 				continue;
 
-			info.draw_start_index = start_index;
-			start_index += mesh_count;
+			info.draw_start_index = mesh_start_index_for_camera;
+			mesh_start_index_for_camera += mesh_count;
 
 			UINT bone_count = mesh_data->mesh_comps[0]->GetSkeletalMesh()->GetBoneCount();
 			std::vector<RSInstanceData> instance_data(mesh_count);
@@ -242,15 +269,15 @@ namespace client_fw
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 
-		instance_info.num_of_instnace_data = static_cast<UINT>(start_index);
+		instance_info.num_of_instnace_data = static_cast<UINT>(mesh_start_index_for_camera);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource();
+		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
 	void SkeletalMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource();
+		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
 
 		UINT new_size = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
 
@@ -306,14 +333,14 @@ namespace client_fw
 
 	void SkeletalMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
-		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource();
+		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
 		MeshesInstanceDrawInfo instance_info = skeletal_mesh_resource->GetMeshesInstanceDrawInfo();
 		
 		if (instance_info.num_of_instnace_data > 0)
 		{
 			const auto& instance_data = skeletal_mesh_resource->GetInstanceData();
 			const auto& skeletal_transform_data = skeletal_mesh_resource->GetSkeletalTransformData();
-			command_list->SetGraphicsRootShaderResourceView(5, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
+			command_list->SetGraphicsRootShaderResourceView(6, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
 
 		
 

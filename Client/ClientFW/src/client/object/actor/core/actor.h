@@ -16,6 +16,11 @@ namespace client_fw
 		kActive, kPaused, kDead
 	};
 
+	// Static : Runtime중에 이동하지 않고 초기화 과정에서 생성되는 Actor에 사용
+	// Destructible : Runtime중에 생성/삭제는 가능하지만 이동이 불가능한 Actor에 사용
+	// Movable : 그외의 Actor에 사용
+	// 기본적으로 Static과 Destructible은 생성 과정에서 1번만 update함수를 호출한다.
+	// update함수 호출이 매 프레임마다 필요하다면 UseUpdate() 함수를 호출해줘야 한다.
 	enum class eMobilityState
 	{
 		kStatic, kDestructible, kMovable
@@ -53,7 +58,7 @@ namespace client_fw
 
 	public:
 		void SpawnActor(const SPtr<Actor>& actor);
-		bool AttachComponent(const SPtr<Component> comp);
+		bool AttachComponent(const SPtr<Component> comp);	//level에서 호출하게되면 오류가 발생한다.
 		void DetachComponent(const SPtr<Component> comp);
 
 	public:

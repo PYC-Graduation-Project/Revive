@@ -23,10 +23,13 @@ namespace client_fw
 
 	private:
 		SPtr<Texture> m_diffuse_texture;
+		SPtr<Texture> m_normal_texture;
 
 	public:
 		const SPtr<Texture>& GetDiffuseTexture() const { return m_diffuse_texture; }
 		void SetDiffuseTexture(const SPtr<Texture>& texture) { m_diffuse_texture = texture; }
+		const SPtr<Texture>& GetNormalTexture() const { return m_normal_texture; }
+		void SetNormalTexture(const SPtr<Texture>& texture) { m_normal_texture = texture; }
 
 	};
 }

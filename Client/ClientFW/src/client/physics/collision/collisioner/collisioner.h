@@ -34,6 +34,8 @@ namespace client_fw
 		void SetCollisionInfo(CollisionInfo&& info) { m_collision_info = std::move(info); }
 		void SetCollisionInfo(std::string&& collision_type,
 			std::set<std::string>&& collisionable_types, bool generate_collision_event = true);
+		void SetCollisionInfo(bool is_collision, bool is_blocking, std::string&& collision_type,
+			std::set<std::string>&& collisionable_types, bool generate_collision_event);
 		SPtr<SceneComponent> GetOwner() const { return m_owner.lock(); }
 		void SetOwner(const SPtr<SceneComponent>& owner) { m_owner = owner; }
 	};

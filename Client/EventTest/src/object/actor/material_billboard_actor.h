@@ -14,7 +14,7 @@ namespace event_test
     {
     public:
     //private:
-        MaterialBillboardActor(eMobilityState mobility, const std::string& path, const Vec2&& size, bool fix_up);
+        MaterialBillboardActor(eMobilityState mobility, const std::string& path, const std::string& mtl_name, Vec2&& size, bool fix_up);
         virtual ~MaterialBillboardActor() = default;
 
         virtual bool Initialize() override;
@@ -22,6 +22,7 @@ namespace event_test
     private:
         SPtr<MaterialBillboardComponent>  m_billboard_component;
         std::string m_path;
+        std::string m_mtl_name;
         Vec2 m_size;
         bool m_fix_up;
     };

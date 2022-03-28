@@ -6,6 +6,7 @@ namespace client_fw
 	class Pawn;
 	class Level;
 
+	// Level을 시작하면 사용하는 player controller와 pawn을 정의하는 클래스이다.
 	class GameMode
 	{
 	public:

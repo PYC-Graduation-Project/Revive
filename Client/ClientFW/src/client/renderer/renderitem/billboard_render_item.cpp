@@ -12,7 +12,8 @@
 
 namespace client_fw
 {
-	BillboardRenderItem::BillboardRenderItem()
+	BillboardRenderItem::BillboardRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
 	{
 	}
 
@@ -22,14 +23,17 @@ namespace client_fw
 
 	void BillboardRenderItem::Initialize(ID3D12Device* device)
 	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateBillboardFrameResource(device, m_owner_shader_name);
 	}
 
 	void BillboardRenderItem::Shutdown()
 	{
 	}
 
-	TextureBillboardRenderItem::TextureBillboardRenderItem()
-		: BillboardRenderItem()
+	TextureBillboardRenderItem::TextureBillboardRenderItem(const std::string& owner_shader_name)
+		: BillboardRenderItem(owner_shader_name)
 	{
 	}
 
@@ -59,7 +63,7 @@ namespace client_fw
 			}
 		}
 
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
+		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
 
 		BillboardDrawInfo info;
 		info.start_index = static_cast<UINT>(m_vertices.size());
@@ -69,7 +73,7 @@ namespace client_fw
 		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
 		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices));
 
-		billboard_resource->AddTextureBillboardDrawInfo(std::move(info));
+		billboard_resource->AddBillboardDrawInfo(std::move(info));
 	}
 
 	void TextureBillboardRenderItem::UpdateFrameResource(ID3D12Device* device)
@@ -77,9 +81,9 @@ namespace client_fw
 		UINT new_size = static_cast<UINT>(m_vertices.size());
 		if (new_size > 0)
 		{
-			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
+			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
 			
-			UINT primitive_size = billboard_resource->GetSizeOfTextureBillboardPrimitive();
+			UINT primitive_size = billboard_resource->GetSizeOfBillboardPrimitive();
 			bool is_need_resource_create = false;
 
 			while (primitive_size <= new_size)
@@ -90,11 +94,11 @@ namespace client_fw
 
 			if (is_need_resource_create)
 			{
-				billboard_resource->GetTextureBillboardPrimitive()->Update(device, primitive_size);
-				billboard_resource->SetSizeOfTextureBillboardPrimitive(primitive_size);
+				billboard_resource->GetBillboardPrimitive()->Update(device, primitive_size);
+				billboard_resource->SetSizeOfBillboardPrimitive(primitive_size);
 			}
 
-			billboard_resource->GetTextureBillboardPrimitive()->UpdateVertices(m_vertices);
+			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices);
 			m_vertices.clear();
 		}
 	}
@@ -102,21 +106,21 @@ namespace client_fw
 	void TextureBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, 
 		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function)
 	{
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
-		BillboardDrawInfo info = billboard_resource->GetTextureBillboardDrawInfo();
+		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		BillboardDrawInfo info = billboard_resource->GetBillboardDrawInfo();
 
 		if (info.num_of_draw_data + info.num_of_draw_fix_up_data != 0)
 		{
-			billboard_resource->GetTextureBillboardPrimitive()->PreDraw(command_list);
+			billboard_resource->GetBillboardPrimitive()->PreDraw(command_list);
 			if (info.num_of_draw_data != 0)
 			{
 				draw_function();
-				billboard_resource->GetTextureBillboardPrimitive()->Draw(command_list, info.num_of_draw_data, info.start_index);
+				billboard_resource->GetBillboardPrimitive()->Draw(command_list, info.num_of_draw_data, info.start_index);
 			}
 			if (info.num_of_draw_fix_up_data != 0)
 			{
 				fix_up_draw_function();
-				billboard_resource->GetTextureBillboardPrimitive()->Draw(command_list, info.num_of_draw_fix_up_data, info.fix_up_start_index);
+				billboard_resource->GetBillboardPrimitive()->Draw(command_list, info.num_of_draw_fix_up_data, info.fix_up_start_index);
 			}
 		}
 	}
@@ -146,8 +150,8 @@ namespace client_fw
 		}
 	}
 
-	MaterialBillboardRenderItem::MaterialBillboardRenderItem()
-		: BillboardRenderItem()
+	MaterialBillboardRenderItem::MaterialBillboardRenderItem(const std::string& owner_shader_name)
+		: BillboardRenderItem(owner_shader_name)
 	{
 	}
 
@@ -177,7 +181,7 @@ namespace client_fw
 			}
 		}
 
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
+		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
 
 		BillboardDrawInfo info;
 		info.start_index = static_cast<UINT>(m_vertices.size());
@@ -187,7 +191,7 @@ namespace client_fw
 		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
 		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices));
 
-		billboard_resource->AddMaterialBillboardDrawInfo(std::move(info));
+		billboard_resource->AddBillboardDrawInfo(std::move(info));
 	}
 
 	void MaterialBillboardRenderItem::UpdateFrameResource(ID3D12Device* device)
@@ -195,9 +199,9 @@ namespace client_fw
 		UINT new_size = static_cast<UINT>(m_vertices.size());
 		if (new_size > 0)
 		{
-			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
+			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
 
-			UINT primitive_size = billboard_resource->GetSizeOfMaterialBillboardPrimitive();
+			UINT primitive_size = billboard_resource->GetSizeOfBillboardPrimitive();
 			bool is_need_resource_create = false;
 
 			while (primitive_size <= new_size)
@@ -208,11 +212,11 @@ namespace client_fw
 
 			if (is_need_resource_create)
 			{
-				billboard_resource->GetMaterialBillboardPrimitive()->Update(device, primitive_size);
-				billboard_resource->SetSizeOfMaterialBillboardPrimitive(primitive_size);
+				billboard_resource->GetBillboardPrimitive()->Update(device, primitive_size);
+				billboard_resource->SetSizeOfBillboardPrimitive(primitive_size);
 			}
 
-			billboard_resource->GetMaterialBillboardPrimitive()->UpdateVertices(m_vertices);
+			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices);
 			m_vertices.clear();
 		}
 	}
@@ -220,21 +224,21 @@ namespace client_fw
 	void MaterialBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, 
 		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function)
 	{
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource();
-		BillboardDrawInfo info = billboard_resource->GetMaterialBillboardDrawInfo();
+		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		BillboardDrawInfo info = billboard_resource->GetBillboardDrawInfo();
 
 		if (info.num_of_draw_data + info.num_of_draw_fix_up_data != 0)
 		{
-			billboard_resource->GetMaterialBillboardPrimitive()->PreDraw(command_list);
+			billboard_resource->GetBillboardPrimitive()->PreDraw(command_list);
 			if (info.num_of_draw_data != 0)
 			{
 				draw_function();
-				billboard_resource->GetMaterialBillboardPrimitive()->Draw(command_list, info.num_of_draw_data, info.start_index);
+				billboard_resource->GetBillboardPrimitive()->Draw(command_list, info.num_of_draw_data, info.start_index);
 			}
 			if (info.num_of_draw_fix_up_data != 0)
 			{
 				fix_up_draw_function();
-				billboard_resource->GetMaterialBillboardPrimitive()->Draw(command_list, info.num_of_draw_fix_up_data, info.fix_up_start_index);
+				billboard_resource->GetBillboardPrimitive()->Draw(command_list, info.num_of_draw_fix_up_data, info.fix_up_start_index);
 			}
 		}
 	}

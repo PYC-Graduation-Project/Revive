@@ -11,7 +11,7 @@ namespace client_fw
 	UIShader::UIShader(const std::string& name)
 		: GraphicsShader(name)
 	{
-		m_render_item = CreateSPtr<UIRenderItem>();
+		m_render_item = CreateSPtr<UIRenderItem>(name);
 	}
 
 	void UIShader::Initialize(ID3D12Device* device)

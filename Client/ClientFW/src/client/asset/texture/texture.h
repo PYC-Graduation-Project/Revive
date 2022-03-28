@@ -42,6 +42,9 @@ namespace client_fw
 		ComPtr<ID3D12Resource> m_upload_heap;
 	};
 
+	// 카메라가 가지는 Texture로 
+	// 카메라가 보는 장면을 그리는 Texture이다.
+	// GBuffer Texture와 최종 render target view texture, depth sencil view texture가 있다.
 	class RenderTexture : public Texture
 	{
 	public:
@@ -55,6 +58,12 @@ namespace client_fw
 		virtual void GBufferPostDraw(ID3D12GraphicsCommandList* command_list);
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
 		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
+
+	private:
+		bool CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void CreateGBufferAndRTVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
+			const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats);
+		void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 
 	private:
 		IVec2 m_texture_size;
@@ -81,6 +90,10 @@ namespace client_fw
 		void SetDSVResourceIndex(UINT index) { m_dsv_texture_resource_index = index; }
 	};
 
+	// Text를 저장하기 위한 Texture이다.
+	// text는 DX12에서 지원하지 않기 때문에 dx11과 dwrite를 통해서 그린 후,
+	// 텍스쳐화를 통해 DX12에서 그리는 방식을 사용하고 있다.
+	//
 	class RenderTextTexture final : public Texture
 	{
 	public:

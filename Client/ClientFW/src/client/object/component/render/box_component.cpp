@@ -8,7 +8,7 @@ namespace client_fw
 	BoxComponent::BoxComponent(const Vec3& extents, const std::string& name)
 		: ShapeComponent(name, extents, Render::ConvertShaderType(eShaderType::kShapeBox))
 	{
-		if (m_collisioner != nullptr)
+		if (m_collisioner == nullptr)
 			m_collisioner = CreateUPtr<BoxCollisioner>();
 	}
 

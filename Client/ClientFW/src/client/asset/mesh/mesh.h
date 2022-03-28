@@ -10,7 +10,9 @@ namespace client_fw
 	class Material;
 	template<class T> class UploadBuffer;
 
-	struct InstanceInfo
+	// Mesh에 있는 Material별로 한번에 그리는것이 효율적이기 때문에 존재하는 구조체이다.
+	// count는 정점의 수, start_location은 정점의 시작 위치 index를 표현한다.
+	struct MeshVertexInfo
 	{
 		UINT count;
 		UINT start_location;
@@ -56,12 +58,12 @@ namespace client_fw
 		bool IsDrawIndex() const { return m_is_draw_index; }
  
 	protected:
-		std::vector<std::vector<InstanceInfo>> m_instance_info;
+		std::vector<std::vector<MeshVertexInfo>> m_mesh_vertex_info;
 		std::vector<std::vector<SPtr<Material>>> m_materials;
 		std::vector<UPtr<UploadBuffer<RSMaterialIndexData>>> m_material_index_data;
 
 	public:
-		virtual void AddInstanceInfo(UINT lod, InstanceInfo&& info);
+		virtual void AddMeshVertexInfo(UINT lod, MeshVertexInfo&& info);
 		void AddMaterial(UINT lod, SPtr<Material>&& material) { m_materials.at(lod).emplace_back(std::move(material)); }
 		const std::vector<SPtr<Material>> GetMaterials(UINT lod) const { return m_materials.at(lod); }
 	};

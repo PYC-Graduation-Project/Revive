@@ -401,6 +401,7 @@ MigrationBackup/
 !Client/vendor/premake/bin/
 Client/bin-int/
 Client/Contents/
+Client/**/Contents/
 
 # PYC files
 *.log

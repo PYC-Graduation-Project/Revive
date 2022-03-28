@@ -7,12 +7,22 @@ namespace client_fw
 	class WorldWidgetVertex;
 	class PivotWidgetVertex;
 
+	// 한 카메라가 그리는 world widget들의 정보가 담긴 구조체
+	// 카메라가 여러개이면 start_index는 중첩된다.
+	// 예를 들어 카메라가 2개이고 각 그리는 widget의 수가
+	// 3개, 2개라면
+	// 정보는 {0, 3}, {3, 2} 이렇게 저장된다.
 	struct WorldWidgetDrawInfo
 	{
 		UINT start_index;
 		UINT num_of_draw_data;
 	};
 
+	// 한 카메라가 그리는 billboard widget들의 정보가 담긴 구조체
+	// 카메라가 여러개이면 start_index는 중첩된다.
+	// 예를 들어 카메라가 2개이고 각 그리는 billboard, fixupbillboard의 수가
+	// (3개, 5개) (10개, 2개)라면
+	// 정보는 {0, 3, 3, 5} {8, 10, 18, 2} 이렇게 저장된다.
 	struct PivotWidgetDrawInfo
 	{
 		UINT billboard_start_index;

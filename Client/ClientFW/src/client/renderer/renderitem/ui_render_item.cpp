@@ -12,7 +12,8 @@
 
 namespace client_fw
 {
-	UIRenderItem::UIRenderItem()
+	UIRenderItem::UIRenderItem(const std::string& owner_shader_name)
+		: m_owner_shader_name(owner_shader_name)
 	{
 	}
 
@@ -22,6 +23,9 @@ namespace client_fw
 
 	void UIRenderItem::Initialize(ID3D12Device* device)
 	{
+		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
+		for (const auto& frame : frame_resources)
+			frame->CreateUserInterfaceFrameResource(device, m_owner_shader_name);
 	}
 
 	void UIRenderItem::Shutdown()
@@ -68,7 +72,7 @@ namespace client_fw
 
 	void UIRenderItem::UpdateFrameResource(ID3D12Device* device)
 	{
-		const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
+		const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource(m_owner_shader_name);
 
 		m_num_of_draw_ui_data = static_cast<UINT>(m_vertices.size());
 
@@ -83,7 +87,7 @@ namespace client_fw
 				is_need_resource_create = true;
 			}
 
-			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
+			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource(m_owner_shader_name);
 
 			if (is_need_resource_create)
 			{
@@ -100,7 +104,7 @@ namespace client_fw
 	{
 		if (m_num_of_draw_ui_data)
 		{
-			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource();
+			const auto& ui_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetUserInterfaceFrameResource(m_owner_shader_name);
 			draw_function();
 			ui_resource->GetUserInterfacePrimitive()->PreDraw(command_list);
 			ui_resource->GetUserInterfacePrimitive()->Draw(command_list, m_num_of_draw_ui_data);

@@ -7,7 +7,7 @@
 #include "client/object/actor/core/actor.h"
 #include "client/object/actor/pawn.h"
 #include "client/core/application.h"
-
+#include"server/network.h"
 namespace client_fw
 {
 	PacketEventManager::PacketEventManager()
@@ -50,6 +50,8 @@ namespace client_fw
 			SPtr<MessageEventInfo> message;
 			if (m_server_receive_message_queue.try_pop(message))
 			{
+				Network::GetInst()->SendMessageToServer(message);
+				//SendManager::GetInst()->SendMessageToServer(message);
 				//ÀÌº¥Æ®
 			}
 		}
@@ -60,7 +62,7 @@ namespace client_fw
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
 			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
 			{
-				LOG_INFO(pawn->GetPosition());
+				//LOG_INFO(pawn->GetPosition());
 			}
 		}
 	}

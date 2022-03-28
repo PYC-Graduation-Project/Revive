@@ -57,6 +57,7 @@ namespace client_fw
 		UINT GetNumOfMesh() const;
 		SPtr<Mesh> LoadMesh(const std::string& path);
 		SPtr<Material> LoadMaterial(const std::string& mtl_path);
+		SPtr<Material> LoadMaterial(const std::string& path, const std::string& mtl_name);
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		SPtr<ExternalTexture> LoadTexture(const std::string& path);
 		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>&skeleton, const std::string& path);

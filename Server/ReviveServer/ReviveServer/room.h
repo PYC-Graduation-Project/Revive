@@ -24,7 +24,7 @@ public:
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
 	void SetRoundTime(float val) { m_round_time = val; }
-	
+	void SetRound(int val) { curr_round = val; }
 	std::vector<int>& GetObjList()
 	{
 		return m_obj_list;

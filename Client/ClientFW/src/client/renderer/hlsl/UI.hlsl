@@ -9,18 +9,15 @@ struct VS_RENDER_TEXTURE_OUTPUT
     float2 uv : TEXCOORD;
 };
 
+static const float2 s_rt_base_pos[4] = { float2(-1.0f, 1.0f), float2(1.0f, 1.0f), float2(-1.0f, -1.0f), float2(1.0f, -1.0f) };
+static const float2 s_rt_base_uv[4] = { float2(0.0f, 0.0f), float2(1.0f, 0.0f), float2(0.0f, 1.0f), float2(1.0f, 1.0f) };
+
 VS_RENDER_TEXTURE_OUTPUT VSRenderTexture(uint vertex_id : SV_VertexID) 
 {
     VS_RENDER_TEXTURE_OUTPUT output;
     
-    if (vertex_id == 0) { output.sv_position = float4(-1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-    else if (vertex_id == 1) { output.sv_position = float4(1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 0.0f); }
-    else if (vertex_id == 2) { output.sv_position = float4(1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-    else if (vertex_id == 3) { output.sv_position = float4(-1.0f, 1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-    else if (vertex_id == 4) { output.sv_position = float4(1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(1.0f, 1.0f); }
-    else if (vertex_id == 5) { output.sv_position = float4(-1.0f, -1.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 1.0f); }
-    else { output.sv_position = float4(0.0f, 0.0f, 0.0f, 1.0f); output.uv = float2(0.0f, 0.0f); }
-   
+    output.sv_position = float4(s_rt_base_pos[vertex_id], 0.0f, 1.0f);
+    output.uv = s_rt_base_uv[vertex_id];
     
     return output;
 }

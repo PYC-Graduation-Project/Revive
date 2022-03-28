@@ -16,6 +16,11 @@ namespace client_fw
 		return s_asset_manager->LoadMaterial(mtl_path);
 	}
 
+	SPtr<Material> AssetStore::LoadMaterial(const std::string& path, const std::string& mtl_name)
+	{
+		return s_asset_manager->LoadMaterial(path, mtl_name);
+	}
+
 	std::map<std::string, SPtr<Material>> AssetStore::LoadMaterials(const std::string& path)
 	{
 		return s_asset_manager->LoadMaterials(path);

@@ -3,9 +3,13 @@
 #include"server/define.h"
 #include <thread>
 #include<iostream>
-#include"client/math/quaternion.h"
-#include"client/math/Vec3.h"
+#include<include/client_core.h>
+//#include"client/math/quaternion.h"
+//#include"client/math/Vec3.h"
+#include"server/packet_manager.h"
+#include"server/send_manager.h"
 class PacketManager;
+class SendManager;
 class Network
 {
 private:
@@ -34,61 +38,64 @@ public:
 	
 	
 	};
-	~Network() {};
+	~Network() {
+		closesocket(m_s_socket);
+		WSACleanup();
+		if (worker.joinable())
+			worker.join();
+	};
 
-	bool Init();
+	bool Init(client_fw::UPtr<PacketManager>&&packet_manager, client_fw::UPtr<SendManager>&& send_manager);
 	bool Connect();
-	//void error_display(int err_no)
-	//{
-	//	WCHAR* lpMsgBuf;
-	//	FormatMessage(
-	//		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-	//		NULL, err_no,
-	//		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-	//		(LPTSTR)&lpMsgBuf, 0, 0);
-	//	std::wcout << lpMsgBuf << std::endl;
-	//	//while (true);
-	//	LocalFree(lpMsgBuf);
-	//}
+	static void error_display(int err_no)
+	{
+		WCHAR* lpMsgBuf;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL, err_no,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpMsgBuf, 0, 0);
+		std::wcout << lpMsgBuf << std::endl;
+		//while (true);
+		LocalFree(lpMsgBuf);
+	}
 	void DestroyWorker()
 	{
-		worker.join();
+		worker.detach();
+		m_iswork = false;
+		//worker.join();
 	}
 	void CreateWorker()
 	{
 
 		worker = std::thread([this]() {Worker(); });
-
+		//worker.join();
 	}
 
 	//void SendPacket(int num_byte ,void* packet);
 
-	void SendSignInPacket(char*,char*);
-	void SendSignUPPacket(char*,char*);
-	void SendMatchingPacket(int user_num);
-	void SendMovePacket(client_fw::Vec3& pos, client_fw::Quaternion& rot);
-
+	void SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventInfo>& message);
+	SOCKET& GetSock() { return m_s_socket; }
 private:
 	void Worker();
 	void DoRecv();
 	void OnRecv(int client_id, EXP_OVER* exp_over, DWORD num_byte);
-	//void ProcessPacket(int c_id,unsigned char*p);
+
 	int GetID() const
 	{
 		return m_id;
 	}
 	
-	
+	SOCKET m_s_socket;
 	HANDLE m_hiocp;
 	EXP_OVER recv_over;
 	std::thread worker;
-	std::unique_ptr<PacketManager>m_packet_manager;
+	client_fw::UPtr<PacketManager>m_packet_manager;
+	client_fw::UPtr<SendManager>m_send_manager;
+	
 	int m_id;
 	int m_prev_size = 0;
-	//std::unique_ptr< PacketManager>m_packet_manager;
-public:
-	//임시 변수 이후에 클라에서는 필요없음
-	
-	//컨테이너-> 위치, 충돌 ,
+	bool m_iswork = true;
+
 };
 

@@ -8,8 +8,6 @@ namespace client_fw
     public:
         DeferredRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
         virtual ~DeferredRenderLevel() = default;
-
-    protected:
     };
 }
 

@@ -11,7 +11,7 @@ namespace client_fw
 	class WidgetRenderItem final
 	{
 	public:
-		WidgetRenderItem();
+		WidgetRenderItem(const std::string& owner_shader_name);
 		virtual ~WidgetRenderItem();
 
 		void Initialize(ID3D12Device* device);
@@ -31,6 +31,8 @@ namespace client_fw
 		void UpdatePivotWidgets(ID3D12Device* device);
 
 	private:
+		std::string m_owner_shader_name;
+
 		std::vector<WorldWidgetVertex> m_world_widget_vertices;
 		std::vector<PivotWidgetVertex> m_pivot_widget_vertices;
 
