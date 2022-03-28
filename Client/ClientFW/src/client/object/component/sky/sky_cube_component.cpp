@@ -2,11 +2,12 @@
 #include "client/object/component/sky/sky_cube_component.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/texture/texture.h"
+#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
 	SkyCubeComponent::SkyCubeComponent(const std::string& name)
-		: SkyComponent(eSkyType::kCube, name)
+		: SkyComponent(eSkyType::kCube, Render::ConvertShaderType(eShaderType::kSky), name)
 	{
 	}
 

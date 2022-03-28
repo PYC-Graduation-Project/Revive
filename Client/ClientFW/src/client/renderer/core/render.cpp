@@ -21,6 +21,16 @@ namespace client_fw
 		s_render_system->UnregisterRenderComponent(render_comp, shader_name);
 	}
 
+	bool Render::RegisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		return s_render_system->RegisterSkyComponent(sky_comp, shader_name);
+	}
+
+	void Render::UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		s_render_system->UnregisterSkyComponent(sky_comp, shader_name);
+	}
+
 	bool Render::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
 		return s_render_system->RegisterCameraComponent(camera_comp);
@@ -95,6 +105,8 @@ namespace client_fw
 			return "opaque widget";
 		case eShaderType::kMaskedWidget:
 			return "masked widget";
+		case eShaderType::kSky:
+			return "sky";
 		default:
 			return "unknown";
 		}

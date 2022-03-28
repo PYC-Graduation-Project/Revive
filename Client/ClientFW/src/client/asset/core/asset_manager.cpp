@@ -80,7 +80,7 @@ namespace client_fw
 			if (asset != nullptr)
 			{
 				SaveAsset(eAssetType::kMesh, stem, path, extension, asset);
-				RenderResourceManager::GetRenderResourceManager().RegisterMesh(std::static_pointer_cast<Mesh>(asset));
+				RenderResourceManager::GetRenderResourceManager().RegisterPrimitive(std::static_pointer_cast<Mesh>(asset));
 			}
 		}
 

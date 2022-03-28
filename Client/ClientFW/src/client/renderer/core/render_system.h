@@ -8,6 +8,7 @@ namespace client_fw
 	class GraphicsRenderLevel;
 	class GraphicsShader;
 	class RenderComponent;
+	class SkyComponent;
 	class CameraComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
@@ -64,6 +65,8 @@ namespace client_fw
 
 		bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
+		bool RegisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name);
+		void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);

@@ -17,6 +17,7 @@
 #include "client/renderer/shader/texture_billboard_shader.h"
 #include "client/renderer/shader/material_billboard_shader.h"
 #include "client/renderer/shader/widget_shader.h"
+#include "client/renderer/shader/sky_shader.h"
 
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
@@ -30,6 +31,7 @@
 #include "client/object/component/util/camera_component.h"
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/directional_light_component.h"
+#include "client/object/component/sky/sky_component.h"
 
 namespace client_fw
 {
@@ -60,13 +62,12 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
+
 		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
-		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
 			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
@@ -82,6 +83,11 @@ namespace client_fw
 			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), eRenderLevelType::kOpaque); 
+
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
+		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
+
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -264,6 +270,28 @@ namespace client_fw
 		default:
 			break;
 		}
+	}
+
+	bool RenderSystem::RegisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
+		{
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return false;
+		}
+
+		return m_graphics_shaders.at(shader_name)->RegisterSkyComponent(m_device, sky_comp);
+	}
+
+	void RenderSystem::UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
+		{
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return;
+		}
+
+		m_graphics_shaders.at(shader_name)->UnregisterSkyComponent(sky_comp);
 	}
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)

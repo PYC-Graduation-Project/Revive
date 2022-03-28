@@ -3,10 +3,11 @@
 namespace client_fw
 {
 #define START_INDEX_EXTERNAL_TEXTURE		0
-#define START_INDEX_CUBE_MAP_TEXTURE		8192
-#define START_INDEX_RENDER_TEXTURE			9216
-#define START_INDEX_RENDER_TEXT_TEXTURE		12288
+#define START_INDEX_RENDER_TEXTURE			8192
+#define START_INDEX_RENDER_TEXT_TEXTURE		11264
+#define START_INDEX_CUBE_MAP_TEXTURE		12288
 
+	class Primitive;
 	class Mesh;
 	class Material;
 	class Texture;
@@ -30,11 +31,12 @@ namespace client_fw
 		void PreDraw(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void Draw(ID3D12GraphicsCommandList* command_list) const;
 
-		void RegisterMesh(const SPtr<Mesh>& mesh);
+		void RegisterPrimitive(const SPtr<Primitive>& primitive);
 		void RegisterMaterial(const SPtr<Material>& material);
 		void RegisterTexture(const SPtr<Texture>& texture);
 
 	private:
+		void UpdatePrimiviteResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
 		void UpdateMaterialResource(ID3D12Device* device);
 
 		void UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
@@ -48,7 +50,7 @@ namespace client_fw
 
 		std::vector<SPtr<Material>> m_materials;
 		
-		std::vector<SPtr<Mesh>> m_ready_meshes;
+		std::vector<SPtr<Primitive>> m_ready_primitives;
 		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
 		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
 		std::vector<SPtr<RenderTextTexture>> m_ready_render_text_textures;

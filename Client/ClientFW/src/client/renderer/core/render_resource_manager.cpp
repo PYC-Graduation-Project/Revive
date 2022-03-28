@@ -54,13 +54,7 @@ namespace client_fw
 	{
 		UpdateTextureResource(device, command_list);
 		UpdateMaterialResource(device);
-
-		for (const auto& mesh : m_ready_meshes)
-		{
-			mesh->Initialize(device, command_list);
-			LOG_INFO(mesh->GetPath());
-		}
-		m_ready_meshes.clear();
+		UpdatePrimiviteResource(device, command_list);
 	}
 
 	void RenderResourceManager::Draw(ID3D12GraphicsCommandList* command_list) const
@@ -81,9 +75,9 @@ namespace client_fw
 	
 	}
 
-	void RenderResourceManager::RegisterMesh(const SPtr<Mesh>& mesh)
+	void RenderResourceManager::RegisterPrimitive(const SPtr<Primitive>& primitive)
 	{
-		m_ready_meshes.push_back(mesh);
+		m_ready_primitives.push_back(primitive);
 	}
 
 	void RenderResourceManager::RegisterMaterial(const SPtr<Material>& material)
@@ -121,6 +115,13 @@ namespace client_fw
 				break;
 			}
 		}
+	}
+
+	void RenderResourceManager::UpdatePrimiviteResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		for (const auto& primitive : m_ready_primitives)
+			primitive->Initialize(device, command_list);
+		m_ready_primitives.clear();
 	}
 
 	void RenderResourceManager::UpdateMaterialResource(ID3D12Device* device)
@@ -177,9 +178,9 @@ namespace client_fw
 	void RenderResourceManager::UpdateTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		UpdateExternalTextureResource(device, command_list);
-		UpdateExternalCubeMapTextureResource(device, command_list);
 		UpdateRenderTextureResource(device, command_list);
 		UpdateRenderTextTextureResource(device, command_list);
+		UpdateExternalCubeMapTextureResource(device, command_list);
 	}
 
 	void RenderResourceManager::UpdateExternalTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -218,7 +219,7 @@ namespace client_fw
 			device->CreateShaderResourceView(texture->GetResource(),
 				&TextureCreator::GetShaderResourceViewDescForCube(texture->GetResource()), cpu_handle);
 
-			texture->SetResourceIndex(m_num_of_external_cube_map_texture_data++);
+			texture->SetResourceIndex(START_INDEX_CUBE_MAP_TEXTURE - m_num_of_external_cube_map_texture_data++);
 			cpu_handle.Offset(6, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
 			LOG_INFO(texture->GetPath());

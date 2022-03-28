@@ -32,12 +32,10 @@ VS_SKYCUBE_OUTPUT VSSkyCube(VS_SKYCUBE_INPUT input)
 PS_GBUFFER_OUTPUT PSSkyCube(VS_SKYCUBE_OUTPUT input)
 {
     PS_GBUFFER_OUTPUT output;
-    
-    //MaterialData material_data = g_material_data[g_material_index];
-    
-    //output.base_color = g_texture_cube_data[g_material_index]
-    //output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
-    //output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
+
+    output.base_color = float4(g_texture_cube_data[g_material_index].Sample(g_sampler_point_wrap, input.position).xyz, 0.0f);
+    output.normal = 0.0f;
+    output.additional_info = 0.0f;
     
     return output;
 }
