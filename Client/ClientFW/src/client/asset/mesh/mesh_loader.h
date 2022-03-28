@@ -47,8 +47,8 @@ namespace client_fw
 		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>& skeleton) const;
 
 
-		//여기서만 사용함
-		void AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const;
+		//현재 사용하지 않음 추후 수정해서 재사용 가능성 있음
+		//void AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const;
 
 		
 
