@@ -32,6 +32,7 @@
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/directional_light_component.h"
 
+
 namespace client_fw
 {
 	RenderSystem* Render::s_render_system = nullptr;

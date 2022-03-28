@@ -59,7 +59,7 @@ bool Network::Connect()
 		}
 	}
 		
-	return false;
+	return true;
 }
 
 
@@ -68,7 +68,11 @@ bool Network::Connect()
 
 void Network::Worker()
 {
-	Connect();
+	if (false == Connect())
+	{
+		LOG_INFO("Faild to Connect");
+		return;
+	}
 		while (m_iswork) {
 			DWORD num_byte;
 			LONG64 iocp_key;
@@ -80,13 +84,14 @@ void Network::Worker()
 			EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
 			if (FALSE == ret) {
 				int err_no = WSAGetLastError();
-				if (64 == err_no)closesocket(m_s_socket);
-				else {
 					Network::error_display(err_no);
 					closesocket(m_s_socket);
-				}
-				
-				continue;
+					LOG_INFO("Network off");
+					if (exp_over->_comp_op == COMP_OP::OP_SEND)
+					{
+						delete exp_over;
+					}
+					break;
 			}
 			switch (exp_over->_comp_op) {
 			case COMP_OP::OP_RECV: {

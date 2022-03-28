@@ -3,7 +3,6 @@
 #include "client/asset/mesh/mesh.h"
 #include "client/asset/primitive/vertex.h"
 #include "client/asset/bone/skeleton.h"
-#include "client/asset/texture/texture.h"
 #include "client/asset/mesh/index.h"
 #include "client/asset/animation/animation_sequence.h"
 #include "client/asset/core/asset_manager.h"
@@ -1031,41 +1030,41 @@ namespace client_fw
 		return length;
 	}
 
-	void RevLoader::AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const
-	{
-		//std::map<std::string, SPtr<Material>> materials;
+	//void RevLoader::AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const
+	//{
+	//	//std::map<std::string, SPtr<Material>> materials;
 
-		bool is_new_mtl = false;
-		SPtr<Material> material = nullptr;
-		std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서 확장자를 적도록 변경할예정
+	//	bool is_new_mtl = false;
+	//	SPtr<Material> material = nullptr;
+	//	std::string texture_path = parent_path + "/" + mtl_name + ".png"; //rev 파일에서 확장자를 적도록 변경할예정
 
-		auto AddMaterial([&material, &materials, &is_new_mtl]() {
-			if (material != nullptr)
-			{
-				materials.insert({ material->GetName(), std::move(material) });
-				material = nullptr;
-			}
-			is_new_mtl = false;
-			});
+	//	auto AddMaterial([&material, &materials, &is_new_mtl]() {
+	//		if (material != nullptr)
+	//		{
+	//			materials.insert({ material->GetName(), std::move(material) });
+	//			material = nullptr;
+	//		}
+	//		is_new_mtl = false;
+	//		});
 
-		material = AssetStore::LoadMaterial(texture_path);
-		if (material == nullptr)
-		{
-			AddMaterial();
+	//	material = AssetStore::LoadMaterial(texture_path);
+	//	if (material == nullptr)
+	//	{
+	//		AddMaterial();
 
-			material = CreateSPtr<Material>();
-			is_new_mtl = true;
-			material->SetBaseColor(Vec4(0.3f, 0.3f, 0.3f, 1.0f)); //베이스컬러 회색
+	//		material = CreateSPtr<Material>();
+	//		is_new_mtl = true;
+	//		material->SetBaseColor(Vec4(0.3f, 0.3f, 0.3f, 1.0f)); //베이스컬러 회색
 
-			material->SetAssetInfo({ mtl_name, texture_path, ".png" }); //텍스처 경로 = 마테리얼 경로(마테리얼 파일이없기때문에)
-			SPtr<ExternalTexture> diffuse_texture = AssetStore::LoadTexture(texture_path);
-			if (diffuse_texture != nullptr)
-				material->SetDiffuseTexture(diffuse_texture);
-			AddMaterial();
+	//		material->SetAssetInfo({ mtl_name, texture_path, ".png" }); //텍스처 경로 = 마테리얼 경로(마테리얼 파일이없기때문에)
+	//		SPtr<ExternalTexture> diffuse_texture = AssetStore::LoadTexture(texture_path);
+	//		if (diffuse_texture != nullptr)
+	//			material->SetDiffuseTexture(diffuse_texture);
+	//		AddMaterial();
 
-		}
-		//return materials;
-	}
+	//	}
+	//	//return materials;
+	//}
 	void RevLoader::InitializeMeshData(std::vector<MeshData>& mesh_data) const
 	{
 		mesh_data.emplace_back(std::move(MeshData{}));

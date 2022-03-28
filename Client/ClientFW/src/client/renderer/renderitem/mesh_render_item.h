@@ -71,6 +71,7 @@ namespace client_fw
 		virtual ~SkeletalMeshRenderItem();
 
 		virtual void Initialize(ID3D12Device* device) override;
+
 		virtual void Update(ID3D12Device* device) override;
 		virtual void UpdateFrameResource(ID3D12Device* device) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list) const override;

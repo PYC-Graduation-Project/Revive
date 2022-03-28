@@ -4,7 +4,7 @@ namespace client_fw
 {
 	class RenderResourceFrameResource;
 	class CameraFrameResource;
-	class StaticMeshFrameResource;
+	class StaticMeshFrameResource;	
 	class SkeletalMeshFrameResource;
 	class LightFrameResource;
 	class BillboardFrameResource;

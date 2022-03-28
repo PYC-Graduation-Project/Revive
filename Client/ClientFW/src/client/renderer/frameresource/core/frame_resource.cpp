@@ -55,11 +55,13 @@ namespace client_fw
 		m_static_mesh_frame_resource.emplace(shader_name, CreateUPtr<StaticMeshFrameResource>());
 		m_static_mesh_frame_resource[shader_name]->Initialize(device);
 	}
+
 	void FrameResource::CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name)
 	{
 		m_skeletal_mesh_frame_resource.emplace(shader_name, CreateUPtr<SkeletalMeshFrameResource>());
 		m_skeletal_mesh_frame_resource[shader_name]->Initialize(device);
 	}
+
 	void FrameResource::CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name)
 	{
 		m_billboard_frame_resource.emplace(shader_name, CreateUPtr<BillboardFrameResource>());

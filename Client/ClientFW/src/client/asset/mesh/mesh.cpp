@@ -104,8 +104,8 @@ namespace client_fw
 			else
 				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
 		}
-	}
-		
+	}	
+
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		for (UINT i = 0; i < m_lod_count; ++i)
