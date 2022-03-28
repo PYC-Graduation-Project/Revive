@@ -22,7 +22,7 @@ public:
     void InitEnemy(OBJ_TYPE type, int room_id, 
         float max_hp, Vector3& pos, float damage,const char* name);
     void SetSpawnPoint(float x,float z);
-    Vector3 GetLookVec() { return m_look; }
+    Vector3& GetLookVec() const { return m_look; }
     //void RegisterAPI();
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }

@@ -172,7 +172,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			enemy = MoveObjManager::GetInst()->GetEnemy(en);
 			enemy->SetSpawnPoint(x+rand()%3000 ,z + rand() % 3000);
 			SendObjInfo(room->GetObjList().at(i), en);
-			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 16));
+			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
 
 		}
 	}
@@ -180,14 +180,14 @@ void PacketManager::SpawnEnemy(int room_id)
 	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
-//16ms=60프레임
+
 void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
-	Vector3 nlook;
+	Vector3& nlook=enemy->GetLookVec();
 	Vector3& npos = enemy->GetPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
@@ -206,8 +206,11 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	enemy->SetPos(npos);
-	//if(enemy_id==10)
-	//	cout << "id" << enemy_id << "pos x:" << npos.x << ", y:" << npos.y << ", z:" << npos.z<<endl;
+	//다음 위치 보내주기
+	
+
+
+
 	for (int i = 0; i < room->GetMaxUser(); i++)
 	{
 		SendMovePacket(i, enemy_id);
@@ -218,7 +221,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//아니면 기지 그대로
 		}
 	}
-	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 16));
+	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
 }
 
 

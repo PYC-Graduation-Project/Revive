@@ -27,7 +27,7 @@ namespace event_test
 		ret &= AttachComponent(m_widget_component);
 		m_widget_component->SetLocalPosition(Vec3(0.0f, 90.0f, 0.0f));
 		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
-		//ret &= AttachComponent(CreateSPtr<CameraComponent>());
+		//ret &= AttachComponent(CreateSPtr<CameraComponent>());3
 		//m_rotating_component->SetRotatingRate(Vec3(0.0f, 0.0f, 0.0f));
 		RegisterReceiveMessage(HashCode("change rotating speed"));
 		RegisterReceiveMessage(HashCode("move object"));

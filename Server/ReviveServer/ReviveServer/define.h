@@ -66,3 +66,7 @@ struct db_task {
 	char user_password[MAX_PASSWORD_SIZE];
 };
 
+constexpr unsigned int HashCode(const char* str)
+{
+	return str[0] ? static_cast<unsigned int>(str[0]) + 0xEDB8832Full * HashCode(str + 1) : 8603;
+}
