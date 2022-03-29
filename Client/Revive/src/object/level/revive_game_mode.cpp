@@ -3,6 +3,7 @@
 #include <client/object/level/gamemode/game_mode_base.h>
 #include <client/object/actor/player_controller.h>
 #include <client/input/input.h>
+#include "object/component/follow_camera.h"
 #include "revive_game_mode.h"
 #include "object/actor/RevivePlayer.h"
 

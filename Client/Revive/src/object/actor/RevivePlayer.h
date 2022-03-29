@@ -7,12 +7,13 @@ namespace client_fw
 	class SceneComponent;
 	class SkeletalMeshComponent;
 	class SphereComponent;
-	class CameraComponent;
 }
 
 namespace revive
 {
 	using namespace client_fw;
+
+	class FollowCamera;
 
 	class RevivePlayer : public Pawn
 	{
@@ -25,19 +26,20 @@ namespace revive
 		virtual void Update(float delta_time) override;
 
 		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
-		void AddMovementInput(const Vec3& direction, float scale);
+		void AddMovementInput(Vec3& direction, float scale);
 
-		const SPtr<CameraComponent>& GetCameraComponent() { return m_camera_component; }
+		const SPtr<FollowCamera>& GetCameraComponent() { return m_camera_component; }
 
 	private:
 		int HP;
 
+		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
 		std::string m_mesh_path;
 
 		SPtr<PawnMovementComponent> m_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<SphereComponent> m_sphere_component;
-		SPtr<CameraComponent> m_camera_component;
+		SPtr<FollowCamera> m_camera_component;
 
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;

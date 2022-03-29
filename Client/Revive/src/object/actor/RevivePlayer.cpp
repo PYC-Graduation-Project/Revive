@@ -4,10 +4,10 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
-#include <client/object/component/util/camera_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
+#include "object/component/follow_camera.h"
 #include "object/actor/RevivePlayer.h"
 
 namespace revive
@@ -15,7 +15,7 @@ namespace revive
 	RevivePlayer::RevivePlayer(const std::string& name)
 		: Pawn(name)
 	{
-		m_camera_component = CreateSPtr<CameraComponent>("Follow Camera", eCameraUsage::kBasic);
+		m_camera_component = CreateSPtr<FollowCamera>("Follow Camera", eCameraUsage::kBasic);
 		m_movement_component = CreateSPtr<SimpleMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_sphere_component = CreateSPtr<SphereComponent>(30.0f);
@@ -30,17 +30,19 @@ namespace revive
 		ret &= AttachComponent(m_movement_component);
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
+		m_skeletal_mesh_component->SetLocalRotation(80.0f, 180.0f, 0.0f);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetAnimation("idle");//SetAnimation도 bool값으로 성공여부를 리턴하면 좋을 듯
 		
 		m_sphere_component->SetCollisionInfo(true, false, "default", { "default" }, true);
 		ret &= AttachComponent(m_sphere_component);
 
-		m_camera_component->SetLocalPosition(Vec3{ 0.0f,0.0f, -300.0f}); //카메라 위치조정 (언리얼 SpringArm)
+		
 		ret &= AttachComponent(m_camera_component);
 
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(GetForward(), axis); return true; });
+			[this](float axis)->bool { 
+			AddMovementInput(GetForward(), axis); return true; });
 		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
 			[this](float axis)->bool { AddMovementInput(GetRight(), axis); return true; });
 		/*RegisterAxisEvent("move up", { AxisEventKeyInfo{eKey::kE, 1.0f}, AxisEventKeyInfo{eKey::kQ, -1.0f} },
@@ -53,12 +55,14 @@ namespace revive
 		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
 			[this](float axis)->bool {
 			IVec2 relative_pos = Input::GetRelativeMousePosition();
+			MinPitch();
 			return AddControllerPitchInput(axis * relative_pos.y);
+			
 		});
 
-		SetUseControllerPitch(true);
-		SetUseControllerYaw(true);
-		SetUseControllerRoll(true);
+		SetUseControllerPitch(false);
+		SetUseControllerYaw(false);
+		SetUseControllerRoll(false);
 
 		return ret;
 	}  
@@ -72,12 +76,27 @@ namespace revive
 	void RevivePlayer::Update(float delta_time)
 	{
 		Pawn::Update(delta_time);
-
+		Vec3 current_position = GetPosition();
+		if (current_position.y < 300)//땅의 높이
+			current_position.y = 300;
+		
+		SetPosition(current_position);
 	}
 
-	void RevivePlayer::AddMovementInput(const Vec3& direction, float scale)
+	void RevivePlayer::AddMovementInput(Vec3& direction, float scale)
 	{
+		direction.y = 0.0f;
 		m_movement_component->AddInputVector(direction * scale);
+	}
+
+	void RevivePlayer::MinPitch()
+	{
+		Vec3 rot = quat::QuaternionToEuler(m_controller.lock()->GetRotation());
+		if (math::ToDegrees(rot.x) < 5) //컨트롤러에서 SetRotation(rot);를 안해주는게 제일 좋은 방법
+		{
+			rot.x += math::ToRadian(5.0f) - rot.x;
+			m_controller.lock()->SetRotation(quat::CreateQuaternionFromRollPitchYaw(rot.x, rot.y, rot.z));
+		}
 	}
 
 	DefaultCharacter::DefaultCharacter(const std::string& name)
