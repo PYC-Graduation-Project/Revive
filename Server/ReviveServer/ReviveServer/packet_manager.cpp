@@ -5,12 +5,16 @@
 #include"room_manager.h"
 #include"room.h"
 #include"enemy.h"
+#include"map_loader.h"
 using namespace std;
 
 PacketManager::PacketManager()
 {
 	MoveObjManager::GetInst();
 	m_room_manager = new RoomManager;
+	//MapLoader loader;
+	//loader.LoadMap("map.txt");
+	//cout << loader.m_map_objects.size() << endl;;
 	m_db = new DB;
 	m_db2 = new DB;
 }

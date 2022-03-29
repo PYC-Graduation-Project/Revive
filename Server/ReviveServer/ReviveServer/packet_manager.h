@@ -6,7 +6,7 @@
 class MoveObjManager;
 class DB;
 class RoomManager;
-
+class MapLoader;
 class PacketManager
 {
 public:
