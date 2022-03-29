@@ -7,6 +7,7 @@ namespace client_fw
 	class SkyComponent;
 	class SkyCubeComponent;
 	class SkyCubeMesh;
+	class SkySphereComponent;
 
 	class SkyRenderItem final
 	{
@@ -19,7 +20,9 @@ namespace client_fw
 
 		void Update(ID3D12Device* device);
 		void UpdateFrameResource(ID3D12Device* device);
-		void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function);
+		void Draw(ID3D12GraphicsCommandList* command_list,
+			std::function<void()>&& cube_draw_function,
+			std::function<void()>&& sphere_draw_function);
 
 		void RegisterSkyComponent(const SPtr<SkyComponent>& sky_component);
 		void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_component);
@@ -27,12 +30,10 @@ namespace client_fw
 	private:
 		std::string m_owner_shader_name;
 
-		bool m_is_need_update_draw_sky_component = false;
 		eSkyType m_draw_sky_type;
 		std::vector<SPtr<SkyComponent>> m_sky_components;
 
 		SPtr<SkyCubeMesh> m_sky_cube_mesh;
-		SPtr<SkyCubeComponent> m_draw_sky_cube_component;
 	};
 
 }

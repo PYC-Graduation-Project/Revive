@@ -69,10 +69,6 @@ namespace client_fw
 
 		CD3DX12_GPU_DESCRIPTOR_HANDLE gpu_handle(m_texture_desciptor_heap->GetGPUDescriptorHandleForHeapStart());
 		command_list->SetGraphicsRootDescriptorTable(4, gpu_handle);
-
-		gpu_handle.Offset(START_INDEX_CUBE_MAP_TEXTURE, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
-		command_list->SetGraphicsRootDescriptorTable(6, gpu_handle);
-	
 	}
 
 	void RenderResourceManager::RegisterPrimitive(const SPtr<Primitive>& primitive)

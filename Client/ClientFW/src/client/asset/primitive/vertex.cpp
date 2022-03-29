@@ -131,4 +131,16 @@ namespace client_fw
 		, m_pivot(pivot)
 	{
 	}
+
+	SkySphereVertex::SkySphereVertex()
+		: m_center_color(vec3::ZERO)
+		, m_apex_color(vec3::ZERO)
+	{
+	}
+
+	SkySphereVertex::SkySphereVertex(const Vec3& center_color, const Vec3& apex_color)
+		: m_center_color(center_color)
+		, m_apex_color(apex_color)
+	{
+	}
 }
