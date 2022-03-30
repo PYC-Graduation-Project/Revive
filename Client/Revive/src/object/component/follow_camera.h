@@ -20,7 +20,12 @@ namespace revive
 		virtual void UpdateWorldMatrix() override;
 		//virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
 		//virtual void UpdateProjectionMatrix();
-
+		
+	private:
 		float m_target_arm_length = 500.0f; //카메라와 플레이어 사이의 거리입니다.
+		
+		/*Vec3 m_camera_eye;
+		Vec3 m_camera_target;
+		Vec3 m_camera_up;*/
 	};
 }

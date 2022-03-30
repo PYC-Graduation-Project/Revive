@@ -30,7 +30,7 @@ namespace revive
 		ret &= AttachComponent(m_movement_component);
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
-		m_skeletal_mesh_component->SetLocalRotation(80.0f, 180.0f, 0.0f);
+		m_skeletal_mesh_component->SetLocalRotation(80.0f, 185.0f, 0.0f);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetAnimation("idle");//SetAnimation도 bool값으로 성공여부를 리턴하면 좋을 듯
 		
@@ -39,14 +39,16 @@ namespace revive
 
 		
 		ret &= AttachComponent(m_camera_component);
+		
 
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
-			[this](float axis)->bool { 
-			AddMovementInput(GetForward(), axis); return true; });
+			[this](float axis)->bool {
+			AddMovementInput(m_controller.lock()->GetForward(),axis); return true; });
 		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(GetRight(), axis); return true; });
+			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
 		/*RegisterAxisEvent("move up", { AxisEventKeyInfo{eKey::kE, 1.0f}, AxisEventKeyInfo{eKey::kQ, -1.0f} },
 			[this](float axis)->bool { AddMovementInput(GetUp(), axis); return true; });*/
+
 		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
 			[this](float axis)->bool {
 			IVec2 relative_pos = Input::GetRelativeMousePosition();
@@ -85,8 +87,30 @@ namespace revive
 
 	void RevivePlayer::AddMovementInput(Vec3& direction, float scale)
 	{
-		direction.y = 0.0f;
+		direction.y = 0;
+		RotatePlayerFromCameraDirection(direction * scale);
 		m_movement_component->AddInputVector(direction * scale);
+	}
+
+	void RevivePlayer::RotatePlayerFromCameraDirection(Vec3& dest_direction)
+	{
+		Vec3 old_player_forward = GetForward();
+
+		if (vec3::Dot(old_player_forward, dest_direction) == -1)//현재보는 방향과 반대방향으로 회전 시 너무느리지않게 회전시키려면 필요한 부분
+			old_player_forward += Vec3{ 0.02f,0.0f,-0.02f };
+
+		float rotate_speed = 10.0f * 0.016f; //회전속도 delta_time을곱해야하나 없으니까 0.016곱함
+
+		Vec3 curr_player_forward = old_player_forward + dest_direction * rotate_speed;
+		curr_player_forward = vec3::Normalize(curr_player_forward);
+
+		float angle = vec3::BetweenAngle(curr_player_forward, vec3::AXIS_Z); //0~PI만 반환함 (radian)
+
+		if (vec3::Cross(curr_player_forward, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
+			angle = -angle;
+
+		auto player_rot = quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f); //angle만큼 Y축 회전
+		SetRotation(player_rot);
 	}
 
 	void RevivePlayer::MinPitch()

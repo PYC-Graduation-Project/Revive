@@ -26,13 +26,15 @@ namespace revive
 		virtual void Update(float delta_time) override;
 
 		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
-		void AddMovementInput(Vec3& direction, float scale);
+
 
 		const SPtr<FollowCamera>& GetCameraComponent() { return m_camera_component; }
 
 	private:
 		int HP;
 
+		void AddMovementInput(Vec3& direction, float scale);
+		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
 		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
 		std::string m_mesh_path;
 
