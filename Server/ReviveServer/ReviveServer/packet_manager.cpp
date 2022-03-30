@@ -5,7 +5,7 @@
 #include"room_manager.h"
 #include"room.h"
 #include"enemy.h"
-#include"map_loader.h"
+//#include"map_loader.h"
 using namespace std;
 
 PacketManager::PacketManager()

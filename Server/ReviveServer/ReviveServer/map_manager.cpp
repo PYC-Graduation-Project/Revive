@@ -1,14 +1,12 @@
-#include"pch.h"
-#include"map_loader.h"
+#include "pch.h"
+#include "map_manager.h"
+#include"map_info.h"
+#include"map_object.h"
 #include<fstream>
 #include<sstream>
 #include<vector>
-#include"map_object.h"
-#include<unordered_map>
-#include"define.h"
 using namespace std;
-
-void MapLoader::LoadMap(const std::string& path)
+void MapManager::LoadMap(const std::string& path)
 {
 	ifstream map_file(path, ifstream::binary);
 	if (!map_file)
@@ -16,7 +14,7 @@ void MapLoader::LoadMap(const std::string& path)
 		cout << "맵 파일 불러오기 실패" << endl;
 		return;
 	}
-	vector<ActorInfo>actor_info_data;
+	vector<MapInfo>actor_info_data;
 	actor_info_data.reserve(1000);
 	stringstream ss;
 	string line;
@@ -28,7 +26,7 @@ void MapLoader::LoadMap(const std::string& path)
 	std::vector<Vector3> collision_centers;
 	std::vector<Vector3> collision_extents;
 	std::vector<Vector3> positions;
-	
+
 	while (getline(map_file, line))
 	{
 		ss.clear();
@@ -41,7 +39,7 @@ void MapLoader::LoadMap(const std::string& path)
 		{
 			ss >> temp_name >> temp_mesh_count >> temp_col_count;
 			ss >> temp_pos.x >> temp_pos.y >> temp_pos.z;
-			actor_info_data.emplace_back(temp_name, temp_pos, 
+			actor_info_data.emplace_back(temp_name, temp_pos,
 				temp_mesh_count, temp_col_count);
 			break;
 		}
@@ -76,7 +74,7 @@ void MapLoader::LoadMap(const std::string& path)
 	int col_index{ 0 };
 	for (auto& act_info : actor_info_data)
 	{
-		if (act_info.collision_count <=0)
+		if (act_info.collision_count <= 0)
 			continue;
 		switch (HashCode(act_info.name.c_str()))
 		{
@@ -89,10 +87,8 @@ void MapLoader::LoadMap(const std::string& path)
 			{
 				//map_obj_manager 만들기
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				if (m_map_objects.find(i) == m_map_objects.end())
-					m_map_objects[i] = new MapObj(i, pos, collision_extents[i], true);
-				else
-					cout << "있는애가 또옴" << endl;
+				m_map_objects.emplace_back(i, pos, collision_extents[i], true);
+				
 			}
 		}
 		break;
@@ -103,12 +99,9 @@ void MapLoader::LoadMap(const std::string& path)
 			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
 			{
 				//map_obj_manager 만들기
-				
+
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				if (m_map_objects.find(i) == m_map_objects.end())
-					m_map_objects[i] = new MapObj(i, pos, collision_extents[i], false);
-				else
-					cout << "있는애가 또옴" << endl;
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false);
 			}
 		}
 		break;
@@ -116,6 +109,4 @@ void MapLoader::LoadMap(const std::string& path)
 		col_index += act_info.collision_count;
 		//MapObj추가
 	}
-	
-	
 }
