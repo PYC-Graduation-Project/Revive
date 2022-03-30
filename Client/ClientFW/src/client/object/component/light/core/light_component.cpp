@@ -4,30 +4,23 @@
 
 namespace client_fw
 {
-	LightComponent::LightComponent(eLightType type, const std::string& name)
-		: SceneComponent(name, 10)
+	LightComponent::LightComponent(eLightType type,
+		const std::string& name, const std::string& draw_shader_name)
+		: RenderComponent(name, 10, eRenderType::kLight, draw_shader_name)
 		, m_light_type(type)
 	{
 	}
 
-	bool LightComponent::Initialize()
+	void LightComponent::RegisterToVisualOctree()
 	{
-		return RegisterToRenderSystem();
+		if (m_light_type != eLightType::kDirectional)
+			RenderComponent::RegisterToVisualOctree();
 	}
 
-	void LightComponent::Shutdown()
+	void LightComponent::UnregisterFromVisualOctree()
 	{
-		UnregisterFromRenderSystem();
-	}
-
-	bool LightComponent::RegisterToRenderSystem()
-	{
-		return Render::RegisterLightComponent(SharedFromThis());
-	}
-
-	void LightComponent::UnregisterFromRenderSystem()
-	{
-		Render::UnregisterLightComponent(SharedFromThis());
+		if (m_light_type != eLightType::kDirectional)
+			RenderComponent::UnregisterFromVisualOctree();
 	}
 
 	SPtr<LightComponent> LightComponent::SharedFromThis()

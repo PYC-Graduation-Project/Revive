@@ -226,6 +226,11 @@ namespace client_fw
 			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterWidgetComponent(m_device, widget_comp);
 		}
+		case eRenderType::kLight:
+		{
+			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
+			return m_light_manager->RegisterLightComponent(light_comp);
+		}
 		default:
 			break;
 		}
@@ -265,6 +270,12 @@ namespace client_fw
 		{
 			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
 			m_graphics_shaders.at(shader_name)->UnregisterWidgetComponent(widget_comp);
+			break;
+		}
+		case eRenderType::kLight:
+		{
+			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
+			m_light_manager->UnregisterLightComponent(light_comp);
 			break;
 		}
 		default:
@@ -309,15 +320,5 @@ namespace client_fw
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);
 		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
-	}
-
-	bool RenderSystem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		return m_light_manager->RegisterLightComponent(light_comp);
-	}
-
-	void RenderSystem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		m_light_manager->UnregisterLightComponent(light_comp);
 	}
 }

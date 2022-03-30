@@ -27,7 +27,9 @@ namespace client_fw
 		kOpaqueMaterialTextureBillboard, kMaskedMaterialTextureBillboard,
 		kOpaqueMaterialNormalMapBillboard, kMaskedMaterialNormalMapBillboard,
 		kOpaqueWidget, kMaskedWidget,
-		kSky
+		kSky,
+
+		kDeferred, kPointLight, kSpotLight,
 	};
 
 	enum class eKindOfRenderLevel
@@ -55,9 +57,6 @@ namespace client_fw
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
-
-		static bool RegisterLightComponent(const SPtr<LightComponent>& light_comp);
-		static void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	public:
 		static Vec2 GetWindowSize();

@@ -1,5 +1,5 @@
 #pragma once
-#include "client/object/component/core/scene_component.h"
+#include "client/object/component/core/render_component.h"
 
 namespace client_fw
 {
@@ -8,18 +8,15 @@ namespace client_fw
 		kDirectional, kPoint, kSpot
 	};
 
-	class LightComponent : public SceneComponent
+	class LightComponent : public RenderComponent
 	{
 	protected:
-		LightComponent(eLightType type, const std::string& name);
+		LightComponent(eLightType type, const std::string& name,
+			const std::string& draw_shader_name);
 		virtual ~LightComponent() = default;
 
-		virtual bool Initialize() override;
-		virtual void Shutdown() override;
-
-	private:
-		bool RegisterToRenderSystem();
-		void UnregisterFromRenderSystem();
+		virtual void RegisterToVisualOctree();
+		virtual void UnregisterFromVisualOctree();
 
 	protected:
 		eLightType m_light_type;

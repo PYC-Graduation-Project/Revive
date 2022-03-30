@@ -46,16 +46,6 @@ namespace client_fw
 		s_render_system->SetMainCamera(camera_comp);
 	}
 
-	bool Render::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		return s_render_system->RegisterLightComponent(light_comp);
-	}
-
-	void Render::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		s_render_system->UnregisterLightComponent(light_comp);
-	}
-
 	Vec2 Render::GetWindowSize()
 	{
 		const auto& window = s_render_system->GetWindow();
@@ -107,6 +97,12 @@ namespace client_fw
 			return "masked widget";
 		case eShaderType::kSky:
 			return "sky";
+		case eShaderType::kDeferred:
+			return "deferred";
+		case eShaderType::kPointLight:
+			return "point light";
+		case eShaderType::kSpotLight:
+			return "spot light";
 		default:
 			return "unknown";
 		}

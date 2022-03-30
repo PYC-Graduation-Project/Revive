@@ -70,8 +70,6 @@ namespace client_fw
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
-		bool RegisterLightComponent(const SPtr<LightComponent>& light_comp);
-		void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	private:
 		WPtr<Window> m_window;
