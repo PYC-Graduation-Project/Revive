@@ -9,6 +9,7 @@ namespace client_fw
 	{
 		Mat4 world_matrix;
 		Mat4 world_inverse_transpose;
+		UINT m_additional_info = 0;
 	};
 
 	struct RSSkinnedInstanceData

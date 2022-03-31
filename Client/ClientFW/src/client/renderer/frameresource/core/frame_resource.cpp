@@ -36,6 +36,8 @@ namespace client_fw
 
 	void FrameResource::Shutdown()
 	{
+		for (const auto& [shader_name, frame_resource] : m_local_light_frame_resource)
+			frame_resource->Shutdown();
 		for (const auto& [shader_name, frame_resource] : m_ui_frame_resource)
 			frame_resource->Shutdown();
 		for (const auto& [shader_name, frame_resource] : m_widget_frame_resource)
@@ -73,6 +75,12 @@ namespace client_fw
 	{
 		m_widget_frame_resource.emplace(shader_name, CreateUPtr<WidgetFrameResource>());
 		m_widget_frame_resource[shader_name]->Initialize(device);
+	}
+
+	void FrameResource::CreateLocalLightFrameResource(ID3D12Device* device, const std::string& shader_name)
+	{
+		m_local_light_frame_resource.emplace(shader_name, CreateUPtr<LocalLightFrameResource>());
+		m_local_light_frame_resource[shader_name]->Initialize(device);
 	}
 
 	void FrameResource::CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name)

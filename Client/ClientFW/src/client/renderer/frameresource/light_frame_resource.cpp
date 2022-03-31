@@ -22,4 +22,30 @@ namespace client_fw
 	{
 		m_light_data->Shutdown();
 	}
+
+	LocalLightFrameResource::LocalLightFrameResource()
+	{
+		m_light_instance_data = CreateUPtr<UploadBuffer<RSLocalLightInstanceData>>(false);
+	}
+
+	LocalLightFrameResource::~LocalLightFrameResource()
+	{
+	}
+
+	bool LocalLightFrameResource::Initialize(ID3D12Device* device)
+	{
+		return true;
+	}
+
+	void LocalLightFrameResource::Shutdown()
+	{
+		m_light_instance_data->Shutdown();
+	}
+
+	LocalLightInstanceDrawInfo LocalLightFrameResource::GetLocalLightDrawInfo()
+	{
+		LocalLightInstanceDrawInfo info = m_local_light_draw_info.front();
+		m_local_light_draw_info.pop();
+		return info;
+	}
 }

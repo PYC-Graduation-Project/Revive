@@ -10,6 +10,7 @@ namespace client_fw
 	class BillboardComponent;
 	class WidgetComponent;
 	class SkyComponent;
+	class LightComponent;
 
 	class MeshRenderItem;
 	class BillboardRenderItem;
@@ -59,6 +60,8 @@ namespace client_fw
 		virtual void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
 		virtual bool RegisterSkyComponent(ID3D12Device* device, const SPtr<SkyComponent>& sky_comp);
 		virtual void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp);
+		virtual bool RegisterLightComponent(ID3D12Device* device, const SPtr<LightComponent> light_comp);
+		virtual void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 	};
 
 	class MeshShader : public GraphicsShader

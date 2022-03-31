@@ -200,7 +200,7 @@ namespace client_fw
 
 		FLOAT clear_value[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		command_list->ClearRenderTargetView(m_rtv_cpu_handle, clear_value, 0, nullptr);
-		command_list->OMSetRenderTargets(1, &m_rtv_cpu_handle, true, nullptr);
+		command_list->OMSetRenderTargets(1, &m_rtv_cpu_handle, true, &m_dsv_cpu_handle);
 	}
 
 	void RenderTexture::PostDraw(ID3D12GraphicsCommandList* command_list)

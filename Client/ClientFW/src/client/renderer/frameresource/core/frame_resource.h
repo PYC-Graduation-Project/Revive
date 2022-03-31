@@ -7,6 +7,7 @@ namespace client_fw
 	class SkyFrameResource;
 	class StaticMeshFrameResource;
 	class LightFrameResource;
+	class LocalLightFrameResource;
 	class BillboardFrameResource;
 	class WidgetFrameResource;
 	class UserInterfaceFrameResource;
@@ -46,6 +47,7 @@ namespace client_fw
 		std::map<std::string, UPtr<StaticMeshFrameResource>> m_static_mesh_frame_resource;
 		std::map<std::string, UPtr<BillboardFrameResource>> m_billboard_frame_resource;
 		std::map<std::string, UPtr<WidgetFrameResource>> m_widget_frame_resource;
+		std::map<std::string, UPtr<LocalLightFrameResource>> m_local_light_frame_resource;
 		std::map<std::string, UPtr<UserInterfaceFrameResource>> m_ui_frame_resource;
 
 	public:
@@ -53,6 +55,7 @@ namespace client_fw
 		void CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name);
+		void CreateLocalLightFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name);
 
 		const UPtr<SkyFrameResource>& GetSkyFrameResource(const std::string& shader_name) const
@@ -63,6 +66,8 @@ namespace client_fw
 		{ return m_billboard_frame_resource.at(shader_name); }
 		const UPtr<WidgetFrameResource>& GetWidgetFrameResource(const std::string& shader_name) const 
 		{ return m_widget_frame_resource.at(shader_name); }
+		const UPtr<LocalLightFrameResource>& GetLocalLightFrameResource(const std::string& shader_name) const
+		{ return m_local_light_frame_resource.at(shader_name); }
 		const UPtr<UserInterfaceFrameResource>& GetUserInterfaceFrameResource(const std::string& shader_name) const 
 		{ return m_ui_frame_resource.at(shader_name); }
 	};

@@ -8,6 +8,7 @@ struct InstanceData
 {
     matrix world;
     matrix world_inverse_transpose;
+    uint additional_info;
 };
 
 struct MaterialData
@@ -24,8 +25,10 @@ struct MaterialData
 struct LightData
 {
     float3 light_color;
-    float padding_0;
+    float additional_info_0;
     float3 light_direction;
+    float attenuation_radius;
+    float3 light_position;
 };
 
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);

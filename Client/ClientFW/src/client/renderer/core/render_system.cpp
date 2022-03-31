@@ -18,6 +18,7 @@
 #include "client/renderer/shader/material_billboard_shader.h"
 #include "client/renderer/shader/widget_shader.h"
 #include "client/renderer/shader/sky_shader.h"
+#include "client/renderer/shader/light_shader.h"
 
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
@@ -67,7 +68,6 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
 			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
@@ -85,6 +85,8 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), eRenderLevelType::kOpaque); 
 
+		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 
@@ -115,9 +117,8 @@ namespace client_fw
 		m_camera_manager->Update(device, 
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+				m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 			});
-
-		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
@@ -229,7 +230,10 @@ namespace client_fw
 		case eRenderType::kLight:
 		{
 			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
-			return m_light_manager->RegisterLightComponent(light_comp);
+			bool ret = m_light_manager->RegisterLightComponent(light_comp);
+			if (light_comp->GetLightType() != eLightType::kDirectional)
+				ret &= m_graphics_shaders.at(shader_name)->RegisterLightComponent(m_device, light_comp);
+			return ret;
 		}
 		default:
 			break;
@@ -275,6 +279,8 @@ namespace client_fw
 		case eRenderType::kLight:
 		{
 			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
+			if(light_comp->GetLightType() != eLightType::kDirectional)
+				m_graphics_shaders.at(shader_name)->UnregisterLightComponent(light_comp);
 			m_light_manager->UnregisterLightComponent(light_comp);
 			break;
 		}

@@ -4,6 +4,7 @@ namespace client_fw
 {
 	class LightComponent;
 	class DirectionalLightComponent;
+	class PointLightComponent;
 
 	// Light의 정보를 GPU에서 사용하기 위해 Light를 관리하는 클래스
 	class LightManager final
@@ -27,6 +28,7 @@ namespace client_fw
 		static LightManager* s_light_manager;
 		UINT m_num_of_light = 0;
 		std::vector<SPtr<DirectionalLightComponent>> m_directional_lights;
+		std::vector<SPtr<PointLightComponent>> m_point_lights;
 
 	public:
 		static LightManager& GetLightManager() { return *s_light_manager; }

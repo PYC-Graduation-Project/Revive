@@ -5,6 +5,7 @@
 #include "client/renderer/frameresource/light_frame_resource.h"
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/directional_light_component.h"
+#include "client/object/component/light/point_light_component.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
@@ -39,13 +40,24 @@ namespace client_fw
 			light_resource->SetSizeOfLight(size_of_light);
 		}
 
-		RSLightData light_data;
 		UINT index = 0;
 
 		for (const auto& light : m_directional_lights)
 		{
+			RSLightData light_data;
 			light_data.light_color = light->GetLightColor();
 			light_data.light_direction = light->GetDirection();
+			light->SetLightManagerRegisteredIndex(index);
+			light_resource_data->CopyData(index++, light_data);
+		}
+
+		for (const auto& light : m_point_lights)
+		{
+			RSLightData light_data;
+			light_data.light_color = light->GetLightColor();
+			light_data.light_position = light->GetWorldPosition();
+			light_data.attenuation_radius = light->GetAttenuationRadius();
+			light->SetLightManagerRegisteredIndex(index);
 			light_resource_data->CopyData(index++, light_data);
 		}
 	}
@@ -66,6 +78,7 @@ namespace client_fw
 		switch (light_comp->GetLightType())
 		{
 		case eLightType::kDirectional:
+		{
 			if (m_directional_lights.size() < 4)
 			{
 				m_directional_lights.push_back(std::static_pointer_cast<DirectionalLightComponent>(light_comp));
@@ -74,6 +87,13 @@ namespace client_fw
 			else
 				return false;
 			break;
+		}
+		case eLightType::kPoint:
+		{
+			m_point_lights.push_back(std::static_pointer_cast<PointLightComponent>(light_comp));
+			++m_num_of_light;
+			break;
+		}
 		default:
 			break;
 		}
@@ -91,6 +111,17 @@ namespace client_fw
 			{
 				std::iter_swap(iter, m_directional_lights.end() - 1);
 				m_directional_lights.pop_back();
+				--m_num_of_light;
+			}
+			break;
+		}
+		case eLightType::kPoint:
+		{
+			auto iter = std::find(m_point_lights.begin(), m_point_lights.end(), light_comp);
+			if (iter != m_point_lights.end())
+			{
+				std::iter_swap(iter, m_point_lights.end() - 1);
+				m_point_lights.pop_back();
 				--m_num_of_light;
 			}
 			break;
