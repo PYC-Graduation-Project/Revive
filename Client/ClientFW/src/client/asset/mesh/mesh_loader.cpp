@@ -261,7 +261,6 @@ namespace client_fw
 		std::map<std::string, SPtr<Material>> materials;
 		SPtr<BoneData> bone_data;
 		std::vector<BOrientedBox> oriented_boxes;
-
 	};
 
 	SPtr<Mesh> RevLoader::LoadMesh(const std::string& path, const std::string& extension) const
@@ -312,7 +311,7 @@ namespace client_fw
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
-			if (prefix.compare("</Animation>") == false) break;
+			if (prefix.compare("</Animation>") == 0) break;
 
 			switch (HashCode(prefix.c_str()))
 			{
@@ -320,7 +319,7 @@ namespace client_fw
 
 				while (ReadStringFromFile(rev_file, &prefix))
 				{
-					if (prefix.compare("<Frame>:") == false)
+					if (prefix.compare("<Frame>:") == 0)
 					{
 						SPtr<Skeleton> child = CreateSPtr<Skeleton>();
 						skeleton->SetChild(child);
@@ -348,59 +347,7 @@ namespace client_fw
 		return s_mesh;
 	}
 
-	FILE* RevLoader::LoadRevForAnimation(const std::string& path, const std::string& extension) const
-	{
-		FILE* rev_file = NULL;
-		fopen_s(&rev_file, path.c_str(), "rb");
-		if (rev_file == NULL)
-		{
-			LOG_ERROR("Could not find path : [{0}]", path);
-			return nullptr;
-		}
-
-		std::string parent_path = file_help::GetParentPathFromPath(path);
-		std::string stem = file_help::GetStemFromPath(path);
-
-		std::string prefix;
-
-		SPtr<SkeletalMesh> s_mesh = CreateSPtr<SkeletalMesh>();
-		SPtr<Skeleton> skeleton = CreateSPtr<Skeleton>();
-
-		//정보를 모으는 벡터들은 재귀함수 바깥쪽에 있어야 한다
-		std::vector<MeshData> mesh_data;
-		InitializeMeshData(mesh_data);
-
-		while (ReadStringFromFile(rev_file, &prefix))
-		{
-			if (prefix.compare("</Animation>") == false) break;
-
-			switch (HashCode(prefix.c_str()))
-			{
-			case HashCode("<Hierarchy>"):
-
-				while (ReadStringFromFile(rev_file, &prefix))
-				{
-					if (prefix.compare("<Frame>:") == false)
-					{
-						SPtr<Skeleton> child = CreateSPtr<Skeleton>();
-						LoadFrameHierArchy(rev_file, child, mesh_data, path);
-					}
-					else if ("</Hierarchy>")
-						break;
-				}
-				break;
-			case HashCode("<Animation>"):
-				return rev_file;
-				//AssetStore::LoadAnimation(rev_file, s_mesh->GetSkeleton(), path);
-				break;
-			default:
-				break;
-			}
-		}
-
-		return nullptr;
-	}
-
+	
 	void RevLoader::SaveRevData(SPtr<SkeletalMesh>& s_mesh, const UINT& lod, std::vector<MeshData>& mesh_data) const
 	{
 		s_mesh->CreateDataForLodMesh(lod);
@@ -527,12 +474,9 @@ namespace client_fw
 		if(this != nullptr)
 			 mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
 		auto& temp_data = mesh_data.at(mesh_index);
-		//mesh_data.at(0).bone_data->bone_names.emplace_back(std::move(b_name));
 
 		while (ReadStringFromFile(rev_file, &prefix))
 		{
-			//auto hash_code = HashCode(prefix.c_str());
-
 			if (prefix.compare("<Transform>:") == 0)
 			{
 				//rev_file.read((char*)&temp_mat4, sizeof(Mat4));
@@ -557,7 +501,11 @@ namespace client_fw
 				if (this != nullptr)
 				{
 					AddMesh();
-					if (m_mesh_count > 1) InitializeMeshData(mesh_data);
+					if (m_mesh_count > 1)
+					{
+						mesh_data.emplace_back(std::move(MeshData{}));
+						mesh_data.back().bone_data = CreateSPtr<BoneData>();
+					}
 				}
 				LoadSkinDeformations(rev_file, mesh_data.at(0).bone_data); //뼈정보는 한곳에 몰아넣기
 				ReadStringFromFile(rev_file, &prefix);
@@ -901,120 +849,6 @@ namespace client_fw
 				break;
 			}
 		}
-	}
-
-	SPtr<AnimationSequence> RevLoader::LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton) const
-	{
-		SPtr<AnimationSequence> anim_seq = CreateSPtr<AnimationSequence>();
-		std::string prefix;
-
-		float start_time;
-		float end_time;
-
-		float weight;
-		int animated_bone_count;
-		std::vector<std::vector<SPtr<AnimationCurve>>> anim_curves;
-		std::vector<SPtr<AnimationCurve>> curve;
-		std::vector<SPtr<Skeleton>> cache_skeleton;
-
-		int temp_int;
-
-		ReadStringFromFile(file, &prefix); //"<AnimationSets>"
-		fread(&temp_int, sizeof(int), 1, file); //animation_sets_count : 0
-
-		ReadStringFromFile(file, &prefix); //"<AnimationSet>"
-		fread(&temp_int, sizeof(int), 1, file); //animation_set_count : 1
-
-		//AnimationSequence Load
-		ReadStringFromFile(file, &(anim_seq->anim_name));
-
-		fread(&start_time, sizeof(float), 1, file);
-		fread(&end_time, sizeof(float), 1, file);
-
-
-		ReadStringFromFile(file, &prefix); //"<AnimationLayers>"
-		fread(&temp_int, sizeof(int), 1, file); //animation_layers_count : 1
-		ReadStringFromFile(file, &prefix); //"<AnimationLayer>"
-		fread(&temp_int, sizeof(int), 1, file); //animation_layer_count : 0
-
-		//AnimationTrack
-		fread(&animated_bone_count, sizeof(int), 1, file);
-		fread(&weight, sizeof(float), 1, file);
-
-		SPtr<AnimationTrack> anim_track = CreateSPtr<AnimationTrack>();
-		anim_track->InitialIze(animated_bone_count, weight);
-
-
-		for (int i = 0; i < animated_bone_count; ++i)
-		{
-			ReadStringFromFile(file, &prefix);
-			switch (HashCode(prefix.c_str()))
-			{
-			case HashCode("<AnimationCurve>:"):
-				fread(&temp_int, sizeof(int), 1, file); //curve_node_index == i
-
-				ReadStringFromFile(file, &prefix); //bone_name
-				auto& temp_skel = skeleton->FindBone(prefix);
-				if (temp_skel)cache_skeleton.push_back(temp_skel);
-				else
-				{
-					auto name_skel = prefix;
-				}
-				//AnimationCurve
-				curve.resize(9);
-				while (ReadStringFromFile(file, &prefix))
-				{
-					if (prefix.compare("</AnimationCurve>") == 0) break;
-
-					switch (HashCode(prefix.c_str()))
-					{ //0 : TX 1 : TY ... 8 : SZ 번호에 맞춰서
-					case HashCode("<TX>:"):
-						curve[0] = LoadKeyValue(file);
-						break;
-					case HashCode("<TY>:"):
-						curve[1] = LoadKeyValue(file);
-						break;
-					case HashCode("<TZ>:"):
-						curve[2] = LoadKeyValue(file);
-						break;
-					case HashCode("<RX>:"):
-						curve[3] = LoadKeyValue(file);
-						break;
-					case HashCode("<RY>:"):
-						curve[4] = LoadKeyValue(file);
-						break;
-					case HashCode("<RZ>:"):
-						curve[5] = LoadKeyValue(file);
-						break;
-					case HashCode("<SX>:"):
-						curve[6] = LoadKeyValue(file);
-						break;
-					case HashCode("<SY>:"):
-						curve[7] = LoadKeyValue(file);
-						break;
-					case HashCode("<SZ>:"):
-						curve[8] = LoadKeyValue(file);
-						break;
-
-					}
-				}
-
-				anim_curves.emplace_back(std::move(curve));
-				//end
-				break;
-			}
-		}
-		anim_track->SetAnimationCurves(anim_curves);
-		anim_track->SetCacheSkel(cache_skeleton);
-		//end
-		anim_seq->SetAnimationTrack(anim_track);
-		anim_seq->SetDefaultTime(start_time, end_time);
-		ReadStringFromFile(file, &prefix); //"</AnimationLayer>"
-		ReadStringFromFile(file, &prefix); //"</AnimationLayers>"
-		ReadStringFromFile(file, &prefix); //"<AnimationSet>"
-		ReadStringFromFile(file, &prefix); //"<AnimationSets>"
-
-		return anim_seq;
 	}
 
 	int RevLoader::ReadStringFromFile(FILE* file, std::string* word) const
