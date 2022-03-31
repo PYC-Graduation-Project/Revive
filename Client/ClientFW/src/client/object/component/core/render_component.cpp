@@ -11,6 +11,7 @@ namespace client_fw
 		: SceneComponent(name, update_order)
 		, m_type(type), m_draw_shader_name(draw_shader_name)
 	{
+		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
 
 	bool RenderComponent::InitializeComponent()

@@ -185,7 +185,7 @@ namespace client_fw
 					Vec2 delta_uv1 = uv2 - uv1;
 					Vec2 delta_uv2 = uv3 - uv1;
 
-					float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x + delta_uv1.y);
+					float f = 1.0f / (delta_uv1.x * delta_uv2.y - delta_uv2.x * delta_uv1.y);
 
 					Vec3 tangent;
 					tangent.x = f * (delta_uv2.y * delta_pos1.x - delta_uv1.y * delta_pos2.x);

@@ -215,8 +215,8 @@ namespace client_fw
 			device->CreateShaderResourceView(texture->GetResource(),
 				&TextureCreator::GetShaderResourceViewDescForCube(texture->GetResource()), cpu_handle);
 
-			texture->SetResourceIndex(START_INDEX_CUBE_MAP_TEXTURE - m_num_of_external_cube_map_texture_data++);
-			cpu_handle.Offset(6, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+			texture->SetResourceIndex(m_num_of_external_cube_map_texture_data++ - START_INDEX_CUBE_MAP_TEXTURE);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
 
 			LOG_INFO(texture->GetPath());
 		}
