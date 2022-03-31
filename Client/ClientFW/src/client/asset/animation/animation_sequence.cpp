@@ -82,31 +82,16 @@ namespace client_fw
 		}
 		
 
-		/*if (temp_curve[0]) trans.x = temp_curve[0]->GetValueByLerp(prev_time_index,time_pos);
-		if (temp_curve[1]) trans.y = temp_curve[1]->GetValueByLerp(prev_time_index,time_pos);
-		if (temp_curve[2]) trans.z = temp_curve[2]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[3]) rotate.x = temp_curve[3]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[4]) rotate.y = temp_curve[4]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[5]) rotate.z = temp_curve[5]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[6]) scale.x = temp_curve[6]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[7]) scale.y = temp_curve[7]->GetValueByLerp(prev_time_index, time_pos);
-		if (temp_curve[8]) scale.z = temp_curve[8]->GetValueByLerp(prev_time_index, time_pos);*/
 
 		lerp_trans *= weight;
 		lerp_rotate *= weight;
 		lerp_scale *= weight;
-	/*	trans *= weight;
-		rotate *= weight;
-		scale *= weight;*/
 
 		Mat4 S = mat4::CreateScale(lerp_scale);
-		//Mat4 R = mat4::CreateRotationFromQuaternion(quat::CreateQuaternionFromRollPitchYaw(  rotate.x * weight,rotate.y * weight, rotate.z * weight));
+		//Mat4 R = mat4::CreateRotationFromQuaternion(quat::CreateQuaternionFromRollPitchYaw(lerp_rotate.x , lerp_rotate.y , lerp_rotate.z));
 		Mat4 R = mat4::CreateRotationX(lerp_rotate.x) * mat4::CreateRotationY(lerp_rotate.y) * mat4::CreateRotationZ(lerp_rotate.z);
 		Mat4 T = mat4::CreateTranslation(lerp_trans);
-		//Mat4 S = mat4::CreateScale(scale);
-		////Mat4 R = mat4::CreateRotationFromQuaternion(quat::CreateQuaternionFromRollPitchYaw(  rotate.x * weight,rotate.y * weight, rotate.z * weight));
-		//Mat4 R = mat4::CreateRotationX(rotate.x) * mat4::CreateRotationY(rotate.y) * mat4::CreateRotationZ(rotate.z);
-		//Mat4 T = mat4::CreateTranslation(trans);
+
 
 		Mat4 transform = S * R * T;
 
