@@ -8,6 +8,7 @@
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
 #include "object/component/follow_camera.h"
+#include "object/statemachine/state_machine.h"
 #include "object/actor/RevivePlayer.h"
 
 namespace revive
@@ -19,6 +20,7 @@ namespace revive
 		m_movement_component = CreateSPtr<SimpleMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_sphere_component = CreateSPtr<SphereComponent>(30.0f);
+		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
 	}
 
@@ -30,37 +32,25 @@ namespace revive
 		ret &= AttachComponent(m_movement_component);
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
+		m_skeletal_mesh_component->SetLocalPosition(Vec3{ 0.0f, 40.0f, 0.0f });
 		m_skeletal_mesh_component->SetLocalRotation(80.0f, 185.0f, 0.0f);
+		m_skeletal_mesh_component->SetLocalScale(0.01f);
+		//Notify 기능을 사용할 애니메이션을 미리 등록한다 
+		//Notify 이름,애니메이션 이름, 특정 시간, 특정 시간에 실행할 함수
+		//Notify 이름을 언리얼처럼 넣어주긴 했으나, 정작 사용하지는 않고 있다.
+		m_skeletal_mesh_component->AddNotify("Attack End", "attack", 0.6f, 
+			[this]() { m_is_attacking = false; /*LOG_INFO(m_is_attacking);*/ });
+		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 0.3f, 
+			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
+
 		ret &= AttachComponent(m_skeletal_mesh_component);
-		m_skeletal_mesh_component->SetAnimation("idle");//SetAnimation도 bool값으로 성공여부를 리턴하면 좋을 듯
+		m_player_fsm->Initialize(SharedFromThis());
 		
 		m_sphere_component->SetCollisionInfo(true, false, "default", { "default" }, true);
 		ret &= AttachComponent(m_sphere_component);
-
-		
 		ret &= AttachComponent(m_camera_component);
 		
-
-		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
-			[this](float axis)->bool {
-			AddMovementInput(m_controller.lock()->GetForward(),axis); return true; });
-		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
-		/*RegisterAxisEvent("move up", { AxisEventKeyInfo{eKey::kE, 1.0f}, AxisEventKeyInfo{eKey::kQ, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(GetUp(), axis); return true; });*/
-
-		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
-			[this](float axis)->bool {
-			IVec2 relative_pos = Input::GetRelativeMousePosition();
-			return AddControllerYawInput(axis * relative_pos.x);
-		});
-		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
-			[this](float axis)->bool {
-			IVec2 relative_pos = Input::GetRelativeMousePosition();
-			MinPitch();
-			return AddControllerPitchInput(axis * relative_pos.y);
-			
-		});
+		RegisterEvent();
 
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);
@@ -83,10 +73,68 @@ namespace revive
 			current_position.y = 300;
 		
 		SetPosition(current_position);
+
+		m_player_fsm->Update();
+	}
+
+	const float RevivePlayer::GetVelocity() const
+	{
+		return m_movement_component->GetVelocity().Length(); 
+	}
+
+	void RevivePlayer::SetAnimation(const std::string& animation_name, bool looping)
+	{
+		m_skeletal_mesh_component->SetAnimation(animation_name, looping);
+		
+	}
+
+	void RevivePlayer::SetAnimationSpeed(float speed)
+	{
+		m_skeletal_mesh_component->SetAnimationSpeed(speed);
+	}
+
+	void RevivePlayer::SetMeshPosition(const Vec3& pos)
+	{
+		m_skeletal_mesh_component->SetLocalPosition(pos);
+	}
+
+	void RevivePlayer::RegisterEvent()
+	{
+		//테스트용 명령키
+		//맞는 도중 다시 또 맞을 수 있다.
+		RegisterPressedEvent("Hit", { {eKey::kP} },
+			[this]()->bool { ++m_hit_count; m_is_hitting = true; DecrementHP();  return true; });
+
+		//공격
+		RegisterPressedEvent("attack", { {eKey::kLButton} },
+			[this]()->bool { if (m_is_attacking == false) m_is_attacking = true; LOG_INFO(m_is_attacking);  return true; });
+
+		//이동 및 조작
+		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
+			[this](float axis)->bool {
+			if (m_is_attacking == false)AddMovementInput(m_controller.lock()->GetForward(), axis);
+			return true; });
+
+		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
+			[this](float axis)->bool { if (m_is_attacking == false)AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
+
+		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
+			[this](float axis)->bool {
+			IVec2 relative_pos = Input::GetRelativeMousePosition();
+			return AddControllerYawInput(axis * relative_pos.x);
+		});
+
+		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
+			[this](float axis)->bool {
+			IVec2 relative_pos = Input::GetRelativeMousePosition();
+			MinPitch();
+			return AddControllerPitchInput(axis * relative_pos.y);
+		});
 	}
 
 	void RevivePlayer::AddMovementInput(Vec3& direction, float scale)
 	{
+		if (IsDead() == true) return;
 		direction.y = 0;
 		RotatePlayerFromCameraDirection(direction * scale);
 		m_movement_component->AddInputVector(direction * scale);
@@ -115,6 +163,7 @@ namespace revive
 
 	void RevivePlayer::MinPitch()
 	{
+		if (IsDead() == true) return;
 		Vec3 rot = quat::QuaternionToEuler(m_controller.lock()->GetRotation());
 		if (math::ToDegrees(rot.x) < 5) //컨트롤러에서 SetRotation(rot);를 안해주는게 제일 좋은 방법
 		{
