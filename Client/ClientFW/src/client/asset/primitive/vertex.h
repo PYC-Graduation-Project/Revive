@@ -205,4 +205,20 @@ namespace client_fw
 		Vec3 m_center_color;
 		Vec3 m_apex_color;
 	};
+	
+	class BoneVertex : public TextureLightVertex
+	{
+	public:
+		BoneVertex();
+		BoneVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord, const Vec4& bone_weight, const IVec4& bone_index);
+
+		const Vec4& GetBoneWeight() const { return m_bone_weight; }
+		void SetBoneWeight(const Vec4& bone_weight) { m_bone_weight = bone_weight; }
+		const IVec4& GetBoneIndex() const { return m_bone_index; }
+		void SetBoneIndex(const IVec4& bone_index) { m_bone_index = bone_index; }
+
+	protected:
+		Vec4 m_bone_weight;
+		IVec4 m_bone_index;
+	};
 }

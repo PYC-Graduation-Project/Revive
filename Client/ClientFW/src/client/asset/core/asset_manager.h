@@ -11,10 +11,13 @@ namespace client_fw
 	class ExternalCubeMapTexture;
 	class TextureLoader;
 	class RenderTexture;
+	class Skeleton;
+	class AnimationSequence;
+	class AnimationLoader;
 
 	enum class eAssetType
 	{
-		kMesh, kMaterial, kTexture,
+		kMesh, kMaterial, kTexture, kAnimation
 	};
 
 	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
@@ -26,7 +29,8 @@ namespace client_fw
 		~AssetManager();
 		
 		void Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader, 
-			UPtr<TextureLoader>&& texture_loader, bool level_cache = true);
+			UPtr<TextureLoader>&& texture_loader, UPtr<AnimationLoader>&& animation_loader,
+			bool level_cache = true);
 
 		//void LoadAssets();
 		//void LoadAssetsForLevel();
@@ -40,6 +44,7 @@ namespace client_fw
 		UPtr<MeshLoader> m_mesh_loader;
 		UPtr<MaterialLoader> m_material_loader;
 		UPtr<TextureLoader> m_texture_loader;
+		UPtr<AnimationLoader> m_animation_loader;
 
 		bool m_is_level_cache;
 		std::map<eAssetType, AssetCache> m_asset_caches;
@@ -58,6 +63,9 @@ namespace client_fw
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		SPtr<ExternalTexture> LoadTexture(const std::string& path);
 		SPtr<ExternalCubeMapTexture> LoadCubeMapTexture(const std::string& path);
+
+		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>&skeleton, const std::string& path);
+		SPtr<AnimationSequence> LoadAnimation(const std::string& path,const SPtr<Skeleton>&);
 	};
 
 	namespace file_help

@@ -7,7 +7,7 @@ namespace client_fw
 
 	IVec2::IVec2(int x, int y) : XMINT2(x, y) {}
 
-	IVec2::IVec2(const Vec2& vec) : XMINT2(static_cast<UINT>(vec.x), static_cast<UINT>(vec.y)) {}
+	IVec2::IVec2(const Vec2& vec) : XMINT2(static_cast<INT>(vec.x), static_cast<INT>(vec.y)) {}
 
 	IVec2& IVec2::operator+=(const IVec2& rhs)
 	{
@@ -128,6 +128,7 @@ namespace client_fw
 	{
 		return XMVector2Greater(XMLoadSInt2(&v1), XMLoadSInt2(&v2));
 	}
+
 	bool operator>=(const IVec2& v1, const IVec2& v2)
 	{
 		return XMVector2GreaterOrEqual(XMLoadSInt2(&v1), XMLoadSInt2(&v2));

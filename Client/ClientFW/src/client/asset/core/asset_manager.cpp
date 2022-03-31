@@ -8,7 +8,11 @@
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture.h"
 #include "client/asset/texture/texture_loader.h"
+#include "client/asset/bone/skeleton.h"
+#include "client/asset/animation/animation_sequence.h"
+#include "client/asset/animation/animation_loader.h"
 #include "client/renderer/core/render_resource_manager.h"
+
 
 namespace client_fw
 {
@@ -24,11 +28,12 @@ namespace client_fw
 	}
 
 	void AssetManager::Initialize(UPtr<MeshLoader>&& mesh_loader, UPtr<MaterialLoader>&& material_loader,
-		UPtr<TextureLoader>&& texture_loader, bool level_cache)
+		UPtr<TextureLoader>&& texture_loader,UPtr<AnimationLoader>&& animation_loader, bool level_cache)
 	{
 		m_mesh_loader = std::move(mesh_loader);
 		m_material_loader = std::move(material_loader);
 		m_texture_loader = std::move(texture_loader);
+		m_animation_loader = std::move(animation_loader);
 		m_is_level_cache = level_cache;
 	}
 
@@ -151,6 +156,7 @@ namespace client_fw
 	SPtr<ExternalCubeMapTexture> AssetManager::LoadCubeMapTexture(const std::string& path)
 	{
 		auto asset = LoadAsset(eAssetType::kTexture, path);
+
 		if (asset == nullptr)
 		{
 			std::string stem = file_help::GetStemFromPath(path);
@@ -166,6 +172,44 @@ namespace client_fw
 		}
 
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalCubeMapTexture>(asset);
+	}
+
+	SPtr<AnimationSequence> AssetManager::LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path)
+	{
+		auto asset = LoadAsset(eAssetType::kAnimation, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			asset = m_animation_loader->LoadAnimation(file, skeleton);
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kAnimation, stem, path, extension, asset);
+			}
+		}
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<AnimationSequence>(asset);
+	}
+
+	SPtr<AnimationSequence> AssetManager::LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton)
+	{
+		auto asset = LoadAsset(eAssetType::kAnimation, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			
+			FILE* animation_file = m_animation_loader->GetFilePointerForAnimation(path, extension);
+			asset = m_animation_loader->LoadAnimation(animation_file,skeleton);
+
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kAnimation, stem, path, extension, asset);
+			}
+
+		}
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<AnimationSequence>(asset);
 	}
 
 	namespace file_help

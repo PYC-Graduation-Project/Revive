@@ -37,4 +37,25 @@ namespace client_fw
 	{
 		m_instance_data->Shutdown();
 	}	
+
+	SkeletalMeshFrameResource::SkeletalMeshFrameResource()
+	{
+		m_skeletal_instance_data = CreateUPtr<UploadBuffer<RSInstanceData>>(false);
+		m_skeletal_transform_data = CreateUPtr<UploadBuffer<RSSkeletalData>>(false);
+	}
+
+	SkeletalMeshFrameResource::~SkeletalMeshFrameResource()
+	{
+	}
+
+	bool SkeletalMeshFrameResource::Initialize(ID3D12Device* device)
+	{
+		return true;
+	}
+
+	void SkeletalMeshFrameResource::Shutdown()
+	{
+		m_skeletal_instance_data->Shutdown();
+		m_skeletal_transform_data->Shutdown();
+	}
 }

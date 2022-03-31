@@ -31,9 +31,15 @@ struct LightData
     float3 light_position;
 };
 
+struct SkeletalData
+{
+    matrix bone_transform;
+};
+
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
 StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
 StructuredBuffer<LightData> g_light_data : register(t2, space0);
+StructuredBuffer<SkeletalData> g_bone_transform_data : register(t3, space0);
 Texture2D g_texture_data[] : register(t0, space1);
 TextureCube g_texture_cube_data[] : register(t0, space2);
 

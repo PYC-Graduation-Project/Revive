@@ -103,6 +103,8 @@ namespace client_fw
 			return "point light";
 		case eShaderType::kSpotLight:
 			return "spot light";
+		case eShaderType::kSkeletalMesh:
+			return "skeletal mesh";
 		default:
 			return "unknown";
 		}

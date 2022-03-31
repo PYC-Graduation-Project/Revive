@@ -14,6 +14,7 @@
 #include "client/asset/mesh/mesh_loader.h"
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture_loader.h"
+#include "client/asset/animation/animation_loader.h"
 
 //#define __USE_CPU_TIME__
 #ifdef __USE_CPU_TIME__
@@ -88,7 +89,8 @@ namespace client_fw
 	void Application::InitializeAssetManager()
 	{
 		m_asset_manager->Initialize(std::move(CreateMeshLoader()),
-			std::move(CreateMaterialLoader()), std::move(CreateTextureLoader()));
+			std::move(CreateMaterialLoader()), std::move(CreateTextureLoader()),
+			std::move(CreateAnimationLoader()));
 	}
 
 	void Application::Shutdown()
@@ -273,6 +275,11 @@ namespace client_fw
 	UPtr<TextureLoader> Application::CreateTextureLoader() const
 	{
 		return CreateUPtr<TextureLoader>();
+	}
+
+	UPtr<AnimationLoader> Application::CreateAnimationLoader() const
+	{
+		return CreateUPtr<AnimationLoader>();
 	}
 
 	LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
