@@ -1,11 +1,14 @@
 #pragma once
 #include<vector>
+#include"map_object.h"
 class MapInfo;
-class MapObj;
 class MapManager
 {
 public:
-	MapManager()=default;
+	MapManager() {
+		//m_map_objects = std::vector<MapObj>();
+		m_map_objects.reserve(100);
+	};
 	~MapManager()=default;
 	void LoadMap(const std::string& path);
 private:

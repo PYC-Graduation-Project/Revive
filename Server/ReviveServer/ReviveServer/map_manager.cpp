@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "map_manager.h"
 #include"map_info.h"
-#include"map_object.h"
+
 #include<fstream>
 #include<sstream>
 #include<vector>
@@ -87,7 +87,7 @@ void MapManager::LoadMap(const std::string& path)
 			{
 				//map_obj_manager 만들기
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i], true);
+				m_map_objects.emplace_back(i, pos, collision_extents[i],scales[i], true);
 				
 			}
 		}
@@ -101,7 +101,7 @@ void MapManager::LoadMap(const std::string& path)
 				//map_obj_manager 만들기
 
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i], false);
+				m_map_objects.emplace_back(i, pos, collision_extents[i], scales[i], false);
 			}
 		}
 		break;

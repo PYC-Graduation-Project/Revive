@@ -5,6 +5,7 @@
 #include<functional>
 #include<set>
 #include<vector>
+#include<bitset>
 const int ROW = 60;
 const int COL = 60;
 //한칸에 몇미터? 
@@ -12,7 +13,7 @@ const int COL = 60;
 //현재 위치에서 제일가까운 타일 찾아주기
 //60x60이 국룰 시작을 30,30으로 배치
 using Vec2 = std::pair<int, int>;
-
+using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
 class Node {
 public:
 	Node() {
@@ -52,7 +53,10 @@ public:
 class Astar
 {
 public:
-	Astar() {};
+	Astar() {
+		m_close_list.first.reset();
+		m_close_list.second.reset();
+	};
 	~Astar() {};
 
 	bool SearchAllPath(char* map[], Vec2 src, Vec2 dst);
@@ -71,6 +75,7 @@ private:
 	std::priority_queue<Node, std::vector<Node>, std::greater<Node>>open_pq;
 	Node testing_map[COL][ROW];
 	std::set<Vec2>close_set;
+	CloseList m_close_list;
 	std::vector<Vec2>result_vec;
 	int dirX[8] = { -1,0,1,0,-1,1,1,-1 };
 	int dirY[8] = { 0,-1,0,1,-1,-1,1,1 };

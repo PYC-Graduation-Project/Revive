@@ -5,6 +5,7 @@
 #include"room_manager.h"
 #include"room.h"
 #include"enemy.h"
+#include"map_manager.h"
 //#include"map_loader.h"
 using namespace std;
 
@@ -12,6 +13,7 @@ PacketManager::PacketManager()
 {
 	MoveObjManager::GetInst();
 	m_room_manager = new RoomManager;
+	m_map_manager = new MapManager;
 	//MapLoader loader;
 	//loader.LoadMap("map.txt");
 	//cout << loader.m_map_objects.size() << endl;;
@@ -25,7 +27,7 @@ void PacketManager::Init()
 	MoveObjManager::GetInst()->InitPlayer();
 	MoveObjManager::GetInst()->InitNPC();
 	m_room_manager->InitRoom();
-	
+	m_map_manager->LoadMap("map.txt");
 	m_db->Init();
 	
 	m_db2->Init();

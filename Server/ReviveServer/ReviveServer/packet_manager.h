@@ -6,7 +6,7 @@
 class MoveObjManager;
 class DB;
 class RoomManager;
-class MapLoader;
+class MapManager;
 class PacketManager
 {
 public:
@@ -55,7 +55,7 @@ private:
 	RoomManager* m_room_manager;
 	DB* m_db;
 	DB* m_db2;
-	
+	MapManager* m_map_manager;
 	concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
 	concurrency::concurrent_queue<db_task>m_db_queue;
 	
