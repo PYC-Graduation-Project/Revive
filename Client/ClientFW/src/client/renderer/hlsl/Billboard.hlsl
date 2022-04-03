@@ -1,4 +1,5 @@
-#include "Opaque.hlsl"
+#include "Resource.hlsl"
+#include "Common.hlsl"
 
 #ifndef __BILLBOARD_HLSL__
 #define __BILLBOARD_HLSL__
@@ -111,6 +112,7 @@ PS_GBUFFER_OUTPUT PSBillboard(GS_BILLBOARD_OUTPUT input)
     output.base_color.a = 1.0f;
     
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(1.0f, 0.0f, 1.0f, 1.0f);
     
     return output;
 }
@@ -140,6 +142,8 @@ struct GS_MAT_BASECOLOR_BILLBOARD_OUTPUT
     float4 sv_position : SV_POSITION;
     float3 normal : NORMAL;
     float4 base_color : COLOR;
+    float roughness : ROUGHNESS;
+    float metallic : METALLIC;
 };
 
 [maxvertexcount(4)]
@@ -152,7 +156,11 @@ void GSMaterialBaseColorBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout T
     
     GS_MAT_BASECOLOR_BILLBOARD_OUTPUT output;
     
-    output.base_color = g_material_data[input[0].resource_index].base_color;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.base_color = material_data.base_color;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     
    [unroll]
@@ -173,7 +181,11 @@ void GSFixUpMaterialBaseColorBillboard(point VS_MAT_BILLBOARD_INPUT input[1], in
     
     GS_MAT_BASECOLOR_BILLBOARD_OUTPUT output;
     
-    output.base_color = g_material_data[input[0].resource_index].base_color;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.base_color = material_data.base_color;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     
     [unroll]
@@ -190,6 +202,7 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialBaseColorBillboard(GS_MAT_BASECOLOR_BILLBOARD_
   
     output.base_color = input.base_color;
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -202,6 +215,7 @@ PS_GBUFFER_OUTPUT PSMaskedMaterialBaseColorBillboard(GS_MAT_BASECOLOR_BILLBOARD_
     clip(output.base_color.a - MASKED_ALPHA);
     
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -215,6 +229,8 @@ struct GS_MAT_TEXTURE_BILLBOARD_OUTPUT
     float4 sv_position : SV_POSITION;
     float3 normal : NORMAL;
     uint diffuse_index : DIFFUSE_TEXTURE;
+    float roughness : ROUGHNESS;
+    float metallic : METALLIC;
     float2 uv : TEXCOORD;
 };
 
@@ -228,7 +244,11 @@ void GSMaterialTextureBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout Tri
     
     GS_MAT_TEXTURE_BILLBOARD_OUTPUT output;
     
-    output.diffuse_index = g_material_data[input[0].resource_index].diffuse_texture_index;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.diffuse_index = material_data.diffuse_texture_index;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     
    [unroll]
@@ -250,7 +270,11 @@ void GSFixUpMaterialTextureBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inou
     
     GS_MAT_TEXTURE_BILLBOARD_OUTPUT output;
     
-    output.diffuse_index = g_material_data[input[0].resource_index].diffuse_texture_index;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.diffuse_index = material_data.diffuse_texture_index;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     
     [unroll]
@@ -268,6 +292,7 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialTextureBillboard(GS_MAT_TEXTURE_BILLBOARD_OUTP
   
     output.base_color = g_texture_data[input.diffuse_index].Sample(g_sampler_point_wrap, input.uv);
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -280,6 +305,7 @@ PS_GBUFFER_OUTPUT PSMaskedMaterialTextureBillboard(GS_MAT_TEXTURE_BILLBOARD_OUTP
     clip(output.base_color.a - MASKED_ALPHA);
     
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -296,6 +322,8 @@ struct GS_MAT_NORMAL_MAP_BILLBOARD_OUTPUT
     float3 bitangent : BITANGENT;
     uint diffuse_index : DIFFUSE_TEXTURE;
     uint normal_index : NORMAL_TEXTURE;
+    float roughness : ROUGHNESS;
+    float metallic : METALLIC;
     float2 uv : TEXCOORD;
 };
 
@@ -309,8 +337,12 @@ void GSMaterialNormalMapBillboard(point VS_MAT_BILLBOARD_INPUT input[1], inout T
     
     GS_MAT_NORMAL_MAP_BILLBOARD_OUTPUT output;
     
-    output.diffuse_index = g_material_data[input[0].resource_index].diffuse_texture_index;
-    output.normal_index = g_material_data[input[0].resource_index].normal_texture_index;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.diffuse_index = material_data.diffuse_texture_index;
+    output.normal_index = material_data.normal_texture_index;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     output.tangent = right;
     output.bitangent = up;
@@ -334,8 +366,12 @@ void GSFixUpMaterialNormalMapBillboard(point VS_MAT_BILLBOARD_INPUT input[1], in
     
     GS_MAT_NORMAL_MAP_BILLBOARD_OUTPUT output;
     
-    output.diffuse_index = g_material_data[input[0].resource_index].diffuse_texture_index;
-    output.normal_index = g_material_data[input[0].resource_index].normal_texture_index;
+    MaterialData material_data = g_material_data[input[0].resource_index];
+    
+    output.diffuse_index = material_data.diffuse_texture_index;
+    output.normal_index = material_data.normal_texture_index;
+    output.roughness = material_data.roughness;
+    output.metallic = material_data.metallic;
     output.normal = look;
     output.tangent = right;
     output.bitangent = up;
@@ -357,6 +393,7 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialNormalMapBillboard(GS_MAT_NORMAL_MAP_BILLBOARD
     float3 normal = GetNormalFromNormalMap(g_texture_data[input.normal_index].Sample(g_sampler_point_wrap, input.uv).xyz,
         input.normal, input.tangent, input.bitangent);
     output.normal = float4(normal + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -371,6 +408,7 @@ PS_GBUFFER_OUTPUT PSMaskedMaterialNormalMapBillboard(GS_MAT_NORMAL_MAP_BILLBOARD
     float3 normal = GetNormalFromNormalMap(g_texture_data[input.normal_index].Sample(g_sampler_point_wrap, input.uv).xyz,
         input.normal, input.tangent, input.bitangent);
     output.normal = float4(normal + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(input.roughness, input.metallic, 1.0f, 1.0f);
     
     return output;
 }

@@ -32,13 +32,17 @@ namespace client_fw
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;
 		virtual bool SetMesh(const std::string& file_path);
 
-		//SPtr<AnimationController>& GetAnimationController() { return m_animation_controller; }
-
 		const std::vector<Mat4>& GetBoneTransformData() { return m_animation_controller->GetBoneTransformData(); }
+
+		void SetLooping(const bool looping) { m_looping = looping; }
 
 		void SetIsPlaying(const bool is_playing) { m_is_playing = is_playing; }
 
-		void SetAnimation(const std::string& animation_name);
+		void SetAnimation(const std::string& animation_name, const bool looping = true);
+		void SetAnimationSpeed(float speed) { m_animation_controller->SetAnimationSpeed(speed); }
+
+		void AddNotify(const std::string name, const std::string animation_name, float time, const std::function<void()>& function) { m_animation_controller->AddNotify(name,  animation_name, time, function); }
+	
 	protected:
 		SPtr<SkeletalMeshComponent> SharedFromThis();
 	};

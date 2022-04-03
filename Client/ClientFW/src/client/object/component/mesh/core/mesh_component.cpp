@@ -10,7 +10,6 @@ namespace client_fw
 	MeshComponent::MeshComponent(const std::string& name, const std::string& draw_shader_name)
 		: RenderComponent(name, 20, eRenderType::kMesh, draw_shader_name)
 	{
-		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
 
 	void MeshComponent::Shutdown()

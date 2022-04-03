@@ -8,7 +8,7 @@ namespace client_fw
 		//UpdateTransform(mat4::IDENTITY);
 		return m_world;
 	}
-	const Mat4& Skeleton::GetTransposeWorld()
+	const Mat4 Skeleton::GetTransposeWorld()
 	{
 		Mat4 temp = m_world;
 		temp.Transpose();

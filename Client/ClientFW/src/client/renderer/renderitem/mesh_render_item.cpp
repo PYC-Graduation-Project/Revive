@@ -73,7 +73,7 @@ namespace client_fw
 					UINT lod = mesh_comp->GetLevelOfDetail();
 
 					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),0 };
+						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
 
 					mesh_comp->SetVisiblity(false);
 				}

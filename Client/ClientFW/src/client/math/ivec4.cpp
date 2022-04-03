@@ -3,6 +3,14 @@
 
 namespace client_fw
 {
+	IVec4::IVec4() : XMINT4(0, 0, 0, 0) {}
+
+	IVec4::IVec4(int x, int y, int z, int w) : XMINT4(x, y, z, w) {}
+
+	IVec4::IVec4(const Vec4& vec) : XMINT4(
+		static_cast<INT>(vec.x), static_cast<INT>(vec.y),
+		static_cast<INT>(vec.z), static_cast<INT>(vec.w)) {}
+
 	IVec4& IVec4::operator+=(const IVec4& rhs)
 	{
 		XMStoreSInt4(this, XMVectorAdd(XMLoadSInt4(this), XMLoadSInt4(&rhs)));
@@ -42,7 +50,7 @@ namespace client_fw
 	std::string IVec4::ToString() const
 	{
 		std::stringstream ret;
-		ret << "Vec4 : {" << x << ", " << y << z << w <<"}";
+		ret << "Vec4 : {" << x << ", " << y << ", " << z << ", " << w << "}";
 		return ret.str();
 	}
 
@@ -122,6 +130,7 @@ namespace client_fw
 	{
 		return XMVector4Greater(XMLoadSInt4(&v1), XMLoadSInt4(&v2));
 	}
+
 	bool operator>=(const IVec4& v1, const IVec4& v2)
 	{
 		return XMVector4GreaterOrEqual(XMLoadSInt4(&v1), XMLoadSInt4(&v2));

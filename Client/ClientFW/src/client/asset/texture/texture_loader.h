@@ -4,6 +4,7 @@ namespace client_fw
 {
 	class Texture;
 	class ExternalTexture;
+	class ExternalCubeMapTexture;
 
 	class TextureLoader
 	{
@@ -14,6 +15,7 @@ namespace client_fw
 		TextureLoader& operator=(const TextureLoader&) = delete;
 
 		virtual SPtr<ExternalTexture> LoadTexture(const std::string& path, const std::string& extension) const;
+		virtual SPtr<ExternalCubeMapTexture> LoadCubeMapTexture(const std::string& path, const std::string& extension) const;
 	};
 
 	class TextureCreator
@@ -36,6 +38,7 @@ namespace client_fw
 	public:
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(const ComPtr<ID3D12Resource>& texture_resource);
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescForDSV(const ComPtr<ID3D12Resource>& dsv_resource);
+		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescForCube(const ComPtr<ID3D12Resource>& cube_map_resource);
 	};
 }
 

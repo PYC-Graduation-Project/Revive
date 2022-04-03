@@ -132,12 +132,30 @@ namespace client_fw
 	{
 	}
 
-	BoneVertex::BoneVertex()
-		:TextureLightVertex(),m_bone_weight(0.0f,0.0f,0.0f,0.0f),m_bone_index(0,0,0,0)
+	SkySphereVertex::SkySphereVertex()
+		: m_center_color(vec3::ZERO)
+		, m_apex_color(vec3::ZERO)
 	{
 	}
-	BoneVertex::BoneVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord, const Vec4& bone_weight, const IVec4& bone_index)
-		:TextureLightVertex(position,normal,tex_coord) ,m_bone_weight(bone_weight), m_bone_index(bone_index)
+
+	SkySphereVertex::SkySphereVertex(const Vec3& center_color, const Vec3& apex_color)
+		: m_center_color(center_color)
+		, m_apex_color(apex_color)
+	{
+	}
+
+	BoneVertex::BoneVertex()
+		: TextureLightVertex()
+		, m_bone_weight(0.0f, 0.0f, 0.0f, 0.0f)
+		, m_bone_index(0, 0, 0, 0)
+	{
+	}
+
+	BoneVertex::BoneVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord,
+		const Vec4& bone_weight, const IVec4& bone_index)
+		: TextureLightVertex(position,normal,tex_coord)
+		, m_bone_weight(bone_weight)
+		, m_bone_index(bone_index)
 	{
 	}
 }

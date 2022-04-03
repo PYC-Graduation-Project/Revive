@@ -10,10 +10,10 @@ namespace client_fw
 
 		const Vec3& GetPosition() const { return m_position; }
 		void SetPosition(const Vec3& position) { m_position = position; }
-			
+
 	protected:
 		Vec3 m_position;
-	
+
 	};
 
 	class LightVertex : public Vertex
@@ -169,7 +169,7 @@ namespace client_fw
 		void SetRight(const Vec3& right) { m_right = right; }
 		const Vec3& GetUp() const { return m_up; }
 		void SetUp(const Vec3& up) { m_up = up; }
-		
+
 	protected:
 		Vec3 m_right;
 		Vec3 m_up;
@@ -188,6 +188,22 @@ namespace client_fw
 
 	protected:
 		Vec2 m_pivot;
+	};
+
+	class SkySphereVertex
+	{
+	public:
+		SkySphereVertex();
+		SkySphereVertex(const Vec3& center_color, const Vec3& apex_color);
+
+		const Vec3& GetCenterColor() const { return m_center_color; }
+		void SetCenterColor(const Vec3& color) { m_center_color = color; }
+		const Vec3& GetApexColor() const { return m_apex_color; }
+		void SetApexColor(const Vec3& color) { m_apex_color = color; }
+
+	protected:
+		Vec3 m_center_color;
+		Vec3 m_apex_color;
 	};
 	
 	class BoneVertex : public TextureLightVertex

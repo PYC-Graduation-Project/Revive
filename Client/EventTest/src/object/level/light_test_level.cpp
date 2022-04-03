@@ -2,10 +2,14 @@
 #include <client/input/input.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/object/actor/directional_light.h>
+#include <client/object/actor/point_light.h>
+#include <client/object/actor/sky_cube.h>
+#include <client/object/actor/sky_sphere.h>
 #include <client/util/octree/octree.h>
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
+#include <client/asset/core/asset_store.h>
 
 namespace event_test
 {
@@ -38,11 +42,36 @@ namespace event_test
 		d_light->SetLightDirection(Vec3(0.0f, -1.0f, 1.0f));
 		SpawnActor(d_light);
 
+		auto p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
+		SpawnActor(p_light);
+
+		p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(0.0f, 400000.0f, 0.0f));
+		p_light->SetPosition(Vec3(-500.0f, 0.0f, 0.0f));
+		SpawnActor(p_light);
+
+		p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(0.0f, 0.0f, 400000.0f));
+		p_light->SetPosition(Vec3(500.0f, 0.0f, 0.0f));
+		SpawnActor(p_light);
+
 		auto tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,
 			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);
 		SpawnActor(tree);
 		tree->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
-		
+	
+		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
+		SpawnActor(sky_cube);
+
+		sky_cube = CreateSPtr<SkyCube>("../Contents/desertcube1024.dds");
+		SpawnActor(sky_cube);
+
+		auto sky_sphere = CreateSPtr<SkySphere>();
+		SpawnActor(sky_sphere);
+		sky_sphere->SetCenterColor(Vec3(0.0f, 0.0f, 0.0f));
+		sky_sphere->SetApexColor(Vec3(1.0f, 1.0f, 1.0f));
+
 		return true;
 	}
 

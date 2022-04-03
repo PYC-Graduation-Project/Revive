@@ -8,7 +8,6 @@ namespace client_fw
 		: RenderComponent(name, 20, eRenderType::kBillboard, draw_shader_name)
 		, m_type(type), m_size(Vec2(100.f, 100.f))
 	{
-		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
 
 	void BillboardComponent::UpdateOrientedBox()

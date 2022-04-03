@@ -76,6 +76,7 @@ namespace event_test
 			PacketHelper::RegisterPacketEventToActor(CreateSPtr<MessageEventInfo>(HashCode("change rotating speed")), 0);
 			return true; 
 			});
+
 		return true;
 	}
 

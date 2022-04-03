@@ -21,14 +21,14 @@ namespace client_fw
 		virtual void UpdateWorldMatrix() override;
 
 	private:
-		void UpdateLocalMatrix();
+		virtual void UpdateLocalMatrix();
 
 	protected:
 		virtual void UpdateOrientedBox();
 		void RegisterToCollisionOctree();
 		void UnregisterToCollsionOctree();
 
-	private:
+	protected:
 		Mat4 m_world_matrix;
 		Vec3 m_world_position;
 		Vec3 m_world_previous_position;
