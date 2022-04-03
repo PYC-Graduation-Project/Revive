@@ -131,4 +131,13 @@ namespace client_fw
 		, m_pivot(pivot)
 	{
 	}
+
+	BoneVertex::BoneVertex()
+		:TextureLightVertex(),m_bone_weight(0.0f,0.0f,0.0f,0.0f),m_bone_index(0,0,0,0)
+	{
+	}
+	BoneVertex::BoneVertex(const Vec3& position, const Vec3& normal, const Vec2& tex_coord, const Vec4& bone_weight, const IVec4& bone_index)
+		:TextureLightVertex(position,normal,tex_coord) ,m_bone_weight(bone_weight), m_bone_index(bone_index)
+	{
+	}
 }

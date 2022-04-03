@@ -412,3 +412,6 @@ Client/**/Contents/
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+Client/Contents/c.rev
+*.bak
+*.orig

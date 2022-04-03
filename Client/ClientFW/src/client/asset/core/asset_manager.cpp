@@ -9,6 +9,8 @@
 #include "client/asset/texture/texture.h"
 #include "client/asset/texture/texture_loader.h"
 #include "client/renderer/core/render_resource_manager.h"
+#include "client/asset/bone/skeleton.h"
+#include "client/asset/animation/animation_sequence.h"
 
 namespace client_fw
 {
@@ -146,6 +148,44 @@ namespace client_fw
 		}
 
 		return (asset == nullptr) ? nullptr : std::static_pointer_cast<ExternalTexture>(asset);
+	}
+
+	SPtr<AnimationSequence> AssetManager::LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path)
+	{
+		auto asset = LoadAsset(eAssetType::kAnimation, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			asset = m_rev_loader->LoadAnimation(file,skeleton);
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kAnimation, stem, path, extension, asset);
+			}
+
+		}
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<AnimationSequence>(asset);
+	}
+
+	SPtr<AnimationSequence> AssetManager::LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton)
+	{
+		auto asset = LoadAsset(eAssetType::kAnimation, path);
+		if (asset == nullptr)
+		{
+			std::string stem = file_help::GetStemFromPath(path);
+			std::string extension = file_help::GetExtentionFromPath(path);
+			
+			FILE* animation_file = m_rev_loader->LoadRevForAnimation(path, extension);
+			asset = m_rev_loader->LoadAnimation(animation_file,skeleton);
+			if (asset != nullptr)
+			{
+				LOG_INFO("Stem : {0}, Path : {1}, extension : {2}", stem, path, extension);
+				SaveAsset(eAssetType::kAnimation, stem, path, extension, asset);
+			}
+
+		}
+		return (asset == nullptr) ? nullptr : std::static_pointer_cast<AnimationSequence>(asset);
 	}
 
 	namespace file_help

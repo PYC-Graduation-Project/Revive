@@ -95,6 +95,8 @@ namespace client_fw
 			return "opaque widget";
 		case eShaderType::kMaskedWidget:
 			return "masked widget";
+		case eShaderType::kSkeletalMesh:
+			return "skeletal mesh";
 		default:
 			return "unknown";
 		}

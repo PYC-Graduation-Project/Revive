@@ -48,9 +48,9 @@ namespace client_fw
 		ComPtr<ID3DBlob> m_vertex_buffer_blob;
 		ComPtr<ID3D12Resource> m_vertex_buffer;
 		ComPtr<ID3D12Resource> m_vertex_upload_buffer;
+		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 
 		UINT m_slot = 0;
-		D3D12_VERTEX_BUFFER_VIEW m_vertex_buffer_view;
 
 	public:
 		template <class VertexType>

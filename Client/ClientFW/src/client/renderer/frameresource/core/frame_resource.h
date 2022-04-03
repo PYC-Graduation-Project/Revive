@@ -4,7 +4,8 @@ namespace client_fw
 {
 	class RenderResourceFrameResource;
 	class CameraFrameResource;
-	class StaticMeshFrameResource;
+	class StaticMeshFrameResource;	
+	class SkeletalMeshFrameResource;
 	class LightFrameResource;
 	class BillboardFrameResource;
 	class WidgetFrameResource;
@@ -42,18 +43,22 @@ namespace client_fw
 
 	private:
 		std::map<std::string, UPtr<StaticMeshFrameResource>> m_static_mesh_frame_resource;
+		std::map<std::string, UPtr<SkeletalMeshFrameResource>> m_skeletal_mesh_frame_resource;
 		std::map<std::string, UPtr<BillboardFrameResource>> m_billboard_frame_resource;
 		std::map<std::string, UPtr<WidgetFrameResource>> m_widget_frame_resource;
 		std::map<std::string, UPtr<UserInterfaceFrameResource>> m_ui_frame_resource;
 
 	public:
 		void CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name);
+		void CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name);
 
 		const UPtr<StaticMeshFrameResource>& GetStaticMeshFrameResource(const std::string& shader_name) const 
 		{ return m_static_mesh_frame_resource.at(shader_name); }
+		const UPtr<SkeletalMeshFrameResource>& GetSkeletalMeshFrameResource(const std::string& shader_name) const
+		{ return m_skeletal_mesh_frame_resource.at(shader_name); }
 		const UPtr<BillboardFrameResource>& GetBillboardFrameResource(const std::string& shader_name) const 
 		{ return m_billboard_frame_resource.at(shader_name); }
 		const UPtr<WidgetFrameResource>& GetWidgetFrameResource(const std::string& shader_name) const 

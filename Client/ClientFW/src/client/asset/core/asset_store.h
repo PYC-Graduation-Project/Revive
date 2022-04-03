@@ -7,6 +7,8 @@ namespace client_fw
 	class Material;
 	class ExternalTexture;
 	class RenderTexture;
+	class Skeleton;
+	class AnimationSequence;
 
 	// 외부에서 Asset을 불러오기 위해서 사용하는 함수들을 제공하는 클래스
 	class AssetStore final
@@ -24,6 +26,8 @@ namespace client_fw
 		//return value (mtl name, mtl name's material)
 		static std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		static SPtr<ExternalTexture> LoadTexture(const std::string& path);
+		static SPtr<AnimationSequence> LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path);
+		static SPtr<AnimationSequence> LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton);
 
 	private:
 		friend AssetManager;

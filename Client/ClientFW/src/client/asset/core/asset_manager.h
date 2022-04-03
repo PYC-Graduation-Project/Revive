@@ -5,15 +5,18 @@ namespace client_fw
 	class Asset;
 	class Mesh;
 	class MeshLoader;
+	class RevLoader;
 	class Material;
 	class MaterialLoader;
 	class ExternalTexture;
 	class TextureLoader;
 	class RenderTexture;
+	class Skeleton;
+	class AnimationSequence;
 
 	enum class eAssetType
 	{
-		kMesh, kMaterial, kTexture, kRenderTexture,
+		kMesh, kMaterial, kTexture, kRenderTexture, kAnimation
 	};
 
 	using AssetCache = std::unordered_map<std::string, SPtr<Asset>>;
@@ -37,6 +40,7 @@ namespace client_fw
 
 	private:
 		UPtr<MeshLoader> m_mesh_loader;
+		UPtr<RevLoader> m_rev_loader;
 		UPtr<MaterialLoader> m_material_loader;
 		UPtr<TextureLoader> m_texture_loader;
 
@@ -56,6 +60,8 @@ namespace client_fw
 		SPtr<Material> LoadMaterial(const std::string& path, const std::string& mtl_name);
 		std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
 		SPtr<ExternalTexture> LoadTexture(const std::string& path);
+		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>&skeleton, const std::string& path);
+		SPtr<AnimationSequence> LoadAnimation(const std::string& path,const SPtr<Skeleton>&);
 	};
 
 	namespace file_help
