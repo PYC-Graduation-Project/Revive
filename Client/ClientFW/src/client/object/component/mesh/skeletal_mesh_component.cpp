@@ -54,8 +54,7 @@ namespace client_fw
 		skeletal_mesh->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		return true;
 	}
-
-	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name)
+	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name,bool looping)
 	{
 		m_animation_name = animation_name;
 
@@ -65,6 +64,8 @@ namespace client_fw
 		{
 			m_animation_controller->SetAnimationName(animation_name);
 			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
+			if (looping == false) m_animation_controller->Initialize();
+			SetLooping(looping);
 		}
 	}
 

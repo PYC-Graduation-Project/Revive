@@ -40,7 +40,6 @@ namespace client_fw
 				return;
 			}
 		}
-			prev_time_index = 0;
 	}
 
 	void  AnimationTrack::SetAnimatedTransform(int& prev_time_index, int bone_index, float time_pos, float weight)
