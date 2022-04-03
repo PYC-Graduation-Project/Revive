@@ -194,24 +194,32 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
 	Vector3& nlook=enemy->GetLookVec();
-	Vector3& npos = enemy->GetPos();
+	Vector3& curr_pos = enemy->GetPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-		nlook= Vector3{ BASE_POINT - npos };
+		nlook= Vector3{ BASE_POINT - curr_pos };
 		//적 look벡터 설정
 	}
 	else
 	{
 		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
-		 nlook= Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - npos };
+		 nlook= Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - curr_pos };
 	}
 	//타겟이 누군지에 따라서 계산 다르게 해주기
 	Vector3 move_vec=nlook.Normalrize();
-	npos+=(move_vec * MAX_SPEED);//이동거리 16ms보내주는거
+	Vector3 npos=curr_pos+(move_vec * MAX_SPEED);
 	cout << move_vec.x << move_vec.y << move_vec.z << endl;
+	
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
+	if(false==m_map_manager->CheckCollision(npos))
+		enemy->SetPos(npos);
+	else {//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
+		nlook = Vector3{ Vector3(2400.0f,curr_pos.y,curr_pos.z)- curr_pos };
+		move_vec = nlook.Normalrize();
+		npos = curr_pos + (move_vec * MAX_SPEED);
+		enemy->SetPos(npos);
+	}
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
-	enemy->SetPos(npos);
 	//다음 위치 보내주기
 	
 
@@ -659,7 +667,6 @@ void PacketManager::ProcessDBTask(db_task& dt)
 		ret = m_db->CheckLoginData(dt.user_id, dt.user_password);
 		if (ret == LOGINFAIL_TYPE::OK)
 		{
-			//이미 접속해있는지 확인
 			
 			//접속꽉찬거는 accept 쪽에서 보내기주기
 			pl->state_lock.lock();
@@ -681,11 +688,6 @@ void PacketManager::ProcessDBTask(db_task& dt)
 			//로그인 실패 패킷보내기
 			SendLoginFailPacket(dt.obj_id, static_cast<int>(ret));
 		}
-		//test용 코드 이후에 꼭 지우자
-		//for (int i = 0; i < 10; ++i)
-		//{
-		//	SendTestPacket(pl->GetID(), i * 20, i * 100.0f, 0, i * 100.0f);
-		//}
 		break;
 	}
 	case DB_TASK_TYPE::SIGN_UP:

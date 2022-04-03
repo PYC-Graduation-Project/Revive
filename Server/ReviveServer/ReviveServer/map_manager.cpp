@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "map_manager.h"
-#include"map_info.h"
 
 #include<fstream>
 #include<sstream>
@@ -87,7 +86,7 @@ void MapManager::LoadMap(const std::string& path)
 			{
 				//map_obj_manager 만들기
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i],scales[i], true);
+				m_map_objects.emplace_back(i, pos, collision_extents[i], true);
 				
 			}
 		}
@@ -101,7 +100,7 @@ void MapManager::LoadMap(const std::string& path)
 				//map_obj_manager 만들기
 
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i], scales[i], false);
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false);
 			}
 		}
 		break;
@@ -109,4 +108,21 @@ void MapManager::LoadMap(const std::string& path)
 		col_index += act_info.collision_count;
 		//MapObj추가
 	}
+	BlockTileMap();
+}
+
+
+
+bool MapManager::CheckCollision(const Vector3& obj_pos)
+{
+	for (auto& map_obj : m_map_objects)
+	{
+		if (map_obj.GetIsBlocked() == false)continue;
+		if (map_obj.GetMinPos().x <= obj_pos.x && map_obj.GetMaxPos().x >= obj_pos.x &&
+			map_obj.GetMinPos().z <= obj_pos.z && map_obj.GetMaxPos().z >= obj_pos.z)
+		{
+			return true;
+		}
+	}
+	return false;
 }

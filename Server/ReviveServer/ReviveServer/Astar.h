@@ -35,8 +35,6 @@ public:
 	Vec2 parant_pos;
 
 	bool operator>(const Node& a) const {
-		//if (f == a.f)
-		//	return g > a.g;
 		return f > a.f;
 	}
 	bool operator<(const Node& a) const {
@@ -54,8 +52,7 @@ class Astar
 {
 public:
 	Astar() {
-		m_close_list.first.reset();
-		m_close_list.second.reset();
+	
 	};
 	~Astar() {};
 
@@ -75,7 +72,7 @@ private:
 	std::priority_queue<Node, std::vector<Node>, std::greater<Node>>open_pq;
 	Node testing_map[COL][ROW];
 	std::set<Vec2>close_set;
-	CloseList m_close_list;
+	
 	std::vector<Vec2>result_vec;
 	int dirX[8] = { -1,0,1,0,-1,1,1,-1 };
 	int dirY[8] = { 0,-1,0,1,-1,-1,1,1 };
