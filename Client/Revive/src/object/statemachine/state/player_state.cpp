@@ -6,7 +6,7 @@ namespace revive
 {
 	void IdleState::Enter()
 	{
-		LOG_INFO("Idle State");
+		//LOG_INFO("Idle State");
 		m_player->SetAnimation("idle", true);
 		m_player->SetMeshPosition(Vec3{ 0,40,0 });
 	}
@@ -31,7 +31,7 @@ namespace revive
 
 	void MoveState::Enter()
 	{
-		LOG_INFO("Move State");
+		//LOG_INFO("Move State");
 		m_player->SetAnimation("run", true);
 	}
 
@@ -55,7 +55,7 @@ namespace revive
 
 	void DeadState::Enter()
 	{
-		LOG_INFO("Dead State");
+		//LOG_INFO("Dead State");
 		m_player->SetMeshPosition(Vec3{ 0,0,0 });
 		m_player->SetAnimation("death", false);
 		//m_player->SetActorState(eActorState::kDead);
@@ -64,7 +64,7 @@ namespace revive
 
 	void AttackState::Enter()
 	{
-		LOG_INFO("Attack State");
+		//LOG_INFO("Attack State");
 		m_player->SetMeshPosition(Vec3{ 0,0,0 });
 		m_player->SetAnimation("attack", false);
 	}
@@ -86,7 +86,7 @@ namespace revive
 
 	void HitState::Enter()
 	{
-		LOG_INFO("HitState");
+		//LOG_INFO("HitState");
 		m_player->SetMeshPosition(Vec3{ 0,0,0 });
 		m_player->SetAnimation("hit", false);
 		m_player->SetAnimationSpeed(0.6f);

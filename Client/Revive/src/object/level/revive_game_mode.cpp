@@ -23,6 +23,7 @@ namespace revive
 	{
 		m_player_controller->Possess(m_player);
 		m_player_controller->SetPlayerCamera(m_player->GetCameraComponent());
+		m_player->SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 		level->SpawnActor(m_player);
 		level->SpawnActor(m_player_controller);
 		Input::SetInputMode(eInputMode::kGameOnly);
