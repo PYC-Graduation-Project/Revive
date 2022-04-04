@@ -6,7 +6,7 @@ namespace client_fw
 {
 	class SceneComponent;
 	class SkeletalMeshComponent;
-	class SphereComponent;
+	class BoxComponent;
 }
 
 namespace revive
@@ -61,9 +61,9 @@ namespace revive
 		SPtr<PlayerFSM> m_player_fsm; 
 
 		std::string m_mesh_path;
+		std::array<SPtr<BoxComponent>,2> m_box_components;
 		SPtr<PawnMovementComponent> m_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
-		SPtr<SphereComponent> m_sphere_component;
 		SPtr<FollowCamera> m_camera_component;
 
 		using Pawn::SetUseControllerPitch;

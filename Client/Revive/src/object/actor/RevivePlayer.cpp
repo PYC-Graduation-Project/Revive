@@ -3,7 +3,6 @@
 #include <client/object/component/util/simple_movement_component.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
-#include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
@@ -19,9 +18,11 @@ namespace revive
 		m_camera_component = CreateSPtr<FollowCamera>("Follow Camera", eCameraUsage::kBasic);
 		m_movement_component = CreateSPtr<SimpleMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
-		m_sphere_component = CreateSPtr<SphereComponent>(30.0f);
 		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
+		
+		m_box_components[0] = CreateSPtr<BoxComponent>(Vec3{40.0f,40.0f,40.0f},"Player Head Box");
+		m_box_components[1] = CreateSPtr<BoxComponent>(Vec3{25.0f,32.0f,50.0f},"Player Body Collision");
 	}
 
 	bool RevivePlayer::Initialize()
@@ -35,6 +36,7 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalPosition(Vec3{ 0.0f, 40.0f, 0.0f });
 		m_skeletal_mesh_component->SetLocalRotation(80.0f, 185.0f, 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(0.01f);
+
 		//Notify 기능을 사용할 애니메이션을 미리 등록한다 
 		//Notify 이름,애니메이션 이름, 특정 시간, 특정 시간에 실행할 함수
 		//Notify 이름을 언리얼처럼 넣어주긴 했으나, 정작 사용하지는 않고 있다.
@@ -46,8 +48,19 @@ namespace revive
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_player_fsm->Initialize(SharedFromThis());
 		
-		m_sphere_component->SetCollisionInfo(true, false, "default", { "default" }, true);
-		ret &= AttachComponent(m_sphere_component);
+		m_box_components[0]->SetLocalPosition(Vec3{ -10.0f,50.0f,-10.0f });
+		m_box_components[1]->SetLocalPosition(Vec3{ 0.0f,0.0f,-40.0f });
+		
+		m_box_components[1]->SetCollisionInfo(true, true, "default", { "default" }, true);
+		m_box_components[1]->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+				const SPtr<SceneComponent>& other_component) {
+				LOG_INFO("충돌 {0} {1}", component->GetName(), other_component->GetName());
+				//CollisionResponse(component, other_actor, other_component);
+			});
+		for(auto box_component : m_box_components)
+			ret &= AttachComponent(box_component);
+			
+		ret &= AttachComponent(m_static_mesh_component);
 		ret &= AttachComponent(m_camera_component);
 		
 		RegisterEvent();
@@ -63,6 +76,9 @@ namespace revive
 	{
 		m_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
+		//m_box_component = nullptr;
+		m_camera_component = nullptr;
+		m_player_fsm = nullptr;
 	}
 
 	void RevivePlayer::Update(float delta_time)
