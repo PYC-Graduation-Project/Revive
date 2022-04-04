@@ -29,8 +29,8 @@ namespace client_fw
 
 		virtual bool CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level) override;
 
-		virtual bool RegisterLightComponent(ID3D12Device* device, const SPtr<LightComponent> light_comp);
-		virtual void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
+		virtual bool RegisterLocalLightComponent(ID3D12Device* device, const SPtr<LocalLightComponent> light_comp) override;
+		virtual void UnregisterLocalLightComponent(const SPtr<LocalLightComponent>& light_comp) override;
 
 	protected:
 		SPtr<LightRenderItem> m_light_render_item;

@@ -177,13 +177,13 @@ namespace client_fw
 		LOG_WARN("Could not supported sky component at {0}", m_name);
 	}
 
-	bool GraphicsShader::RegisterLightComponent(ID3D12Device* device, const SPtr<LightComponent> light_comp)
+	bool GraphicsShader::RegisterLocalLightComponent(ID3D12Device* device, const SPtr<LocalLightComponent> light_comp)
 	{
 		LOG_WARN("Could not supported light component at {0}", m_name);
 		return false;
 	}
 
-	void GraphicsShader::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void GraphicsShader::UnregisterLocalLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		LOG_WARN("Could not supported light component at {0}", m_name);
 	}

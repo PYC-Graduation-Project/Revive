@@ -13,14 +13,10 @@ namespace client_fw
 
 	void LightComponent::RegisterToVisualOctree()
 	{
-		if (m_light_type != eLightType::kDirectional)
-			RenderComponent::RegisterToVisualOctree();
 	}
 
 	void LightComponent::UnregisterFromVisualOctree()
 	{
-		if (m_light_type != eLightType::kDirectional)
-			RenderComponent::UnregisterFromVisualOctree();
 	}
 
 	SPtr<LightComponent> LightComponent::SharedFromThis()

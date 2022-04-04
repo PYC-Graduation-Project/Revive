@@ -85,13 +85,13 @@ namespace client_fw
 		}
 	}
 
-	void LightRenderItem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void LightRenderItem::RegisterLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		light_comp->SetRenderItemIndex(static_cast<UINT>(m_light_components.size()));
 		m_light_components.push_back(light_comp);
 	}
 
-	void LightRenderItem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void LightRenderItem::UnregisterLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		UINT index = light_comp->GetRenderItemIndex();
 

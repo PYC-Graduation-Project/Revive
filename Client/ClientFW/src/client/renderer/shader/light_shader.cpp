@@ -99,13 +99,13 @@ namespace client_fw
 		return result;
 	}
 
-	bool LightShader::RegisterLightComponent(ID3D12Device* device, const SPtr<LightComponent> light_comp)
+	bool LightShader::RegisterLocalLightComponent(ID3D12Device* device, const SPtr<LocalLightComponent> light_comp)
 	{
 		m_light_render_item->RegisterLightComponent(light_comp);
 		return true;
 	}
 
-	void LightShader::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void LightShader::UnregisterLocalLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		m_light_render_item->UnregisterLightComponent(light_comp);
 	}
