@@ -166,21 +166,39 @@ void PacketManager::SpawnEnemy(int room_id)
 		}
 
 	}
-	
-	int spawn_idx = rand() % 2;
-	float x = ENEMY_SPAWN_POINT[spawn_idx][0];
-	float z = ENEMY_SPAWN_POINT[spawn_idx][1];
 
+	vector<MapObj>spawn_area;
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> random_point(0, 1);
+	spawn_area.reserve(10);
+	for (auto a : m_map_manager->GetMapObjVec())
+	{
+		if (OBJ_TYPE::OT_SPAWN_AREA != a.GetType())continue;
+		spawn_area.push_back(a);
+	}
+	
+	for (auto& en : enemy_list)
+	{
+		int spawn_idx = random_point(gen);
+		uniform_int_distribution<int> random_pos_x(static_cast<int>(spawn_area[spawn_idx].GetPosX() - spawn_area[spawn_idx].GetExtent().x),
+			static_cast<int>(spawn_area[spawn_idx].GetPosX() + spawn_area[spawn_idx].GetExtent().x));
+
+		uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
+			static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
+		enemy = MoveObjManager::GetInst()->GetEnemy(en);
+		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
+	}
 	for (int i = 0; i < room->GetMaxUser(); ++i)
 	{
 		for (auto& en : enemy_list)
 		{
-			enemy = MoveObjManager::GetInst()->GetEnemy(en);
-			enemy->SetSpawnPoint(x+rand()%3000 ,z + rand() % 3000);
 			SendObjInfo(room->GetObjList().at(i), en);
-			m_timer_queue.push(SetTimerEvent(en, en,room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
-
 		}
+	}
+	for (auto& en : enemy_list)
+	{
+		m_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
 	}
 	cout << "round" << curr_round << "Wave Start" << endl;
 	//여기서 한번더 타이머 이벤트 넣어주기

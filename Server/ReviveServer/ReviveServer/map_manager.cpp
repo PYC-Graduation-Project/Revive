@@ -79,6 +79,16 @@ void MapManager::LoadMap(const std::string& path)
 		{
 			//물체들
 		case HashCode("Base"):
+		{
+			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
+			{
+				//map_obj_manager 만들기
+				Vector3 pos{ act_info.position + collision_centers[i] };
+				m_map_objects.emplace_back(i, pos, collision_extents[i], true,OBJ_TYPE::OT_BASE);
+
+			}
+			break;
+		}
 		case HashCode("Fence"):
 		case HashCode("Wall"):
 		{
@@ -86,13 +96,23 @@ void MapManager::LoadMap(const std::string& path)
 			{
 				//map_obj_manager 만들기
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i], true);
+				m_map_objects.emplace_back(i, pos, collision_extents[i], true,OBJ_TYPE::OT_MAPOBJ);
 				
 			}
 		}
 		break;
 		//영역들
 		case HashCode("ActivityArea"):
+		{
+			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
+			{
+				//map_obj_manager 만들기
+
+				Vector3 pos{ act_info.position + collision_centers[i] };
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false, OBJ_TYPE::OT_ACTIViTY_AREA);
+			}
+			break;
+		}
 		case HashCode("SpawnArea"):
 		{
 			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
@@ -100,7 +120,7 @@ void MapManager::LoadMap(const std::string& path)
 				//map_obj_manager 만들기
 
 				Vector3 pos{ act_info.position + collision_centers[i] };
-				m_map_objects.emplace_back(i, pos, collision_extents[i], false);
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false,OBJ_TYPE::OT_SPAWN_AREA);
 			}
 		}
 		break;
@@ -108,7 +128,7 @@ void MapManager::LoadMap(const std::string& path)
 		col_index += act_info.collision_count;
 		//MapObj추가
 	}
-	BlockTileMap();
+	
 }
 
 

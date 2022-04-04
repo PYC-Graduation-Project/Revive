@@ -15,7 +15,7 @@
 #include<atomic>
 #include<DirectXMath.h>
 #include <math.h>
-
+#include<random>
 #include"define.h"
 
 #endif //PCH_H

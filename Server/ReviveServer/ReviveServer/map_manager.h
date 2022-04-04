@@ -14,6 +14,10 @@ public:
 	void LoadMap(const std::string& path);
 	void BlockTileMap();
 	bool CheckCollision(const Vector3& obj_pos);
+	const std::vector<MapObj>& GetMapObjVec() const
+	{
+		return m_map_objects;
+	}
 private:
 	std::vector<MapObj>m_map_objects;
 
