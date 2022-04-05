@@ -6,12 +6,12 @@
 #include<set>
 #include<vector>
 #include<bitset>
-const int ROW = 60;
-const int COL = 60;
+const int ROW = 40;
+const int COL = 40;
 //한칸에 몇미터? 
 //타일기준으로 하기
 //현재 위치에서 제일가까운 타일 찾아주기
-//60x60이 국룰 시작을 30,30으로 배치
+//60x60이 국룰 시작을 30,30으로 배치->40x40으로 변경
 using Vec2 = std::pair<int, int>;
 using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
 class Node {

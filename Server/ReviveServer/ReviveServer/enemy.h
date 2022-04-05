@@ -3,6 +3,8 @@
 #include "define.h"
 #include<mutex>
 #include<atomic>
+const int SYNC_TIME = 30;
+
 class Enemy :
     public MoveObj
 {
@@ -27,9 +29,12 @@ public:
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
     void SetTargetId(const int val) { target_id = val; }
+    void SetMoveTime(int val); 
+    const std::chrono::system_clock::time_point& GetMoveTime() { return m_move_time; }
     std::atomic_bool in_use;
     std::mutex lua_lock;
 private:
+    std::chrono::system_clock::time_point	m_move_time;
     lua_State* m_L;
     Vector3 m_look;
     std::atomic_int target_id;

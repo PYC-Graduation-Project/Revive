@@ -189,18 +189,19 @@ void PacketManager::SpawnEnemy(int room_id)
 		enemy = MoveObjManager::GetInst()->GetEnemy(en);
 		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
 	}
-	for (int i = 0; i < room->GetMaxUser(); ++i)
-	{
-		for (auto& en : enemy_list)
-		{
-			SendObjInfo(room->GetObjList().at(i), en);
-		}
-	}
+	
 	for (auto& en : enemy_list)
 	{
-		m_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
+		for (auto pl : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+			SendObjInfo(room->GetObjList().at(pl), en);
+		}
+		enemy->SetMoveTime(300);
+		m_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 	}
-	cout << "round" << curr_round << "Wave Start" << endl;
+	
+	//cout << "round" << curr_round << "Wave Start" << endl;
 	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
@@ -209,13 +210,15 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
 	Vector3& nlook=enemy->GetLookVec();
 	Vector3& curr_pos = enemy->GetPos();
+	MapObj base = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE);
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-		nlook= Vector3{ BASE_POINT - curr_pos };
+		nlook= Vector3{ base.GetPos() - curr_pos };
 		//적 look벡터 설정
 	}
 	else
@@ -226,34 +229,52 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//타겟이 누군지에 따라서 계산 다르게 해주기
 	Vector3 move_vec=nlook.Normalrize();
 	Vector3 npos=curr_pos+(move_vec * MAX_SPEED);
-	cout << move_vec.x << move_vec.y << move_vec.z << endl;
+	//cout << move_vec.x << move_vec.y << move_vec.z << endl;
 	
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 	if(false==m_map_manager->CheckCollision(npos))
 		enemy->SetPos(npos);
 	else {//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
-		nlook = Vector3{ Vector3(2400.0f,curr_pos.y,curr_pos.z)- curr_pos };
-		move_vec = nlook.Normalrize();
-		npos = curr_pos + (move_vec * MAX_SPEED);
-		enemy->SetPos(npos);
+		if (enemy->GetTargetId() == -1)
+		{
+			nlook = Vector3{ Vector3(base.GetPosX(),curr_pos.y,curr_pos.z) - curr_pos };
+			move_vec = nlook.Normalrize();
+			npos = curr_pos + (move_vec * MAX_SPEED);
+			enemy->SetPos(npos);
+		}
 	}
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	//다음 위치 보내주기
 	
+	
+	
+	//-----동기화 코드 
+	//auto end_t = std::chrono::system_clock::now();
+	//if (end_t >= enemy->GetMoveTime())
+	//{
+	//	cout << "적 id" << enemy_id << "동기화" << endl;
+	//	enemy->SetMoveTime(300);
+	//	for (auto pl : room->GetObjList())
+	//	{
+	//		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+	//		SendMovePacket(pl, enemy_id);
+	//	}
+	//}
 
 
-
-	for (int i = 0; i < room->GetMaxUser(); i++)
+	for (auto pl:room->GetObjList())
 	{
-		SendMovePacket(i, enemy_id);
-		if (true == MoveObjManager::GetInst()->IsNear(i, enemy_id))//이거는 시야범위안에 있는지 확인
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		//SendMovePacket(pl, enemy_id);
+		SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
+		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
 			//여기서 기지와 플레이어 거리 비교후
 			//플레이어가 더 가까우면 target_id 플레이어로
 			//아니면 기지 그대로
 		}
 	}
-	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 100));
+	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 }
 
 
@@ -363,15 +384,16 @@ void PacketManager::SendTime(int c_id, float round_time)
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
-void PacketManager::SendTestPacket(int c_id, int obj_id, float x, float y, float z)
+void PacketManager::SendTestPacket(int c_id, int mover, float x, float y, float z)
 {
 	sc_packet_test packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_TEST;
-	packet.obj_id = obj_id;
+	packet.id = mover;
 	packet.x = x;
 	packet.y = y;
 	packet.z = z;
+
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 

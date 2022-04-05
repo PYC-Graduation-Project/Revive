@@ -15,6 +15,7 @@ public:
 		std::cout << m_max_pos << std::endl;
 		
 	};
+	MapObj() = default;
 	~MapObj()=default;
 	const bool GetIsBlocked() { return m_is_blocking; }
 	const Vector3& GetMaxPos()const { return m_max_pos; }

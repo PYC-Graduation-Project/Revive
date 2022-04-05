@@ -46,17 +46,18 @@ namespace event_test
     class TestMessageEventInfo final :public MessageEventInfo
     {
     public:
-        TestMessageEventInfo(UINT event_id,int obj_id,float x,float y,float z)
-            :MessageEventInfo(event_id),m_obj_id(obj_id)
+        TestMessageEventInfo(UINT event_id,float speed,float x,float y,float z)
+            :MessageEventInfo(event_id),m_speed(speed)
         {
-            m_position = Vec3(x, y, z);
+            m_vec = Vec3(x, y, z);
         };
     private:
-        int m_obj_id;
-        Vec3 m_position;
+        
+        Vec3 m_vec;
+        float m_speed;
     public:
-        const Vec3& GetPosition() const{ return m_position; }
-        const int GetObjId()const { return m_obj_id; }
+        const Vec3& GetPosition() const{ return m_vec; }
+        const float GetObjId()const { return m_speed; }
     };
 
     class ObjectInfoMessageEventInfo final :public MessageEventInfo

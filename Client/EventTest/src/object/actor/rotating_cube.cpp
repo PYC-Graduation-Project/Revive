@@ -8,7 +8,7 @@
 #include "rotating_cube.h"
 #include "object/ui/enemy_info_ui_layer.h"
 #include "message/message_event_info.h"
-
+using namespace std;
 namespace event_test
 {
 	RotatingCube::RotatingCube()
@@ -31,6 +31,8 @@ namespace event_test
 		//m_rotating_component->SetRotatingRate(Vec3(0.0f, 0.0f, 0.0f));
 		RegisterReceiveMessage(HashCode("change rotating speed"));
 		RegisterReceiveMessage(HashCode("move object"));
+		RegisterReceiveMessage(HashCode("testmove"));
+		
 		return ret;
 	}
 
@@ -50,6 +52,13 @@ namespace event_test
 			if (m_speed_change_function != nullptr)
 				m_speed_change_function(m_rotating_y_speed);
 		}
+		
+		if (m_network_vec != Vec3(0.0f, 0.0f, 0.0f))
+		{
+			Vec3 new_pos = GetPosition() + m_network_vec*m_nw_speed*delta_time;
+			SetPosition(new_pos);
+		}
+		
 	}
 
 	void RotatingCube::ExecuteMessage(const SPtr<MessageEventInfo>& message)
@@ -64,6 +73,7 @@ namespace event_test
 				m_rotating_component->SetRotatingRate(speed);
 			}
 		}
+
 	}
 
 	void RotatingCube::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -80,13 +90,28 @@ namespace event_test
 			//msg->m_move_lock.lock();
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			//SetPosition(msg->GetObjPosition());
 			SetPosition(msg->GetObjPosition());
 			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
 			//LOG_INFO(a);
 			//msg->m_move_lock.unlock();
 			break;
-		}	
+		}
+		case HashCode("testmove"): {
+			auto msg = std::static_pointer_cast<TestMessageEventInfo>(message);
+			//msg->m_move_lock.lock();
+			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
+			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			//SetPosition(msg->GetObjPosition());
+			m_network_vec = msg->GetPosition();
+			
+			//std::cout << msg->GetObjPosition() << std::endl;
+			//Vec3 a{ msg->GetObjPosition() };
+			//LOG_INFO(a);
+			//msg->m_move_lock.unlock();
+			break;
+		}
 		default:
 			break;
 		}

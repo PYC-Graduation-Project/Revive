@@ -146,5 +146,8 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessTest(int c_id, unsigned char* p)
 {
 	sc_packet_test* packet = reinterpret_cast<sc_packet_test*>(p);
-	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<event_test::TestMessageEventInfo>(HashCode("testspawn"), packet->obj_id, packet->x, packet->y, packet->z));
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<event_test::TestMessageEventInfo>(HashCode("testmove"), packet->speed, packet->x, packet->y, packet->z),packet->id);
+	Vec3 recv_pos{ packet->x,packet->y,packet->z };
+	
+	
 }

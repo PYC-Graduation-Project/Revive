@@ -30,7 +30,10 @@ namespace event_test
 		SPtr<RotatingMovementComponent> m_rotating_component;
 		SPtr<WidgetComponent> m_widget_component;
 		SPtr<EnemyInfoUILayer> m_ui_layer;
-
+		Vec3 m_network_pos{0.0f,0.0f,0.0f};
+		Vec3 m_network_vec{ 0.0f,0.0f,0.0f };
+		float m_nw_speed = 225.f;
+		
 		std::function<void(float)> m_speed_change_function;
 		float m_rotating_y_speed = 0.0f;
 
