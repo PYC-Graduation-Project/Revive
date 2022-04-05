@@ -9,7 +9,7 @@
 #include <client/input/input.h>
 #include "object/component/follow_camera.h"
 #include "object/statemachine/state_machine.h"
-#include "object/actor/RevivePlayer.h"
+#include "object/actor/revive_player.h"
 
 namespace revive
 {
@@ -51,6 +51,8 @@ namespace revive
 		ret &= AttachComponent(m_camera_component);
 		
 		RegisterEvent();
+		
+		SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);

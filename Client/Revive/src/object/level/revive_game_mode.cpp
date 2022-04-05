@@ -5,7 +5,7 @@
 #include <client/input/input.h>
 #include "object/component/follow_camera.h"
 #include "revive_game_mode.h"
-#include "object/actor/RevivePlayer.h"
+#include "object/actor/revive_player.h"
 
 namespace revive
 {
@@ -23,7 +23,6 @@ namespace revive
 	{
 		m_player_controller->Possess(m_player);
 		m_player_controller->SetPlayerCamera(m_player->GetCameraComponent());
-		m_player->SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 		level->SpawnActor(m_player);
 		level->SpawnActor(m_player_controller);
 		Input::SetInputMode(eInputMode::kGameOnly);

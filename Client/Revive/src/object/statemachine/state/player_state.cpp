@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include "object/actor/RevivePlayer.h"
+#include "object/actor/revive_player.h"
 #include "object/statemachine/state/player_state.h"
 
 namespace revive
@@ -87,7 +87,7 @@ namespace revive
 	void HitState::Enter()
 	{
 		//LOG_INFO("HitState");
-		m_player->SetMeshPosition(Vec3{ 0,0,0 });
+		m_player->SetMeshPosition(Vec3{ 0,10,0 });
 		m_player->SetAnimation("hit", false);
 		m_player->SetAnimationSpeed(0.6f);
 	}
