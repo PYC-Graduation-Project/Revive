@@ -60,7 +60,7 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
         [unroll(4)]
         for (uint i = 0; i < g_num_of_directional_light; ++i)
         {
-            Light light;
+            DirectionalLight light;
             light.light_color = g_light_data[i].light_color;
             light.direction = g_light_data[i].light_direction;
 
@@ -171,6 +171,117 @@ DS_LOCAL_LIGHT_OUTPUT DSPointLight(HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT input, fl
 }
 
 float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
+{   
+    int3 location = int3(input.sv_position.xy, 0);
+    float4 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Load(location);
+    
+    if (base_color.a > 0.0f)
+    {
+        float depth = g_texture_data[g_gbuffer_texture_indices[3]].Load(location).x;
+        depth = ConvertToLinearDepth(depth);
+        float3 position = GetWorldPositionFromCSPos(input.cs_position, depth);
+        float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Load(location).xyz;
+        normal = normalize(normal * 2.0f - 1.0f);
+        float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Load(location);
+        
+        Material material;
+        material.base_color = base_color.xyz;
+        material.normal = normal;
+        material.roughness = additional_info.x;
+        material.metalic = additional_info.y;
+    
+        float3 color = float3(0.f, 0.f, 0.f);
+        
+        LightData light_data = g_light_data[input.light_index];
+        PointLight light;
+            
+        light.light_color = light_data.light_color;
+        light.position = light_data.light_position;
+        light.attenuation_radius = light_data.attenuation_radius;
+        
+        color += CalcPointLight(position, material, light);
+        
+        color = color / (color + 1.0f);
+        color = pow(color, (1.0f / 2.2f));
+        
+        return float4(color, 1.0f);
+    
+    }
+    else
+    {
+        return float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+}
+
+//
+// Draw Spot Light
+//
+
+HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT ConstantHSSpotLight()
+{
+    HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT output;
+    
+    float tess_factor = 12.0f;
+    output.edges[0] = output.edges[1] =
+    output.edges[2] = output.edges[3] = tess_factor;
+    output.inside[0] = output.inside[1] = tess_factor;
+    
+    return output;
+}
+
+[domain("quad")]
+[partitioning("integer")]
+[outputtopology("triangle_ccw")]
+[outputcontrolpoints(4)]
+[patchconstantfunc("ConstantHSPointLight")]
+HS_LOCAL_LIGHT_OUTPUT HSSpotLight(InputPatch<VS_LOCAL_LIGHT_OUTPUT, 1> input, uint patch_id : SV_PrimitiveID)
+{
+    HS_LOCAL_LIGHT_OUTPUT output;
+    
+    output.position = hemil_dir[patch_id];
+    output.instance_id = input[0].instance_id;
+    
+    return output;
+}
+
+static const float cylinder_portion = 0.2f;
+static const float expend_amount = (1.0f + cylinder_portion);
+
+
+[domain("quad")]
+DS_LOCAL_LIGHT_OUTPUT DSSpotLight(HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT input, float2 uv : SV_DomainLocation, OutputPatch<HS_LOCAL_LIGHT_OUTPUT, 4> quad)
+{
+    float2 clip_space_uv = uv.xy * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
+    
+    float2 clip_space_abs_uv = abs(clip_space_uv.xy);
+    float max_length_uv = max(clip_space_abs_uv.x, clip_space_abs_uv.y);
+    
+    float2 clip_space_abs_pos = saturate(clip_space_abs_uv * expend_amount);
+    float max_length_pos = max(clip_space_abs_pos.x, clip_space_abs_pos.y);
+    float2 clip_space_pos = sign(clip_space_uv.xy) * clip_space_abs_pos;
+    
+    InstanceData instance_data = g_instance_data[quad[0].instance_id];
+    uint light_index = instance_data.additional_info;
+    
+    float angle = g_light_data[light_index].cone_outer_angle;
+    
+    float3 half_sphere_pos = normalize(float3(clip_space_pos.xy, 1.0f - max_length_pos));
+    half_sphere_pos = normalize(float3(half_sphere_pos.xy * sin(angle), cos(angle)));
+    
+    float cylinder_offset_z = saturate((max_length_uv * expend_amount - 1.0f) / cylinder_portion);
+    
+    float3 position = float3(half_sphere_pos.xy * (1.0f - cylinder_offset_z), half_sphere_pos.z - cylinder_offset_z * cos(angle));
+    
+    DS_LOCAL_LIGHT_OUTPUT output;
+    
+    output.sv_position = mul(mul(float4(position, 1.0f), instance_data.world), g_view_projection);
+    output.cs_position = output.sv_position.xy / output.sv_position.w;
+    output.light_index = light_index;
+    
+    return output;
+}
+
+float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
 {
     int3 location = int3(input.sv_position.xy, 0);
     float4 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Load(location);
@@ -193,13 +304,16 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         float3 color = float3(0.f, 0.f, 0.f);
         
         LightData light_data = g_light_data[input.light_index];
-        Light light;
+        SpotLight light;
             
         light.light_color = light_data.light_color;
         light.position = light_data.light_position;
+        light.direction = light_data.light_direction;
         light.attenuation_radius = light_data.attenuation_radius;
+        light.inner_angle = light_data.cone_inner_angle;
+        light.outer_angle = light_data.cone_outer_angle;
         
-        color += CalcPointLight(position, material, light);
+        color += CalcSpotLight(position, material, light);
         
         color = color / (color + 1.0f);
         color = pow(color, (1.0f / 2.2f));

@@ -89,6 +89,7 @@ namespace client_fw
 
 		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight), eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 

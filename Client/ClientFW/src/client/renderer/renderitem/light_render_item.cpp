@@ -122,4 +122,26 @@ namespace client_fw
 		}
 
 	}
+
+	SpotLightRenderItem::SpotLightRenderItem(const std::string& owner_shader_name)
+		: LightRenderItem(owner_shader_name)
+	{
+	}
+
+	void SpotLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const
+	{
+		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		LocalLightInstanceDrawInfo instance_info = light_resource->GetLocalLightDrawInfo();
+
+		if (instance_info.num_of_instance_data > 0)
+		{
+			const auto& instance_data = light_resource->GetLightInstanceData();
+
+			draw_function();
+			command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
+				instance_info.start_index * instance_data->GetByteSize());
+			command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+			command_list->DrawInstanced(1, instance_info.num_of_instance_data, 0, 0);
+		}
+	}
 }

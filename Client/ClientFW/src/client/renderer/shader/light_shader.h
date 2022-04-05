@@ -51,6 +51,20 @@ namespace client_fw
 		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
     };
 
+	class SpotLightShader : public LightShader
+	{
+	public:
+		SpotLightShader(const std::string& name);
+		virtual ~SpotLightShader() = default;
+
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
+		virtual void UpdateFrameResource(ID3D12Device* device);
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
+
+		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+		virtual D3D12_SHADER_BYTECODE CreateDomainShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+		virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
+	};
 }
 
 

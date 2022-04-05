@@ -3,6 +3,7 @@
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/object/actor/directional_light.h>
 #include <client/object/actor/point_light.h>
+#include <client/object/actor/spot_light.h>
 #include <client/object/actor/sky_cube.h>
 #include <client/object/actor/sky_sphere.h>
 #include <client/util/octree/octree.h>
@@ -55,6 +56,11 @@ namespace event_test
 		p_light->SetLightColor(Vec3(0.0f, 0.0f, 400000.0f));
 		p_light->SetPosition(Vec3(500.0f, 0.0f, 0.0f));
 		SpawnActor(p_light);
+
+		auto s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(0.0f, 400000.0f, 400000.0f));
+		s_light->SetPosition(Vec3(0.0f, 0.0f, 1200.0f));
+		SpawnActor(s_light);
 
 		auto tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,
 			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);

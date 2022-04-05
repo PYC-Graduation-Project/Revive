@@ -167,4 +167,62 @@ namespace client_fw
 	{
 		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Deferred.hlsl", "PSPointLight", "ps_5_1", shader_blob);
 	}
+
+	SpotLightShader::SpotLightShader(const std::string& name)
+		: LightShader(name)
+	{
+		m_light_render_item = CreateSPtr<SpotLightRenderItem>(name);
+	}
+
+	void SpotLightShader::Update(ID3D12Device* device, eRenderLevelType level_type)
+	{
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kDeferred:
+		{
+			UpdateRenderItem(device);
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	void SpotLightShader::UpdateFrameResource(ID3D12Device* device)
+	{
+		UpdateRenderItemResource(device);
+	}
+
+	void SpotLightShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
+	{
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kDeferred:
+		{
+			DrawRenderItem(command_list,
+				[this, command_list, level_type]() {
+
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				});
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	D3D12_SHADER_BYTECODE SpotLightShader::CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Deferred.hlsl", "HSSpotLight", "hs_5_1", shader_blob);
+	}
+
+	D3D12_SHADER_BYTECODE SpotLightShader::CreateDomainShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Deferred.hlsl", "DSSpotLight", "ds_5_1", shader_blob);
+	}
+
+	D3D12_SHADER_BYTECODE SpotLightShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Deferred.hlsl", "PSSpotLight", "ps_5_1", shader_blob);
+	}
 }

@@ -6,6 +6,7 @@
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/directional_light_component.h"
 #include "client/object/component/light/point_light_component.h"
+#include "client/object/component/light/spot_light_component.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
@@ -60,6 +61,20 @@ namespace client_fw
 			light->SetLightManagerRegisteredIndex(index);
 			light_resource_data->CopyData(index++, light_data);
 		}
+
+		for (const auto& light : m_spot_lights)
+		{
+			RSLightData light_data;
+			light_data.light_color = light->GetLightColor();
+			light_data.light_position = light->GetWorldPosition();
+			light_data.light_direction = light->GetWorldForward();
+			light_data.attenuation_radius = light->GetAttenuationRadius();
+			light_data.cone_inner_angle = light->GetConeInnerAngle();
+			light_data.cone_outer_angle = light->GetConeOuterAngle();
+			light->SetLightManagerRegisteredIndex(index);
+			light_resource_data->CopyData(index++, light_data);
+		}
+
 	}
 
 	void LightManager::Draw(ID3D12GraphicsCommandList* command_list)
@@ -94,6 +109,11 @@ namespace client_fw
 			++m_num_of_light;
 			break;
 		}
+		case eLightType::kSpot:
+		{
+			m_spot_lights.push_back(std::static_pointer_cast<SpotLightComponent>(light_comp));
+			++m_num_of_light;
+		}
 		default:
 			break;
 		}
@@ -122,6 +142,17 @@ namespace client_fw
 			{
 				std::iter_swap(iter, m_point_lights.end() - 1);
 				m_point_lights.pop_back();
+				--m_num_of_light;
+			}
+			break;
+		}
+		case eLightType::kSpot:
+		{
+			auto iter = std::find(m_spot_lights.begin(), m_spot_lights.end(), light_comp);
+			if (iter != m_spot_lights.end())
+			{
+				std::iter_swap(iter, m_spot_lights.end() - 1);
+				m_spot_lights.pop_back();
 				--m_num_of_light;
 			}
 			break;

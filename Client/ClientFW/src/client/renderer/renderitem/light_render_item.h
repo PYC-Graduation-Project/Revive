@@ -37,6 +37,15 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const override;
 	};
 
+	class SpotLightRenderItem : public LightRenderItem
+	{
+	public:
+		SpotLightRenderItem(const std::string& owner_shader_name);
+		virtual ~SpotLightRenderItem() = default;
+
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const override;
+	};
+
 
 
 }
