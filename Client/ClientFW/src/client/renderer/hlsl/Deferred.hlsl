@@ -8,6 +8,23 @@
 //임시
 //아직 조명적용을 하지 않기 떄문에 그냥 Texture전달로 끝
 
+struct GBufferData
+{
+    float4 base_color;
+    float3 normal;
+    float4 additional_info;
+    float3 position;
+    float depth;
+};
+
+struct GBufferDataWithoutBaseColor
+{
+    float3 normal;
+    float4 additional_info;
+    float3 position;
+    float depth;
+};
+
 float ConvertToLinearDepth(float depth)
 {
     return g_perspective_values.z / (depth + g_perspective_values.w);
@@ -23,7 +40,6 @@ float3 GetWorldPositionFromCSPos(float2 cs_pos, float depth)
     return mul(float4(position, 1.0f), g_inverse_view).xyz;
 }
 
-
 float3 GetWorldPositionFromUV(float2 uv, float depth)
 {
     uv.x = uv.x * 2.0f - 1.0f;
@@ -32,6 +48,60 @@ float3 GetWorldPositionFromUV(float2 uv, float depth)
     return GetWorldPositionFromCSPos(uv, depth);
 }
 
+GBufferData UnpackGBuffer(float2 uv)
+{
+    GBufferData data;
+    
+    data.base_color = g_texture_data[g_gbuffer_texture_indices[0]].Sample(g_sampler_point_wrap, uv);
+    data.normal = g_texture_data[g_gbuffer_texture_indices[1]].Sample(g_sampler_point_wrap, uv).xyz;
+    data.normal = normalize(data.normal * 2.0f - 1.0f);
+    data.additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Sample(g_sampler_point_wrap, uv);
+    data.depth = g_texture_data[g_gbuffer_texture_indices[3]].Sample(g_sampler_point_wrap, uv).x;
+    data.depth = ConvertToLinearDepth(data.depth);
+    data.position = GetWorldPositionFromUV(uv, data.depth);
+    
+    return data;
+}
+
+GBufferDataWithoutBaseColor UnpackGBufferWithoutBaseColorFromUV(float2 uv)
+{
+    GBufferDataWithoutBaseColor data;
+    
+    data.normal = g_texture_data[g_gbuffer_texture_indices[1]].Sample(g_sampler_point_wrap, uv).xyz;
+    data.normal = normalize(data.normal * 2.0f - 1.0f);
+    data.additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Sample(g_sampler_point_wrap, uv);
+    data.depth = g_texture_data[g_gbuffer_texture_indices[3]].Sample(g_sampler_point_wrap, uv).x;
+    data.depth = ConvertToLinearDepth(data.depth);
+    data.position = GetWorldPositionFromUV(uv, data.depth);
+    
+    return data;
+}
+
+GBufferDataWithoutBaseColor UnpackGBufferWithoutBaseColorFromLocation(int3 location, float2 cs_pos)
+{
+    GBufferDataWithoutBaseColor data;
+    
+    data.normal = g_texture_data[g_gbuffer_texture_indices[1]].Load(location).xyz;
+    data.normal = normalize(data.normal * 2.0f - 1.0f);
+    data.additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Load(location);
+    data.depth = g_texture_data[g_gbuffer_texture_indices[3]].Load(location).x;
+    data.depth = ConvertToLinearDepth(data.depth);
+    data.position = GetWorldPositionFromCSPos(cs_pos, data.depth);
+    
+    return data;
+}
+
+Material GetMaterial(float4 base_color, GBufferDataWithoutBaseColor g_buffer_data)
+{
+    Material material;
+    
+    material.base_color = base_color.xyz;
+    material.normal = g_buffer_data.normal;
+    material.roughness = g_buffer_data.additional_info.x;
+    material.metalic = g_buffer_data.additional_info.y;
+    
+    return material;
+}
 
 float4 PSRenderTexture(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 {
@@ -40,21 +110,13 @@ float4 PSRenderTexture(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 
 float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 {
-    float depth = g_texture_data[g_gbuffer_texture_indices[3]].Sample(g_sampler_point_wrap, input.uv).x;
-    depth = ConvertToLinearDepth(depth);
-    float3 position = GetWorldPositionFromUV(input.uv, depth);
-    float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Sample(g_sampler_point_wrap, input.uv).xyz;
-    normal = normalize(normal * 2.0f - 1.0f);
     float4 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Sample(g_sampler_point_wrap, input.uv);
-    float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Sample(g_sampler_point_wrap, input.uv);
     
     if(base_color.a > 0.0f)
     {
-        Material material;
-        material.base_color = base_color.xyz;
-        material.normal = normal;
-        material.roughness = additional_info.x;
-        material.metalic = additional_info.y;
+        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromUV(input.uv);
+             
+        Material material = GetMaterial(base_color, g_buffer_data);
     
         float3 color = float3(0.f, 0.f, 0.f);
         [unroll(4)]
@@ -64,7 +126,7 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
             light.light_color = g_light_data[i].light_color;
             light.direction = g_light_data[i].light_direction;
 
-            color += CalcDiretionalLight(position, material, light);
+            color += CalcDiretionalLight(g_buffer_data.position, material, light);
         }
     
      
@@ -177,18 +239,9 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
     
     if (base_color.a > 0.0f)
     {
-        float depth = g_texture_data[g_gbuffer_texture_indices[3]].Load(location).x;
-        depth = ConvertToLinearDepth(depth);
-        float3 position = GetWorldPositionFromCSPos(input.cs_position, depth);
-        float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Load(location).xyz;
-        normal = normalize(normal * 2.0f - 1.0f);
-        float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Load(location);
+        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position);
         
-        Material material;
-        material.base_color = base_color.xyz;
-        material.normal = normal;
-        material.roughness = additional_info.x;
-        material.metalic = additional_info.y;
+        Material material = GetMaterial(base_color, g_buffer_data);
     
         float3 color = float3(0.f, 0.f, 0.f);
         
@@ -199,7 +252,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.position = light_data.light_position;
         light.attenuation_radius = light_data.attenuation_radius;
         
-        color += CalcPointLight(position, material, light);
+        color += CalcPointLight(g_buffer_data.position, material, light);
         
         color = color / (color + 1.0f);
         color = pow(color, (1.0f / 2.2f));
@@ -288,18 +341,10 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
     
     if (base_color.a > 0.0f)
     {
-        float depth = g_texture_data[g_gbuffer_texture_indices[3]].Load(location).x;
-        depth = ConvertToLinearDepth(depth);
-        float3 position = GetWorldPositionFromCSPos(input.cs_position, depth);
-        float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Load(location).xyz;
-        normal = normalize(normal * 2.0f - 1.0f);
-        float4 additional_info = g_texture_data[g_gbuffer_texture_indices[2]].Load(location);
+        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position);
         
-        Material material;
-        material.base_color = base_color.xyz;
-        material.normal = normal;
-        material.roughness = additional_info.x;
-        material.metalic = additional_info.y;
+        Material material = GetMaterial(base_color, g_buffer_data);
+        material.metalic = g_buffer_data.additional_info.y;
     
         float3 color = float3(0.f, 0.f, 0.f);
         
@@ -313,7 +358,7 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.inner_angle = light_data.cone_inner_angle;
         light.outer_angle = light_data.cone_outer_angle;
         
-        color += CalcSpotLight(position, material, light);
+        color += CalcSpotLight(g_buffer_data.position, material, light);
         
         color = color / (color + 1.0f);
         color = pow(color, (1.0f / 2.2f));

@@ -26,6 +26,26 @@ namespace client_fw
 		void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	private:
+		template <class T>
+		void RegisterLightComponent(std::vector<SPtr<T>>& lights, const SPtr<LightComponent>& light_comp)
+		{
+			lights.push_back(std::static_pointer_cast<T>(light_comp));
+			++m_num_of_light;
+		}
+
+		template <class T>
+		void UnregisterLightComponent(std::vector<SPtr<T>>& lights, const SPtr<LightComponent>& light_comp)
+		{
+			auto iter = std::find(lights.begin(), lights.end(), light_comp);
+			if (iter != lights.end())
+			{
+				std::iter_swap(iter, lights.end() - 1);
+				lights.pop_back();
+				--m_num_of_light;
+			}
+		}
+			
+	private:
 		static LightManager* s_light_manager;
 		UINT m_num_of_light = 0;
 		std::vector<SPtr<DirectionalLightComponent>> m_directional_lights;

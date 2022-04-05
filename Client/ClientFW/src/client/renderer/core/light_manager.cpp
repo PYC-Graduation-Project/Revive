@@ -95,24 +95,20 @@ namespace client_fw
 		case eLightType::kDirectional:
 		{
 			if (m_directional_lights.size() < 4)
-			{
-				m_directional_lights.push_back(std::static_pointer_cast<DirectionalLightComponent>(light_comp));
-				++m_num_of_light;
-			}
+				RegisterLightComponent(m_directional_lights, light_comp);
 			else
 				return false;
 			break;
 		}
 		case eLightType::kPoint:
 		{
-			m_point_lights.push_back(std::static_pointer_cast<PointLightComponent>(light_comp));
-			++m_num_of_light;
+			RegisterLightComponent(m_point_lights, light_comp);
 			break;
 		}
 		case eLightType::kSpot:
 		{
-			m_spot_lights.push_back(std::static_pointer_cast<SpotLightComponent>(light_comp));
-			++m_num_of_light;
+			RegisterLightComponent(m_spot_lights, light_comp);
+			break;
 		}
 		default:
 			break;
@@ -126,35 +122,17 @@ namespace client_fw
 		{
 		case eLightType::kDirectional:
 		{
-			auto iter = std::find(m_directional_lights.begin(), m_directional_lights.end(), light_comp);
-			if (iter != m_directional_lights.end())
-			{
-				std::iter_swap(iter, m_directional_lights.end() - 1);
-				m_directional_lights.pop_back();
-				--m_num_of_light;
-			}
+			UnregisterLightComponent(m_directional_lights, light_comp);
 			break;
 		}
 		case eLightType::kPoint:
 		{
-			auto iter = std::find(m_point_lights.begin(), m_point_lights.end(), light_comp);
-			if (iter != m_point_lights.end())
-			{
-				std::iter_swap(iter, m_point_lights.end() - 1);
-				m_point_lights.pop_back();
-				--m_num_of_light;
-			}
+			UnregisterLightComponent(m_point_lights, light_comp);
 			break;
 		}
 		case eLightType::kSpot:
 		{
-			auto iter = std::find(m_spot_lights.begin(), m_spot_lights.end(), light_comp);
-			if (iter != m_spot_lights.end())
-			{
-				std::iter_swap(iter, m_spot_lights.end() - 1);
-				m_spot_lights.pop_back();
-				--m_num_of_light;
-			}
+			UnregisterLightComponent(m_spot_lights, light_comp);
 			break;
 		}
 		default:
