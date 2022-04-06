@@ -7,10 +7,13 @@
 #include <client/object/actor/sky_cube.h>
 #include <client/object/actor/sky_sphere.h>
 #include <client/util/octree/octree.h>
+#include <client/asset/core/asset_store.h>
+
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
-#include <client/asset/core/asset_store.h>
+#include "object/gamemode/third_game_mode.h"
+
 
 namespace event_test
 {
@@ -73,10 +76,10 @@ namespace event_test
 		sky_cube = CreateSPtr<SkyCube>("../Contents/desertcube1024.dds");
 		SpawnActor(sky_cube);
 
-		auto sky_sphere = CreateSPtr<SkySphere>();
+		/*auto sky_sphere = CreateSPtr<SkySphere>();
 		SpawnActor(sky_sphere);
 		sky_sphere->SetCenterColor(Vec3(0.0f, 0.0f, 0.0f));
-		sky_sphere->SetApexColor(Vec3(1.0f, 1.0f, 1.0f));
+		sky_sphere->SetApexColor(Vec3(1.0f, 1.0f, 1.0f));*/
 
 		return true;
 	}
@@ -87,6 +90,11 @@ namespace event_test
 
 	void LightTestLevel::Update(float delta_time)
 	{
+	}
+
+	UPtr<GameMode> LightTestLevel::CreateGameMode() const
+	{
+		return CreateUPtr<ThirdGameMode>();
 	}
 
 	std::vector<SPtr<VisualOctree>> LightTestLevel::CreateVisualOctrees() const

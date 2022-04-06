@@ -21,7 +21,7 @@ namespace client_fw
 	protected:
 		SPtr<PawnMovementComponent> m_movement_component;
 
-	private:
+	protected:
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;
 		using Pawn::SetUseControllerRoll;
