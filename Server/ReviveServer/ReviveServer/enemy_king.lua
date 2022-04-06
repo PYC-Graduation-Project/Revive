@@ -1,5 +1,5 @@
 enemy_id = 99999;
-see_range=5;
+see_range=9;
 enemy_x = 0;
 enemy_y = 0;
 enemy_z = 0;

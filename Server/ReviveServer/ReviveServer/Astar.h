@@ -6,14 +6,16 @@
 #include<set>
 #include<vector>
 #include<bitset>
+#include"vec3.h"
 const int ROW = 40;
 const int COL = 40;
 //한칸에 몇미터? 
 //타일기준으로 하기
 //현재 위치에서 제일가까운 타일 찾아주기
-//60x60이 국룰 시작을 30,30으로 배치->40x40으로 변경
+//60x60이 국룰 시작을 30,30으로 배치->40x40으로 변경 20,20으로 배치
 using Vec2 = std::pair<int, int>;
-using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
+//using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
+class MapObj;
 class Node {
 public:
 	Node() {
@@ -52,14 +54,14 @@ class Astar
 {
 public:
 	Astar() {
-	
+		m_start_pos = Vec2(ROW / 2, COL / 2);
 	};
 	~Astar() {};
 
-	bool SearchAllPath(char* map[], Vec2 src, Vec2 dst);
-	bool IsBlocked(Vec2 dst);
-	bool IsInRange(Vec2 pos);
-	char test_map[COL][ROW];
+	bool SearchAllPath(std::vector<MapObj>& map_objects, const Vector3& src, const Vector3& dst);
+	bool IsBlocked(std::vector<MapObj>& map_objects,Vec2 dst);
+	bool IsInRange(std::vector<MapObj>& map_objects,Vec2 pos);
+	
 	int GethValue(int row, int col, Vec2 dst) {
 		return std::sqrt(std::pow(row - dst.first, 2) + std::pow(col - dst.second, 2));
 	}
@@ -72,7 +74,7 @@ private:
 	std::priority_queue<Node, std::vector<Node>, std::greater<Node>>open_pq;
 	Node testing_map[COL][ROW];
 	std::set<Vec2>close_set;
-	
+	Vec2 m_start_pos;
 	std::vector<Vec2>result_vec;
 	int dirX[8] = { -1,0,1,0,-1,1,1,-1 };
 	int dirY[8] = { 0,-1,0,1,-1,-1,1,1 };

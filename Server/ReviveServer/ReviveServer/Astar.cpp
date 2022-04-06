@@ -1,21 +1,23 @@
 #include "pch.h"
 #include "Astar.h"
-
+#include"map_object.h"
 #include<iostream>
 
 
-
-bool Astar::SearchAllPath(char* map[], Vec2 src, Vec2 dst)
+using namespace std;
+bool Astar::SearchAllPath(vector<MapObj>& map_objects, const Vector3& start_pos, const Vector3& dst_pos)
 {
+	Vec2 dst;
+	Vec2 src;
 	if (false == IsInRange(dst))return false;
 	if (true == IsBlocked(dst))return false;
 
-	Node start_node = testing_map[src.first][src.second];
-	start_node.pos = src;
-	start_node.parant_pos = src;
+	Node start_node = testing_map[m_start_pos.first][m_start_pos.second];
+	start_node.pos = m_start_pos;
+	start_node.parant_pos = m_start_pos;
 	start_node.f = 0;
 	start_node.g = 0;
-	start_node.h = GethValue(src.first, src.second, dst);
+	start_node.h = GethValue(m_start_pos.first, m_start_pos.second, dst);
 	open_pq.push(start_node);
 
 	while (!open_pq.empty())
@@ -63,7 +65,7 @@ bool Astar::SearchAllPath(char* map[], Vec2 src, Vec2 dst)
 
 bool Astar::IsBlocked(Vec2 dst)
 {
-	return (test_map[dst.first][dst.second] == '0');
+	return false;
 }
 
 bool Astar::IsInRange(Vec2 pos)
@@ -73,12 +75,12 @@ bool Astar::IsInRange(Vec2 pos)
 }
 
 void Astar::TracePath(Node& now, Vec2 src, Vec2 dst)
-{
+{  
 	Node node = now;
 	std::cout << "µé¾î¿È" << std::endl;
 	while (testing_map[node.pos.first][node.pos.second].parant_pos != src)
 	{
-		test_map[node.parant_pos.first][node.parant_pos.second] = '*';
+		result_vec.push_back(node.parant_pos);
 		node = testing_map[node.parant_pos.first][node.parant_pos.second];
 	}
 
