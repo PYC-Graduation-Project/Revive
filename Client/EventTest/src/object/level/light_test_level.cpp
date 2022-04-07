@@ -13,6 +13,7 @@
 #include "object/actor/rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
 #include "object/gamemode/third_game_mode.h"
+#include "object/actor/collision_test_actor.h"
 
 
 namespace event_test
@@ -40,6 +41,10 @@ namespace event_test
 		SpawnActor(siege);
 		siege->SetPosition(Vec3{ 0.0f, 0.0f, 2000.0f });
 		siege->SetScale(0.5f);
+
+		auto sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, 500.0f));
 
 		auto d_light = CreateSPtr<DirectionalLight>();
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
@@ -72,7 +77,7 @@ namespace event_test
 	
 		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
 		SpawnActor(sky_cube);
-
+		
 		sky_cube = CreateSPtr<SkyCube>("../Contents/desertcube1024.dds");
 		SpawnActor(sky_cube);
 

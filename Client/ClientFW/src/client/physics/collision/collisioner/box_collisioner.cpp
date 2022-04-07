@@ -2,6 +2,7 @@
 #include "client/physics/collision/collisioner/box_collisioner.h"
 #include "client/object/component/render/box_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/physics/collision/collision_responser.h"
 
 namespace client_fw
 {
@@ -27,7 +28,29 @@ namespace client_fw
 		}
 		return false;
 	}
+
 	void BoxCollisioner::BlockOtherComponent(const SPtr<SceneComponent>& other)
 	{
+		if (other->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+		{
+		}
+		else
+		{
+			switch (other->GetCollisioner()->GetMeshCollisionType())
+			{
+			case eMeshCollisionType::kStaticMesh:
+			case eMeshCollisionType::kBox:
+				CollisionResponser::BlockBetweenBoxAndBox(GetOwner(), *GetOwner()->GetOrientedBox(), *other->GetOrientedBox());
+				break;
+			case eMeshCollisionType::kSphere:
+			{
+				BSphere sphere(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
+				CollisionResponser::BlockBetweenBoxAndSphere(GetOwner(), *GetOwner()->GetOrientedBox(), sphere);
+				break;
+			}
+			default:
+				break;
+			}
+		}
 	}
 }

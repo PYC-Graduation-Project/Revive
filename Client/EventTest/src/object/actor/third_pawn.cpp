@@ -2,6 +2,8 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/util/character_movement_component.h>
 #include <client/object/component/util/camera_component.h>
+#include <client/object/component/render/sphere_component.h>
+#include <client/object/component/render/box_component.h>
 #include <client/object/actor/player_controller.h>
 #include "third_pawn.h"
 
@@ -24,9 +26,14 @@ namespace event_test
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
 		ret &= mesh->SetMesh("../Contents/penguin.obj");
+		//mesh->SetCollisionInfo(false, false, "", {}, false);
 		mesh->SetLocalScale(10.0f);
 		mesh->SetLocalRotation(quat::CreateQuaternionFromAxis(vec3::AXIS_Y, math::ToRadian(180.0f)));
 		ret &= AttachComponent(mesh);
+
+		//auto sphere = CreateSPtr<BoxComponent>(Vec3(100.0f, 100.0f, 100.0f));
+		//auto sphere = CreateSPtr<SphereComponent>(100.0f);
+		//ret &= AttachComponent(sphere);
 
 		auto camera = CreateSPtr<CameraComponent>();
 		const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());

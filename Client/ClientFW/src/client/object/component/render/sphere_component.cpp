@@ -9,8 +9,8 @@ namespace client_fw
 		: ShapeComponent(name, Vec3(radius, radius, radius)
 		, Render::ConvertShaderType(eShaderType::kShapeBox))
 	{
-		if (m_collisioner != nullptr)
-			CreateUPtr<SphereCollisioner>();
+		if (m_collisioner == nullptr)
+			m_collisioner = CreateUPtr<SphereCollisioner>();
 	}
 
 	SPtr<SphereComponent> SphereComponent::SharedFromThis()
