@@ -52,6 +52,8 @@ namespace client_fw
 		
 		m_animation_controller->SetBoneData(skeletal_mesh->GetBoneData(), skeletal_mesh->GetSkeleton());
 		skeletal_mesh->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+		m_animation_controller->CopyBoneTransformData();
+
 		return true;
 	}
 	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name,bool looping)
