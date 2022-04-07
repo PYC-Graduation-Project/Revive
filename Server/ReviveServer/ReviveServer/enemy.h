@@ -3,6 +3,7 @@
 #include "define.h"
 #include<mutex>
 #include<atomic>
+#include<vector>
 const int SYNC_TIME = 30;
 
 class Enemy :
@@ -33,6 +34,7 @@ public:
     const std::chrono::system_clock::time_point& GetMoveTime() { return m_move_time; }
     std::atomic_bool in_use;
     std::mutex lua_lock;
+    std::vector<Vector3>m_load;
 private:
     std::chrono::system_clock::time_point	m_move_time;
     lua_State* m_L;

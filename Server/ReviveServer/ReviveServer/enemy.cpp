@@ -18,7 +18,7 @@ void Enemy::InitEnemy(OBJ_TYPE type, int room_id,
 
 void Enemy::SetSpawnPoint(float x, float z)
 {
-	Vector3 pos(x, 0.0f, z);
+	Vector3 pos(x, 300.0f, z);
 	SetOriginPos(pos);
 	SetPos(pos);
 }

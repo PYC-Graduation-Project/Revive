@@ -63,9 +63,9 @@ private:
 
 
 	Vector3 PLAYER_SPAWN_POINT[3]{ //임시 하드코딩
-	{2350.0f,0.0f,3150.0f},
-	{2450.0f,0.0f,3150.0f},
-	{2400.0f,0.0f,3150.0f}
+	{2350.0f,300.0f,3150.0f},
+	{2450.0f,300.0f,3150.0f},
+	{2400.0f,300.0f,3150.0f}
 	};
 	const float ENEMY_SPAWN_POINT[2][2]
 	{
@@ -73,7 +73,7 @@ private:
 		{2700.f,10200.f}
 	};
 
-	Vector3 BASE_POINT{ 2400.0f,0.0f,2850.0f };
+	Vector3 BASE_POINT{ 2400.0f,300.0f,2850.0f };
 	//Spawn 1
 	//min : x=1800,z=10500 max: x=2100,z=10200
 	//Spawn 2
