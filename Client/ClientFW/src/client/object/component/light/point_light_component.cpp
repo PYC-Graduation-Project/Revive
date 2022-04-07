@@ -6,7 +6,7 @@ namespace client_fw
 {
 	PointLightComponent::PointLightComponent(const std::string& name,
 		const std::string& draw_shader_name)
-		: LightComponent(eLightType::kPoint, name, draw_shader_name)
+		: LocalLightComponent(eLightType::kPoint, name, draw_shader_name)
 	{
 	}
 

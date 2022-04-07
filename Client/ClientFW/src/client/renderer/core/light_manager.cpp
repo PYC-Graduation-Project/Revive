@@ -6,6 +6,7 @@
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/directional_light_component.h"
 #include "client/object/component/light/point_light_component.h"
+#include "client/object/component/light/spot_light_component.h"
 #include "client/util/upload_buffer.h"
 
 namespace client_fw
@@ -60,6 +61,20 @@ namespace client_fw
 			light->SetLightManagerRegisteredIndex(index);
 			light_resource_data->CopyData(index++, light_data);
 		}
+
+		for (const auto& light : m_spot_lights)
+		{
+			RSLightData light_data;
+			light_data.light_color = light->GetLightColor();
+			light_data.light_position = light->GetWorldPosition();
+			light_data.light_direction = light->GetWorldForward();
+			light_data.attenuation_radius = light->GetAttenuationRadius();
+			light_data.cone_inner_angle = light->GetConeInnerAngle();
+			light_data.cone_outer_angle = light->GetConeOuterAngle();
+			light->SetLightManagerRegisteredIndex(index);
+			light_resource_data->CopyData(index++, light_data);
+		}
+
 	}
 
 	void LightManager::Draw(ID3D12GraphicsCommandList* command_list)
@@ -80,18 +95,19 @@ namespace client_fw
 		case eLightType::kDirectional:
 		{
 			if (m_directional_lights.size() < 4)
-			{
-				m_directional_lights.push_back(std::static_pointer_cast<DirectionalLightComponent>(light_comp));
-				++m_num_of_light;
-			}
+				RegisterLightComponent(m_directional_lights, light_comp);
 			else
 				return false;
 			break;
 		}
 		case eLightType::kPoint:
 		{
-			m_point_lights.push_back(std::static_pointer_cast<PointLightComponent>(light_comp));
-			++m_num_of_light;
+			RegisterLightComponent(m_point_lights, light_comp);
+			break;
+		}
+		case eLightType::kSpot:
+		{
+			RegisterLightComponent(m_spot_lights, light_comp);
 			break;
 		}
 		default:
@@ -106,24 +122,17 @@ namespace client_fw
 		{
 		case eLightType::kDirectional:
 		{
-			auto iter = std::find(m_directional_lights.begin(), m_directional_lights.end(), light_comp);
-			if (iter != m_directional_lights.end())
-			{
-				std::iter_swap(iter, m_directional_lights.end() - 1);
-				m_directional_lights.pop_back();
-				--m_num_of_light;
-			}
+			UnregisterLightComponent(m_directional_lights, light_comp);
 			break;
 		}
 		case eLightType::kPoint:
 		{
-			auto iter = std::find(m_point_lights.begin(), m_point_lights.end(), light_comp);
-			if (iter != m_point_lights.end())
-			{
-				std::iter_swap(iter, m_point_lights.end() - 1);
-				m_point_lights.pop_back();
-				--m_num_of_light;
-			}
+			UnregisterLightComponent(m_point_lights, light_comp);
+			break;
+		}
+		case eLightType::kSpot:
+		{
+			UnregisterLightComponent(m_spot_lights, light_comp);
 			break;
 		}
 		default:

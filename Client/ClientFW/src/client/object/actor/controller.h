@@ -14,6 +14,7 @@ namespace client_fw
         virtual void Update(float delta_time) override;
         
     private:
+        void UpdateYaw(float delta_time);
         void UpdatePitch(float delta_time);
         void UpdateRoll(float delta_time);
 

@@ -25,10 +25,11 @@ struct MaterialData
 struct LightData
 {
     float3 light_color;
-    float additional_info_0;
-    float3 light_direction;
     float attenuation_radius;
+    float3 light_direction;
+    float cone_inner_angle;
     float3 light_position;
+    float cone_outer_angle;
 };
 
 struct SkeletalData
