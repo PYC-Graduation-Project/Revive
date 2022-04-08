@@ -18,17 +18,17 @@ namespace revive
 	{
 		bool ret = true;
 
-		m_projectile_movement_component->SetInitialSpeed(10000.0f);
+		m_projectile_movement_component->SetInitialSpeed(1000.0f);
 		m_projectile_movement_component->SetProjectileGravityScale(0.0f);
 
 		ret &= AttachComponent(m_projectile_movement_component);
 		
 		m_static_mesh_component->SetMesh("../Contents/Sphere.obj");
+		m_static_mesh_component->SetLocalScale(0.1f);
 		ret &= AttachComponent(m_static_mesh_component);
 
 		ret &= AttachComponent(m_sphere_component);
-
-		SetPosition(Vec3{ 2400.0f,400.0f,4000.0f });
+		m_life_span = 1.0f;
 		return ret;
 	}
 
@@ -39,5 +39,20 @@ namespace revive
 		m_sphere_component = nullptr;
 	}
 
+	void Projectile::Update(float delta_time)
+	{
+		m_age += delta_time;
+
+		if (m_life_span > 0.f)
+		{
+			if (m_age >= m_life_span)
+				this->SetActorState(eActorState::kDead);
+		}
+	}
+
+	void Projectile::SetVelocity(const Vec3& velocity)
+	{
+		m_projectile_movement_component->SetVelocity(velocity);
+	}
 
 }

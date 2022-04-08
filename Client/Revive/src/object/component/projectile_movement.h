@@ -31,6 +31,8 @@ namespace revive
 	public:
 		const Vec3& GetVelocity() const { return m_velocity; }
 
+		void SetVelocity(const Vec3& velocity) { m_velocity = velocity; }
+
 		void SetMaxSpeed(const float max_speed) { m_max_speed = max_speed; }
 
 		void SetInitialSpeed(const float initial_speed) { m_initial_speed = initial_speed; }
