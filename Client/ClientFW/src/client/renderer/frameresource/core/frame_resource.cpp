@@ -46,6 +46,8 @@ namespace client_fw
 			frame_resource->Shutdown();
 		for (const auto& [shader_name, frame_resource] : m_static_mesh_frame_resource)
 			frame_resource->Shutdown();
+		for (const auto& [shader_name, frame_resource] : m_skeletal_mesh_frame_resource)
+			frame_resource->Shutdown();
 		for (const auto& [shader_name, frame_resource] : m_sky_frame_resource)
 			frame_resource->Shutdown();
 		m_light_frame_resource->Shutdown();

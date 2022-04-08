@@ -1,8 +1,7 @@
 #include "object/map/map_loader.h"
-
 #include "object/actor/ground.h"
 #include "object/actor/Wall.h"
-#include "object/actor/SpawnArea.h"
+#include "object/actor/spawn_area.h"
 
 namespace revive
 {
@@ -31,6 +30,7 @@ namespace revive
 		Quaternion temp_quat;
 		std::string temp_string;
 		UINT temp_uint, temp_uint2;
+		float temp_float;
 		std::map<std::string, int> actor_count;
 
 		std::vector<SPtr<Actor>> actors;
@@ -39,7 +39,7 @@ namespace revive
 		std::vector<std::string> file_paths;
 		std::vector<Vec3> positions;
 		std::vector<Quaternion> rotations;
-		std::vector<Vec3> scales;
+		std::vector<float> scales;
 		std::vector<Vec3> collision_centers;
 		std::vector<Vec3> collision_extents;
 
@@ -91,8 +91,8 @@ namespace revive
 				rotations.emplace_back(std::move(temp_quat));
 				break;
 			case HashCode("Scale"):
-				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
-				scales.emplace_back(std::move(temp_vec));
+				ss >> temp_float;
+				scales.emplace_back(std::move(temp_float));
 				break;
 			}
 		}
@@ -180,6 +180,7 @@ namespace revive
 		{
 			SPtr<BoxComponent> box_component = CreateSPtr<BoxComponent>(collision_extents[count], actor_info.name + " box component");
 			box_component->SetLocalPosition(collision_centers[count]);
+			box_component->SetCollisionInfo(true, false, "default", { "default" }, true);
 			box_components.emplace_back(std::move(box_component));
 		}
 		return box_components;
@@ -188,7 +189,7 @@ namespace revive
 
 	std::vector<SPtr<StaticMeshComponent>> MapLoader::CreateStaticMeshComponents(
 		const UINT& actor_mesh_index, const ActorInfo& actor_info, const std::vector<std::string>& file_paths, 
-		const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<Vec3>& scales)
+		const std::vector<Vec3>& positions, const std::vector<Quaternion>& rotations, const std::vector<float>& scales)
 	{
 		std::vector<SPtr<StaticMeshComponent>> components;
 
