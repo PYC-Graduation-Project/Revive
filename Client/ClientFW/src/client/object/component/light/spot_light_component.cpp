@@ -50,12 +50,6 @@ namespace client_fw
 			GetWorldMatrix());
 	}
 
-	void SpotLightComponent::SetAttenuationRadius(float radius)
-	{
-		m_attenuation_radius = radius;
-		m_update_local_matrix = true;
-	}
-
 	void SpotLightComponent::SetConeInnerAngle(float degrees)
 	{
 		m_cone_inner_angle = math::ToRadian(degrees);

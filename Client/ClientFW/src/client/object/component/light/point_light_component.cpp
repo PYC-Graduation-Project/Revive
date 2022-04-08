@@ -47,10 +47,4 @@ namespace client_fw
 		float extent = m_attenuation_radius;
 		m_oriented_box->SetExtents(Vec3(extent, extent, extent));
 	}
-
-	void PointLightComponent::SetAttenuationRadius(float radius)
-	{
-		m_attenuation_radius = radius;
-		m_update_local_matrix = true;
-	}
 }

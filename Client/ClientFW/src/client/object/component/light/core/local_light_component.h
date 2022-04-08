@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+    constexpr static float s_max_attenuation_radius = 4096;
+
     class LocalLightComponent : public LightComponent
     {
     protected:
@@ -12,6 +14,13 @@ namespace client_fw
 
         virtual void RegisterToVisualOctree() override;
         virtual void UnregisterFromVisualOctree() override;
+
+    protected:
+        float m_attenuation_radius = 1000.0f;
+
+    public:
+        float GetAttenuationRadius() const { return m_attenuation_radius; }
+        void SetAttenuationRadius(float radius);
     };
 
 }

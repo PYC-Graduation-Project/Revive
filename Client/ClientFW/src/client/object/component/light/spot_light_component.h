@@ -17,13 +17,10 @@ namespace client_fw
         virtual void UpdateOrientedBox() override;
 
     private:
-        float m_attenuation_radius = 1000.0f;
         float m_cone_inner_angle = math::ToRadian(0.0f); 
         float m_cone_outer_angle = math::ToRadian(44.0f); 
 
     public:
-        float GetAttenuationRadius() const { return m_attenuation_radius; }
-        void SetAttenuationRadius(float radius);
         float GetConeInnerAngle() const { return m_cone_inner_angle; }
         void SetConeInnerAngle(float degrees);
         float GetConeOuterAngle() const { return m_cone_outer_angle; }

@@ -15,12 +15,5 @@ namespace client_fw
 		virtual void UpdateWorldMatrix() override;
 		virtual void UpdateLocalMatrix() override;
 		virtual void UpdateOrientedBox() override;
-
-	private:
-		float m_attenuation_radius = 1000.0f;
-
-	public:
-		float GetAttenuationRadius() const { return m_attenuation_radius; }
-		void SetAttenuationRadius(float radius);
 	};
 }
