@@ -67,6 +67,7 @@ namespace revive
 		//LOG_INFO("Attack State");
 		m_player->SetMeshPosition(Vec3{ 0,0,0 });
 		m_player->SetAnimation("attack", false);
+		m_player->Attack();
 	}
 
 	SPtr<PlayerState> AttackState::ChageState()
