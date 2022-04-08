@@ -84,6 +84,7 @@ void MapManager::LoadMap(const std::string& path)
 			{
 				//map_obj_manager ¸¸µé±â
 				Vector3 pos{ act_info.position + collision_centers[i] };
+				
 				m_map_objects.emplace_back(i, pos, collision_extents[i], true,OBJ_TYPE::OT_BASE);
 
 			}

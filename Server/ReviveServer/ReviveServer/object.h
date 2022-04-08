@@ -5,7 +5,7 @@ class Object
 public:
 	Object(){
 		m_type = OBJ_TYPE::OT_MAPOBJ;
-		m_pos = Vector3(0.0f, 0.0f, 0.0f);
+		m_pos = Vector3(0.0f, 300.0f, 0.0f);
 	};
 	
 	virtual ~Object() = default;

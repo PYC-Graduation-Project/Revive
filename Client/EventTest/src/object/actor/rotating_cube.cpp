@@ -56,6 +56,7 @@ namespace event_test
 		if (m_network_vec != Vec3(0.0f, 0.0f, 0.0f))
 		{
 			Vec3 new_pos = GetPosition() + m_network_vec*m_nw_speed*delta_time;
+			LOG_INFO(new_pos);
 			SetPosition(new_pos);
 		}
 		

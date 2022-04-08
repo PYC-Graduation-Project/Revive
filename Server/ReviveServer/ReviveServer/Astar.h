@@ -57,13 +57,13 @@ public:
 	Astar() {
 		m_start_pos = Vec2((ROW-1) / 2, (COL-1) / 2);
 		//memset(test_map, 0, sizeof(testing_map));
-		for (int i = 0; i < ROW; ++i)
-		{
-			for (int j = 0; j < COL; ++j)
-			{
-				test_map[i][j] = '0';
-			}
-		}
+		//for (int i = 0; i < ROW; ++i)
+		//{
+		//	for (int j = 0; j < COL; ++j)
+		//	{
+		//		test_map[i][j] = '0';
+		//	}
+		//}
 	};
 	~Astar() {};
 
@@ -86,9 +86,9 @@ private:
 	Node testing_map[COL][ROW];
 	std::set<Vec2>close_set;
 	Vec2 m_start_pos;
-	char test_map[ROW][COL];
+	//char test_map[ROW][COL];
 	Vector3 m_zero_position;
-	std::vector<Vec2>result_vec;
+	
 	
 	short dirX[8] = { -1,0,1,0,-1,1,1,-1 };
 	short dirY[8] = { 0,-1,0,1,-1,-1,1,1 };

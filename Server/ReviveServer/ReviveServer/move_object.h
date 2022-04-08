@@ -7,7 +7,7 @@ class MoveObj :public Object
 public:
 	MoveObj() { 
 		
-		m_rotation = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+		m_rotation = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
 	};
 
 	virtual ~MoveObj() = default;

@@ -80,18 +80,25 @@ bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst)
 				map_obj.GetMinPos().z > z && map_obj.GetMaxPos().z < z)
 			{
 
-				test_map[dst.first][dst.second] = '1';
+				//test_map[dst.first][dst.second] = '1';
 				return true;
 
 			}
 			
+		}
+		else if (OBJ_TYPE::OT_BASE == map_obj.GetType())
+		{
+			if (abs(map_obj.GetPosX() - x) <= 10.0f && abs(map_obj.GetPosZ() - z) <= 10.0f)
+			{
+				return true;
+			}
 		}
 		else {
 			if (map_obj.GetMinPos().x <= x && map_obj.GetMaxPos().x >= x &&
 				map_obj.GetMinPos().z <= z && map_obj.GetMaxPos().z >= z)
 			{
 
-				test_map[dst.first][dst.second] = '1';
+				//test_map[dst.first][dst.second] = '1';
 				return true;
 
 			}
@@ -111,22 +118,23 @@ bool Astar::IsInRange( const Vec2& pos)
 void Astar::TracePath(Node& now, Vec2 src, Vec2 dst)
 {  
 	Node node = now;
+	std::vector<Vec2>result_vec;
 	std::cout << "µé¾î¿È" << std::endl;
 	while (testing_map[node.pos.first][node.pos.second].parant_pos != m_start_pos)
 	{
 		result_vec.push_back(node.parant_pos);
-		test_map[node.parant_pos.first][node.parant_pos.second] = '*';
+		//test_map[node.parant_pos.first][node.parant_pos.second] = '*';
 		node = testing_map[node.parant_pos.first][node.parant_pos.second];
 	}
-	for (int i = 0; i < ROW; ++i)
-	{
-		for (int j = 0; j < COL; ++j)
-		{
-			
-			cout << test_map[i][j];
-		}
-		cout << endl;
-	}
+	//for (int i = 0; i < ROW; ++i)
+	//{
+	//	for (int j = 0; j < COL; ++j)
+	//	{
+	//		
+	//		cout << test_map[i][j];
+	//	}
+	//	cout << endl;
+	//}
 
 	for (auto i= result_vec.rbegin(); i!=result_vec.rend(); ++i)
 	{
