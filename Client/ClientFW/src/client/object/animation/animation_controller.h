@@ -9,7 +9,7 @@ namespace client_fw
 	struct BoneData;
 	struct NotifyData
 	{
-		float time;
+		int frame_index;
 		std::string animation_name;
 		std::function<void()> notify_function;
 	};
@@ -41,7 +41,7 @@ namespace client_fw
 
 		void SetAnimationSpeed(float value) { m_animation_speed = value; }
 
-		void AddNotify(const std::string name, const std::string animation_name, float time, const std::function<void()>& function);
+		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function);
 
 	private:
 		std::string m_mesh_path;

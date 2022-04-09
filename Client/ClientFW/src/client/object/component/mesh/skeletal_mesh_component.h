@@ -41,7 +41,7 @@ namespace client_fw
 		void SetAnimation(const std::string& animation_name, const bool looping = true);
 		void SetAnimationSpeed(float speed) { m_animation_controller->SetAnimationSpeed(speed); }
 
-		void AddNotify(const std::string name, const std::string animation_name, float time, const std::function<void()>& function) { m_animation_controller->AddNotify(name,  animation_name, time, function); }
+		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function) { m_animation_controller->AddNotify(name,  animation_name, frame_index, function); }
 	
 	protected:
 		SPtr<SkeletalMeshComponent> SharedFromThis();
