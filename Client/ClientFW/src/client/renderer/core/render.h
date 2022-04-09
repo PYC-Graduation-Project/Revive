@@ -9,6 +9,7 @@ namespace client_fw
 	class RenderComponent;
 	class SkyComponent;
 	class CameraComponent;
+	class RenderCameraComponent;
 	class LightComponent;
 
 	//현재 전략은 Opaque -> Deferred -> Transparent -> Compute -> UI
@@ -56,7 +57,7 @@ namespace client_fw
 
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
-		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
+		static void SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp);
 
 	public:
 		static Vec2 GetWindowSize();

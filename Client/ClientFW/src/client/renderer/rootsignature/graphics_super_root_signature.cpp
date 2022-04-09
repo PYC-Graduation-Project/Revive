@@ -2,10 +2,6 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 #include "client/util/d3d_util.h"
 
-#include "client/object/actor/core/actor.h"
-#include "client/object/component/util/camera_component.h"
-
-
 namespace client_fw
 {
 	GraphicsSuperRootSignature::GraphicsSuperRootSignature()

@@ -10,6 +10,7 @@ namespace client_fw
 	class RenderComponent;
 	class SkyComponent;
 	class CameraComponent;
+	class RenderCameraComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
 	class CameraManager;
@@ -69,7 +70,7 @@ namespace client_fw
 		void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name);
 		bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
-		void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
+		void SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp);
 
 	private:
 		WPtr<Window> m_window;

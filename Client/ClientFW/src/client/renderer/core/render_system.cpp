@@ -30,7 +30,8 @@
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/render/billboard_component.h"
 #include "client/object/component/render/widget_component.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/core/camera_component.h"
+#include "client/object/component/util/render_camera_component.h"
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/core/local_light_component.h"
 #include "client/object/component/sky/sky_component.h"
@@ -327,7 +328,7 @@ namespace client_fw
 		m_camera_manager->UnregisterCameraComponent(camera_comp);
 	}
 
-	void RenderSystem::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	void RenderSystem::SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);

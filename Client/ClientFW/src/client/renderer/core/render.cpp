@@ -41,7 +41,7 @@ namespace client_fw
 		s_render_system->UnregisterCameraComponent(camera_comp);
 	}
 
-	void Render::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	void Render::SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		s_render_system->SetMainCamera(camera_comp);
 	}

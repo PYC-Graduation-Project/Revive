@@ -10,7 +10,6 @@ namespace client_fw
 	class ExternalTexture;
 	class ExternalCubeMapTexture;
 	class TextureLoader;
-	class RenderTexture;
 	class Skeleton;
 	class AnimationSequence;
 	class AnimationLoader;

@@ -35,16 +35,18 @@ namespace client_fw
 
 	class CameraComponent : public SceneComponent
 	{
-	public:
-		CameraComponent(const std::string& name = "camera component",
-			eCameraUsage usage = eCameraUsage::kBasic);
+	protected:
+		CameraComponent(eCameraUsage usage, 
+			const std::string& name = "camera component");
 		virtual ~CameraComponent() = default;
 
+	public:
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void UpdateWorldMatrix() override;
 		virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
+		virtual void UpdateViewMatrix();
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -52,8 +54,6 @@ namespace client_fw
 		void UnregisterFromRenderSystem();
 
 	protected:
-		WPtr<Actor> m_owner_controller;
-		bool m_use_controller_rotation = false;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
@@ -71,10 +71,6 @@ namespace client_fw
 		BFrustum m_bounding_frustum;
 
 	public:
-		void SetMainCamera();
-		void SetOwnerController(const WPtr<Actor>& owner);
-		bool IsUseControllerRotation() const { return m_use_controller_rotation; }
-		void UseControllerRotation(bool use) { m_use_controller_rotation = use; }
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
@@ -92,15 +88,6 @@ namespace client_fw
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
-
-	private:
-		SPtr<RenderTexture> m_render_texture;
-
-	public:
-		const SPtr<RenderTexture>& GetRenderTexture() const { return m_render_texture; }
-		// 카메라가 생성되면 카메라가 보는 장면을 그릴 Texture가 필요한데, 그 Texture를 뜻한다. 
-		// 사용자가 직접적으로 호출할 필요는 없다.
-		void SetRenderTexture(const SPtr<RenderTexture>& texture) { m_render_texture = texture; }
 
 	protected:
 		SPtr<CameraComponent> SharedFromThis();

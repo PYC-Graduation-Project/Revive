@@ -3,7 +3,6 @@
 namespace client_fw
 {
 	class UserInterface;
-	class CameraComponent;
 
 	class UIVertex;
 

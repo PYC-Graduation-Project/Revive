@@ -7,7 +7,6 @@
 #include "client/object/ui/core/user_interface_manager.h"
 #include "client/object/ui/core/user_interface_layer.h"
 #include "client/object/ui/core/user_interface.h"
-#include "client/object/component/util/camera_component.h"
 #include "client/asset/texture/texture.h"
 
 namespace client_fw

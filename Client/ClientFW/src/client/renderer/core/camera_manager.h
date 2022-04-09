@@ -4,6 +4,7 @@ namespace client_fw
 {
 	enum class eCameraUsage;
 	class CameraComponent;
+	class RenderCameraComponent;
 
 	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
 	class CameraManager final
@@ -33,18 +34,18 @@ namespace client_fw
 
 	private:
 		static CameraManager* s_camera_manager;
-		std::map<eCameraUsage, UINT> m_camera_counts;
-		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_ready_cameras;
-		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_wait_resource_cameras;
-		std::map<eCameraUsage, std::vector<SPtr<CameraComponent>>> m_cameras;
-		SPtr<CameraComponent> m_ready_main_camera;
-		SPtr<CameraComponent> m_main_camera;
+
+		std::vector<SPtr<RenderCameraComponent>> m_ready_render_cameras;
+		std::vector<SPtr<RenderCameraComponent>> m_wait_resource_render_cameras;
+		std::vector<SPtr<RenderCameraComponent>> m_render_cameras;
+
+		SPtr<RenderCameraComponent> m_ready_main_camera;
+		SPtr<RenderCameraComponent> m_main_camera;
 
 	public:
 		static CameraManager& GetCameraManager() { return *s_camera_manager; }
-		const std::vector<SPtr<CameraComponent>>& GetCameras(eCameraUsage usage) { return m_cameras[usage]; }
-		const SPtr<CameraComponent> GetMainCamera() { return m_main_camera; }
-		void SetMainCamera(const SPtr<CameraComponent>& camera_comp) { m_ready_main_camera = camera_comp; }
+		const SPtr<RenderCameraComponent> GetMainCamera() { return m_main_camera; }
+		void SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp) { m_ready_main_camera = camera_comp; }
 	};
 }
 
