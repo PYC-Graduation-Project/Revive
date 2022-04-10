@@ -30,6 +30,12 @@ namespace client_fw
 			shader->Update(device, m_level_type);
 	}
 
+	void GraphicsRenderLevel::UpdateFrameResource(ID3D12Device* device)
+	{
+		for (const auto& shader : m_graphics_shaders)
+			shader->UpdateFrameResource(device, m_level_type);
+	}
+
 	void GraphicsRenderLevel::Draw(ID3D12GraphicsCommandList* command_list) const
 	{
 		for (const auto& shader : m_graphics_shaders)

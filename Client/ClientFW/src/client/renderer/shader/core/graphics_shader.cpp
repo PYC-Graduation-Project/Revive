@@ -203,7 +203,7 @@ namespace client_fw
 
 	void MeshShader::Initialize(ID3D12Device* device)
 	{
-		m_render_item->Initialize(device);
+		m_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void MeshShader::Shutdown()

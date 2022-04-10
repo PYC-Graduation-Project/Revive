@@ -13,6 +13,16 @@ namespace client_fw
 	class WidgetFrameResource;
 	class UserInterfaceFrameResource;
 
+	enum class eRenderLevelType;
+
+	struct ResourceOwner
+	{
+		std::string owner_shader_name;
+		eRenderLevelType render_level_type;
+	};
+
+	bool operator<(const ResourceOwner& owner1, const ResourceOwner& owner2);
+
 	//GPU가 사용할 데이터들을 관리하는 곳
 	//CPU와 GPU의 병렬성을 위해서 필요하다.
 	class FrameResource
@@ -45,7 +55,7 @@ namespace client_fw
 
 	private:
 		std::map<std::string, UPtr<SkyFrameResource>> m_sky_frame_resource;
-		std::map<std::string, UPtr<StaticMeshFrameResource>> m_static_mesh_frame_resource;
+		std::map<ResourceOwner, UPtr<StaticMeshFrameResource>> m_static_mesh_frame_resource;
 		std::map<std::string, UPtr<SkeletalMeshFrameResource>> m_skeletal_mesh_frame_resource;
 		std::map<std::string, UPtr<BillboardFrameResource>> m_billboard_frame_resource;
 		std::map<std::string, UPtr<WidgetFrameResource>> m_widget_frame_resource;
@@ -54,7 +64,7 @@ namespace client_fw
 
 	public:
 		void CreateSkyFrameResource(ID3D12Device* device, const std::string& shader_name);
-		void CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name);
+		void CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type);
 		void CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name);
 		void CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name);
@@ -63,8 +73,12 @@ namespace client_fw
 
 		const UPtr<SkyFrameResource>& GetSkyFrameResource(const std::string& shader_name) const
 		{ return m_sky_frame_resource.at(shader_name); }
-		const UPtr<StaticMeshFrameResource>& GetStaticMeshFrameResource(const std::string& shader_name) const 
-		{ return m_static_mesh_frame_resource.at(shader_name); }
+
+		const UPtr<StaticMeshFrameResource>& GetStaticMeshFrameResource(const std::string& shader_name, eRenderLevelType level_type) const
+		{
+			return m_static_mesh_frame_resource.at({ shader_name, level_type });
+		}
+
 		const UPtr<SkeletalMeshFrameResource>& GetSkeletalMeshFrameResource(const std::string& shader_name) const
 		{ return m_skeletal_mesh_frame_resource.at(shader_name); }
 		const UPtr<BillboardFrameResource>& GetBillboardFrameResource(const std::string& shader_name) const 

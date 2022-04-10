@@ -74,7 +74,7 @@ namespace client_fw
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
-		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", { eRenderLevelType::kOpaque });
+		//ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", { eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", {eRenderLevelType::kOpaque});
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
@@ -138,8 +138,9 @@ namespace client_fw
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
-		for (const auto& [name, shader] : m_graphics_shaders)
-			shader->UpdateFrameResource(device);
+
+		for (const auto& [level_type, render_level] : m_graphics_render_levels)
+			render_level->UpdateFrameResource(device);
 	}
 
 

@@ -130,7 +130,7 @@ namespace client_fw
 		}
 	}
 
-	void PointLightShader::UpdateFrameResource(ID3D12Device* device)
+	void PointLightShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		UpdateRenderItemResource(device);
 	}
@@ -188,7 +188,7 @@ namespace client_fw
 		}
 	}
 
-	void SpotLightShader::UpdateFrameResource(ID3D12Device* device)
+	void SpotLightShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		UpdateRenderItemResource(device);
 	}

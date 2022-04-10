@@ -34,7 +34,7 @@ namespace client_fw
 		}
 	}
 
-	void SkyShader::UpdateFrameResource(ID3D12Device* device)
+	void SkyShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		m_sky_render_item->UpdateFrameResource(device);
 	}

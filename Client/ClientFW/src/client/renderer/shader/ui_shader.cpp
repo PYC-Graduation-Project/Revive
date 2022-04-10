@@ -36,7 +36,7 @@ namespace client_fw
 		}
 	}
 
-	void UIShader::UpdateFrameResource(ID3D12Device* device)
+	void UIShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		m_render_item->UpdateFrameResource(device);
 	}

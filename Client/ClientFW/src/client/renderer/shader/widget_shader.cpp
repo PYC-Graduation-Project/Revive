@@ -156,7 +156,7 @@ namespace client_fw
 		}
 	}
 
-	void OpaqueWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	void OpaqueWidgetShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		UpdateRenderItemResource(device);
 	}
@@ -208,7 +208,7 @@ namespace client_fw
 		}
 	}
 
-	void MaskedWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	void MaskedWidgetShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		UpdateRenderItemResource(device);
 	}

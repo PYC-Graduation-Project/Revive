@@ -8,9 +8,18 @@
 #include "client/renderer/frameresource/billboard_frame_resource.h"
 #include "client/renderer/frameresource/widget_frame_resource.h"
 #include "client/renderer/frameresource/ui_frame_resource.h"
+#include "client/renderer/core/render.h"
 
 namespace client_fw
 {
+	bool operator<(const ResourceOwner& owner1, const ResourceOwner& owner2)
+	{
+		if (owner1.owner_shader_name == owner2.owner_shader_name)
+			return owner1.render_level_type < owner2.render_level_type;
+		else
+			return owner1.owner_shader_name < owner2.owner_shader_name;
+	}
+
 	FrameResource::FrameResource()
 	{
 		m_render_resource_frame_resource = CreateUPtr<RenderResourceFrameResource>();
@@ -59,10 +68,11 @@ namespace client_fw
 		m_sky_frame_resource[shader_name]->Initialize(device);
 	}
 
-	void FrameResource::CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_static_mesh_frame_resource.emplace(shader_name, CreateUPtr<StaticMeshFrameResource>());
-		m_static_mesh_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_static_mesh_frame_resource.emplace(owner, CreateUPtr<StaticMeshFrameResource>());
+		m_static_mesh_frame_resource[owner]->Initialize(device);
 	}
 
 	void FrameResource::CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name)
@@ -94,4 +104,5 @@ namespace client_fw
 		m_ui_frame_resource.emplace(shader_name, CreateUPtr<UserInterfaceFrameResource>());
 		m_ui_frame_resource[shader_name]->Initialize(device);
 	}
+
 }

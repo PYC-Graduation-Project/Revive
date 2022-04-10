@@ -28,18 +28,21 @@ namespace client_fw
 	{
 	}
 
-	void StaticMeshRenderItem::Initialize(ID3D12Device* device)
+	void StaticMeshRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resources)
-			frame->CreateStaticMeshFrameResource(device, m_owner_shader_name);
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateStaticMeshFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
-	void StaticMeshRenderItem::Update(ID3D12Device* device)
+	void StaticMeshRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		MeshesInstanceDrawInfo instance_info;
 		//카메라마다의 시작 위치 저장
-		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data.size());
+		instance_info.start_index = static_cast<UINT>(m_meshes_instance_data[level_type].size());
 
 		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_mesh_data)
@@ -79,7 +82,7 @@ namespace client_fw
 				}
 			}
 
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data));
+			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data[level_type]));
 
 			mesh_data->mesh->ResetLOD();
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
@@ -88,15 +91,17 @@ namespace client_fw
 		//mesh start index for camera는 mesh마다 그려지는 count를 더했기 때문에 최종적으로는 카메라가 그릴 데이터의 수가 된다.
 		instance_info.num_of_instnace_data = static_cast<UINT>(mesh_start_index_for_camera);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
+		const auto& mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name, level_type);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
-	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void StaticMeshRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
+		const auto& mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name, level_type);
 
-		UINT new_size = static_cast<UINT>(m_meshes_instance_data.size());
+		UINT new_size = static_cast<UINT>(m_meshes_instance_data[level_type].size());
 		if (new_size > 0)
 		{
 			UINT mesh_instance_size = mesh_resource->GetSizeOfInstanceData();
@@ -114,17 +119,17 @@ namespace client_fw
 				mesh_resource->SetSizeOfInstanceData(mesh_instance_size);
 			}
 
-			UINT index = 0;
-			for (const auto& instance_data : m_meshes_instance_data)
-				mesh_resource->GetInstanceData()->CopyData(index++, instance_data);
+			mesh_resource->GetInstanceData()->CopyVectorData(std::move(m_meshes_instance_data[level_type]));
 
-			m_meshes_instance_data.clear();
+			m_meshes_instance_data[level_type].clear();
 		}
 	}
 
-	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
+	void StaticMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name);
+		const auto& mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetStaticMeshFrameResource(m_owner_shader_name, level_type);
+
 		MeshesInstanceDrawInfo instance_info = mesh_resource->GetMeshesInstanceDrawInfo();
 
 		if (instance_info.num_of_instnace_data > 0)

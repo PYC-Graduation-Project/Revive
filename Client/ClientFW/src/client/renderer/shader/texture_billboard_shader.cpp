@@ -24,7 +24,7 @@ namespace client_fw
 		}
 	}
 
-	void TextureBillboardShader::UpdateFrameResource(ID3D12Device* device)
+	void TextureBillboardShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		UpdateRenderItemResource(device);
 	}

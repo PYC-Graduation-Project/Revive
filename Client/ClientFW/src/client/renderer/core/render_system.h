@@ -50,7 +50,6 @@ namespace client_fw
 		{
 			bool ret = true;
 			m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
-			m_graphics_shaders[shader_name]->Initialize(m_device);
 
 			for (eRenderLevelType level_type : level_types)
 			{
@@ -58,6 +57,7 @@ namespace client_fw
 				{
 					if (is_custom)
 						m_added_shaders.insert(shader_name);
+					m_graphics_shaders[shader_name]->AddRegisteredRenderLevelType(level_type);
 					ret &= m_graphics_render_levels[level_type]->RegisterGraphicsShader(m_device, m_graphics_shaders[shader_name]);
 				}
 				else
@@ -66,6 +66,8 @@ namespace client_fw
 					return false;
 				}
 			}
+
+			m_graphics_shaders[shader_name]->Initialize(m_device);
 
 			return ret;
 		}
