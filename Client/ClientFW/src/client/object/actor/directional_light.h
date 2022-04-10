@@ -8,8 +8,8 @@ namespace client_fw
 	class DirectionalLight : public Actor
 	{
 	public:
-		DirectionalLight(const std::string& name = "directional light", 
-			eMobilityState mobility = eMobilityState::kStatic);
+		DirectionalLight(eMobilityState mobility = eMobilityState::kStatic,
+			const std::string& name = "directional light");
 		virtual ~DirectionalLight() = default;
 
 		virtual bool Initialize() override;

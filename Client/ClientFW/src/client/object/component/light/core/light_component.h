@@ -1,5 +1,5 @@
 #pragma once
-#include "client/object/component/core/scene_component.h"
+#include "client/object/component/core/render_component.h"
 
 namespace client_fw
 {
@@ -8,27 +8,27 @@ namespace client_fw
 		kDirectional, kPoint, kSpot
 	};
 
-	class LightComponent : public SceneComponent
+	class LightComponent : public RenderComponent
 	{
 	protected:
-		LightComponent(eLightType type, const std::string& name);
+		LightComponent(eLightType type, const std::string& name,
+			const std::string& draw_shader_name);
 		virtual ~LightComponent() = default;
 
-		virtual bool Initialize() override;
-		virtual void Shutdown() override;
-
-	private:
-		bool RegisterToRenderSystem();
-		void UnregisterFromRenderSystem();
+		virtual void RegisterToVisualOctree() override;
+		virtual void UnregisterFromVisualOctree() override;
 
 	protected:
 		eLightType m_light_type;
 		Vec3 m_light_color = Vec3(1.f, 1.f, 1.f);
+		UINT m_light_manager_registered_index = 0;
 
 	public:
 		eLightType GetLightType() const { return m_light_type; }
 		const Vec3& GetLightColor() const { return m_light_color; }
 		void SetLightColor(const Vec3& color) { m_light_color = color; }
+		UINT GetLightManagerRegisteredIndex() const { return m_light_manager_registered_index; }
+		void SetLightManagerRegisteredIndex(UINT index) { m_light_manager_registered_index = index; }
 
 	protected:
 		SPtr<LightComponent> SharedFromThis();

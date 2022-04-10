@@ -33,6 +33,21 @@ namespace client_fw
 		return texture;
 	}
 
+	SPtr<ExternalCubeMapTexture> TextureLoader::LoadCubeMapTexture(const std::string& path, const std::string& extension) const
+	{
+		SPtr<ExternalCubeMapTexture> texture;
+
+		if (std::filesystem::exists(path))
+		{
+			if (extension == ".dds")
+				texture = CreateSPtr<ExternalCubeMapTexture>();
+			else
+				LOG_WARN("Files in {0} format cannot be supported to cube map", extension);
+		}
+
+		return texture;
+	}
+
 	ComPtr<ID3D12Resource> TextureCreator::LoadTextureFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
 		const std::string& path, const std::string& extension, ComPtr<ID3D12Resource>& texture_upload_heap)
 	{
@@ -179,7 +194,7 @@ namespace client_fw
 			if (resource_desc.DepthOrArraySize == 1)
 			{
 				view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-				view_desc.Texture2D.MipLevels = -1;
+				view_desc.Texture2D.MipLevels = resource_desc.MipLevels;
 				view_desc.Texture2D.MostDetailedMip = 0;
 				view_desc.Texture2D.PlaneSlice = 0;
 				view_desc.Texture2D.ResourceMinLODClamp = 0.0f;
@@ -212,6 +227,21 @@ namespace client_fw
 		view_desc.Texture2D.MipLevels = 1;
 		view_desc.Texture2D.ResourceMinLODClamp = 0.0f;
 		view_desc.Texture2D.PlaneSlice = 0;
+
+		return view_desc;
+	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescForCube(const ComPtr<ID3D12Resource>& cube_map_resource)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
+		D3D12_RESOURCE_DESC resource_desc = cube_map_resource->GetDesc();
+
+		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view_desc.Format = resource_desc.Format;
+		view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		view_desc.Texture2DArray.MipLevels = resource_desc.MipLevels;
+		view_desc.Texture2DArray.MostDetailedMip = 0;
+		view_desc.Texture2DArray.ResourceMinLODClamp = 0.0f;
 
 		return view_desc;
 	}

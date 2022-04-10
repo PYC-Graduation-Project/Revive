@@ -7,6 +7,7 @@ namespace client_fw
 	class RenderLevel;
 	class Shader;
 	class RenderComponent;
+	class SkyComponent;
 	class CameraComponent;
 	class LightComponent;
 
@@ -25,7 +26,10 @@ namespace client_fw
 		kOpaqueMaterialBaseColorBillboard, kMaskedMaterialBaseColorBillboard,
 		kOpaqueMaterialTextureBillboard, kMaskedMaterialTextureBillboard,
 		kOpaqueMaterialNormalMapBillboard, kMaskedMaterialNormalMapBillboard,
-		kOpaqueWidget, kMaskedWidget
+		kOpaqueWidget, kMaskedWidget,
+		kSky,
+
+		kDeferred, kPointLight, kSpotLight,
 	};
 
 	enum class eKindOfRenderLevel
@@ -47,12 +51,12 @@ namespace client_fw
 		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 
+		static bool RegisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name);
+		static void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name);
+
 		static bool RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		static void SetMainCamera(const SPtr<CameraComponent>& camera_comp);
-
-		static bool RegisterLightComponent(const SPtr<LightComponent>& light_comp);
-		static void UnregisterLightComponent(const SPtr<LightComponent>& light_comp);
 
 	public:
 		static Vec2 GetWindowSize();

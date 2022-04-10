@@ -8,21 +8,28 @@ struct InstanceData
 {
     matrix world;
     matrix world_inverse_transpose;
-    uint bone_start_index;
+    uint additional_info;
 };
 
 struct MaterialData
 {
     float4 base_color;
+    float roughness;
+    float metallic;
     int diffuse_texture_index;
     int normal_texture_index;
+    int roughness_texture_index;
+    int metallic_texture_index;
 };
 
 struct LightData
 {
     float3 light_color;
-    float padding_0;
+    float attenuation_radius;
     float3 light_direction;
+    float cone_inner_angle;
+    float3 light_position;
+    float cone_outer_angle;
 };
 
 struct SkeletalData
@@ -35,6 +42,7 @@ StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
 StructuredBuffer<LightData> g_light_data : register(t2, space0);
 StructuredBuffer<SkeletalData> g_bone_transform_data : register(t3, space0);
 Texture2D g_texture_data[] : register(t0, space1);
+TextureCube g_texture_cube_data[] : register(t0, space2);
 
 SamplerState g_sampler_point_wrap : register(s0);
 

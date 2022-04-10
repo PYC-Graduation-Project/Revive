@@ -6,6 +6,7 @@ namespace client_fw
 	class Mesh;
 	class Material;
 	class ExternalTexture;
+	class ExternalCubeMapTexture;
 	class RenderTexture;
 	class Skeleton;
 	class AnimationSequence;
@@ -25,7 +26,10 @@ namespace client_fw
 		//if .mtl file (releative path) 
 		//return value (mtl name, mtl name's material)
 		static std::map<std::string, SPtr<Material>> LoadMaterials(const std::string& path);
+
 		static SPtr<ExternalTexture> LoadTexture(const std::string& path);
+		static SPtr<ExternalCubeMapTexture> LoadCubeMapTexture(const std::string& path);
+
 		static SPtr<AnimationSequence> LoadAnimation(FILE* file, const SPtr<Skeleton>& skeleton, const std::string& path);
 		static SPtr<AnimationSequence> LoadAnimation(const std::string& path, const SPtr<Skeleton>& skeleton);
 

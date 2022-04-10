@@ -31,11 +31,13 @@ namespace client_fw
 		virtual SPtr<Mesh> LoadMesh(const std::string& path, const std::string& extension)  const override;
 		virtual SPtr<SkeletalMesh> LoadRev(const std::string& path, const std::string& extension) const;
 		
-		FILE* LoadRevForAnimation(const std::string& path, const std::string& extension) const;
-
+	private:
+		UINT m_mesh_count = 0;
+		bool is_single_mesh = true;
+	private:
 		void SaveRevData(SPtr<SkeletalMesh>& s_mesh, const UINT& lod, std::vector<MeshData>& mesh_data) const;
 
-		//애니메이션과 계층구조 형태의 파일(rev파일)을 읽음
+		//계층구조 형태의 파일(rev파일)을 읽음
 
 		//true반환시 메시정보를 전부 읽었고 Animation 정보를 읽을 준비가 됬다는 것을 의미함
 		bool LoadFrameHierArchy(FILE* rev_file, SPtr<Skeleton>& skeleton, std::vector<MeshData>& mesh_data, const std::string& path) const;
@@ -43,22 +45,12 @@ namespace client_fw
 		void LoadMeshFromRevFile(FILE* rev_file, std::vector<MeshData>& mesh_data) const;
 		void LoadSkinDeformations(FILE* rev_file, SPtr<BoneData>& bone_data) const;
 
-		//메시가 기존에 있는거면 저장된거 찾아서 전달해야함
-		SPtr<AnimationSequence> LoadAnimation(FILE* file,const SPtr<Skeleton>& skeleton) const;
-
-
 		//현재 사용하지 않음 추후 수정해서 재사용 가능성 있음
 		//void AddRevMaterial(std::map<std::string, SPtr<Material>>&materials, const std::string& mtl_name, const std::string& parent_path) const;
 
-		
-
-		void AddMesh() const { static_cast<UINT>(m_mesh_count)++;}
-		void InitializeMeshData(std::vector<MeshData>& mesh_data) const;
+		void AddMesh() const { static_cast<UINT>(m_mesh_count)++; }
 		int ReadStringFromFile(FILE* file, std::string* word) const;
-	public:
-		UINT m_mesh_count = 0;
-		bool is_single_mesh = true;
-		
+		void InitializeMeshData(std::vector<MeshData>& mesh_data) const;
 		//원래는 Frame이나 Frame == Bone 취급한다
 		//fbx에서는 frame != Bone
 	};

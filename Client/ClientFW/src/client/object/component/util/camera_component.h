@@ -53,11 +53,13 @@ namespace client_fw
 
 	protected:
 		WPtr<Actor> m_owner_controller;
+		bool m_use_controller_rotation = false;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
 		Viewport m_viewport;
 		bool m_is_updated_viewport = true;
+		Vec3 m_camera_position;
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
@@ -71,6 +73,8 @@ namespace client_fw
 	public:
 		void SetMainCamera();
 		void SetOwnerController(const WPtr<Actor>& owner);
+		bool IsUseControllerRotation() const { return m_use_controller_rotation; }
+		void UseControllerRotation(bool use) { m_use_controller_rotation = use; }
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
@@ -78,6 +82,7 @@ namespace client_fw
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
 		const Viewport& GetViewport() const { return m_viewport; }
 		void SetViewport(const Viewport& viewport) { m_viewport = viewport; m_is_updated_viewport = true; }
+		const Vec3& GetCameraPosition() const { return m_camera_position; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;

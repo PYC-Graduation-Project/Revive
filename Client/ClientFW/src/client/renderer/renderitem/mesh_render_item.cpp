@@ -73,7 +73,7 @@ namespace client_fw
 					UINT lod = mesh_comp->GetLevelOfDetail();
 
 					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),0 };
+						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
 
 					mesh_comp->SetVisiblity(false);
 				}
@@ -213,6 +213,7 @@ namespace client_fw
 	{
 		MeshesInstanceDrawInfo instance_info;
 		instance_info.start_index = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
+
 		UINT skeletal_transform_start_index = 0;
 		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_skeletal_mesh_data)

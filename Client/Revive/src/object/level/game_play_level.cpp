@@ -17,10 +17,15 @@ namespace revive
 	bool GamePlayLevel::Initialize()
 	{
 		//auto police = CreateSPtr<StaticMeshActor>( "../Contents/Cube.obj");
-		//auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic,"Contents/fence_planksDouble.obj");
-		//auto police = CreateSPtr<Ground>("Contents/cliff_block_rock.obj");
-		////auto police = CreateSPtr<Ground>();
-		//SpawnActor(police);
+		
+		/*for (int i = 0; i < 15; ++i)
+		{
+			auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "Contents/cliff_block_rock.obj");
+			police->SetScale(300.0f); 
+			police->SetPosition(Vec3{ -500.0f + i * 500.0f, 0.0f, 6000.0f  });
+			SpawnActor(police);
+		}*/
+		
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
@@ -41,11 +46,6 @@ namespace revive
 	}
 	void GamePlayLevel::Update(float delta_time)
 	{
-		//LOG_INFO("player {0}", m_player->GetPosition());
-	/*	for (auto& actor : m_actors)
-		{
-			LOG_INFO("{0} : {1}",actor->GetName(), actor->GetWorldMatrix());
-		}*/
 		
 	}
 	UPtr<GameMode> GamePlayLevel::CreateGameMode() const
@@ -55,13 +55,17 @@ namespace revive
 	std::vector<SPtr<VisualOctree>> GamePlayLevel::CreateVisualOctrees() const
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(20000.0f));
+		//박스의 HalfWidth, 중심좌표
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500.0f,0,2500.0f))); //Castle
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500,0,7500.0f))); //Bridge + Spawn Area
 		return visual_octrees;
 	}
 	std::vector<SPtr<CollisionOctree>> GamePlayLevel::CreateCollisionOctrees() const
 	{
 		std::vector<SPtr<CollisionOctree>> collision_octrees;
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(30000.0f));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 2500.0f)));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 7500.0f)));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 12500.0f))); //가로는 2500만큼 감싸고(양옆) 세로는 1000만큼 감싸야하지만 정사각형이므로 2500만큼 감싼다.
 		return collision_octrees;
 	}
 }

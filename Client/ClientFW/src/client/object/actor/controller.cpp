@@ -13,10 +13,7 @@ namespace client_fw
 	{
 		if (math::NearZero(m_yaw_speed) == false)
 		{
-			Quaternion rot_value = quat::CreateQuaternionFromNormal(vec3::AXIS_Y, m_yaw_speed * delta_time);
-			SetRotation(GetRotation() * rot_value);
-			if (m_controlled_pawn != nullptr && m_controlled_pawn->IsUseControllerYaw())
-				m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value);
+			UpdateYaw(delta_time);
 		}
 		if (math::NearZero(m_pitch_speed) == false)
 		{
@@ -28,6 +25,19 @@ namespace client_fw
 		}
 
 		m_pitch_speed = m_yaw_speed = m_roll_speed = 0.0f;
+	}
+
+	void Controller::UpdateYaw(float delta_time)
+	{
+		Quaternion rot_value = quat::CreateQuaternionFromNormal(vec3::AXIS_Y, m_yaw_speed * delta_time);
+		SetRotation(GetRotation() * rot_value);
+		if (m_controlled_pawn != nullptr)
+		{
+			if (m_controlled_pawn->IsUseControllerYaw())
+				m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value);
+			else
+				m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation());
+		}
 	}
 
 	void Controller::UpdatePitch(float delta_time)
@@ -50,10 +60,14 @@ namespace client_fw
 		auto SetPitch([this](const Quaternion& rot, const Quaternion& rot_value)
 			{	
 				SetRotation(rot);
-				if (m_controlled_pawn != nullptr && m_controlled_pawn->IsUseControllerPitch())
-					m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value); 
+				if (m_controlled_pawn != nullptr)
+				{
+					if (m_controlled_pawn->IsUseControllerPitch())
+						m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value);
+					else
+						m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation());
+				}
 			});
-
 		
 		if (math::NearZero(forward.z) == false)
 		{
@@ -92,8 +106,13 @@ namespace client_fw
 		auto SetRoll([this](const Quaternion& rot, const Quaternion& rot_value)
 			{
 				SetRotation(rot);
-				if (m_controlled_pawn != nullptr && m_controlled_pawn->IsUseControllerRoll())
-					m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value);
+				if (m_controlled_pawn != nullptr)
+				{
+					if (m_controlled_pawn->IsUseControllerRoll())
+						m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation() * rot_value);
+					else
+						m_controlled_pawn->SetRotation(m_controlled_pawn->GetRotation());
+				}
 			});
 
 

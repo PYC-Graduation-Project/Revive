@@ -28,15 +28,16 @@ namespace client_fw
 
 	bool GraphicsSuperRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
-		std::array<CD3DX12_DESCRIPTOR_RANGE, 1> descriptor_range;
-		descriptor_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, -1, 0, 1);
+		std::array<CD3DX12_DESCRIPTOR_RANGE, 2> descriptor_range;
+		descriptor_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 12288, 0, 1);
+		descriptor_range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1024, 0, 2);
 
 		std::array<CD3DX12_ROOT_PARAMETER, 7> root_parameters;
 		root_parameters[0].InitAsConstantBufferView(0, 0);
 		root_parameters[1].InitAsShaderResourceView(0, 0);
 		root_parameters[2].InitAsConstantBufferView(1, 0);
 		root_parameters[3].InitAsShaderResourceView(1, 0);
-		root_parameters[4].InitAsDescriptorTable(1, &descriptor_range[0]);
+		root_parameters[4].InitAsDescriptorTable(2, &descriptor_range[0]);
 		root_parameters[5].InitAsShaderResourceView(2, 0);
 		root_parameters[6].InitAsShaderResourceView(3, 0); //bone_transform
 

@@ -30,7 +30,7 @@ VS_SKELETAL_MESH_OUT VSSkeletalMesh(VS_SKELETAL_MESH_IN input, uint instance_id 
 	[unroll]
     for (uint i = 0; i < 4; ++i)
     {
-        SkeletalData skeletal_data = g_bone_transform_data[i_data.bone_start_index + input.indices[i]];
+        SkeletalData skeletal_data = g_bone_transform_data[i_data.additional_info + input.indices[i]];
         pos += mul(float4(input.position, 1.0f), skeletal_data.bone_transform).xyz * input.weights[i];
         normal += mul(input.normal, (float3x3)skeletal_data.bone_transform) * input.weights[i];
     }

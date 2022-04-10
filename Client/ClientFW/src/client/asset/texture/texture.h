@@ -5,7 +5,7 @@ namespace client_fw
 {
 	enum class eTextureType
 	{
-		kExternal, kRedner, kRenderUI
+		kExternal, kExternalCubeMap, kRedner, kRenderUI
 	};
 
 	class Texture
@@ -30,11 +30,23 @@ namespace client_fw
 		ID3D12Resource* GetResource() const { return m_texture_resource.Get(); }
 	};
 
-	class ExternalTexture final : public Asset, public Texture
+	class ExternalTexture final: public Asset, public Texture
 	{
 	public:
 		ExternalTexture();
 		virtual ~ExternalTexture() = default;
+
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+
+	private:
+		ComPtr<ID3D12Resource> m_upload_heap;
+	};
+
+	class ExternalCubeMapTexture final : public Asset, public Texture
+	{
+	public:
+		ExternalCubeMapTexture();
+		virtual ~ExternalCubeMapTexture() = default;
 
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 

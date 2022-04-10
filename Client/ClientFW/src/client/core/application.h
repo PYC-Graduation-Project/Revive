@@ -26,6 +26,7 @@ namespace client_fw
 	class MeshLoader;
 	class MaterialLoader;
 	class TextureLoader;
+	class AnimationLoader;
 
 	class Application
 	{
@@ -66,7 +67,6 @@ namespace client_fw
 		static Application* s_instance;
 		eAppState m_app_state;
 		std::wstring m_app_name;
-		UPtr<AssetManager> m_asset_manager;
 
 		SPtr<Window> m_window;
 
@@ -77,6 +77,7 @@ namespace client_fw
 		UPtr<UserInterfaceManager> m_user_interface_manager;
 		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;
+		UPtr<AssetManager> m_asset_manager;
 
 	public:
 		inline static Application* GetApplication() { return s_instance; }
@@ -87,6 +88,7 @@ namespace client_fw
 		virtual UPtr<MeshLoader> CreateMeshLoader() const;
 		virtual UPtr<MaterialLoader> CreateMaterialLoader() const;
 		virtual UPtr<TextureLoader> CreateTextureLoader() const;
+		virtual UPtr<AnimationLoader> CreateAnimationLoader() const;
 
 	public:
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

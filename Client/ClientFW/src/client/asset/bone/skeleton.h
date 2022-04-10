@@ -27,7 +27,7 @@ namespace client_fw
 	public:
 		const Mat4& GetWorld();
 		
-		const Mat4& GetTransposeWorld();
+		const Mat4 GetTransposeWorld();
 
 		const SPtr<Skeleton>& GetParent() { return m_parent; }
 		const std::string& GetBoneName() { return m_bone_name; }

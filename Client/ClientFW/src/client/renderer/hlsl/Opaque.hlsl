@@ -4,12 +4,6 @@
 #ifndef __OPAQUE_HLSL__
 #define __OPAQUE_HLSL__
 
-struct PS_GBUFFER_OUTPUT
-{
-    float4 base_color : SV_TARGET0;
-    float4 normal : SV_TARGET1;
-};
-
 struct VS_OPAQUE_MATERIAL_MESH_IN
 {
     float3 position : POSITION;
@@ -42,8 +36,9 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialMesh(VS_OPAQUE_MATERIAL_MESH_OUT input)
     
     MaterialData material_data = g_material_data[g_material_index];
     
-    output.base_color = g_material_data[g_material_index].base_color;
+    output.base_color = material_data.base_color;
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -85,6 +80,7 @@ PS_GBUFFER_OUTPUT PSOpaqueTextureMesh(VS_OPAQUE_TEXTURE_MESH_OUT input)
     
     output.base_color = g_texture_data[material_data.diffuse_texture_index].Sample(g_sampler_point_wrap, input.uv);
     output.normal = float4(input.normal.xyz + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
     
     return output;
 }
@@ -134,6 +130,7 @@ PS_GBUFFER_OUTPUT PSOpaqueNormalMapMesh(VS_OPAQUE_NORMAL_MAP_MESH_OUT input)
     float3 normal = GetNormalFromNormalMap(g_texture_data[material_data.normal_texture_index].Sample(g_sampler_point_wrap, input.uv).xyz,
         input.normal, input.tangent, input.bitangent);
     output.normal = float4(normal + 1.0f * 0.5f, 1.0f);
+    output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
     
     return output;
 }
