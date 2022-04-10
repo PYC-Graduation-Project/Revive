@@ -48,10 +48,13 @@ namespace event_test
 				PacketHelper::RegisterPacketEventToLevel(CreateSPtr<MessageEventInfo>(HashCode("spawn rotating cube")));
 				return true;
 			});
-		std::cin >> g_id;
-		std::cin >> g_pw;
-		std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
 		
+		//아이디 입력 테스트	
+		//std::cin >> g_id;
+		//std::cin >> g_pw;
+		//std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
+		
+		//회원 가입 5, 로그인 6, 매칭 7
 		RegisterPressedEvent("send sign up", { { eKey::k5 } },
 			[this]()->bool {
 				

@@ -53,12 +53,13 @@ namespace event_test
 				m_speed_change_function(m_rotating_y_speed);
 		}
 		
-		if (m_network_vec != Vec3(0.0f, 0.0f, 0.0f))
-		{
-			Vec3 new_pos = GetPosition() + m_network_vec*m_nw_speed*delta_time;
-			LOG_INFO(new_pos);
-			SetPosition(new_pos);
-		}
+		//--------방햑벡터 보내서 확인하는 작업
+		//if (m_network_vec != Vec3(0.0f, 0.0f, 0.0f))
+		//{
+		//	Vec3 new_pos = GetPosition() + m_network_vec*m_nw_speed*delta_time;
+		//	LOG_INFO(new_pos);
+		//	SetPosition(new_pos);
+		//}
 		
 	}
 
@@ -92,6 +93,9 @@ namespace event_test
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			//SetPosition(msg->GetObjPosition());
+
+
+			//진짜 다음좌표 보내는것
 			SetPosition(msg->GetObjPosition());
 			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
@@ -105,8 +109,12 @@ namespace event_test
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			//SetPosition(msg->GetObjPosition());
-			m_network_vec = msg->GetPosition();
 			
+			//-----------방향벡터 보내는 테스트----------//
+			//m_network_vec = msg->GetPosition();
+			//------------------------------------------//
+			 
+		
 			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
 			//LOG_INFO(a);

@@ -15,7 +15,7 @@ now_x=0.1;
 now_z=0.1;
 
 enemy_state={}
-
+--리턴값을 줄지 결정하기
 enemy_state["move"]=function (target_id)
 	local t_id=target_id;
 	local  pl_x=API_get_x(t_id);
@@ -23,9 +23,13 @@ enemy_state["move"]=function (target_id)
 
 	now_x=API_get_x(skull_king.m_id);
 	now_z=API_get_z(skull_king.m_id);
-	if(math.sqrt((pl_x-nowx)^2+(pl_z-now_z)^2)<=skull_king.m_atk_range) then
+	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_fov)then
+		skull_king.m_target_id=t_id;
+	end
+
+	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_atk_range) then
 		skull_king.m_curr_state="attack"
-		API_attack(t_id);
+		API_attack(t_id);--만들어 주기
 	end
 
 end
@@ -39,10 +43,10 @@ enemy_state["attack"]=function (target_id)
 	now_z=API_get_z(skull_king.m_id);
 	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_atk_range) then
 		skull_king.m_curr_state="attack"
-		API_attack(t_id);
+		API_attack(t_id);--만들어주기
 	else
 		skull_king.m_curr_state="move"
-		API_move(t_id);
+		API_move(t_id);--만들어 주기
 	end
 end
 
@@ -78,6 +82,5 @@ function event_test(npc_id)
 end
 
 function state_machine(id)
-	skull_king.m_target_id=id;
 	enemy_state[skull_king.m_curr_state](id)
 end

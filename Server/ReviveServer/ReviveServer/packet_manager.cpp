@@ -302,8 +302,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	for (auto pl:room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		//SendMovePacket(pl, enemy_id);
-		SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
+		SendMovePacket(pl, enemy_id);
+		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
 			//여기서 기지와 플레이어 거리 비교후
