@@ -28,12 +28,16 @@ namespace client_fw
 	{
 	}
 
-	void CameraManager::Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
+	void CameraManager::Update(ID3D12Device* device,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera)
 	{
 		UpdateRenderCameras(device);
 		UpdateShadowCameras(device);
 
-		UpdateCameraResource(device, std::move(update_shader_function));
+		UpdateCameraResource(device,
+			std::move(update_shader_function_for_render_camera),
+			std::move(update_shader_function_for_shadow_camera));
 	}
 
 	void CameraManager::UpdateRenderCameras(ID3D12Device* device)
@@ -98,7 +102,9 @@ namespace client_fw
 		}
 	}
 
-	void CameraManager::UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
+	void CameraManager::UpdateCameraResource(ID3D12Device* device,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera)
 	{
 		if (m_render_cameras.empty() && m_shadow_cameras.empty())
 			return;
@@ -150,7 +156,7 @@ namespace client_fw
 					}
 
 					MeshVisualizer::UpdateVisibilityFromCamera(camera);
-					update_shader_function(device);
+					update_shader_function_for_render_camera(device);
 				}
 			}
 
@@ -178,7 +184,7 @@ namespace client_fw
 					camera_resource_data->CopyData(index, camera_data);
 
 					MeshVisualizer::UpdateVisibilityFromCamera(camera);
-					//update_shader_function(device);
+					update_shader_function_for_shadow_camera(device);
 				}
 			}
 
@@ -196,6 +202,7 @@ namespace client_fw
 	}
 
 	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list,
+		std::function<void(ID3D12GraphicsCommandList*)>&& shadow_function,
 		std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
 		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function, 
 		std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function)
@@ -251,7 +258,6 @@ namespace client_fw
 					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
 						index * camera_resource->GetCameraData()->GetByteSize();
 
-					//일단 임시, 추후에 resize작업을 하게 되면 설정
 					const auto& cv = shadow_texture->GetTextureSize();
 					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
 					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
@@ -261,7 +267,7 @@ namespace client_fw
 					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
 
 					shadow_texture->PreDraw(command_list);
-					//before_deferred_function(command_list);
+					shadow_function(command_list);
 					shadow_texture->PostDraw(command_list);
 				}
 			}

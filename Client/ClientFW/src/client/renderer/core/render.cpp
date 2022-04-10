@@ -6,9 +6,9 @@
 namespace client_fw
 {
 
-	void Render::UnregisterGraphicsShader(const std::string shader_name, eRenderLevelType type)
+	void Render::UnregisterGraphicsShader(const std::string shader_name, std::vector<eRenderLevelType>&& level_types)
 	{
-		s_render_system->UnregisterGraphicsShader(shader_name, type);
+		s_render_system->UnregisterGraphicsShader(shader_name, std::move(level_types));
 	}
 
 	bool Render::RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name)

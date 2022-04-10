@@ -27,5 +27,13 @@ namespace client_fw
         void SetConeInnerAngle(float degrees);
         float GetConeOuterAngle() const { return m_cone_outer_angle; }
         void SetConeOuterAngle(float degrees);
+
+    private:
+        SPtr<ShadowCameraComponent> m_shadow_camera;
+
+    private:
+        virtual void UpdateShadowTextureSize() override;
+        virtual void UpdateShadowCameraProjection() override;
+
     };
 }

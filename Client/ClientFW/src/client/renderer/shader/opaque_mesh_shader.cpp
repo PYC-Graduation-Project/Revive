@@ -17,6 +17,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kOpaque:
+		case eRenderLevelType::kShadow:
 			UpdateRenderItem(device);
 			break;
 		default:
@@ -34,12 +35,27 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kOpaque:
+		case eRenderLevelType::kShadow:
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 			DrawRenderItem(command_list);
 			break;
 		default:
 			break;
 		}
+	}
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
+	{
+		if (level_type == eRenderLevelType::kShadow)
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
+
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+			return input_element_descs;
+		}
+
+		return GraphicsShader::CreateInputLayout(level_type, pso_index);
 	}
 
 	bool OpaqueMeshShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
@@ -49,6 +65,9 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kOpaque:
+			result &= CreatePipelineState(device, render_level, 1);
+			break;
+		case eRenderLevelType::kShadow:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:
@@ -67,22 +86,45 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE OpaqueMaterialMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMaterialMesh", "vs_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMaterialMesh", "vs_5_1", shader_blob);
+		case client_fw::eRenderLevelType::kShadow:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
+		default:
+			return D3D12_SHADER_BYTECODE();
+		}
 	}
 
 	D3D12_SHADER_BYTECODE OpaqueMaterialMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueMaterialMesh", "ps_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueMaterialMesh", "ps_5_1", shader_blob);
+		default:
+			return GraphicsShader::CreatePixelShader(shader_blob, level_type, pso_index);
+		}
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMaterialMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(2);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(2);
 
-		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		return input_element_descs;
+			return input_element_descs;
+		}
+		case client_fw::eRenderLevelType::kShadow:
+		default:
+			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
+		}
 	}
 
 	OpaqueTextureMeshShader::OpaqueTextureMeshShader(const std::string& name)
@@ -92,23 +134,46 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE OpaqueTextureMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueTextureMesh", "vs_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueTextureMesh", "vs_5_1", shader_blob);
+		case client_fw::eRenderLevelType::kShadow:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
+		default:
+			return D3D12_SHADER_BYTECODE();
+		}
 	}
 
 	D3D12_SHADER_BYTECODE OpaqueTextureMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueTextureMesh", "ps_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueTextureMesh", "ps_5_1", shader_blob);
+		default:
+			return GraphicsShader::CreatePixelShader(shader_blob, level_type, pso_index);
+		}
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueTextureMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
 
-		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		return input_element_descs;
+			return input_element_descs;
+		}
+		case client_fw::eRenderLevelType::kShadow:
+		default:
+			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
+		}
 	}
 
 	OpaqueNormalMapMeshShader::OpaqueNormalMapMeshShader(const std::string& name)
@@ -118,24 +183,47 @@ namespace client_fw
 
 	D3D12_SHADER_BYTECODE OpaqueNormalMapMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueNormalMapMesh", "vs_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueNormalMapMesh", "vs_5_1", shader_blob);
+		case client_fw::eRenderLevelType::kShadow:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
+		default:
+			return D3D12_SHADER_BYTECODE();
+		}
 	}
 
 	D3D12_SHADER_BYTECODE OpaqueNormalMapMeshShader::CreatePixelShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
 	{
-		return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueNormalMapMesh", "ps_5_1", shader_blob);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueNormalMapMesh", "ps_5_1", shader_blob);
+		default:
+			return GraphicsShader::CreatePixelShader(shader_blob, level_type, pso_index);
+		}
 	}
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueNormalMapMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
+		switch (level_type)
+		{
+		case client_fw::eRenderLevelType::kOpaque:
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
 
-		input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-		input_element_descs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[3] = { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[4] = { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
-		return input_element_descs;
+			return input_element_descs;
+		}
+		case client_fw::eRenderLevelType::kShadow:
+		default:
+			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
+		}
 	}
 }

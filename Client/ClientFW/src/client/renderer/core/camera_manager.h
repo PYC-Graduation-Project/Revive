@@ -18,10 +18,13 @@ namespace client_fw
 		CameraManager& operator=(const CameraManager&) = delete;
 
 		void Shutdown();
-		void Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
+		void Update(ID3D12Device* device,
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera);
 		void UpdateMainCameraViewport(LONG width, LONG height);
 
 		void Draw(ID3D12GraphicsCommandList* command_list, 
+			std::function<void(ID3D12GraphicsCommandList*)>&& shadow_function,
 			std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
 			std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function,
 			std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function);
@@ -33,7 +36,9 @@ namespace client_fw
 	private:
 		void UpdateRenderCameras(ID3D12Device* device);
 		void UpdateShadowCameras(ID3D12Device* device);
-		void UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
+		void UpdateCameraResource(ID3D12Device* device, 
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera);
 
 		template <class T>
 		void UnregisterCameraComponent(std::vector<SPtr<T>>& cameras, const SPtr<CameraComponent>& camera_comp)

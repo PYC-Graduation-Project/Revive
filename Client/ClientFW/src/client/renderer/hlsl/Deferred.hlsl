@@ -133,7 +133,7 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
         float3 ambient = 0.03f * material.base_color;
         color += ambient;
         color = color / (color + 1.0f);
-        color = pow(color, (1.0f / 2.2f));
+        color = pow(abs(color), (1.0f / 2.2f));
     
         return float4(color, 1.0f);
     }
@@ -164,7 +164,7 @@ struct HS_LOCAL_LIGHT_OUTPUT
 struct DS_LOCAL_LIGHT_OUTPUT
 {
     float4 sv_position : SV_POSITION;
-    float2 cs_position : CS_POSITION;
+    float3 cs_position : CS_POSITION;
     uint light_index : LIGHT_INDEX;
 };
 
@@ -226,7 +226,7 @@ DS_LOCAL_LIGHT_OUTPUT DSPointLight(HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT input, fl
     InstanceData instance_data = g_instance_data[quad[0].instance_id];
     
     output.sv_position = mul(mul(float4(position, 1.0f), instance_data.world), g_view_projection);
-    output.cs_position = output.sv_position.xy / output.sv_position.w;
+    output.cs_position = output.sv_position.xyw;
     output.light_index = instance_data.additional_info;
     
     return output;
@@ -239,7 +239,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
     
     if (base_color.a > 0.0f)
     {
-        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position);
+        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position.xy / input.cs_position.z);
         
         Material material = GetMaterial(base_color, g_buffer_data);
     
@@ -255,7 +255,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         color += CalcPointLight(g_buffer_data.position, material, light);
         
         color = color / (color + 1.0f);
-        color = pow(color, (1.0f / 2.2f));
+        color = pow(abs(color), (1.0f / 2.2f));
         
         return float4(color, 1.0f);
     
@@ -274,7 +274,7 @@ HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT ConstantHSSpotLight()
 {
     HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT output;
     
-    float tess_factor = 12.0f;
+    float tess_factor = 18.0f;
     output.edges[0] = output.edges[1] =
     output.edges[2] = output.edges[3] = tess_factor;
     output.inside[0] = output.inside[1] = tess_factor;
@@ -286,12 +286,12 @@ HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT ConstantHSSpotLight()
 [partitioning("integer")]
 [outputtopology("triangle_ccw")]
 [outputcontrolpoints(4)]
-[patchconstantfunc("ConstantHSPointLight")]
-HS_LOCAL_LIGHT_OUTPUT HSSpotLight(InputPatch<VS_LOCAL_LIGHT_OUTPUT, 1> input, uint patch_id : SV_PrimitiveID)
+[patchconstantfunc("ConstantHSSpotLight")]
+HS_LOCAL_LIGHT_OUTPUT HSSpotLight(InputPatch<VS_LOCAL_LIGHT_OUTPUT, 1> input)
 {
     HS_LOCAL_LIGHT_OUTPUT output;
     
-    output.position = hemil_dir[patch_id];
+    output.position = float3(0.0f, 0.0f, 0.0f);
     output.instance_id = input[0].instance_id;
     
     return output;
@@ -328,7 +328,7 @@ DS_LOCAL_LIGHT_OUTPUT DSSpotLight(HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT input, flo
     DS_LOCAL_LIGHT_OUTPUT output;
     
     output.sv_position = mul(mul(float4(position, 1.0f), instance_data.world), g_view_projection);
-    output.cs_position = output.sv_position.xy / output.sv_position.w;
+    output.cs_position = output.sv_position.xyw;
     output.light_index = light_index;
     
     return output;
@@ -340,12 +340,11 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
     float4 base_color = g_texture_data[g_gbuffer_texture_indices[0]].Load(location);
     
     if (base_color.a > 0.0f)
-    {
-        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position);
+    {        
+        GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromLocation(location, input.cs_position.xy/ input.cs_position.z);
         
         Material material = GetMaterial(base_color, g_buffer_data);
-        material.metalic = g_buffer_data.additional_info.y;
-    
+        
         float3 color = float3(0.f, 0.f, 0.f);
         
         LightData light_data = g_light_data[input.light_index];
@@ -361,7 +360,7 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         color += CalcSpotLight(g_buffer_data.position, material, light);
         
         color = color / (color + 1.0f);
-        color = pow(color, (1.0f / 2.2f));
+        color = pow(abs(color), (1.0f / 2.2f));
         
         return float4(color, 1.0f);
     

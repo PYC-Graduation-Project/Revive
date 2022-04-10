@@ -15,7 +15,7 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius;
+			float r = m_attenuation_radius * 1.1f;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();

@@ -12,6 +12,8 @@ namespace client_fw
             const std::string& draw_shader_name);
         virtual ~LocalLightComponent() = default;
 
+        virtual bool Initialize() override;
+
         virtual void RegisterToVisualOctree() override;
         virtual void UnregisterFromVisualOctree() override;
 
@@ -21,6 +23,9 @@ namespace client_fw
     public:
         float GetAttenuationRadius() const { return m_attenuation_radius; }
         void SetAttenuationRadius(float radius);
+
+    private:
+        virtual void UpdateShadowCameraProjection() {}
     };
 
 }

@@ -9,14 +9,14 @@ namespace client_fw
 		const std::string& draw_shader_name)
 		: LocalLightComponent(eLightType::kSpot, name, draw_shader_name)
 	{
+		m_shadow_camera = CreateSPtr<ShadowCameraComponent>();
 	}
 
 	bool SpotLightComponent::Initialize()
 	{
 		bool ret = LocalLightComponent::Initialize();
 
-		const auto& owner = m_owner.lock();
-		ret &= owner->AttachComponent(CreateSPtr<ShadowCameraComponent>());
+		ret &= m_owner.lock()->AttachComponent(m_shadow_camera);
 
 		return ret;
 	}
@@ -26,7 +26,7 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius;
+			float r = m_attenuation_radius * 1.1f;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();
@@ -73,5 +73,16 @@ namespace client_fw
 		m_cone_outer_angle = math::ToRadian(degrees);
 		m_cone_inner_angle = min(m_cone_inner_angle, m_cone_outer_angle);
 		m_update_local_matrix = true;
+	}
+
+	void SpotLightComponent::UpdateShadowTextureSize()
+	{
+		INT extent = std::clamp(m_shadow_texture_size, 0, 2000);
+		m_shadow_camera->SetViewport(Viewport{ 0, 0, extent, extent });
+	}
+
+	void SpotLightComponent::UpdateShadowCameraProjection()
+	{
+		m_shadow_camera->SetFarZ(m_attenuation_radius);
 	}
 }

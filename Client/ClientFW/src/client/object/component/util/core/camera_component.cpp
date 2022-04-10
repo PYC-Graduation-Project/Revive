@@ -29,7 +29,6 @@ namespace client_fw
 		UpdateViewMatrix();
 
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
-		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 
 		if (m_is_updated_viewport)
 		{
@@ -37,6 +36,8 @@ namespace client_fw
 			UpdateProjectionMatrix();
 			m_is_updated_viewport = false;
 		}
+
+		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 	}
 
 	void CameraComponent::UpdateViewport(LONG left, LONG top, LONG width, LONG height)

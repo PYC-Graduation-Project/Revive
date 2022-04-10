@@ -90,9 +90,17 @@ namespace client_fw
 		ZeroMemory(&pso_desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		pso_desc.pRootSignature = render_level->GetRootSignature()->GetRootSignature();
 		pso_desc.SampleMask = UINT_MAX;
-		pso_desc.NumRenderTargets = static_cast<UINT>(render_level->GetRTVFormats().size());
-		for (UINT i = 0; i < pso_desc.NumRenderTargets; ++i)
-			pso_desc.RTVFormats[i] = render_level->GetRTVFormats()[i];
+		if (render_level->GetRTVFormats().empty())
+		{
+			pso_desc.NumRenderTargets = 0;
+			pso_desc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+		}
+		else
+		{
+			pso_desc.NumRenderTargets = static_cast<UINT>(render_level->GetRTVFormats().size());
+			for (UINT i = 0; i < pso_desc.NumRenderTargets; ++i)
+				pso_desc.RTVFormats[i] = render_level->GetRTVFormats()[i];
+		}
 		pso_desc.DSVFormat = render_level->GetDSVFormat();
 		pso_desc.SampleDesc.Count = D3DUtil::s_is_use_4x_mass ? 4 : 1;
 		pso_desc.SampleDesc.Quality = D3DUtil::s_is_use_4x_mass ? D3DUtil::s_4x_msaa_quality - 1 : 0;

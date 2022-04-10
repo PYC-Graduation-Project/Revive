@@ -42,6 +42,13 @@ namespace event_test
 		siege->SetPosition(Vec3{ 0.0f, 0.0f, 2000.0f });
 		siege->SetScale(0.5f);
 
+		auto plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(0.0f, 0.0f, 3000.0f));
+		plane->SetRotation(quat::CreateQuaternionFromAxis(vec3::AXIS_X, math::ToRadian(-90.0f)));
+		plane->SetScale(25.0f);
+
+
 		auto sphere = CreateSPtr<CollisionTestActor>();
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3(-500.0f, 0.0f, 500.0f));
@@ -68,6 +75,8 @@ namespace event_test
 		auto s_light = CreateSPtr<SpotLight>();
 		s_light->SetLightColor(Vec3(0.0f, 400000.0f, 400000.0f));
 		s_light->SetPosition(Vec3(0.0f, 0.0f, 1200.0f));
+		s_light->SetAttenuationRadius(2000.0f);
+		s_light->SetConeOuterAngle(22.0f);
 		SpawnActor(s_light);
 
 		auto tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,

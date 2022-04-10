@@ -16,7 +16,7 @@ namespace client_fw
 	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque, kDeferred, kTransparent, kUI, kFinalView
+		kOpaque, kShadow, kDeferred, kTransparent, kUI, kFinalView
 	};
 
 	enum class eShaderType
@@ -42,12 +42,12 @@ namespace client_fw
 	{
 	public:
 		template <class T>
-		static bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType type)
+		static bool RegisterGraphicsShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types)
 		{
-			return s_render_system->RegisterGraphicsShader<T>(shader_name, type, true);
+			return s_render_system->RegisterGraphicsShader<T>(shader_name, std::move(level_types), true);
 		}
 
-		static void UnregisterGraphicsShader(const std::string shader_name, eRenderLevelType type);
+		static void UnregisterGraphicsShader(const std::string shader_name, std::vector<eRenderLevelType>&& level_types);
 
 		static bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		static void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);

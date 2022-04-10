@@ -188,8 +188,8 @@ float3 CalcSpotLight(float3 position, Material material, SpotLight light)
     
     float spot_factor = 1.0f;
     
-    if(cos_angle < cos(light.inner_angle))
-        spot_factor = saturate((cos_angle - cos(light.outer_angle)) / cos((light.outer_angle - light.inner_angle)));
+    if (cos_angle < cos(light.inner_angle))
+        spot_factor = saturate((cos_angle - cos(light.outer_angle)) / (cos(light.inner_angle) - cos(light.outer_angle)));
     
     spot_factor *= spot_factor;
     

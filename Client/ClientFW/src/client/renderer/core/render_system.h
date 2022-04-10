@@ -46,23 +46,31 @@ namespace client_fw
 		}
 
 		template <class T>
-		bool RegisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type, bool is_custom = false)
+		bool RegisterGraphicsShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types, bool is_custom = false)
 		{
-			if (m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
+			bool ret = true;
+			m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
+			m_graphics_shaders[shader_name]->Initialize(m_device);
+
+			for (eRenderLevelType level_type : level_types)
 			{
-				m_graphics_shaders[shader_name] = CreateSPtr<T>(shader_name);
-				m_graphics_shaders[shader_name]->Initialize(m_device);
-				if (is_custom)
-					m_added_shaders.insert(shader_name);
-				return m_graphics_render_levels[level_type]->RegisterGraphicsShader(m_device, m_graphics_shaders[shader_name]);
+				if (m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
+				{
+					if (is_custom)
+						m_added_shaders.insert(shader_name);
+					ret &= m_graphics_render_levels[level_type]->RegisterGraphicsShader(m_device, m_graphics_shaders[shader_name]);
+				}
+				else
+				{
+					LOG_WARN("Could not find {0} from render system", Render::ConvertRenderLevelType(level_type));
+					return false;
+				}
 			}
-			else
-			{
-				LOG_WARN("Could not find {0} from render system", Render::ConvertRenderLevelType(level_type));
-				return false;
-			}
+
+			return ret;
 		}
-		void UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type);
+
+		void UnregisterGraphicsShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types);
 
 		bool RegisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
 		void UnregisterRenderComponent(const SPtr<RenderComponent>& render_comp, const std::string& shader_name);
