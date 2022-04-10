@@ -13,27 +13,12 @@ namespace client_fw
 
 	void LightShader::Initialize(ID3D12Device* device)
 	{
-		m_light_render_item->Initialize(device);
+		m_light_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void LightShader::Shutdown()
 	{
 		m_light_render_item->Shutdown();
-	}
-
-	void LightShader::UpdateRenderItem(ID3D12Device* device)
-	{
-		m_light_render_item->Update(device);
-	}
-
-	void LightShader::UpdateRenderItemResource(ID3D12Device* device)
-	{
-		m_light_render_item->UpdateFrameResource(device);
-	}
-
-	void LightShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const
-	{
-		m_light_render_item->Draw(command_list, std::move(draw_function));
 	}
 
 	D3D12_SHADER_BYTECODE LightShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
@@ -121,10 +106,8 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kDeferred:
-		{
-			UpdateRenderItem(device);
+			m_light_render_item->Update(device, level_type);
 			break;
-		}
 		default:
 			break;
 		}
@@ -132,7 +115,7 @@ namespace client_fw
 
 	void PointLightShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_light_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void PointLightShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -141,7 +124,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kDeferred:
 		{
-			DrawRenderItem(command_list, 
+			m_light_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 					
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
@@ -180,7 +163,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kDeferred:
 		{
-			UpdateRenderItem(device);
+			m_light_render_item->Update(device, level_type);
 			break;
 		}
 		default:
@@ -190,7 +173,7 @@ namespace client_fw
 
 	void SpotLightShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_light_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void SpotLightShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -199,7 +182,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kDeferred:
 		{
-			DrawRenderItem(command_list,
+			m_light_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());

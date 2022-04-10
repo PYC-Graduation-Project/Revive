@@ -14,12 +14,6 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device);
-		virtual void UpdateRenderItemResource(ID3D12Device* device);
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list,
-			std::function<void()>&& world_function, std::function<void()>&& billboard_function,
-			std::function<void()>&& fix_up_function) const;
-
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 		

@@ -21,7 +21,7 @@ namespace render_test
 
 	void RenderRectShader::Update(ID3D12Device* device,eRenderLevelType level_type)
 	{
-		UpdateRenderItem(device);
+		//UpdateRenderItem(device);
 	}
 
 	void RenderRectShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -30,7 +30,7 @@ namespace render_test
 		{
 		case eRenderLevelType::kOpaque:
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-			DrawRenderItem(command_list);
+			//DrawRenderItem(command_list);
 			break;
 		default:
 			break;

@@ -9,7 +9,7 @@
 namespace client_fw
 {
 	LightRenderItem::LightRenderItem(const std::string& owner_shader_name)
-		: m_owner_shader_name(owner_shader_name)
+		: RenderItem(owner_shader_name)
 	{
 	}
 
@@ -17,22 +17,21 @@ namespace client_fw
 	{
 	}
 
-	void LightRenderItem::Initialize(ID3D12Device* device)
+	void LightRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resources)
-			frame->CreateLocalLightFrameResource(device, m_owner_shader_name);
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateLocalLightFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
-	void LightRenderItem::Shutdown()
-	{
-	}
-
-	void LightRenderItem::Update(ID3D12Device* device)
+	void LightRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		LocalLightInstanceDrawInfo instance_info;
 		//카메라마다의 시작 위치 저장
-		instance_info.start_index = static_cast<UINT>(m_local_light_instance_data.size());
+		instance_info.start_index = static_cast<UINT>(m_local_light_instance_data[level_type].size());
 
 		for (const auto& light : m_light_components)
 		{
@@ -40,7 +39,7 @@ namespace client_fw
 			{
 				const auto& transpos_matrix = mat4::Transpose(light->GetWorldMatrix());
 
-				m_local_light_instance_data.push_back(
+				m_local_light_instance_data[level_type].push_back(
 					RSLocalLightInstanceData{ transpos_matrix, transpos_matrix,
 					light->GetLightManagerRegisteredIndex() }
 				);
@@ -49,17 +48,19 @@ namespace client_fw
 			}
 		}
 
-		instance_info.num_of_instance_data = static_cast<UINT>(m_local_light_instance_data.size() - instance_info.start_index);
+		instance_info.num_of_instance_data = static_cast<UINT>(m_local_light_instance_data[level_type].size() - instance_info.start_index);
 
-		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		const auto& light_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name, level_type);
 		light_resource->AddLocalLightDrawInfo(std::move(instance_info));
 	}
 
-	void LightRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void LightRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		const auto& light_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name, level_type);
 
-		UINT new_size = static_cast<UINT>(m_local_light_instance_data.size());
+		UINT new_size = static_cast<UINT>(m_local_light_instance_data[level_type].size());
 		if (new_size > 0)
 		{
 			UINT light_instance_size = light_resource->GetSizeOfLightInstanceData();
@@ -77,11 +78,9 @@ namespace client_fw
 				light_resource->SetSizeOfLightInstanceData(light_instance_size);
 			}
 
-			UINT index = 0;
-			for (const auto& instance_data : m_local_light_instance_data)
-				light_resource->GetLightInstanceData()->CopyData(index++, instance_data);
+			light_resource->GetLightInstanceData()->CopyVectorData(m_local_light_instance_data[level_type]);
 
-			m_local_light_instance_data.clear();
+			m_local_light_instance_data[level_type].clear();
 		}
 	}
 
@@ -105,9 +104,12 @@ namespace client_fw
 	{
 	}
 
-	void PointLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const
+	void PointLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list,
+		eRenderLevelType level_type, std::function<void()>&& draw_function) const
 	{
-		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		const auto& light_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name, level_type);
+
 		LocalLightInstanceDrawInfo instance_info = light_resource->GetLocalLightDrawInfo();
 
 		if (instance_info.num_of_instance_data > 0)
@@ -128,9 +130,12 @@ namespace client_fw
 	{
 	}
 
-	void SpotLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const
+	void SpotLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list,
+		eRenderLevelType level_type, std::function<void()>&& draw_function) const
 	{
-		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		const auto& light_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name, level_type);
+
 		LocalLightInstanceDrawInfo instance_info = light_resource->GetLocalLightDrawInfo();
 
 		if (instance_info.num_of_instance_data > 0)

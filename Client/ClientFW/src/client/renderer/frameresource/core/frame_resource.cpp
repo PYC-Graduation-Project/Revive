@@ -62,10 +62,11 @@ namespace client_fw
 		m_render_resource_frame_resource->Shutdown();
 	}
 
-	void FrameResource::CreateSkyFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateSkyFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_sky_frame_resource.emplace(shader_name, CreateUPtr<SkyFrameResource>());
-		m_sky_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_sky_frame_resource.emplace(owner, CreateUPtr<SkyFrameResource>());
+		m_sky_frame_resource[owner]->Initialize(device);
 	}
 
 	void FrameResource::CreateStaticMeshFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
@@ -75,34 +76,39 @@ namespace client_fw
 		m_static_mesh_frame_resource[owner]->Initialize(device);
 	}
 
-	void FrameResource::CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateSkeletalMeshFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_skeletal_mesh_frame_resource.emplace(shader_name, CreateUPtr<SkeletalMeshFrameResource>());
-		m_skeletal_mesh_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_skeletal_mesh_frame_resource.emplace(owner, CreateUPtr<SkeletalMeshFrameResource>());
+		m_skeletal_mesh_frame_resource[owner]->Initialize(device);
 	}
 
-	void FrameResource::CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateBillboardFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_billboard_frame_resource.emplace(shader_name, CreateUPtr<BillboardFrameResource>());
-		m_billboard_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_billboard_frame_resource.emplace(owner, CreateUPtr<BillboardFrameResource>());
+		m_billboard_frame_resource[owner]->Initialize(device);
 	}
 
-	void FrameResource::CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateWidgetFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_widget_frame_resource.emplace(shader_name, CreateUPtr<WidgetFrameResource>());
-		m_widget_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_widget_frame_resource.emplace(owner, CreateUPtr<WidgetFrameResource>());
+		m_widget_frame_resource[owner]->Initialize(device);
 	}
 
-	void FrameResource::CreateLocalLightFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateLocalLightFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_local_light_frame_resource.emplace(shader_name, CreateUPtr<LocalLightFrameResource>());
-		m_local_light_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_local_light_frame_resource.emplace(owner, CreateUPtr<LocalLightFrameResource>());
+		m_local_light_frame_resource[owner]->Initialize(device);
 	}
 
-	void FrameResource::CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name)
+	void FrameResource::CreateUserInterfaceFrameResource(ID3D12Device* device, const std::string& shader_name, eRenderLevelType level_type)
 	{
-		m_ui_frame_resource.emplace(shader_name, CreateUPtr<UserInterfaceFrameResource>());
-		m_ui_frame_resource[shader_name]->Initialize(device);
+		ResourceOwner owner{ shader_name, level_type };
+		m_ui_frame_resource.emplace(owner, CreateUPtr<UserInterfaceFrameResource>());
+		m_ui_frame_resource[owner]->Initialize(device);
 	}
 
 }

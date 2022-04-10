@@ -74,31 +74,43 @@ namespace client_fw
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
-		//ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", { eRenderLevelType::kOpaque });
-		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
-		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", {eRenderLevelType::kOpaque});
+		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", { eRenderLevelType::kOpaque });
+		//ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<TextureBillboardShader>(Render::ConvertShaderType(eShaderType::kTextureBillboard),
+			{eRenderLevelType::kOpaque});
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), 
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialBaseColorBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), 
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<OpaqueMaterialTextureBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard), { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialTextureBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard), { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<OpaqueMaterialNormalMapBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard), { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialNormalMapBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), { eRenderLevelType::kOpaque });
-		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", { eRenderLevelType::kOpaque });
-		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", { eRenderLevelType::kOpaque });
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard),
+				{ eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<OpaqueWidgetShader>(Render::ConvertShaderType(eShaderType::kOpaqueWidget),
+			{ eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<MaskedWidgetShader>(Render::ConvertShaderType(eShaderType::kMaskedWidget),
+			{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), { eRenderLevelType::kOpaque });
 
-		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), { eRenderLevelType::kDeferred });
-		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), { eRenderLevelType::kDeferred });
-		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight), { eRenderLevelType::kDeferred });
+		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred),
+			{ eRenderLevelType::kDeferred });
+		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight),
+			{ eRenderLevelType::kDeferred });
+		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight),
+			{ eRenderLevelType::kDeferred });
+
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", { eRenderLevelType::kFinalView });
 		ret &= RegisterGraphicsShader<UIShader>("ui", { eRenderLevelType::kUI });
-
 
 		ret &= m_render_asset_manager->Initialize(device);
 

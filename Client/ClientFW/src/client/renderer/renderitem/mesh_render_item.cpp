@@ -15,7 +15,7 @@
 namespace client_fw
 {
 	MeshRenderItem::MeshRenderItem(const std::string& owner_shader_name)
-		: m_owner_shader_name(owner_shader_name)
+		: RenderItem(owner_shader_name)
 	{
 	}
 
@@ -207,17 +207,20 @@ namespace client_fw
 	{
 	}
 
-	void SkeletalMeshRenderItem::Initialize(ID3D12Device* device)
+	void SkeletalMeshRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resources)
-			frame->CreateSkeletalMeshFrameResource(device, m_owner_shader_name);
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateSkeletalMeshFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
-	void SkeletalMeshRenderItem::Update(ID3D12Device* device)
+	void SkeletalMeshRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		MeshesInstanceDrawInfo instance_info;
-		instance_info.start_index = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
+		instance_info.start_index = static_cast<UINT>(m_skeletal_meshes_instance_data[level_type].size());
 		UINT skeletal_transform_start_index = 0;
 		UINT mesh_start_index_for_camera = 0;
 		for (const auto& mesh_data : m_skeletal_mesh_data)
@@ -267,8 +270,8 @@ namespace client_fw
 			}
 			skeletal_transform_start_index += bone_count * mesh_count;
 
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_skeletal_meshes_instance_data));
-			std::move(skeletal_transform_data.begin(), skeletal_transform_data.end(), std::back_inserter(m_skeletal_transforms_data));
+			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_skeletal_meshes_instance_data[level_type]));
+			std::move(skeletal_transform_data.begin(), skeletal_transform_data.end(), std::back_inserter(m_skeletal_transforms_data[level_type]));
 
 			mesh_data->mesh->ResetLOD();
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
@@ -276,15 +279,17 @@ namespace client_fw
 
 		instance_info.num_of_instnace_data = static_cast<UINT>(mesh_start_index_for_camera);
 
-		const auto& mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
+		const auto& mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name, level_type);
 		mesh_resource->AddMeshesInstanceDrawInfo(std::move(instance_info));
 	}
 
-	void SkeletalMeshRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void SkeletalMeshRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
+		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name, level_type);
 
-		UINT new_size = static_cast<UINT>(m_skeletal_meshes_instance_data.size());
+		UINT new_size = static_cast<UINT>(m_skeletal_meshes_instance_data[level_type].size());
 
 		if (new_size > 0)
 		{
@@ -304,12 +309,10 @@ namespace client_fw
 				skeletal_mesh_resource->SetSizeOfInstanceData(skeletal_mesh_instance_size);
 			}
 
-			UINT index = 0;
-			for (const auto& instance_data : m_skeletal_meshes_instance_data)
-				skeletal_mesh_resource->GetInstanceData()->CopyData(index++, instance_data);
-			m_skeletal_meshes_instance_data.clear();
+			skeletal_mesh_resource->GetInstanceData()->CopyVectorData(m_skeletal_meshes_instance_data[level_type]);
+			m_skeletal_meshes_instance_data[level_type].clear();
 
-			UINT new_skeletal_transform_data_size = static_cast<UINT>(m_skeletal_transforms_data.size());
+			UINT new_skeletal_transform_data_size = static_cast<UINT>(m_skeletal_transforms_data[level_type].size());
 
 			if (new_skeletal_transform_data_size > 0)
 			{
@@ -327,18 +330,19 @@ namespace client_fw
 					skeletal_mesh_resource->GetSkeletalTransformData()->CreateResource(device, skeletal_transfrom_size);
 					skeletal_mesh_resource->SetSizeOfSkeletalTransformData(skeletal_transfrom_size);
 				}
-				UINT skeletal_transform_index = 0;
-				for (const auto& skeletal_transform_data : m_skeletal_transforms_data)
-					skeletal_mesh_resource->GetSkeletalTransformData()->CopyData(skeletal_transform_index++, skeletal_transform_data);
-				m_skeletal_transforms_data.clear();
+			
+				skeletal_mesh_resource->GetSkeletalTransformData()->CopyVectorData(m_skeletal_transforms_data[level_type]);
+				m_skeletal_transforms_data[level_type].clear();
 			}
 
 		}
 	}
 
-	void SkeletalMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list) const
+	void SkeletalMeshRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
 	{
-		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name);
+		const auto& skeletal_mesh_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetSkeletalMeshFrameResource(m_owner_shader_name, level_type);
+
 		MeshesInstanceDrawInfo instance_info = skeletal_mesh_resource->GetMeshesInstanceDrawInfo();
 		
 		if (instance_info.num_of_instnace_data > 0)
@@ -346,8 +350,6 @@ namespace client_fw
 			const auto& instance_data = skeletal_mesh_resource->GetInstanceData();
 			const auto& skeletal_transform_data = skeletal_mesh_resource->GetSkeletalTransformData();
 			command_list->SetGraphicsRootShaderResourceView(6, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
-
-		
 
 			for (const auto& mesh_info : instance_info.mesh_draw_infos)
 			{
