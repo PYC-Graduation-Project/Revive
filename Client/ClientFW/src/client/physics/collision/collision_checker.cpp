@@ -64,6 +64,7 @@ namespace client_fw
 
 						auto col_iter = std::lower_bound(col_types.cbegin(), col_types.cend(), type);
 
+						//colliston type이 같은 component간의 충돌
 						if (col_iter != col_types.cend() && *col_iter == type)
 						{
 							for (auto iter_other_comp = iter_comp; iter_other_comp != mov_comps.cend(); ++iter_other_comp)
@@ -74,6 +75,7 @@ namespace client_fw
 							++col_iter;
 						}
 
+						//colliston type이 다른 component간의 충돌
 						for (col_iter; col_iter != col_types.cend(); ++col_iter)
 						{
 							for (const auto& other_comp : node->movable_scene_components[*col_iter])

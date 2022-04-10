@@ -32,9 +32,8 @@
 #include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/object/component/light/core/light_component.h"
-#include "client/object/component/light/directional_light_component.h"
+#include "client/object/component/light/core/local_light_component.h"
 #include "client/object/component/sky/sky_component.h"
-#include "client/object/component/mesh/skeletal_mesh_component.h"
 
 namespace client_fw
 {
@@ -90,6 +89,7 @@ namespace client_fw
 
 		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight), eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 
@@ -234,8 +234,10 @@ namespace client_fw
 		{
 			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
 			bool ret = m_light_manager->RegisterLightComponent(light_comp);
-			if (light_comp->GetLightType() != eLightType::kDirectional)
-				ret &= m_graphics_shaders.at(shader_name)->RegisterLightComponent(m_device, light_comp);
+
+			const auto& local_light_comp = std::dynamic_pointer_cast<LocalLightComponent>(render_comp);
+			if (local_light_comp != nullptr)
+				ret &= m_graphics_shaders.at(shader_name)->RegisterLocalLightComponent(m_device, local_light_comp);
 			return ret;
 		}
 		default:
@@ -282,8 +284,9 @@ namespace client_fw
 		case eRenderType::kLight:
 		{
 			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
-			if(light_comp->GetLightType() != eLightType::kDirectional)
-				m_graphics_shaders.at(shader_name)->UnregisterLightComponent(light_comp);
+			const auto& local_light_comp = std::dynamic_pointer_cast<LocalLightComponent>(render_comp);
+			if (local_light_comp != nullptr)
+				m_graphics_shaders.at(shader_name)->UnregisterLocalLightComponent(local_light_comp);
 			m_light_manager->UnregisterLightComponent(light_comp);
 			break;
 		}

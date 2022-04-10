@@ -10,6 +10,13 @@ namespace client_fw
 
 	void SimpleMovementComponent::Update(float delta_time)
 	{
+		UpdateVelocity(delta_time);
+
+		PawnMovementComponent::Update(delta_time);
+	}
+
+	void SimpleMovementComponent::UpdateVelocity(float delta_time)
+	{
 		if (m_move_input != vec3::ZERO)
 		{
 			m_move_input.Normalize();
@@ -21,7 +28,5 @@ namespace client_fw
 		}
 		m_cur_speed = std::clamp(m_cur_speed, 0.0f, m_max_speed);
 		m_velocity = m_move_input * m_cur_speed;
-
-		PawnMovementComponent::Update(delta_time);
 	}
 }

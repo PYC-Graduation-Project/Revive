@@ -107,7 +107,7 @@ namespace client_fw
 				break;
 			}
 		}
-		anim_track->InitialIze(cache_skeleton.size(), weight);
+		anim_track->InitialIze(static_cast<int>(cache_skeleton.size()), weight);
 		anim_track->SetAnimationCurves(anim_curves);
 		anim_track->SetCacheSkel(cache_skeleton);
 		//end

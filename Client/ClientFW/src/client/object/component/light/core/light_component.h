@@ -15,8 +15,8 @@ namespace client_fw
 			const std::string& draw_shader_name);
 		virtual ~LightComponent() = default;
 
-		virtual void RegisterToVisualOctree();
-		virtual void UnregisterFromVisualOctree();
+		virtual void RegisterToVisualOctree() override;
+		virtual void UnregisterFromVisualOctree() override;
 
 	protected:
 		eLightType m_light_type;
