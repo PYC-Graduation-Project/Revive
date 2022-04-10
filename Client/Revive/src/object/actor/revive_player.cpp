@@ -36,11 +36,11 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(0.01f);
 		//Notify 기능을 사용할 애니메이션을 미리 등록한다 
-		//Notify 이름,애니메이션 이름, 특정 시간, 특정 시간에 실행할 함수
+		//Notify 이름,애니메이션 이름, 특정 키프레임, 특정 시간에 실행할 함수
 		//Notify 이름을 언리얼처럼 넣어주긴 했으나, 정작 사용하지는 않고 있다.
-		m_skeletal_mesh_component->AddNotify("Attack End", "attack", 0.6f, 
+		m_skeletal_mesh_component->AddNotify("Attack End", "attack", 18, 
 			[this]() { m_is_attacking = false; /*LOG_INFO(m_is_attacking);*/ });
-		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 0.3f, 
+		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8, 
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
 
 		ret &= AttachComponent(m_skeletal_mesh_component);
