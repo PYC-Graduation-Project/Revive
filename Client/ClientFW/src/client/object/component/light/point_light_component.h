@@ -1,10 +1,10 @@
 #pragma once
-#include "client/object/component/light/core/light_component.h"
+#include "client/object/component/light/core/local_light_component.h"
 #include "client/renderer/core/render.h"
 
 namespace client_fw
 {
-	class PointLightComponent : public LightComponent
+	class PointLightComponent : public LocalLightComponent
 	{
 	public:
 		PointLightComponent(const std::string& name = "point light component",

@@ -85,13 +85,13 @@ namespace client_fw
 		}
 	}
 
-	void LightRenderItem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void LightRenderItem::RegisterLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		light_comp->SetRenderItemIndex(static_cast<UINT>(m_light_components.size()));
 		m_light_components.push_back(light_comp);
 	}
 
-	void LightRenderItem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
+	void LightRenderItem::UnregisterLightComponent(const SPtr<LocalLightComponent>& light_comp)
 	{
 		UINT index = light_comp->GetRenderItemIndex();
 
@@ -121,5 +121,27 @@ namespace client_fw
 			command_list->DrawInstanced(2, instance_info.num_of_instance_data, 0, 0);
 		}
 
+	}
+
+	SpotLightRenderItem::SpotLightRenderItem(const std::string& owner_shader_name)
+		: LightRenderItem(owner_shader_name)
+	{
+	}
+
+	void SpotLightRenderItem::Draw(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const
+	{
+		const auto& light_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetLocalLightFrameResource(m_owner_shader_name);
+		LocalLightInstanceDrawInfo instance_info = light_resource->GetLocalLightDrawInfo();
+
+		if (instance_info.num_of_instance_data > 0)
+		{
+			const auto& instance_data = light_resource->GetLightInstanceData();
+
+			draw_function();
+			command_list->SetGraphicsRootShaderResourceView(1, instance_data->GetResource()->GetGPUVirtualAddress() +
+				instance_info.start_index * instance_data->GetByteSize());
+			command_list->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+			command_list->DrawInstanced(1, instance_info.num_of_instance_data, 0, 0);
+		}
 	}
 }

@@ -1,7 +1,8 @@
 #include "object/map/map_loader.h"
 #include "object/actor/ground.h"
 #include "object/actor/Wall.h"
-#include "object/actor/SpawnArea.h"
+#include "object/actor/spawn_area.h"
+#include "object/actor/Base.h"
 
 namespace revive
 {
@@ -121,9 +122,15 @@ namespace revive
 					);
 			}
 			break;
-			
 			//박스 컴포넌트만,혹은 박스랑 스태틱 둘다 있는 애들
 			case HashCode("Base"):
+			{
+				actor = CreateSPtr<Base>(
+					CreateStaticMeshComponents(actor_mesh_index, actor_info, file_paths, positions, rotations, scales),
+					CreateBoxComponents(actor_collision_index, actor_info, collision_extents, collision_centers)
+					);
+			}
+			break;
 			case HashCode("Fence"):
 			case HashCode("Wall"):
 			{

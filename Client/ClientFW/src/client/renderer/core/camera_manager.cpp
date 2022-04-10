@@ -104,7 +104,7 @@ namespace client_fw
 						1.0f / camera_data.projection_matrix._22,
 						camera_data.projection_matrix._34,
 						-camera_data.projection_matrix._33);
-					camera_data.camera_position = camera->GetWorldPosition();
+					camera_data.camera_position = camera->GetCameraPosition();
 					camera_data.final_texture_index = render_texture->GetResourceIndex();
 					camera_data.gbuffer_texture_indices = XMUINT4(
 						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),

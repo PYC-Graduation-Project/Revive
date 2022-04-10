@@ -46,7 +46,6 @@ namespace client_fw
 		fread(&weight, sizeof(float), 1, file);
 
 		SPtr<AnimationTrack> anim_track = CreateSPtr<AnimationTrack>();
-		anim_track->InitialIze(animated_bone_count, weight);
 
 
 		for (int i = 0; i < animated_bone_count; ++i)
@@ -108,6 +107,7 @@ namespace client_fw
 				break;
 			}
 		}
+		anim_track->InitialIze(static_cast<int>(cache_skeleton.size()), weight);
 		anim_track->SetAnimationCurves(anim_curves);
 		anim_track->SetCacheSkel(cache_skeleton);
 		//end
