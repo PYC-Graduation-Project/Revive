@@ -29,11 +29,11 @@ namespace revive
 		bool ret = true;
 
 		ret &= Pawn::Initialize();
+		m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)
 		ret &= AttachComponent(m_movement_component);
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
-		m_skeletal_mesh_component->SetLocalPosition(Vec3{ 0.0f, 40.0f, 0.0f });
-		m_skeletal_mesh_component->SetLocalRotation(80.0f, 185.0f, 0.0f);
+		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(0.01f);
 		//Notify 기능을 사용할 애니메이션을 미리 등록한다 
 		//Notify 이름,애니메이션 이름, 특정 시간, 특정 시간에 실행할 함수
@@ -49,11 +49,11 @@ namespace revive
 		m_sphere_component->SetCollisionInfo(true, false, "default", { "default" }, true);
 		ret &= AttachComponent(m_sphere_component);
 		ret &= AttachComponent(m_camera_component);
-		
+	
 		RegisterEvent();
 		
 		SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
-
+		SetScale(0.5f);
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);
 		SetUseControllerRoll(false);
@@ -65,6 +65,10 @@ namespace revive
 	{
 		m_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
+		m_sphere_component = nullptr;
+		m_camera_component = nullptr;
+		m_player_fsm->Shutdown();
+		m_player_fsm = nullptr;
 	}
 
 	void RevivePlayer::Update(float delta_time)
@@ -113,12 +117,10 @@ namespace revive
 
 		//이동 및 조작
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
-			[this](float axis)->bool {
-			if (m_is_attacking == false)AddMovementInput(m_controller.lock()->GetForward(), axis);
-			return true; });
+			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetForward(), axis); return true; });
 
 		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
-			[this](float axis)->bool { if (m_is_attacking == false)AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
+			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
 
 		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
 			[this](float axis)->bool {
@@ -136,7 +138,6 @@ namespace revive
 
 	void RevivePlayer::AddMovementInput(Vec3& direction, float scale)
 	{
-		if (IsDead() == true) return;
 		direction.y = 0;
 		RotatePlayerFromCameraDirection(direction * scale);
 		m_movement_component->AddInputVector(direction * scale);
@@ -165,7 +166,6 @@ namespace revive
 
 	void RevivePlayer::MinPitch()
 	{
-		if (IsDead() == true) return;
 		Vec3 rot = quat::QuaternionToEuler(m_controller.lock()->GetRotation());
 		if (math::ToDegrees(rot.x) < 5) //컨트롤러에서 SetRotation(rot);를 안해주는게 제일 좋은 방법
 		{

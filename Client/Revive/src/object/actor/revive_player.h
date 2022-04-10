@@ -7,6 +7,7 @@ namespace client_fw
 	class SceneComponent;
 	class SkeletalMeshComponent;
 	class SphereComponent;
+	class SimpleMovementComponent;
 }
 
 namespace revive
@@ -54,14 +55,13 @@ namespace revive
 		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
 		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
 
-		bool IsDead() { return GetActorState() == eActorState::kDead; }
 		//player의 state를 관리하는 객체
 		//원래는 State자체를 저장하고 플레이어 Update에서 바꿔주려고 했으나,
 		//이렇게 할 경우 캐스팅이 매번 일어나기 때문에 PlayerFSM에서 관리만 해주는 형태로 변경함
 		SPtr<PlayerFSM> m_player_fsm; 
 
 		std::string m_mesh_path;
-		SPtr<PawnMovementComponent> m_movement_component;
+		SPtr<SimpleMovementComponent> m_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<SphereComponent> m_sphere_component;
 		SPtr<FollowCamera> m_camera_component;
