@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/component/light/spot_light_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/object/component/util/shadow_camera_component.h"
 
 namespace client_fw
 {
@@ -8,6 +9,16 @@ namespace client_fw
 		const std::string& draw_shader_name)
 		: LocalLightComponent(eLightType::kSpot, name, draw_shader_name)
 	{
+	}
+
+	bool SpotLightComponent::Initialize()
+	{
+		bool ret = LocalLightComponent::Initialize();
+
+		const auto& owner = m_owner.lock();
+		ret &= owner->AttachComponent(CreateSPtr<ShadowCameraComponent>());
+
+		return ret;
 	}
 
 	void SpotLightComponent::UpdateWorldMatrix()

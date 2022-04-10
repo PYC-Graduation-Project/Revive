@@ -5,6 +5,7 @@ namespace client_fw
 	enum class eCameraUsage;
 	class CameraComponent;
 	class RenderCameraComponent;
+	class ShadowCameraComponent;
 
 	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
 	class CameraManager final
@@ -30,7 +31,20 @@ namespace client_fw
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 
 	private:
+		void UpdateRenderCameras(ID3D12Device* device);
+		void UpdateShadowCameras(ID3D12Device* device);
 		void UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function);
+
+		template <class T>
+		void UnregisterCameraComponent(std::vector<SPtr<T>>& cameras, const SPtr<CameraComponent>& camera_comp)
+		{
+			auto iter = std::find(cameras.begin(), cameras.end(), camera_comp);
+			if (iter != cameras.end())
+			{
+				std::iter_swap(iter, cameras.end() - 1);
+				cameras.pop_back();
+			}
+		}
 
 	private:
 		static CameraManager* s_camera_manager;
@@ -38,6 +52,10 @@ namespace client_fw
 		std::vector<SPtr<RenderCameraComponent>> m_ready_render_cameras;
 		std::vector<SPtr<RenderCameraComponent>> m_wait_resource_render_cameras;
 		std::vector<SPtr<RenderCameraComponent>> m_render_cameras;
+
+		std::vector<SPtr<ShadowCameraComponent>> m_ready_shadow_cameras;
+		std::vector<SPtr<ShadowCameraComponent>> m_wait_resource_shadow_cameras;
+		std::vector<SPtr<ShadowCameraComponent>> m_shadow_cameras;
 
 		SPtr<RenderCameraComponent> m_ready_main_camera;
 		SPtr<RenderCameraComponent> m_main_camera;

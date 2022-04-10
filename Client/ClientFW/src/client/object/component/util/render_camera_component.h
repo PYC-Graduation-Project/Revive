@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class RenderTexture;
+
 	class RenderCameraComponent : public CameraComponent
 	{
 	public:

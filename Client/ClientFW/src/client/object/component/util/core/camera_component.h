@@ -4,9 +4,6 @@
 
 namespace client_fw
 {
-	class Actor;
-	class RenderTexture;
-
 	enum class eProjectionMode
 	{
 		kPerspective, kOrthographic
@@ -21,7 +18,7 @@ namespace client_fw
 	//일단 Light를 넣을 때 다시 생각해 볼 생각이라 수정은 하지 않겠다.
 	enum class eCameraUsage
 	{
-		kBasic, kLight,
+		kBasic, kShadow,
 	};
 
 	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)

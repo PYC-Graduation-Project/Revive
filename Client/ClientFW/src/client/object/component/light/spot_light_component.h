@@ -11,6 +11,8 @@ namespace client_fw
             const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kSpotLight));
         virtual ~SpotLightComponent() = default;
 
+        virtual bool Initialize() override;
+
     private:
         virtual void UpdateWorldMatrix() override;
         virtual void UpdateLocalMatrix() override;

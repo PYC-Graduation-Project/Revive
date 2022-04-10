@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+#include "client/renderer/core/render_resource_manager.h"
 #include "client/util/d3d_util.h"
 
 namespace client_fw
@@ -25,8 +26,8 @@ namespace client_fw
 	bool GraphicsSuperRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
 		std::array<CD3DX12_DESCRIPTOR_RANGE, 2> descriptor_range;
-		descriptor_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 12288, 0, 1);
-		descriptor_range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1024, 0, 2);
+		descriptor_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_2D_TEXTURE_RESOURCE_SIZE, 0, 1);
+		descriptor_range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_CUBE_TEXTURE_RESOURCE_SIZE, 0, 2);
 
 		std::array<CD3DX12_ROOT_PARAMETER, 7> root_parameters;
 		root_parameters[0].InitAsConstantBufferView(0, 0);
