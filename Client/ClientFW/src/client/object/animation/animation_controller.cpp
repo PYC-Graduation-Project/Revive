@@ -49,7 +49,7 @@ namespace client_fw
             for (const auto& [name, data] : m_notify_map)
             {
                 if(m_animation_name == data.animation_name) //애니메이션 이름을 확인해주지않으면 아무 애니메이션이나 함수가 호출된다.
-                    if (m_time_pos >= data.time)
+                    if (m_prev_time_index == data.frame_index)
                         data.notify_function();
             }
             m_anim_seq->AnimToPlay(m_prev_time_index, time_pos);
@@ -70,11 +70,11 @@ namespace client_fw
         m_bone_offset = bone_data->bone_offsets;
     }
 
-    void AnimationController::AddNotify(const std::string name, const std::string animation_name, float time, const std::function<void()>& function)
+    void AnimationController::AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function)
     {
         if (m_notify_map.find(name) == m_notify_map.cend())
         {
-            m_notify_map.insert({ name,{time,animation_name,function} });
+            m_notify_map.insert({ name,{frame_index,animation_name,function} });
         }
     }
 

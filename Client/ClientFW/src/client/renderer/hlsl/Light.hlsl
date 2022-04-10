@@ -11,12 +11,27 @@ struct Material
     float roughness;
 };
 
-struct Light
+struct DirectionalLight
+{
+    float3 light_color;
+    float3 direction;
+};
+
+struct PointLight
+{
+    float3 light_color;
+    float3 position;
+    float attenuation_radius;
+};
+
+struct SpotLight
 {
     float3 light_color;
     float3 direction;
     float3 position;
     float attenuation_radius;
+    float inner_angle;
+    float outer_angle;
 };
 
 float3 FresnelSchlick(float cos_theta, float3 f0)
@@ -58,7 +73,7 @@ float GeometrySmith(float3 normal, float3 to_camera, float3 to_light, float roug
     return ggx1 * ggx2;
 }
 
-float3 CalcDiretionalLight(float3 position, Material material, Light light)
+float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight light)
 {
     float3 to_camera = normalize(g_camera_pos - position);
     
@@ -90,7 +105,7 @@ float3 CalcDiretionalLight(float3 position, Material material, Light light)
     return lo;
 }
 
-float3 CalcPointLight(float3 position, Material material, Light light)
+float3 CalcPointLight(float3 position, Material material, PointLight light)
 {
     float distance = length(light.position - position);
     if (distance > light.attenuation_radius)
@@ -106,6 +121,9 @@ float3 CalcPointLight(float3 position, Material material, Light light)
     
     float attenuation = 1.0f / (distance * distance);
     float3 radiance = light.light_color * attenuation;
+      
+    if (length(radiance) == 0.0f)
+        return float3(0.0f, 0.0f, 0.0f);
     
     float ndf = DistributionGGX(material.normal, half_way, material.roughness);
     float g = GeometrySmith(material.normal, to_camera, to_light, material.roughness);
@@ -123,6 +141,59 @@ float3 CalcPointLight(float3 position, Material material, Light light)
     float3 specular = numerator / max(denominator, 0.001f);
     
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl;
+    
+    return lo;
+}
+
+float3 CalcSpotLight(float3 position, Material material, SpotLight light)
+{
+    float distance = length(light.position - position);
+    if (distance > light.attenuation_radius)
+        return float3(0.0f, 0.0f, 0.0f);
+    
+    float3 to_light = normalize(light.position - position);
+    float cos_angle = dot(-to_light, light.direction);
+    float cos_outer_angle = cos(light.outer_angle);
+    
+    if(cos_angle < cos_outer_angle)
+        return float3(0.0f, 0.0f, 0.0f);
+    
+    float3 to_camera = normalize(g_camera_pos - position);
+    
+    float3 f0 = 0.04f;
+    f0 = lerp(f0, material.base_color, material.metalic);
+    
+    float3 half_way = normalize(to_camera + to_light);
+    
+    float attenuation = 1.0f / (distance * distance);
+    float3 radiance = light.light_color * attenuation;
+    
+    if (length(radiance) == 0.0f)
+        return float3(0.0f, 0.0f, 0.0f);
+    
+    float ndf = DistributionGGX(material.normal, half_way, material.roughness);
+    float g = GeometrySmith(material.normal, to_camera, to_light, material.roughness);
+    float3 f = FresnelSchlick(max(dot(half_way, to_camera), 0.0f), f0);
+    
+    float3 k_specular = f;
+    float3 k_diffuse = 1.0f - k_specular;
+    k_diffuse *= 1.0f - material.metalic;
+    
+    float ndotl = max(dot(material.normal, to_light), 0.0f);
+    float ndotv = max(dot(material.normal, to_camera), 0.0f);
+    
+    float3 numerator = ndf * g * f;
+    float denominator = 4.0f * max(ndotv, 0.0f) * max(ndotl, 0.0f);
+    float3 specular = numerator / max(denominator, 0.001f);
+    
+    float spot_factor = 1.0f;
+    
+    if(cos_angle < cos(light.inner_angle))
+        spot_factor = saturate((cos_angle - cos(light.outer_angle)) / cos((light.outer_angle - light.inner_angle)));
+    
+    spot_factor *= spot_factor;
+    
+    float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * spot_factor;
     
     return lo;
 }

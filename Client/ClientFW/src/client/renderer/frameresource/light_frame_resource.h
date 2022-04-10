@@ -7,10 +7,11 @@ namespace client_fw
 	struct RSLightData
 	{
 		Vec3 light_color;
-		float additional_info_0 = 0.0f;
-		Vec3 light_direction;
 		float attenuation_radius = 0.0f;
+		Vec3 light_direction;
+		float cone_inner_angle = 0.0f;
 		Vec3 light_position;
+		float cone_outer_angle = 0.0f;
 	};
 
 	class LightFrameResource

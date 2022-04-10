@@ -36,7 +36,9 @@ namespace client_fw
 
 	public:
 		const SPtr<CameraComponent>& GetPlayerCamera() const;
+		//사용자 정의 카메라를 설정한다.
 		void SetPlayerCamera(const SPtr<CameraComponent>& camera_comp);
+
 		void SetPitchSpeedScale(float scale) { m_pitch_speed_scale = scale; }
 		void SetYawSpeedScale(float scale) { m_yaw_speed_scale = scale; }
 		void SetRollSpeedScale(float scale) { m_roll_speed_scale = scale; }
