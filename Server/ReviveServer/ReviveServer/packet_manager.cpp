@@ -669,9 +669,10 @@ void PacketManager::StartGame(int room_id)
 			lua_pushnumber(L,e->GetID());
 			cout << "루아에 넣어주는 npc_id:" << e->GetID() << endl;
 			int error_num=lua_pcall(L, 1, 0, 0);
+			e->lua_lock.unlock();
 			if(error_num)
 				MoveObjManager::LuaErrorDisplay(L, error_num);
-			e->lua_lock.unlock();
+			
 		}
 	}
 

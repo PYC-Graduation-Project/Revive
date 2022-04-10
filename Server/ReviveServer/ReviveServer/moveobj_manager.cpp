@@ -36,8 +36,7 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	lua_pushnumber(L, en->GetPosZ());
 	lua_pushnumber(L, en->GetHP());
 	lua_pushnumber(L, en->GetDamge());
-	lua_pushnumber(L, (int)en->GetType());
-	error = lua_pcall(L, 7, 0, 0);
+	error = lua_pcall(L, 6, 0, 0);
 	if (error)
 		MoveObjManager::LuaErrorDisplay(L, error);
 	
