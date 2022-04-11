@@ -7,6 +7,7 @@ namespace client_fw
 	class SceneComponent;
 	class SkeletalMeshComponent;
 	class BoxComponent;
+	class SphereComponent;
 	class SimpleMovementComponent;
 }
 
@@ -54,6 +55,7 @@ namespace revive
 		void AddMovementInput(Vec3& direction, float scale);
 		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
 		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
+		void BlockingCollisionResponse();
 
 		//player의 state를 관리하는 객체
 		//원래는 State자체를 저장하고 플레이어 Update에서 바꿔주려고 했으나,
@@ -62,8 +64,7 @@ namespace revive
 
 		std::string m_mesh_path;
 		SPtr<SimpleMovementComponent> m_movement_component;
-		std::array<SPtr<BoxComponent>,2> m_box_components;
-		SPtr<PawnMovementComponent> m_movement_component;
+		SPtr<SphereComponent> m_blocking_sphere;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<FollowCamera> m_camera_component;
 

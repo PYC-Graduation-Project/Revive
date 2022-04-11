@@ -3,6 +3,7 @@
 #include <client/object/component/util/simple_movement_component.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
+#include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
@@ -21,8 +22,7 @@ namespace revive
 		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
 		
-		m_box_components[0] = CreateSPtr<BoxComponent>(Vec3{40.0f,40.0f,40.0f},"Player Head Box");
-		m_box_components[1] = CreateSPtr<BoxComponent>(Vec3{25.0f,32.0f,50.0f},"Player Body Collision");
+		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
 	}
 
 	bool RevivePlayer::Initialize()
@@ -48,19 +48,15 @@ namespace revive
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_player_fsm->Initialize(SharedFromThis());
 		
-		m_box_components[0]->SetLocalPosition(Vec3{ -10.0f,50.0f,-10.0f });
-		m_box_components[1]->SetLocalPosition(Vec3{ 0.0f,0.0f,-40.0f });
-		
-		m_box_components[1]->SetCollisionInfo(true, true, "default", { "default" }, true);
-		m_box_components[1]->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,40.0f,0.0f });
+		m_blocking_sphere->SetCollisionInfo(true, true, "default", { "default" }, true);
+		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
-				LOG_INFO("충돌 {0} {1}", component->GetName(), other_component->GetName());
-				//CollisionResponse(component, other_actor, other_component);
+			BlockingCollisionResponse();
+			LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 			});
-		for(auto box_component : m_box_components)
-			ret &= AttachComponent(box_component);
+		ret &= AttachComponent(m_blocking_sphere);
 			
-		ret &= AttachComponent(m_static_mesh_component);
 		ret &= AttachComponent(m_camera_component);
 	
 		RegisterEvent();
@@ -78,7 +74,7 @@ namespace revive
 	{
 		m_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
-		//m_box_component = nullptr;
+		m_blocking_sphere = nullptr;
 		m_camera_component = nullptr;
 		m_player_fsm->Shutdown();
 		m_player_fsm = nullptr;
@@ -88,8 +84,7 @@ namespace revive
 	{
 		Pawn::Update(delta_time);
 		Vec3 current_position = GetPosition();
-		if (current_position.y < 300)//땅의 높이
-			current_position.y = 300;
+		current_position.y = 300;
 		
 		SetPosition(current_position);
 
@@ -185,6 +180,13 @@ namespace revive
 			rot.x += math::ToRadian(5.0f) - rot.x;
 			m_controller.lock()->SetRotation(quat::CreateQuaternionFromRollPitchYaw(rot.x, rot.y, rot.z));
 		}
+	}
+
+	void RevivePlayer::BlockingCollisionResponse()
+	{
+		Vec3 current_position = GetPosition();
+		current_position.y = 300;
+		SetPosition(current_position);
 	}
 
 	DefaultCharacter::DefaultCharacter(const std::string& name)
