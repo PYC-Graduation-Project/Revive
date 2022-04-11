@@ -9,6 +9,8 @@ namespace client_fw
 	class ShapeComponent;
 	class BillboardComponent;
 	class WidgetComponent;
+	class SkyComponent;
+	class LocalLightComponent;
 
 	class MeshRenderItem;
 	class BillboardRenderItem;
@@ -25,7 +27,7 @@ namespace client_fw
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override {}
 
 	public:
-		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index)  const= 0;
+		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const = 0;
 		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const;
 		virtual D3D12_SHADER_BYTECODE CreateDomainShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const;
 		virtual D3D12_SHADER_BYTECODE CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const;
@@ -56,6 +58,10 @@ namespace client_fw
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp);
 		virtual bool RegisterWidgetComponent(ID3D12Device* device, const SPtr<WidgetComponent>& widget_comp);
 		virtual void UnregisterWidgetComponent(const SPtr<WidgetComponent>& widget_comp);
+		virtual bool RegisterSkyComponent(ID3D12Device* device, const SPtr<SkyComponent>& sky_comp);
+		virtual void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp);
+		virtual bool RegisterLocalLightComponent(ID3D12Device* device, const SPtr<LocalLightComponent> light_comp);
+		virtual void UnregisterLocalLightComponent(const SPtr<LocalLightComponent>& light_comp);
 	};
 
 	class MeshShader : public GraphicsShader

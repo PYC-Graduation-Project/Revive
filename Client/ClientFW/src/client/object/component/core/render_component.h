@@ -7,7 +7,7 @@ namespace client_fw
 
 	enum class eRenderType
 	{
-		kMesh, kShape, kBillboard, kWidget
+		kMesh, kShape, kBillboard, kWidget, kLight
 	};
 
 	// RenderSystem에 등록되어서 그려지는 것들을 표현한 Component
@@ -27,9 +27,9 @@ namespace client_fw
 
 	protected:
 		virtual bool RegisterToRenderSystem();
-		void UnregisterFromRenderSystem();
-		void RegisterToVisualOctree();
-		void UnregisterFromVisualOctree();
+		virtual void UnregisterFromRenderSystem();
+		virtual void RegisterToVisualOctree();
+		virtual void UnregisterFromVisualOctree();
 
 	protected:
 		eRenderType m_type;

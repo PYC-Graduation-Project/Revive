@@ -12,6 +12,9 @@ namespace client_fw
 		virtual void Update(float delta_time) override;
 
 	protected:
+		void UpdateVelocity(float delta_time);
+
+	protected:
 		float m_cur_speed = 0.0f;
 		float m_max_speed = 1200.0f;
 		float m_acceleration = 4000.0f;

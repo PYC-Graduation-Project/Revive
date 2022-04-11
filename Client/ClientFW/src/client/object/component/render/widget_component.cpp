@@ -5,7 +5,7 @@
 
 namespace client_fw
 {
-	WidgetComponent::WidgetComponent(const SPtr<UserInterfaceLayer>& ui_layer, 
+	WidgetComponent::WidgetComponent(const SPtr<UserInterfaceLayer>& ui_layer,
 		const std::string& name, eWidgetSpaceType type, eWidgetBlendMode blend_mode)
 		: RenderComponent(name, 20, eRenderType::kWidget, Render::ConvertShaderType(eShaderType::kMaskedWidget))
 		, m_user_interface_layer(ui_layer), m_type(type), m_size(Vec2(200.0f, 200.0f)), m_pivot(0.5f, 0.5f)
@@ -22,8 +22,6 @@ namespace client_fw
 			SetDrawShaderName(Render::ConvertShaderType(eShaderType::kMaskedWidget));
 			break;
 		}
-		
-		m_oriented_box = CreateSPtr<BOrientedBox>();
 	}
 
 	bool WidgetComponent::Initialize()

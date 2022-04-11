@@ -53,6 +53,8 @@ namespace client_fw
 
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
+		LOG_INFO(GetPath());
+
 		for (UINT i = 0; i < m_lod_count; ++i)
 		{
 			if (m_vertex_infos.at(i)->Initialize<TextureLightNormalMapVertex>(device, command_list) == false)

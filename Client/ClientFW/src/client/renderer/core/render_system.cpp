@@ -17,7 +17,10 @@
 #include "client/renderer/shader/texture_billboard_shader.h"
 #include "client/renderer/shader/material_billboard_shader.h"
 #include "client/renderer/shader/widget_shader.h"
+#include "client/renderer/shader/sky_shader.h"
+#include "client/renderer/shader/light_shader.h"
 #include "client/renderer/shader/skeletal_mesh_shader.h"
+
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/camera_manager.h"
 #include "client/renderer/core/light_manager.h"
@@ -29,8 +32,8 @@
 #include "client/object/component/render/widget_component.h"
 #include "client/object/component/util/camera_component.h"
 #include "client/object/component/light/core/light_component.h"
-#include "client/object/component/light/directional_light_component.h"
-#include "client/object/component/mesh/skeletal_mesh_component.h"
+#include "client/object/component/light/core/local_light_component.h"
+#include "client/object/component/sky/sky_component.h"
 
 namespace client_fw
 {
@@ -61,14 +64,12 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
+
 		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<DeferredShader>("deferred", eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
-		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
 		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
 			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
@@ -84,6 +85,14 @@ namespace client_fw
 			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), eRenderLevelType::kOpaque); 
+
+		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight), eRenderLevelType::kDeferred);
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
+		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
+
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -111,9 +120,8 @@ namespace client_fw
 		m_camera_manager->Update(device, 
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
+				m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 			});
-
-		m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
@@ -222,6 +230,16 @@ namespace client_fw
 			const auto& widget_comp = std::static_pointer_cast<WidgetComponent>(render_comp);
 			return m_graphics_shaders.at(shader_name)->RegisterWidgetComponent(m_device, widget_comp);
 		}
+		case eRenderType::kLight:
+		{
+			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
+			bool ret = m_light_manager->RegisterLightComponent(light_comp);
+
+			const auto& local_light_comp = std::dynamic_pointer_cast<LocalLightComponent>(render_comp);
+			if (local_light_comp != nullptr)
+				ret &= m_graphics_shaders.at(shader_name)->RegisterLocalLightComponent(m_device, local_light_comp);
+			return ret;
+		}
 		default:
 			break;
 		}
@@ -263,9 +281,40 @@ namespace client_fw
 			m_graphics_shaders.at(shader_name)->UnregisterWidgetComponent(widget_comp);
 			break;
 		}
+		case eRenderType::kLight:
+		{
+			const auto& light_comp = std::static_pointer_cast<LightComponent>(render_comp);
+			const auto& local_light_comp = std::dynamic_pointer_cast<LocalLightComponent>(render_comp);
+			if (local_light_comp != nullptr)
+				m_graphics_shaders.at(shader_name)->UnregisterLocalLightComponent(local_light_comp);
+			m_light_manager->UnregisterLightComponent(light_comp);
+			break;
+		}
 		default:
 			break;
 		}
+	}
+
+	bool RenderSystem::RegisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
+		{
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return false;
+		}
+
+		return m_graphics_shaders.at(shader_name)->RegisterSkyComponent(m_device, sky_comp);
+	}
+
+	void RenderSystem::UnregisterSkyComponent(const SPtr<SkyComponent>& sky_comp, const std::string& shader_name)
+	{
+		if (m_graphics_shaders.find(shader_name) == m_graphics_shaders.cend())
+		{
+			LOG_WARN("Could not find shader : {0}", shader_name);
+			return;
+		}
+
+		m_graphics_shaders.at(shader_name)->UnregisterSkyComponent(sky_comp);
 	}
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
@@ -283,15 +332,5 @@ namespace client_fw
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);
 		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
-	}
-
-	bool RenderSystem::RegisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		return m_light_manager->RegisterLightComponent(light_comp);
-	}
-
-	void RenderSystem::UnregisterLightComponent(const SPtr<LightComponent>& light_comp)
-	{
-		m_light_manager->UnregisterLightComponent(light_comp);
 	}
 }

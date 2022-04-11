@@ -11,11 +11,13 @@ namespace client_fw
 	{
 		m_animation_controller = CreateSPtr<AnimationController>();
 	}
+
 	bool SkeletalMeshComponent::Initialize()
 	{
 		m_animation_controller->Initialize();
 		return MeshComponent::Initialize();
 	}
+
 	void SkeletalMeshComponent::Update(float delta_time)
 	{
 		if (m_is_playing)
@@ -25,6 +27,7 @@ namespace client_fw
 			m_animation_controller->CopyBoneTransformData();
 		}
 	}
+
 	void SkeletalMeshComponent::Shutdown()
 	{
 		MeshComponent::Shutdown();
@@ -34,6 +37,7 @@ namespace client_fw
 	{
 		return std::static_pointer_cast<SkeletalMesh>(m_mesh);
 	}
+
 	bool SkeletalMeshComponent::SetMesh(const std::string& file_path)
 	{
 		m_mesh = std::dynamic_pointer_cast<SkeletalMesh>(AssetStore::LoadMesh(file_path));
@@ -48,9 +52,11 @@ namespace client_fw
 		
 		m_animation_controller->SetBoneData(skeletal_mesh->GetBoneData(), skeletal_mesh->GetSkeleton());
 		skeletal_mesh->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+		m_animation_controller->CopyBoneTransformData();
+
 		return true;
 	}
-	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name)
+	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name,bool looping)
 	{
 		m_animation_name = animation_name;
 
@@ -60,8 +66,11 @@ namespace client_fw
 		{
 			m_animation_controller->SetAnimationName(animation_name);
 			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
+			if (looping == false) m_animation_controller->Initialize();
+			SetLooping(looping);
 		}
 	}
+
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()
 	{
 		return std::static_pointer_cast<SkeletalMeshComponent>(shared_from_this());

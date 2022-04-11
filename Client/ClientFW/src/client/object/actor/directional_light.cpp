@@ -4,7 +4,7 @@
 
 namespace client_fw
 {
-	DirectionalLight::DirectionalLight(const std::string& name, eMobilityState mobility)
+	DirectionalLight::DirectionalLight(eMobilityState mobility, const std::string& name)
 		: Actor(mobility, name)
 	{
 		m_light_component = CreateSPtr<DirectionalLightComponent>();

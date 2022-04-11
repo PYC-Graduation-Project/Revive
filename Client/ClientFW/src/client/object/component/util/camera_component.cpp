@@ -26,20 +26,26 @@ namespace client_fw
 	{
 		SceneComponent::UpdateWorldMatrix();
 
-		Vec3 eye = GetWorldPosition();
 		Vec3 target, up;
-		if (m_owner_controller.expired())
+		if (m_owner_controller.expired() || (m_owner_controller.expired() == false && m_use_controller_rotation == false))
 		{
-			target = eye + GetWorldForward();
+			m_camera_position = GetWorldPosition();
+			target = m_camera_position + GetWorldForward();
 			up = GetWorldUp();
 		}
 		else
 		{
-			target = eye + vec3::TransformNormal(GetLocalForward(), m_owner_controller.lock()->GetRotation());
-			up = vec3::TransformNormal(GetLocalUp(), m_owner_controller.lock()->GetRotation());
+			const auto& owner = m_owner.lock();
+			Mat4 world_matrix = mat4::CreateScale(owner->GetScale());
+			world_matrix *= mat4::CreateRotationFromQuaternion(m_owner_controller.lock()->GetRotation());
+			world_matrix *= mat4::CreateTranslation(owner->GetPosition());
+
+			m_camera_position = vec3::TransformCoord(m_local_position, world_matrix);
+			target = m_camera_position + m_owner_controller.lock()->GetForward();
+			up = m_owner_controller.lock()->GetUp();
 		}
 
-		m_view_matrix = mat4::LookAt(eye, target, up);
+		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 

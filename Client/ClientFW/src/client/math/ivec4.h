@@ -5,9 +5,9 @@ namespace client_fw
 	class IVec4 : public XMINT4
 	{
 	public:
-		constexpr explicit IVec4() : XMINT4(0, 0, 0, 0) {}
-		constexpr explicit IVec4(int x, int y, int z, int w ) : XMINT4(x, y, z, w) {}
-		constexpr explicit IVec4(XMINT4 xmi4) : XMINT4(xmi4.x, xmi4.y, xmi4.z, 0) {}
+		explicit IVec4();
+		explicit IVec4(int x, int y, int z, int w);
+		explicit IVec4(const Vec4& vec);
 
 		IVec4& operator+=(const IVec4& rhs);
 		IVec4& operator-=(const IVec4& rhs);

@@ -7,6 +7,12 @@ namespace client_fw
 	class Skeleton;
 
 	struct BoneData;
+	struct NotifyData
+	{
+		int frame_index;
+		std::string animation_name;
+		std::function<void()> notify_function;
+	};
 
 	class AnimationController : public std::enable_shared_from_this<AnimationController>
 	{
@@ -18,6 +24,7 @@ namespace client_fw
 
 		const std::vector<Mat4>& GetBoneTransformData() { return m_bone_transform_data; }
 		void CopyBoneTransformData();
+
 	public:
 		void SetMeshPath(const std::string& mesh_path) { m_mesh_path = mesh_path; }
 		const std::string GetAnimationPath(const std::string& animation_name);
@@ -30,8 +37,11 @@ namespace client_fw
 
 		void SetBoneData(const SPtr<BoneData>& bone_data, const SPtr<Skeleton>& skeleton);
 
-		bool GetIsNeedUpdate() { return m_is_need_update; }
-		void SetIsNeedUpdate(bool value) { m_is_need_update = value; }
+		const float GetCurretPlayTime() const { return m_time_pos; }
+
+		void SetAnimationSpeed(float value) { m_animation_speed = value; }
+
+		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function);
 
 	private:
 		std::string m_mesh_path;
@@ -46,13 +56,18 @@ namespace client_fw
 
 		int m_prev_time_index = 0;
 
-		bool m_is_registered = false;
-		bool m_is_need_update = false;
-
 		UINT m_instance_index;
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
 		std::vector<Mat4> m_bone_transform_data;
+		
+		//Notify가 저장되는 곳
+		//원래는 AnimNotify라는 클래스를 따로만들어서 
+		//그곳에서 사용되는 애니메이션을 모아서
+		//해당 클래스를 플레이어에 멤버로 넣고, 그 객체를 통해서
+		//Notify를 등록 & 관리하는게 맞지만 
+		//시간관계상 animation controller에 기능을 넣었다.
+		std::map<std::string, NotifyData> m_notify_map;
 	};
 }

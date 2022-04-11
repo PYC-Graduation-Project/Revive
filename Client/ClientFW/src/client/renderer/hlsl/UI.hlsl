@@ -1,4 +1,5 @@
-#include "Opaque.hlsl"
+#include "Resource.hlsl"
+#include "Common.hlsl"
 
 #ifndef __UI_HLSL__
 #define __UI_HLSL__
