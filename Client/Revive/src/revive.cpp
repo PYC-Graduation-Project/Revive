@@ -3,7 +3,9 @@
 #include <client/core/entry_point.h>
 #include <client/asset/mesh/mesh_loader.h>
 #include "object/level/game_play_level.h"
-
+#include"server/network.h"
+#include"revive_server/send/revive_send_manager.h"
+#include"revive_server/packet/revive_packet_manager.h"
 using namespace client_fw;
 
 namespace revive
@@ -23,8 +25,8 @@ namespace revive
 			if (result)
 			{
 				LOG_INFO("Welcome to Revive Application");
-				//Network::GetInst()->Init();
-				//Network::GetInst()->CreateWorker();
+				Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
+				Network::GetInst()->CreateWorker();
 
 				RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
 					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });

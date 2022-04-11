@@ -7,7 +7,10 @@
 #include "object/level/game_play_level.h"
 #include <client/object/level/gamemode/game_mode_base.h>
 #include "object/level/revive_game_mode.h"
-
+#include <client/event/packetevent/packet_helper.h>
+#include <client/event/messageevent/message_helper.h>
+#include"revive_server/message/message_event_info.h"
+#include"server/network_move_object.h"
 namespace revive
 {
 	GamePlayLevel::GamePlayLevel()
@@ -47,6 +50,46 @@ namespace revive
 	void GamePlayLevel::Update(float delta_time)
 	{
 		
+	}
+	void GamePlayLevel::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
+	{
+
+		switch (message->GetEventID())
+		{
+		case HashCode("testspawn"):
+		{
+			//auto cube = CreateSPtr<RotatingCube>();
+			//SpawnActor(cube);
+			auto msg = std::static_pointer_cast<TestMessageEventInfo>(message);
+		    //cube->SetPosition(msg->GetPosition());
+			//PacketHelper::ConnectActorToServer(cube, msg->GetObjId());
+			break;
+		}
+		case HashCode("spawn object"):
+		{
+
+			auto msg = std::static_pointer_cast<ObjectInfoMessageEventInfo>(message);
+
+			auto obj = msg->GetNetworkObj();
+			LOG_INFO("id : {0}", obj->GetID());
+			LOG_INFO("name : {0}", obj->GetName());
+			//LOG_INFO("hp : {0}", obj->GetHp());
+			//LOG_INFO("damage : {0}", obj->GetDamage());
+			//LOG_INFO("position :{0}", obj->GetPosition());
+			std::cout << "pos: " << obj->GetPosition() << std::endl;
+			//auto cube = CreateSPtr<RotatingCube>();
+			//SpawnActor(cube);
+			//LOG_INFO("rotation : {0}", cube->GetRotation());
+			//cube->SetPosition(msg->GetNetworkObj()->GetPosition());
+			//PacketHelper::ConnectActorToServer(cube, msg->GetNetworkObj()->GetID());
+
+			//spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
+			break;
+		}
+
+		default:
+			break;
+		}
 	}
 	UPtr<GameMode> GamePlayLevel::CreateGameMode() const
 	{

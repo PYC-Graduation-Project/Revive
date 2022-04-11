@@ -15,6 +15,7 @@ namespace revive
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 	private:
 		virtual UPtr<GameMode> CreateGameMode() const override;
 
