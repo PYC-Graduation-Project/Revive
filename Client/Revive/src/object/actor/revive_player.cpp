@@ -48,11 +48,11 @@ namespace revive
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_player_fsm->Initialize(SharedFromThis());
 		
-		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,40.0f,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, true, "default", { "default" }, true);
+		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
+		m_blocking_sphere->SetCollisionInfo(true, false, "default", { "default" }, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
-			BlockingCollisionResponse();
+			FixYPosition();
 			LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 			});
 		ret &= AttachComponent(m_blocking_sphere);
@@ -70,6 +70,13 @@ namespace revive
 		return ret;
 	}  
 
+	void RevivePlayer::Update(float delta_time)
+	{
+		Pawn::Update(delta_time);
+		FixYPosition();
+		m_player_fsm->Update();
+	}
+
 	void RevivePlayer::Shutdown()
 	{
 		m_movement_component = nullptr;
@@ -79,17 +86,7 @@ namespace revive
 		m_player_fsm->Shutdown();
 		m_player_fsm = nullptr;
 	}
-
-	void RevivePlayer::Update(float delta_time)
-	{
-		Pawn::Update(delta_time);
-		Vec3 current_position = GetPosition();
-		current_position.y = 300;
-		
-		SetPosition(current_position);
-
-		m_player_fsm->Update();
-	}
+	
 
 	const float RevivePlayer::GetVelocity() const
 	{
@@ -182,10 +179,10 @@ namespace revive
 		}
 	}
 
-	void RevivePlayer::BlockingCollisionResponse()
+	void RevivePlayer::FixYPosition()
 	{
 		Vec3 current_position = GetPosition();
-		current_position.y = 300;
+		current_position.y = 300.f;
 		SetPosition(current_position);
 	}
 

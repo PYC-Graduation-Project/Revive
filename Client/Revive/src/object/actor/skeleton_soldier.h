@@ -1,6 +1,10 @@
 #pragma once
 #include "object/actor/enemy.h"
 
+namespace client_fw
+{
+}
+
 namespace revive
 {
 	class SkeletonSoldier : public Enemy
@@ -12,7 +16,10 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 		//virtual void Update(float delta_time) override;
+
 	private:
+		virtual bool SetCollisionComponent() override;
+
 		int m_animation_select_num = 0;
 		std::array<std::string, 8> m_animation_name =
 		{
@@ -22,5 +29,6 @@ namespace revive
 			"idle","run",
 			"sprint"
 		};
+
 	};
 }

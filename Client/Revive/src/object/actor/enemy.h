@@ -4,6 +4,7 @@
 namespace client_fw
 {
 	class SkeletalMeshComponent;
+	class SphereComponent;
 	class BoxComponent;
 }
 
@@ -23,9 +24,13 @@ namespace revive
 
 	protected:
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
-		SPtr<BoxComponent> m_blocking_box_component;
+		SPtr<SphereComponent> m_blocking_sphere; //½Ì±Û
+		SPtr<BoxComponent> m_blocking_box; //¸ÖÆ¼
 
+		void FixYPosition();
+		virtual bool SetCollisionComponent() { return true; }
 	private:
 		std::string m_mesh_path;
+	
 	};
 }

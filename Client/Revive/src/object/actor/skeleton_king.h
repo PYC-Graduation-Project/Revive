@@ -13,6 +13,8 @@ namespace revive
 		virtual void Shutdown() override;
 
 	private:
+		virtual bool SetCollisionComponent() override;
+
 		int m_animation_select_num = 0;
 		std::array<std::string, 6> m_animation_name =
 		{

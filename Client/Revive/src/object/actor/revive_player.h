@@ -55,7 +55,7 @@ namespace revive
 		void AddMovementInput(Vec3& direction, float scale);
 		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
 		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
-		void BlockingCollisionResponse();
+		void FixYPosition();
 
 		//player의 state를 관리하는 객체
 		//원래는 State자체를 저장하고 플레이어 Update에서 바꿔주려고 했으나,
