@@ -35,5 +35,8 @@ namespace client_fw
         virtual void UpdateShadowTextureSize() override;
         virtual void UpdateShadowCameraProjection() override;
 
+    public:
+        const SPtr<ShadowCameraComponent>& GetShadowCamera() const { return m_shadow_camera; }
+
     };
 }

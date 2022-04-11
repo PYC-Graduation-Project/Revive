@@ -65,6 +65,7 @@ namespace client_fw
 	{
 		m_cone_inner_angle = math::ToRadian(degrees);
 		m_cone_outer_angle = max(m_cone_inner_angle, m_cone_outer_angle);
+		m_shadow_camera->SetFieldOfView(math::ToDegrees(m_cone_outer_angle) * 2.0f);
 		m_update_local_matrix = true;
 	}
 
@@ -72,6 +73,7 @@ namespace client_fw
 	{
 		m_cone_outer_angle = math::ToRadian(degrees);
 		m_cone_inner_angle = min(m_cone_inner_angle, m_cone_outer_angle);
+		m_shadow_camera->SetFieldOfView(degrees * 2.0f);
 		m_update_local_matrix = true;
 	}
 
