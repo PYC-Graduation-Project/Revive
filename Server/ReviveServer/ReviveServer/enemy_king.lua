@@ -15,7 +15,7 @@ now_x=0.1;
 now_z=0.1;
 
 enemy_state={}
---리턴값을 줄지 결정하기
+
 enemy_state["move"]=function (target_id)
 	local t_id=target_id;
 	local  pl_x=API_get_x(t_id);

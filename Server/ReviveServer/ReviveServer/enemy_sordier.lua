@@ -25,11 +25,12 @@ enemy_state["move"]=function (target_id)
 	now_z=API_get_z(skull_king.m_id);
 	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_fov)then
 		skull_king.m_target_id=t_id;
+		API_move((skull_king.m_target_id,t_id);
 	end
 
 	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_atk_range) then
 		skull_king.m_curr_state="attack"
-		API_attack(t_id);--만들어 주기
+		API_attack(skull_king.m_target_id,t_id);--만들어 주기
 	end
 
 end
@@ -43,10 +44,10 @@ enemy_state["attack"]=function (target_id)
 	now_z=API_get_z(skull_king.m_id);
 	if(math.sqrt((math.abs(pl_x-nowx))^2+(math.abs(pl_z-now_z))^2)<=skull_king.m_atk_range) then
 		skull_king.m_curr_state="attack"
-		API_attack(t_id);--만들어주기
+		API_attack(skull_king.m_target_id,t_id);--만들어주기
 	else
 		skull_king.m_curr_state="move"
-		API_move(t_id);--만들어 주기
+		API_move(skull_king.m_target_id,t_id);--만들어 주기
 	end
 end
 

@@ -6,9 +6,11 @@
 #include"room.h"
 #include"enemy.h"
 #include"map_manager.h"
+#include"lua_functions.h"
+#include"Astar.h"
+concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
-#include"Astar.h"
 PacketManager::PacketManager()
 {
 	MoveObjManager::GetInst();
@@ -83,7 +85,7 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
-		//m_timer_queue.push(SetTimerEvent(new_id, new_id,
+		//g_timer_queue.push(SetTimerEvent(new_id, new_id,
 		//	EVENT_TYPE::EVENT_TIME, 1000));
 	}
 
@@ -199,7 +201,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			SendObjInfo(room->GetObjList().at(pl), en);
 		}
 		enemy->SetMoveTime(300);
-		m_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 	}
 	
 	//cout << "round" << curr_round << "Wave Start" << endl;
@@ -311,7 +313,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//아니면 기지 그대로
 		}
 	}
-	m_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
+	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 }
 
 
@@ -669,9 +671,9 @@ void PacketManager::StartGame(int room_id)
 			lua_pushnumber(L,e->GetID());
 			cout << "루아에 넣어주는 npc_id:" << e->GetID() << endl;
 			int error_num=lua_pcall(L, 1, 0, 0);
-			e->lua_lock.unlock();
 			if(error_num)
 				MoveObjManager::LuaErrorDisplay(L, error_num);
+			e->lua_lock.unlock();
 			
 		}
 	}
@@ -695,9 +697,9 @@ void PacketManager::StartGame(int room_id)
 		}
 	}
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	m_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
+	g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10000));//30초다되면 넣어주는걸로 수정?
-	//m_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+	//g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
 	//	EVENT_TYPE::EVENT_TIME, 1000));
 	
 }
@@ -794,7 +796,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 	while (true) {
 		while (true) {
 			timer_event ev;
-			if (!m_timer_queue.try_pop(ev))continue;
+			if (!g_timer_queue.try_pop(ev))continue;
 			auto start_t = chrono::system_clock::now();
 			if (ev.start_time <= start_t) {
 				ProcessEvent(hiocp,ev);
@@ -805,7 +807,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 				ProcessEvent(hiocp, ev);
 			}
 			else {
-				m_timer_queue.push(ev);
+				g_timer_queue.push(ev);
 				break;
 			}
 		}
@@ -854,10 +856,10 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		{
 			room->SetRoundTime(30.0f);
 			room->SetRound(room->GetRound() + 1);
-			m_timer_queue.push(SetTimerEvent(room->GetRoomID(),
+			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
 				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 16));
 		}
-		m_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
+		g_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
 			EVENT_TYPE::EVENT_TIME, 1000));
 		break;
 	}

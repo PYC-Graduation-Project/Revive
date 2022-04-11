@@ -3,6 +3,7 @@
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include<chrono>
+#include<concurrent_priority_queue.h>
 #include"state.h"
 #include"vec3.h"
 #include"vec4.h"

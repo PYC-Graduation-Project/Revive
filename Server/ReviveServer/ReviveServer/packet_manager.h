@@ -2,7 +2,7 @@
 #include"define.h"
 #include<concurrent_queue.h>
 #include<thread>
-#include<concurrent_priority_queue.h>
+//#include<concurrent_priority_queue.h>
 class MoveObjManager;
 class DB;
 class RoomManager;
@@ -49,6 +49,7 @@ public:
 	void ProcessTimer(HANDLE hiocp);
 	void ProcessEvent(HANDLE hiocp, timer_event& ev);
 
+	static concurrency::concurrent_priority_queue <timer_event> g_timer_queue;
 private:
 	
 	
@@ -56,7 +57,6 @@ private:
 	DB* m_db;
 	DB* m_db2;
 	MapManager* m_map_manager;
-	concurrency::concurrent_priority_queue <timer_event> m_timer_queue;
 	concurrency::concurrent_queue<db_task>m_db_queue;
 	
 	std::thread db_thread;

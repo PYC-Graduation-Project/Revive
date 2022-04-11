@@ -1,7 +1,7 @@
 #include"pch.h"
 #include"lua_functions.h"
 #include"moveobj_manager.h"
-
+#include"packet_manager.h"
 using namespace std;
 int API_get_x(lua_State* L)
 {
@@ -38,6 +38,23 @@ int API_test_lua(lua_State* L)
 	float now_x = (float)lua_tonumber(L, -2);
 	float now_y = (float)lua_tonumber(L, -1);
 	lua_pop(L, 3);
+	
 	cout << "test_x: " << now_x << "test_y: " << now_y << endl;
-	return 1;
+	return 0;
+}
+
+int API_attack(lua_State* L)
+{
+	int target_id = lua_tointeger(L, -1);
+	int npc_id = lua_tointeger(L, -2);
+	lua_pop(L, 3);
+	return 0;
+}
+
+int API_move(lua_State* L)
+{
+	int target_id = lua_tointeger(L, -1);
+	int npc_id = lua_tointeger(L, -2);
+	lua_pop(L, 3);
+	return 0;
 }
