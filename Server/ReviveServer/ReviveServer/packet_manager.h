@@ -36,8 +36,6 @@ public:
 	void SendTime(int c_id,float round_time);
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
 
-	timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
-	timer_event SetTimerEvent(int obj_id, int target_id,int room_id, EVENT_TYPE ev, int seconds);
 	void End();
 	void Disconnect(int c_id);
 
@@ -49,6 +47,8 @@ public:
 	void ProcessTimer(HANDLE hiocp);
 	void ProcessEvent(HANDLE hiocp, timer_event& ev);
 
+	static timer_event SetTimerEvent(int obj_id, int target_id, EVENT_TYPE ev, int seconds);
+	static timer_event SetTimerEvent(int obj_id, int target_id,int room_id, EVENT_TYPE ev, int seconds);
 	static concurrency::concurrent_priority_queue <timer_event> g_timer_queue;
 private:
 	

@@ -56,5 +56,9 @@ int API_move(lua_State* L)
 	int target_id = lua_tointeger(L, -1);
 	int npc_id = lua_tointeger(L, -2);
 	lua_pop(L, 3);
+	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
+	en->SetTargetId(target_id);
+	timer_event t=PacketManager::SetTimerEvent(en->GetID(), en->GetID(), en->GetRoomID(),EVENT_TYPE::EVENT_NPC_MOVE,30);
+	PacketManager::g_timer_queue.push(move(t));
 	return 0;
 }
