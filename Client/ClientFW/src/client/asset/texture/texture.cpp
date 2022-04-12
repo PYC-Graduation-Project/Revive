@@ -240,6 +240,80 @@ namespace client_fw
 			LOG_WARN("Out of range of texture GBuffer Index");
 	}
 
+	ShadowTexture::ShadowTexture(const IVec2& size)
+		: Texture(eTextureType::kShadow)
+		, m_texture_size(size)
+	{
+	}
+
+	ShadowTexture::~ShadowTexture()
+	{
+	}
+
+	bool ShadowTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		if (CreateDescriptorHeaps(device, command_list) == false)
+		{
+			LOG_ERROR("Could not create descriptor heaps : [render texture]");
+			return false;
+		}
+
+		CreateDSVTexture(device, command_list);
+
+		return true;
+	}
+
+	bool ShadowTexture::CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
+		dsv_heap_desc.NumDescriptors = 1;
+		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		dsv_heap_desc.NodeMask = 0;
+		if (FAILED(device->CreateDescriptorHeap(&dsv_heap_desc, IID_PPV_ARGS(&m_dsv_descriptor_heap))))
+		{
+			LOG_ERROR("Could not create DSV descriptor heap");
+			return false;
+		}
+
+		return true;
+	}
+
+	void ShadowTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{	
+		//depth stencil buffer를 생성한다.
+		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
+
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, &dsv_clear_value);
+		D3DUtil::SetObjectName(m_texture_resource.Get(), "depth dsv texture");
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
+		dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;
+		dsv_desc.Texture2D.MipSlice = 0;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateDepthStencilView(m_texture_resource.Get(), &dsv_desc, dsv_heap_handle);
+		m_dsv_cpu_handle = dsv_heap_handle;
+	}
+
+	void ShadowTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
+	}
+
+	void ShadowTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
+
 	RenderTextTexture::RenderTextTexture(const IVec2& size)
 		: Texture(eTextureType::kRenderUI), m_texture_size(size)
 	{

@@ -5,8 +5,8 @@
 
 namespace revive
 {
-	FollowCamera::FollowCamera(const std::string& name, eCameraUsage usage)
-		: CameraComponent(name, usage)
+	FollowCamera::FollowCamera(const std::string& name)
+		: RenderCameraComponent(name)
 	{
 	}
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "client/renderer/renderitem/core/render_item.h"
 
 namespace client_fw
 {
@@ -9,18 +10,17 @@ namespace client_fw
 	class SkyCubeMesh;
 	class SkySphereComponent;
 
-	class SkyRenderItem final
+	class SkyRenderItem final : public RenderItem
 	{
 	public:
 		SkyRenderItem(const std::string& owner_shader_name);
 		virtual ~SkyRenderItem();
 
-		void Initialize(ID3D12Device* device);
-		void Shutdown();
+		void Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types) override;
 
-		void Update(ID3D12Device* device);
-		void UpdateFrameResource(ID3D12Device* device);
-		void Draw(ID3D12GraphicsCommandList* command_list,
+		void Update(ID3D12Device* device, eRenderLevelType level_type) override;
+		void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
+		void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 			std::function<void()>&& cube_draw_function,
 			std::function<void()>&& sphere_draw_function);
 
@@ -28,8 +28,6 @@ namespace client_fw
 		void UnregisterSkyComponent(const SPtr<SkyComponent>& sky_component);
 
 	private:
-		std::string m_owner_shader_name;
-
 		eSkyType m_draw_sky_type;
 		std::vector<SPtr<SkyComponent>> m_sky_components;
 

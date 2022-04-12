@@ -3,7 +3,7 @@
 #include <client/object/component/util/rotating_movement_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/widget_component.h>
-#include <client/object/component/util/camera_component.h>
+#include <client/object/component/util/render_camera_component.h>
 #include <client/event/messageevent/message_helper.h>
 #include "rotating_cube.h"
 #include "object/ui/enemy_info_ui_layer.h"
@@ -27,8 +27,9 @@ namespace event_test
 		ret &= AttachComponent(m_widget_component);
 		m_widget_component->SetLocalPosition(Vec3(0.0f, 90.0f, 0.0f));
 		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
-		//ret &= AttachComponent(CreateSPtr<CameraComponent>());3
 		//m_rotating_component->SetRotatingRate(Vec3(0.0f, 0.0f, 0.0f));
+		//ret &= AttachComponent(CreateSPtr<RenderCameraComponent>());
+
 		RegisterReceiveMessage(HashCode("change rotating speed"));
 		RegisterReceiveMessage(HashCode("move object"));
 		RegisterReceiveMessage(HashCode("testmove"));

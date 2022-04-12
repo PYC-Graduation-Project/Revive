@@ -13,7 +13,7 @@
 namespace client_fw
 {
 	BillboardRenderItem::BillboardRenderItem(const std::string& owner_shader_name)
-		: m_owner_shader_name(owner_shader_name)
+		: RenderItem(owner_shader_name)
 	{
 	}
 
@@ -21,15 +21,14 @@ namespace client_fw
 	{
 	}
 
-	void BillboardRenderItem::Initialize(ID3D12Device* device)
+	void BillboardRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resources)
-			frame->CreateBillboardFrameResource(device, m_owner_shader_name);
-	}
-
-	void BillboardRenderItem::Shutdown()
-	{
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateBillboardFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
 	TextureBillboardRenderItem::TextureBillboardRenderItem(const std::string& owner_shader_name)
@@ -41,7 +40,7 @@ namespace client_fw
 	{
 	}
 
-	void TextureBillboardRenderItem::Update(ID3D12Device* device)
+	void TextureBillboardRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		std::vector<BillboardVertex> vertices;
 		std::vector<BillboardVertex> fix_up_vertices;
@@ -63,25 +62,27 @@ namespace client_fw
 			}
 		}
 
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		const auto& billboard_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
 
 		BillboardDrawInfo info;
-		info.start_index = static_cast<UINT>(m_vertices.size());
+		info.start_index = static_cast<UINT>(m_vertices[level_type].size());
 		info.num_of_draw_data = static_cast<UINT>(vertices.size());
-		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_vertices));
-		info.fix_up_start_index = static_cast<UINT>(m_vertices.size());
+		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_vertices[level_type]));
+		info.fix_up_start_index = static_cast<UINT>(m_vertices[level_type].size());
 		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
-		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices));
+		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices[level_type]));
 
 		billboard_resource->AddBillboardDrawInfo(std::move(info));
 	}
 
-	void TextureBillboardRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void TextureBillboardRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UINT new_size = static_cast<UINT>(m_vertices.size());
+		UINT new_size = static_cast<UINT>(m_vertices[level_type].size());
 		if (new_size > 0)
 		{
-			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+			const auto& billboard_resource = FrameResourceManager::GetManager().
+				GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
 			
 			UINT primitive_size = billboard_resource->GetSizeOfBillboardPrimitive();
 			bool is_need_resource_create = false;
@@ -98,15 +99,17 @@ namespace client_fw
 				billboard_resource->SetSizeOfBillboardPrimitive(primitive_size);
 			}
 
-			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices);
-			m_vertices.clear();
+			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices[level_type]);
+			m_vertices[level_type].clear();
 		}
 	}
 
-	void TextureBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, 
+	void TextureBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function)
 	{
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		const auto& billboard_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
+
 		BillboardDrawInfo info = billboard_resource->GetBillboardDrawInfo();
 
 		if (info.num_of_draw_data + info.num_of_draw_fix_up_data != 0)
@@ -159,7 +162,7 @@ namespace client_fw
 	{
 	}
 
-	void MaterialBillboardRenderItem::Update(ID3D12Device* device)
+	void MaterialBillboardRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		std::vector<BillboardVertex> vertices;
 		std::vector<BillboardVertex> fix_up_vertices;
@@ -181,25 +184,27 @@ namespace client_fw
 			}
 		}
 
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		const auto& billboard_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
 
 		BillboardDrawInfo info;
-		info.start_index = static_cast<UINT>(m_vertices.size());
+		info.start_index = static_cast<UINT>(m_vertices[level_type].size());
 		info.num_of_draw_data = static_cast<UINT>(vertices.size());
-		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_vertices));
-		info.fix_up_start_index = static_cast<UINT>(m_vertices.size());
+		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_vertices[level_type]));
+		info.fix_up_start_index = static_cast<UINT>(m_vertices[level_type].size());
 		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
-		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices));
+		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_vertices[level_type]));
 
 		billboard_resource->AddBillboardDrawInfo(std::move(info));
 	}
 
-	void MaterialBillboardRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void MaterialBillboardRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UINT new_size = static_cast<UINT>(m_vertices.size());
+		UINT new_size = static_cast<UINT>(m_vertices[level_type].size());
 		if (new_size > 0)
 		{
-			const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+			const auto& billboard_resource = FrameResourceManager::GetManager().
+				GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
 
 			UINT primitive_size = billboard_resource->GetSizeOfBillboardPrimitive();
 			bool is_need_resource_create = false;
@@ -216,15 +221,17 @@ namespace client_fw
 				billboard_resource->SetSizeOfBillboardPrimitive(primitive_size);
 			}
 
-			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices);
-			m_vertices.clear();
+			billboard_resource->GetBillboardPrimitive()->UpdateVertices(m_vertices[level_type]);
+			m_vertices[level_type].clear();
 		}
 	}
 
-	void MaterialBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, 
+	void MaterialBillboardRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function)
 	{
-		const auto& billboard_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name);
+		const auto& billboard_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetBillboardFrameResource(m_owner_shader_name, level_type);
+
 		BillboardDrawInfo info = billboard_resource->GetBillboardDrawInfo();
 
 		if (info.num_of_draw_data + info.num_of_draw_fix_up_data != 0)

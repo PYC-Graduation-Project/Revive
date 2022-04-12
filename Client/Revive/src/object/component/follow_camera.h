@@ -1,5 +1,5 @@
 #pragma once
-#include <client/object/component/util/camera_component.h>
+#include <client/object/component/util/render_camera_component.h>
 
 namespace revive
 {
@@ -7,11 +7,10 @@ namespace revive
 
 	//3인칭 카메라를 사용하기위해 CameraComponent를 상속하여 사용함
 
-	class FollowCamera : public CameraComponent
+	class FollowCamera : public RenderCameraComponent
 	{
 	public:
-		FollowCamera(const std::string& name = "Follow Camera",
-			eCameraUsage usage = eCameraUsage::kBasic);
+		FollowCamera(const std::string& name = "Follow Camera");
 		virtual ~FollowCamera() = default;
 
 		//virtual bool Initialize() override;
