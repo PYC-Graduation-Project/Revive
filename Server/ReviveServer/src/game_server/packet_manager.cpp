@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "packet_manager.h"
-#include"db.h"
-#include"moveobj_manager.h"
-#include"room_manager.h"
-#include"room.h"
-#include"enemy.h"
-#include"map_manager.h"
-#include"lua_functions.h"
-#include"Astar.h"
+#include"database/db.h"
+#include"object/moveobj_manager.h"
+#include"room/room_manager.h"
+#include"room/room.h"
+#include"object/move_objects/enemy.h"
+#include"map/map_manager.h"
+#include"lua/functions/lua_functions.h"
+#include"util/Astar.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
@@ -28,7 +28,7 @@ void PacketManager::Init()
 	MoveObjManager::GetInst()->InitPlayer();
 	MoveObjManager::GetInst()->InitNPC();
 	m_room_manager->InitRoom();
-	m_map_manager->LoadMap("map.txt");
+	m_map_manager->LoadMap("src/map/map.txt");
 	m_db->Init();
 	
 	m_db2->Init();

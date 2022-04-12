@@ -405,7 +405,9 @@ Client/**/Contents/
 
 # PYC files
 *.log
-
+*.tlog
+*.recipe
+*.idb
 # Visual Studio files and folder
 .vs/
 **.sln

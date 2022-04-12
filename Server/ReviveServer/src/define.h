@@ -4,9 +4,9 @@
 #include <MSWSock.h>
 #include<chrono>
 #include<concurrent_priority_queue.h>
-#include"state.h"
-#include"vec3.h"
-#include"vec4.h"
+#include"util/state.h"
+#include"util/vec3.h"
+#include"util/vec4.h"
 #include"protocol.h"
 
 
@@ -18,7 +18,7 @@ extern "C" {
 #include "include\lualib.h"
 }
 
-#pragma comment (lib, "lua54.lib")
+#pragma comment (lib, "lib/lua54.lib")
 
 const int BUFSIZE = 256;
 

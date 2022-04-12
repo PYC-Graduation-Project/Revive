@@ -1,5 +1,5 @@
 #pragma once
-#include"object.h"
+#include"../object.h"
 class MapObj : public Object 
 {
 public:

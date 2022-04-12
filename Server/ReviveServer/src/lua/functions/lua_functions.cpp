@@ -1,7 +1,7 @@
 #include"pch.h"
 #include"lua_functions.h"
-#include"moveobj_manager.h"
-#include"packet_manager.h"
+#include"object/moveobj_manager.h"
+#include"game_server/packet_manager.h"
 using namespace std;
 int API_get_x(lua_State* L)
 {
@@ -45,16 +45,16 @@ int API_test_lua(lua_State* L)
 
 int API_attack(lua_State* L)
 {
-	int target_id = lua_tointeger(L, -1);
-	int npc_id = lua_tointeger(L, -2);
+	int target_id = (int)lua_tointeger(L, -1);
+	int npc_id = (int)lua_tointeger(L, -2);
 	lua_pop(L, 3);
 	return 0;
 }
 
 int API_move(lua_State* L)
 {
-	int target_id = lua_tointeger(L, -1);
-	int npc_id = lua_tointeger(L, -2);
+	int target_id = (int)lua_tointeger(L, -1);
+	int npc_id = (int)lua_tointeger(L, -2);
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
 	en->SetTargetId(target_id);

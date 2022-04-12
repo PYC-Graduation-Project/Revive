@@ -1,8 +1,8 @@
 #pragma once
 #include<array>
-#include"player.h"
+#include"move_objects/player.h"
 #include<unordered_set>
-#include"enemy.h"
+#include"move_objects/enemy.h"
 class MoveObjManager
 {
 private:

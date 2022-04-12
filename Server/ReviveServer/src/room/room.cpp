@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "room.h"
-#include"object.h"
+#include"object/object.h"
 
 Room::Room(int room_id):room_id(room_id),max_user(0),max_npc(0)
 {

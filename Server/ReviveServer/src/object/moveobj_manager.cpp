@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "moveobj_manager.h"
-#include"lua_functions.h"
+#include"lua/functions/lua_functions.h"
 MoveObjManager* MoveObjManager::m_pInst = nullptr;
 
 using namespace std;

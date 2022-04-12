@@ -1,5 +1,5 @@
 #pragma once
-#include"object.h"
+#include"../object.h"
 
 //플레이어와 npc의 부모
 class MoveObj :public Object
