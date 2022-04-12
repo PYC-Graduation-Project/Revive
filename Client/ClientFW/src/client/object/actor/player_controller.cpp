@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "client/object/actor/player_controller.h"
 #include "client/input/input.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/render_camera_component.h"
 #include "client/object/actor/pawn.h"
 #include "client/object/level/gamemode/game_mode_base.h"
 #include "client/object/level/core/level_manager.h"
@@ -12,7 +12,7 @@ namespace client_fw
 	PlayerController::PlayerController(const std::string& name)
 		: Controller(name)
 	{
-		m_original_camera_component = CreateSPtr<CameraComponent>();
+		m_original_camera_component = CreateSPtr<RenderCameraComponent>();
 	}
 
 	PlayerController::~PlayerController()
@@ -84,12 +84,12 @@ namespace client_fw
 			RegisterInputEvent(event_name);
 	}
 
-	const SPtr<CameraComponent>& PlayerController::GetPlayerCamera() const
+	const SPtr<RenderCameraComponent>& PlayerController::GetPlayerCamera() const
 	{
 		return (m_custom_camera_component == nullptr) ? m_original_camera_component : m_custom_camera_component;
 	}
 
-	void PlayerController::SetPlayerCamera(const SPtr<CameraComponent>& camera_comp)
+	void PlayerController::SetPlayerCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		m_custom_camera_component = camera_comp;
 		SetControlledCamera(m_custom_camera_component);
@@ -126,7 +126,7 @@ namespace client_fw
 		Controller::UnPossess();
 	}
 
-	void PlayerController::SetControlledCamera(const SPtr<CameraComponent>& camera_comp)
+	void PlayerController::SetControlledCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		const auto& cur_level = LevelManager::GetLevelManager().GetCurrentLevel();
 		if (cur_level != nullptr &&

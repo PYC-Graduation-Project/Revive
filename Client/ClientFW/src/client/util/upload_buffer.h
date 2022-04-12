@@ -69,6 +69,16 @@ namespace client_fw
 			memcpy(&m_mapped_data[index * m_byte_size], &data, sizeof(T));
 		}
 
+		void CopyVectorData(const std::vector<T>& data)
+		{
+			memcpy(&m_mapped_data[0], data.data(), sizeof(T) * data.size());
+		}
+
+		void CopyVectorData(std::vector<T>&& data)
+		{
+			memcpy(&m_mapped_data[0], data.data(), sizeof(T) * data.size());
+		}
+
 	private:
 		ComPtr<ID3D12Resource> m_resource_buffer;
 		BYTE* m_mapped_data = nullptr;

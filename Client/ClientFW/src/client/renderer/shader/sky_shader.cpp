@@ -14,7 +14,7 @@ namespace client_fw
 
 	void SkyShader::Initialize(ID3D12Device* device)
 	{
-		m_sky_render_item->Initialize(device);
+		m_sky_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void SkyShader::Shutdown()
@@ -27,16 +27,16 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			m_sky_render_item->Update(device);
+			m_sky_render_item->Update(device, level_type);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void SkyShader::UpdateFrameResource(ID3D12Device* device)
+	void SkyShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		m_sky_render_item->UpdateFrameResource(device);
+		m_sky_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void SkyShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -44,7 +44,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			m_sky_render_item->Draw(command_list,
+			m_sky_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				},
@@ -114,7 +114,7 @@ namespace client_fw
 	D3D12_RASTERIZER_DESC SkyShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_RASTERIZER_DESC desc = GraphicsShader::CreateRasterizerState(level_type, pso_index);
-		desc.CullMode = D3D12_CULL_MODE_NONE;
+		desc.CullMode = D3D12_CULL_MODE_FRONT;
 		return desc;
 	}
 

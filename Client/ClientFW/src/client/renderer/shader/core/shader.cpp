@@ -39,4 +39,9 @@ namespace client_fw
 	{
 		LOG_ERROR("Could not create {0}'s {1} PSO [{2}]", m_name, Render::ConvertRenderLevelType(level_type), index);
 	}
+
+	void Shader::AddRegisteredRenderLevelType(eRenderLevelType level_type)
+	{
+		m_registered_render_levels.push_back(level_type);
+	}
 }

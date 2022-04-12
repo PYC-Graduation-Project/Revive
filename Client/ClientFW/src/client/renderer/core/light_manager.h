@@ -15,7 +15,9 @@ namespace client_fw
 		~LightManager();
 
 		LightManager(const LightManager&) = delete;
+		LightManager(LightManager&&) = delete;
 		LightManager& operator=(const LightManager&) = delete;
+		LightManager& operator=(LightManager&&) = delete;
 
 		void Shutdown();
 		void Update(ID3D12Device* device);
@@ -31,6 +33,7 @@ namespace client_fw
 		{
 			lights.push_back(std::static_pointer_cast<T>(light_comp));
 			++m_num_of_light;
+			++m_num_of_shadow_texture;
 		}
 
 		template <class T>
@@ -42,12 +45,14 @@ namespace client_fw
 				std::iter_swap(iter, lights.end() - 1);
 				lights.pop_back();
 				--m_num_of_light;
+				--m_num_of_shadow_texture;
 			}
 		}
 			
 	private:
 		static LightManager* s_light_manager;
 		UINT m_num_of_light = 0;
+		UINT m_num_of_shadow_texture = 0;
 		std::vector<SPtr<DirectionalLightComponent>> m_directional_lights;
 		std::vector<SPtr<PointLightComponent>> m_point_lights;
 		std::vector<SPtr<SpotLightComponent>> m_spot_lights;
@@ -56,6 +61,9 @@ namespace client_fw
 		static LightManager& GetLightManager() { return *s_light_manager; }
 		UINT GetNumOfLight() const { return m_num_of_light; }
 		const std::vector<SPtr<DirectionalLightComponent>>& GetDirectionalLights() const { return m_directional_lights; }
+
+	private:
+		static std::array<Mat4, 1> s_uv_from_ndc_matrix;
 	};
 }
 

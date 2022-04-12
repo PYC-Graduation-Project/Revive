@@ -3,7 +3,7 @@
 #include "client/util/octree/octree.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/core/camera_component.h"
 #include "client/object/component/core/render_component.h"
 #include "client/physics/core/bounding_mesh.h"
 

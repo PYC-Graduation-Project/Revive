@@ -11,22 +11,32 @@ namespace client_fw
             const std::string& draw_shader_name = Render::ConvertShaderType(eShaderType::kSpotLight));
         virtual ~SpotLightComponent() = default;
 
+        virtual bool Initialize() override;
+
     private:
         virtual void UpdateWorldMatrix() override;
         virtual void UpdateLocalMatrix() override;
         virtual void UpdateOrientedBox() override;
 
     private:
-        float m_attenuation_radius = 1000.0f;
         float m_cone_inner_angle = math::ToRadian(0.0f); 
         float m_cone_outer_angle = math::ToRadian(44.0f); 
 
     public:
-        float GetAttenuationRadius() const { return m_attenuation_radius; }
-        void SetAttenuationRadius(float radius);
         float GetConeInnerAngle() const { return m_cone_inner_angle; }
         void SetConeInnerAngle(float degrees);
         float GetConeOuterAngle() const { return m_cone_outer_angle; }
         void SetConeOuterAngle(float degrees);
+
+    private:
+        SPtr<ShadowCameraComponent> m_shadow_camera;
+
+    private:
+        virtual void UpdateShadowTextureSize() override;
+        virtual void UpdateShadowCameraProjection() override;
+
+    public:
+        const SPtr<ShadowCameraComponent>& GetShadowCamera() const { return m_shadow_camera; }
+
     };
 }

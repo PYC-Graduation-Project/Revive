@@ -42,14 +42,14 @@ namespace render_test
 			});
 
 
-		Render::RegisterGraphicsShader<RenderRectShader>("render rect shader", eRenderLevelType::kOpaque);
+		Render::RegisterGraphicsShader<RenderRectShader>("render rect shader", { eRenderLevelType::kOpaque });
 
 		return true;
 	}
 
 	void RenderRectLevel::Shutdown()
 	{
-		Render::UnregisterGraphicsShader("render rect shader", eRenderLevelType::kOpaque);
+		Render::UnregisterGraphicsShader("render rect shader", { eRenderLevelType::kOpaque });
 	}
 
 	void RenderRectLevel::Update(float delta_time)

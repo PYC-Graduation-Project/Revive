@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+    constexpr static float s_max_attenuation_radius = 4096;
+
     class LocalLightComponent : public LightComponent
     {
     protected:
@@ -10,8 +12,20 @@ namespace client_fw
             const std::string& draw_shader_name);
         virtual ~LocalLightComponent() = default;
 
+        virtual bool Initialize() override;
+
         virtual void RegisterToVisualOctree() override;
         virtual void UnregisterFromVisualOctree() override;
+
+    protected:
+        float m_attenuation_radius = 1000.0f;
+
+    public:
+        float GetAttenuationRadius() const { return m_attenuation_radius; }
+        void SetAttenuationRadius(float radius);
+
+    private:
+        virtual void UpdateShadowCameraProjection() {}
     };
 
 }
