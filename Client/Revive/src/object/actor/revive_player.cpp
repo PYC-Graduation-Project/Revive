@@ -5,9 +5,11 @@
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
+#include <client/object/component/util/camera_component.h>
+#include <client/object/component/util/character_movement_component.h>
+#include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
-#include "object/component/follow_camera.h"
 #include "object/statemachine/state_machine.h"
 #include "object/actor/projectile.h"
 #include "object/actor/revive_player.h"
@@ -17,8 +19,8 @@ namespace revive
 	RevivePlayer::RevivePlayer(const std::string& name)
 		: Pawn(name)
 	{
-		m_camera_component = CreateSPtr<FollowCamera>("Follow Camera", eCameraUsage::kBasic);
-		m_movement_component = CreateSPtr<SimpleMovementComponent>();
+		m_camera_component = CreateSPtr<CameraComponent>("Follow Camera");
+		m_movement_component = CreateSPtr<CharacterMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
@@ -31,10 +33,13 @@ namespace revive
 		bool ret = true;
 
 		ret &= Pawn::Initialize();
-		m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)
+
 		ret &= AttachComponent(m_movement_component);
+		m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)
+		m_movement_component->UseOrientRotationToMovement(true);
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
+		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(0.01f);
 
@@ -46,9 +51,9 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8, 
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
 
-		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_player_fsm->Initialize(SharedFromThis());
 		
+		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
 		m_blocking_sphere->SetCollisionInfo(true, false, "default", { "default" }, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -56,14 +61,19 @@ namespace revive
 			FixYPosition();
 			LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 			});
-		ret &= AttachComponent(m_blocking_sphere);
 			
+		const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
+		if (player_controller != nullptr)
+			player_controller->SetPlayerCamera(m_camera_component);
 		ret &= AttachComponent(m_camera_component);
-	
+		m_camera_component->UseControllerRotation(true);
+		m_camera_component->SetLocalPosition(Vec3(0.0f, 200.0f, -500.0f));
+
 		RegisterEvent();
 		
 		SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 		SetScale(0.5f);
+
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);
 		SetUseControllerRoll(false);
@@ -97,7 +107,6 @@ namespace revive
 	void RevivePlayer::SetAnimation(const std::string& animation_name, bool looping)
 	{
 		m_skeletal_mesh_component->SetAnimation(animation_name, looping);
-		
 	}
 
 	void RevivePlayer::SetAnimationSpeed(float speed)
@@ -136,34 +145,12 @@ namespace revive
 		RegisterPressedEvent("attack", { {eKey::kLButton} },
 			[this]()->bool {  if (m_is_attacking == false)
 			m_is_attacking = true; return true; });
-
-		//이동 및 조작
-		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetForward(), axis); return true; });
-
-		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
-			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
-
 		
-		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
-			[this](float axis)->bool {
-			IVec2 relative_pos = Input::GetRelativeMousePosition();
-			return AddControllerYawInput(axis * relative_pos.x);
-		});
-
-		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
-			[this](float axis)->bool {
-			IVec2 relative_pos = Input::GetRelativeMousePosition();
-			MinPitch();
-			return AddControllerPitchInput(axis * relative_pos.y);
-		});
 	}
 
-	void RevivePlayer::AddMovementInput(Vec3& direction, float scale)
+	void RevivePlayer::AddMovementInput(const Vec3& direction, float scale)
 	{
-		direction.y = 0;
-		RotatePlayerFromCameraDirection(direction * scale);
-		m_movement_component->AddInputVector(direction * scale);
+		m_movement_component->AddInputVector(Vec3{ direction.x,0.0f,direction.z } * scale);
 	}
 
 	void RevivePlayer::RotatePlayerFromCameraDirection(Vec3& dest_direction)

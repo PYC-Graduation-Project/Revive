@@ -1,4 +1,5 @@
 #pragma once
+#include <client/object/level/gamemode/game_mode_base.h>
 
 namespace revive 
 {
@@ -10,12 +11,8 @@ namespace revive
 	{
 	public:
 		ReviveGameMode();
-		virtual ~ReviveGameMode();
+		virtual ~ReviveGameMode() = default;
 
-		virtual bool Initialize(const SPtr<Level>& level);
-		virtual void Shutdown();
-	private:
-		SPtr<RevivePlayer> m_player;
 	};
 
 }

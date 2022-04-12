@@ -6,7 +6,7 @@
 #include <client/util/octree/octree.h>
 #include "object/level/game_play_level.h"
 #include <client/object/level/gamemode/game_mode_base.h>
-#include "object/level/revive_game_mode.h"
+#include "object/gamemode/revive_game_mode.h"
 
 namespace revive
 {

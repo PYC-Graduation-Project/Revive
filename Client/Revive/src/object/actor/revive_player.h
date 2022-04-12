@@ -8,7 +8,9 @@ namespace client_fw
 	class SkeletalMeshComponent;
 	class BoxComponent;
 	class SphereComponent;
+	class CameraComponent;
 	class SimpleMovementComponent;
+	class CharacterMovementComponent;
 }
 
 namespace revive
@@ -16,7 +18,6 @@ namespace revive
 	using namespace client_fw;
 
 	class PlayerFSM;
-	class FollowCamera;
 
 	class RevivePlayer : public Pawn
 	{
@@ -30,7 +31,7 @@ namespace revive
 
 		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
 
-		const SPtr<FollowCamera>& GetCameraComponent() { return m_camera_component; }
+		const SPtr<CameraComponent>& GetCameraComponent() { return m_camera_component; }
 		const float GetVelocity() const;
 		const int GetHP() const { return m_hp; }
 		const int GetHitCount() const { return m_hit_count; }
@@ -53,8 +54,8 @@ namespace revive
 		bool m_is_attacking = false;
 		bool m_is_hitting = false;
 
+		virtual void AddMovementInput(const Vec3& direction, float scale) override;
 		void RegisterEvent(); //등록할 것이 많아져서 따로 분리했다.
-		void AddMovementInput(Vec3& direction, float scale);
 		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
 		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
 		void FixYPosition();
@@ -65,10 +66,10 @@ namespace revive
 		SPtr<PlayerFSM> m_player_fsm; 
 
 		std::string m_mesh_path;
-		SPtr<SimpleMovementComponent> m_movement_component;
+		SPtr<CharacterMovementComponent> m_movement_component;
 		SPtr<SphereComponent> m_blocking_sphere;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
-		SPtr<FollowCamera> m_camera_component;
+		SPtr<CameraComponent> m_camera_component;
 
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;
@@ -76,6 +77,7 @@ namespace revive
 
 		SPtr<RevivePlayer> SharedFromThis() { return std::static_pointer_cast<RevivePlayer>(shared_from_this()); }
 	};
+
 	class DefaultCharacter : public DefaultPawn
 	{
 	public:
