@@ -46,7 +46,7 @@ namespace client_fw
 		bool IsVisible() const { return m_visibility; }
 		// SetVisibility 함수는 Frustum culling을 통해서 camera에 대해 그려지는지 여부를 주는 변수입니다.
 		// 따라서 사용자가 이 함수를 호출해도 rendering에 원하는 대로 영향을 줄 수 없습니다.
-		void SetVisiblity(bool value) { m_visibility = value; }
+		virtual void SetVisiblity(bool value) { m_visibility = value; }
 
 		bool IsHiddenInGame() const { return m_hidden_in_game; }
 		// 사용자가 이 RenderComponent를 화면에 그리고 싶지 않다면 이 함수를 호출하면 됩니다.

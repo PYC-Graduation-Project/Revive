@@ -227,6 +227,8 @@ namespace client_fw
 					shadow_function(command_list);
 					shadow_texture->PostDraw(command_list);
 				}
+
+				camera->SetPaused();
 			}
 			++index;
 		}
