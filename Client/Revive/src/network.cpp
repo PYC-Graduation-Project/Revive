@@ -1,6 +1,10 @@
 #include"stdafx.h"
 #include "network.h"
+<<<<<<< Updated upstream:Client/ClientFW/src/server/network.cpp
 #include<client/core/application.h>
+=======
+#include"packet_manager.h"
+>>>>>>> Stashed changes:Client/Revive/src/network.cpp
 using namespace std;
 Network* Network::m_pInst = NULL;
 

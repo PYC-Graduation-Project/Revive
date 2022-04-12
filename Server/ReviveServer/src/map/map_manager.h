@@ -37,6 +37,11 @@ public:
 		}
 		return MapObj();
 	}
+	Vector3 PLAYER_SPAWN_POINT[3]{ //임시 하드코딩
+	{2350.0f,300.0f,3150.0f},
+	{2450.0f,300.0f,3150.0f},
+	{2400.0f,300.0f,3150.0f}
+	};
 private:
 	std::vector<MapObj>m_map_objects;
 	MapTile m_tile_map[36][16];

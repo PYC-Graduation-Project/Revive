@@ -12,8 +12,8 @@ public:
 		m_ground_pos = Vector3(pos.x, pos.y - extent.y, pos.z);
 		SetMinPos();
 		SetMaxPos();
-		std::cout << m_min_pos << std::endl;
-		std::cout << m_max_pos << std::endl;
+		//std::cout << m_min_pos << std::endl;
+		//std::cout << m_max_pos << std::endl;
 		
 	};
 	MapObj() = default;

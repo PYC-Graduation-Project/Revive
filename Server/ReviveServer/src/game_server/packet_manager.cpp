@@ -79,14 +79,12 @@ void PacketManager::ProcessAccept(HANDLE hiocp ,SOCKET& s_socket,EXP_OVER*exp_ov
 		std::cout << "Maxmum user overflow. Accept aborted.\n";
 		SendLoginFailPacket(c_socket, static_cast<int>(LOGINFAIL_TYPE::FULL));
 	}
-	else {//다시제작
+	else {
 		Player* cl = MoveObjManager::GetInst()->GetPlayer(new_id);
 		cl->SetID(new_id);
 		cl->Init(c_socket);
 		CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), hiocp, new_id, 0);
 		cl->DoRecv();
-		//g_timer_queue.push(SetTimerEvent(new_id, new_id,
-		//	EVENT_TYPE::EVENT_TIME, 1000));
 	}
 
 	ZeroMemory(&exp_over->_wsa_over, sizeof(exp_over->_wsa_over));
@@ -634,14 +632,14 @@ void PacketManager::StartGame(int room_id)
 	
 	Enemy* e = NULL;
 	Player* pl = NULL;
-	Vector3 pos = Vector3(0.0f, 0.0f, 0.0f);//npc 초기화용 위치 추후수정
+	Vector3 pos = Vector3(0.0f, 300.0f, 0.0f);//npc 초기화용 위치 추후수정
 	vector<int>obj_list{ room->GetObjList().begin(),room->GetObjList().end() };
 	for (int i=0; i<obj_list.size(); ++i )
 	{
 		if (i<room->GetMaxUser())
 		{
 			pl = MoveObjManager::GetInst()->GetPlayer(obj_list[i]);
-			pl->SetPos(PLAYER_SPAWN_POINT[i]);
+			pl->SetPos(m_map_manager->PLAYER_SPAWN_POINT[i]);
 			continue;
 		}
 		e = MoveObjManager::GetInst()->GetEnemy(obj_list[i]);
@@ -650,30 +648,13 @@ void PacketManager::StartGame(int room_id)
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
-			MoveObjManager::GetInst()->InitLua("enemy_sordier.lua",e->GetID());
-			e->lua_lock.lock();
-			lua_State* L = e->GetLua();
-			lua_getglobal(L, "event_test");
-			lua_pushnumber(L, e->GetID());
-			int error_num = lua_pcall(L, 1, 0, 0);
-			if(error_num)
-				MoveObjManager::LuaErrorDisplay(L, error_num);
-			e->lua_lock.unlock();
+			MoveObjManager::GetInst()->InitLua("src/lua/script/enemy_sordier.lua",e->GetID());
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
-			MoveObjManager::GetInst()->InitLua("enemy_king.lua",e->GetID());
-			e->lua_lock.lock();
-			lua_State* L = e->GetLua();
-			lua_getglobal(L, "event_test");
-			lua_pushnumber(L,e->GetID());
-			cout << "루아에 넣어주는 npc_id:" << e->GetID() << endl;
-			int error_num=lua_pcall(L, 1, 0, 0);
-			if(error_num)
-				MoveObjManager::LuaErrorDisplay(L, error_num);
-			e->lua_lock.unlock();
+			MoveObjManager::GetInst()->InitLua("src/lua/script/enemy_king.lua",e->GetID());
 			
 		}
 	}
@@ -797,6 +778,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 		while (true) {
 			timer_event ev;
 			if (!g_timer_queue.try_pop(ev))continue;
+			
 			auto start_t = chrono::system_clock::now();
 			if (ev.start_time <= start_t) {
 				ProcessEvent(hiocp,ev);
@@ -817,6 +799,7 @@ void PacketManager::ProcessTimer(HANDLE hiocp)
 }
 void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 {
+	
 	EXP_OVER* ex_over = new EXP_OVER;
 	switch (ev.ev) {
 	case EVENT_TYPE::EVENT_NPC_SPAWN:

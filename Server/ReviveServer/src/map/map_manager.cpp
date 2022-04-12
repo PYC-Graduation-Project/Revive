@@ -154,25 +154,25 @@ void MapManager::BlockTileMap()
 			}
 		}
 	}
-	for (int i = 0; i < 36; ++i)
-	{
-		for (int j = 0; j < 16; ++j)
-		{
-			if (m_tile_map[i][j].type == MAP_OBJ_TYPE::BLOCK)
-			{
-				cout << "1";
-			}
-			else if (m_tile_map[i][j].type == MAP_OBJ_TYPE::UNBLOCK)
-			{
-				cout << "2";
-			}
-			else
-			{
-				cout << "0";
-			}
-		}
-		cout << endl;
-	}
+	//for (int i = 0; i < 36; ++i)
+	//{
+	//	for (int j = 0; j < 16; ++j)
+	//	{
+	//		if (m_tile_map[i][j].type == MAP_OBJ_TYPE::BLOCK)
+	//		{
+	//			cout << "1";
+	//		}
+	//		else if (m_tile_map[i][j].type == MAP_OBJ_TYPE::UNBLOCK)
+	//		{
+	//			cout << "2";
+	//		}
+	//		else
+	//		{
+	//			cout << "0";
+	//		}
+	//	}
+	//	cout << endl;
+	//}
 }
 
 

@@ -39,16 +39,16 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	error = lua_pcall(L, 6, 0, 0);
 	if (error)
 		MoveObjManager::LuaErrorDisplay(L, error);
+	RegisterAPI(L);
 	
-	lua_register(L, "API_get_x", API_get_x);
-	lua_register(L, "API_get_y", API_get_y);
-	lua_register(L, "API_get_z", API_get_z);
-	lua_register(L, "API_test_lua", API_test_lua);
 }
 
 void MoveObjManager::RegisterAPI(lua_State* L)
 {
-
+	lua_register(L, "API_get_x", API_get_x);
+	lua_register(L, "API_get_y", API_get_y);
+	lua_register(L, "API_get_z", API_get_z);
+	lua_register(L, "API_test_lua", API_test_lua);
 	
 }
 
@@ -88,24 +88,9 @@ int MoveObjManager::GetNewID()
 void MoveObjManager::Disconnect(int c_id)
 {
 	Player* cl = GetPlayer(c_id);
-	//매칭취소 넣기
-	//for (auto& other : my_vl) {
-	//	Player* target = (Player*)clients[other];
-	//	if (true == is_npc(target->id)) continue;
-	//	if (ST_INGAME != target->state)
-	//		continue;
-	//	target->m_vl.lock();
-	//	if (0 != target->m_viewlist.count(c_id)) {
-	//		target->m_viewlist.erase(c_id);
-	//		target->m_vl.unlock();
-	//		target->send_remove_object(c_id);
-	//	}
-	//	else target->m_vl.unlock();
-	//}
-	cl->is_matching = false;
 	cl->state_lock.lock();
 	closesocket(cl->GetSock());
-	cl->SetState ( STATE::ST_FREE);
+	cl->ResetPlayer();
 	cl->state_lock.unlock();
 }
 

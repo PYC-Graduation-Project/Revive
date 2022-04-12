@@ -39,7 +39,8 @@ public:
     void DoSend(int num_bytes, void* mess);
     SOCKET& GetSock() { return m_socket; }
     void Init(SOCKET&);
-    
+    void ResetPlayer();
+
     char* GetPassword() { return m_password; }
     short GetMatchUserSize() { return m_mach_user_size; }
     void SetMatchUserSize(short val) { m_mach_user_size = val; }

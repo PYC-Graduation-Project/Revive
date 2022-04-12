@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "room.h"
 #include"object/object.h"
-
+using namespace std;
 Room::Room(int room_id):room_id(room_id),max_user(0),max_npc(0)
 {
-	m_round_time = 30.0f;
+	m_round_time =chrono::system_clock::now();
 	m_base = new Object;
 }
 
@@ -26,6 +26,11 @@ void Room::EnterRoom(int c_id)
 {
 	m_obj_list.push_back(c_id);
 
+}
+
+void Room::SetRoundTime(int seconds)
+{
+	m_round_time = chrono::system_clock::now() + (1s * seconds);
 }
 
 

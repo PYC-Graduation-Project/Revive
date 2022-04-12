@@ -2,6 +2,7 @@
 #include<vector>
 #include<mutex>
 #include<atomic>
+#include<chrono>
 class Object;
 class Room
 {
@@ -20,10 +21,10 @@ public:
 	int GetMaxUser() { return max_user; }
 	int GetMaxEnemy() { return max_npc; }
 	int GetRound() { return curr_round; }
-	float GetRoundTime() { return m_round_time; }
+	std::chrono::system_clock::time_point GetRoundTime() { return m_round_time; }
 	bool GetState() { return is_ingame; }
 	void SetState(bool val) { is_ingame = val; }
-	void SetRoundTime(float val) { m_round_time = val; }
+	void SetRoundTime(int seconds);
 	void SetRound(int val) { curr_round = val; }
 	std::vector<int>& GetObjList()
 	{
@@ -37,7 +38,7 @@ private:
 	int curr_round;
 	std::mutex m_obj_lock;
 	std::vector<int>m_obj_list;
-	float m_round_time;
+	std::chrono::system_clock::time_point	m_round_time;
 	Object* m_base;//방초기화할때 생성
 };
 
