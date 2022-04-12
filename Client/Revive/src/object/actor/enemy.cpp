@@ -13,8 +13,11 @@ namespace revive
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_blocking_sphere = CreateSPtr<SphereComponent>(32.f, "Blocking Sphere");
 		m_blocking_box = CreateSPtr<BoxComponent>(Vec3{ 32.f,32.f,32.f }, "Blocking Box");
+		m_agro_sphere = CreateSPtr<SphereComponent>(1800.f, "agro sphere");
+		m_attack_sphere = CreateSPtr<SphereComponent>(350.f, "attack sphere");
 		m_mesh_path = mesh_path;
 	}
+
 	bool Enemy::Initialize()
 	{
 		bool ret = true;
@@ -23,6 +26,19 @@ namespace revive
 		m_skeletal_mesh_component->SetAnimation("idle");
 		m_skeletal_mesh_component->SetName(m_name + " Mesh");
 
+		ret &= AttachComponent(m_agro_sphere);
+		m_agro_sphere->SetCollisionInfo(true, false, "agro",{"agro"}, true);
+		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+			const SPtr<SceneComponent>& other_component) {
+			Vec3 direction = GetPosition() - other_actor->GetPosition();
+			direction.Normalize();
+			RotateFromPlayer(direction);
+			//LOG_INFO("시야 범위에 인식된 플레이어 :" + other_actor->GetName());
+		});
+
+		ret &= AttachComponent(m_attack_sphere);
+		m_attack_sphere->SetCollisionInfo(true, false, "player attack", { "player attack" }, true);
+		
 		//Test
 		if (Input::RegisterAxisEvent(m_name +" move forward", { AxisEventKeyInfo{eKey::kUArrow, 1.0f}, AxisEventKeyInfo{eKey::kDArrow, -1.0f} },
 			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ 0.0f,0.0f, axis*100.0f }); return true; }, true, eInputOwnerType::kActor))
@@ -33,13 +49,18 @@ namespace revive
 			RegisterInputEvent(m_name + " move right");
 		return ret;
 	}
+
 	void Enemy::Shutdown()
 	{
 		m_skeletal_mesh_component = nullptr;
 		m_blocking_sphere = nullptr;
+		m_blocking_box = nullptr;
+		m_agro_sphere = nullptr;
+		m_attack_sphere = nullptr;
 		for (auto& hit_box : m_hit_boxes)
 			hit_box = nullptr;
 	}
+
 	void Enemy::Update(float delta_time)
 	{
 		if (m_disappear_time >= 1.0f)
@@ -53,12 +74,29 @@ namespace revive
 		}
 		
 	}
+
 	void Enemy::FixYPosition()
 	{
 		Vec3 current_position = GetPosition();
 		current_position.y = 300;
 		SetPosition(current_position);
 	}
+
+	void Enemy::RotateFromPlayer(const Vec3& direction)
+	{
+		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
+		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
+			angle = -angle;
+		SetRotation(quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f));
+	}
+
+	void Enemy::Attack()
+	{
+		/*LOG_INFO(m_name + "이(가) 공격한다!");*/
+		m_skeletal_mesh_component->SetAnimation("attack", false);
+		m_is_attacking = true;
+	}
+
 	void Enemy::Hit(int damage)
 	{
 		m_skeletal_mesh_component->SetAnimation("hit", false);

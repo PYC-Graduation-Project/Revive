@@ -24,7 +24,7 @@ namespace revive
 		//SimpleMovementComponent::Update 와 유사하나 좀 다르다
 
 		//0.0f이면 가속도는 없다. 중력이 없으면 총알은 등속도 운동을함.
-		m_acceleration.y += -10.0f/*중력가속도라고 친다*/ * m_projectile_gravity_scale; 
+		m_acceleration.y += -1.0f/*중력가속도라고 친다*/ * m_projectile_gravity_scale; 
 		m_velocity += (m_acceleration * delta_time);
 
 		if(m_max_speed > 0.f) 

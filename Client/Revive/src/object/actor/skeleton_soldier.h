@@ -19,12 +19,16 @@ namespace revive
 
 	private:
 		virtual bool SetCollisionComponent() override;
+		virtual void Attack() override;
 
+		Vec3 m_player_position = vec3::ZERO;
+
+		bool m_is_fire = false;
 		int m_animation_select_num = 0;
 		std::array<std::string, 6> m_animation_name =
 		{
 			"appear",
-			"attack(one_hand_sword)",
+			"attack",
 			"death","hit",
 			"idle","sprint"
 		};

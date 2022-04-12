@@ -61,6 +61,7 @@ namespace revive
 	{
 		//LOG_INFO("Dead State");
 		const auto& player = m_player.lock();
+		player->SetIsDying(true);
 		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimation("death", false);
 		//player->SetActorState(eActorState::kDead);

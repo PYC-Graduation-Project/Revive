@@ -1,4 +1,5 @@
 #include <include/client_core.h>
+#include <client/object/component/core/scene_component.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include "object/component/projectile_movement.h"
@@ -50,6 +51,11 @@ namespace revive
 		}
 	}
 
+	void Projectile::SetGravityScale(float gravity_scale)
+	{
+		m_projectile_movement_component->SetProjectileGravityScale(gravity_scale);
+	}
+
 	void Projectile::SetVelocity(const Vec3& velocity)
 	{
 		m_projectile_movement_component->SetVelocity(velocity);
@@ -68,6 +74,11 @@ namespace revive
 	void Projectile::SetBlockingSphereRadius(float radius)
 	{
 		m_sphere_component->SetExtents(radius);
+	}
+
+	const float Projectile::GetSphereRadius() const
+	{
+		return m_sphere_component->GetExtents().y;
 	}
 
 	

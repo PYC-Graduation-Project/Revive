@@ -25,7 +25,6 @@ namespace revive
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
-		
 		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
 	}
 
@@ -56,13 +55,44 @@ namespace revive
 		
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, false, "default", { "default" }, true);
+		m_blocking_sphere->SetCollisionInfo(true, true, "block", { "block" }, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
 			LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 			});
-			
+		
+		const auto& sphere_agro = CreateSPtr<SphereComponent>(32.f,"Is Cognized");
+		sphere_agro->SetCollisionInfo(true, false, "agro", { "agro" }, true);
+		ret &= AttachComponent(sphere_agro);
+		const auto& sphere_attack = CreateSPtr<SphereComponent>(32.f, "Is Attacked");
+		sphere_attack->SetCollisionInfo(true, false, "player attack", { "player attack" }, true);
+		ret &= AttachComponent(sphere_attack);
+
+		//Hit Box
+		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>(Vec3{40.f,40.f,40.f});
+		hit_box_1->SetName("head hit box");
+		hit_box_1->SetLocalPosition(Vec3{ 0.0f,130.f,0.f });
+		m_hit_boxes.emplace_back(hit_box_1);
+		SPtr<BoxComponent> hit_box_2 = CreateSPtr<BoxComponent>(Vec3{ 25.f,30.f,20.f });
+		hit_box_2->SetName("body hit box");
+		hit_box_2->SetLocalPosition(Vec3{ 0.0f,60.f,0.f });
+		m_hit_boxes.emplace_back(hit_box_2);
+		SPtr<BoxComponent> hit_box_3 = CreateSPtr<BoxComponent>(Vec3{ 8.f,15.f,15.f });
+		hit_box_3->SetName("leg hit box");
+		hit_box_3->SetLocalPosition(Vec3{ 10.0f,15.f,-5.f });
+		m_hit_boxes.emplace_back(hit_box_3);
+		SPtr<BoxComponent> hit_box_4 = CreateSPtr<BoxComponent>(Vec3{ 8.f,15.f,15.f });
+		hit_box_4->SetName("leg hit box");
+		hit_box_4->SetLocalPosition(Vec3{ -10.0f,15.f,-5.f });
+		m_hit_boxes.emplace_back(hit_box_4);
+
+		for (const auto& hit_box : m_hit_boxes)
+		{
+			hit_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, false);
+			ret &= AttachComponent(hit_box);
+		}
+
 		const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 		if (player_controller != nullptr)
 			player_controller->SetPlayerCamera(m_camera_component);
@@ -150,6 +180,13 @@ namespace revive
 
 	}
 
+	void RevivePlayer::Hit(int damage)
+	{
+		++m_hit_count; 
+		m_is_hitting = true; 
+		m_hp -= damage;
+	}
+
 	void RevivePlayer::RegisterEvent()
 	{
 		//테스트용 명령키
@@ -159,8 +196,13 @@ namespace revive
 
 		//공격
 		RegisterPressedEvent("attack", { {eKey::kLButton} },
-			[this]()->bool {  if (m_is_attacking == false)
-			m_is_attacking = true; return true; });
+			[this]()->bool {  
+			bool ret = false;
+			if(m_is_dying == false)
+				if (m_is_attacking == false)
+					ret = m_is_attacking = true; 
+			return ret;
+		});
 		
 	}
 

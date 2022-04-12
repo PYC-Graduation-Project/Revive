@@ -29,23 +29,7 @@ namespace revive
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
 
-		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
-
-		const SPtr<CameraComponent>& GetCameraComponent() { return m_camera_component; }
-		const float GetVelocity() const;
-		const int GetHP() const { return m_hp; }
-		const int GetHitCount() const { return m_hit_count; }
-		const bool GetIsAttacking() const { return m_is_attacking; }
-		const bool GetIsHitting() const { return m_is_hitting; }
-		//void SetIsAttacking(bool value) { m_is_attacking = value; }
-		//void SetIsHitting(bool value) { m_is_hitting = value; }
-		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
-		void DecrementHitCount() { m_hit_count--; }
-		void SetAnimation(const std::string& animation_name,bool looping); 
-		void SetAnimationSpeed(float speed);
-		void SetMeshPosition(const Vec3& pos);
-
-		void Attack();
+		
 
 	private:
 		int m_hp = 10;
@@ -53,6 +37,7 @@ namespace revive
 
 		bool m_is_attacking = false;
 		bool m_is_hitting = false;
+		bool m_is_dying = false;
 
 		virtual void AddMovementInput(const Vec3& direction, float scale) override;
 		void RegisterEvent(); //등록할 것이 많아져서 따로 분리했다.
@@ -70,12 +55,34 @@ namespace revive
 		SPtr<SphereComponent> m_blocking_sphere;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<CameraComponent> m_camera_component;
+		std::vector<SPtr<BoxComponent>> m_hit_boxes;
 
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;
 		using Pawn::SetUseControllerRoll;
 
 		SPtr<RevivePlayer> SharedFromThis() { return std::static_pointer_cast<RevivePlayer>(shared_from_this()); }
+	public:
+		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
+
+		const SPtr<CameraComponent>& GetCameraComponent() { return m_camera_component; }
+		const float GetVelocity() const;
+		const int GetHP() const { return m_hp; }
+		const int GetHitCount() const { return m_hit_count; }
+		const bool GetIsAttacking() const { return m_is_attacking; }
+		const bool GetIsHitting() const { return m_is_hitting; }
+		const bool GetIsDying() const { return m_is_dying; }
+		void SetIsDying(bool value) { m_is_dying = value; }
+		//void SetIsAttacking(bool value) { m_is_attacking = value; }
+		//void SetIsHitting(bool value) { m_is_hitting = value; }
+		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
+		void DecrementHitCount() { m_hit_count--; }
+		void SetAnimation(const std::string& animation_name, bool looping);
+		void SetAnimationSpeed(float speed);
+		void SetMeshPosition(const Vec3& pos);
+
+		void Attack();
+		void Hit(int damage = 1);
 	};
 
 	class DefaultCharacter : public DefaultPawn
