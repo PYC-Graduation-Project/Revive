@@ -90,9 +90,17 @@ namespace client_fw
 		ZeroMemory(&pso_desc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		pso_desc.pRootSignature = render_level->GetRootSignature()->GetRootSignature();
 		pso_desc.SampleMask = UINT_MAX;
-		pso_desc.NumRenderTargets = static_cast<UINT>(render_level->GetRTVFormats().size());
-		for (UINT i = 0; i < pso_desc.NumRenderTargets; ++i)
-			pso_desc.RTVFormats[i] = render_level->GetRTVFormats()[i];
+		if (render_level->GetRTVFormats().empty())
+		{
+			pso_desc.NumRenderTargets = 0;
+			pso_desc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+		}
+		else
+		{
+			pso_desc.NumRenderTargets = static_cast<UINT>(render_level->GetRTVFormats().size());
+			for (UINT i = 0; i < pso_desc.NumRenderTargets; ++i)
+				pso_desc.RTVFormats[i] = render_level->GetRTVFormats()[i];
+		}
 		pso_desc.DSVFormat = render_level->GetDSVFormat();
 		pso_desc.SampleDesc.Count = D3DUtil::s_is_use_4x_mass ? 4 : 1;
 		pso_desc.SampleDesc.Quality = D3DUtil::s_is_use_4x_mass ? D3DUtil::s_4x_msaa_quality - 1 : 0;
@@ -195,27 +203,12 @@ namespace client_fw
 
 	void MeshShader::Initialize(ID3D12Device* device)
 	{
-		m_render_item->Initialize(device);
+		m_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void MeshShader::Shutdown()
 	{
 		m_render_item->Shutdown();
-	}
-
-	void MeshShader::UpdateRenderItem(ID3D12Device* device)
-	{
-		m_render_item->Update(device);
-	}
-
-	void MeshShader::UpdateRenderItemResource(ID3D12Device* device)
-	{
-		m_render_item->UpdateFrameResource(device);
-	}
-
-	void MeshShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list) const
-	{
-		m_render_item->Draw(command_list);
 	}
 
 	bool MeshShader::RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp)
@@ -282,28 +275,12 @@ namespace client_fw
 
 	void BillboardShader::Initialize(ID3D12Device* device)
 	{
-		m_billboard_render_item->Initialize(device);
+		m_billboard_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void BillboardShader::Shutdown()
 	{
 		m_billboard_render_item->Shutdown();
-	}
-
-	void BillboardShader::UpdateRenderItem(ID3D12Device* device)
-	{
-		m_billboard_render_item->Update(device);
-	}
-
-	void BillboardShader::UpdateRenderItemResource(ID3D12Device* device)
-	{
-		m_billboard_render_item->UpdateFrameResource(device);
-	}
-
-	void BillboardShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list,
-		std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) const
-	{
-		m_billboard_render_item->Draw(command_list, std::move(draw_function), std::move(fix_up_draw_function));
 	}
 
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE BillboardShader::GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const

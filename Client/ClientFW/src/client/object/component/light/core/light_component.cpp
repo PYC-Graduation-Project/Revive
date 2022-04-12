@@ -11,6 +11,15 @@ namespace client_fw
 	{
 	}
 
+	bool LightComponent::Initialize()
+	{
+		bool ret = RenderComponent::Initialize();
+
+		UpdateShadowTextureSize();
+
+		return ret;
+	}
+
 	void LightComponent::RegisterToVisualOctree()
 	{
 	}

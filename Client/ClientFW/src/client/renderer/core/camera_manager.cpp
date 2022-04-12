@@ -5,7 +5,8 @@
 #include "client/renderer/frameresource/core/frame_resource_manager.h"
 #include "client/renderer/frameresource/core/frame_resource.h"
 #include "client/renderer/frameresource/camera_frame_resource.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/render_camera_component.h"
+#include "client/object/component/util/shadow_camera_component.h"
 #include "client/asset/texture/texture.h"
 #include "client/renderer/core/mesh_visualizer.h"
 #include "client/util/upload_buffer.h"
@@ -27,7 +28,19 @@ namespace client_fw
 	{
 	}
 
-	void CameraManager::Update(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
+	void CameraManager::Update(ID3D12Device* device,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera)
+	{
+		UpdateRenderCameras(device);
+		UpdateShadowCameras(device);
+
+		UpdateCameraResource(device,
+			std::move(update_shader_function_for_render_camera),
+			std::move(update_shader_function_for_shadow_camera));
+	}
+
+	void CameraManager::UpdateRenderCameras(ID3D12Device* device)
 	{
 		if (m_ready_main_camera != nullptr && m_ready_main_camera->GetRenderTexture() != nullptr &&
 			m_main_camera != m_ready_main_camera)
@@ -43,41 +56,65 @@ namespace client_fw
 		// wait 카메라는 camera render texture가 초기화 되는 시점이 CamaraManger의 Update호출 후,
 		// Draw함수 호출 전이기 때문에 Update한 카메라의 수와 Draw한 카메라의 수가 다르면 오류가 나기 때문에
 		// 이렇게 wait camera 변수를 통해 기다려 주는 것이다.
-		if (m_wait_resource_cameras[eCameraUsage::kBasic].empty() == false)
+		if (m_wait_resource_render_cameras.empty() == false)
 		{
-			for (const auto& camera : m_wait_resource_cameras[eCameraUsage::kBasic])
-				m_cameras[eCameraUsage::kBasic].push_back(camera);
-			m_wait_resource_cameras[eCameraUsage::kBasic].clear();
+			for (const auto& camera : m_wait_resource_render_cameras)
+				m_render_cameras.push_back(camera);
+			m_wait_resource_render_cameras.clear();
 		}
 
-		if (m_ready_cameras[eCameraUsage::kBasic].empty() == false)
+		if (m_ready_render_cameras.empty() == false)
 		{
-			for (const auto& camera : m_ready_cameras[eCameraUsage::kBasic])
+			for (const auto& camera : m_ready_render_cameras)
 			{
 				IVec2 size = IVec2(camera->GetViewport().width, camera->GetViewport().height);
 
 				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
-				m_wait_resource_cameras[eCameraUsage::kBasic].push_back(camera);
+				m_wait_resource_render_cameras.push_back(camera);
 			}
-			m_ready_cameras[eCameraUsage::kBasic].clear();
-		}
-
-		UpdateCameraResource(device, std::move(update_shader_function));
+			m_ready_render_cameras.clear();
+		}	
 	}
 
-	void CameraManager::UpdateCameraResource(ID3D12Device* device, std::function<void(ID3D12Device*)>&& update_shader_function)
+	void CameraManager::UpdateShadowCameras(ID3D12Device* device)
 	{
-		if (m_cameras[eCameraUsage::kBasic].empty())
+		if (m_wait_resource_shadow_cameras.empty() == false)
+		{
+			for (const auto& camera : m_wait_resource_shadow_cameras)
+				m_shadow_cameras.push_back(camera);
+			m_wait_resource_shadow_cameras.clear();
+		}
+
+		if (m_ready_shadow_cameras.empty() == false)
+		{
+			for (const auto& camera : m_ready_shadow_cameras)
+			{
+				IVec2 size = IVec2(camera->GetViewport().width, camera->GetViewport().height);
+
+				camera->SetShadowTexture(CreateSPtr<ShadowTexture>(size));
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetShadowTexture());
+
+				m_wait_resource_shadow_cameras.push_back(camera);
+			}
+			m_ready_shadow_cameras.clear();
+		}
+	}
+
+	void CameraManager::UpdateCameraResource(ID3D12Device* device,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
+		std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera)
+	{
+		if (m_render_cameras.empty() && m_shadow_cameras.empty())
 			return;
 
 		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
 		const auto& camera_resource_data = camera_resource->GetCameraData();
 
-		if (camera_resource->GetSizeOfCamera() < m_cameras[eCameraUsage::kBasic].size() + 1)
+		UINT count = static_cast<UINT>(m_render_cameras.size() + 1 + m_shadow_cameras.size());
+		if (camera_resource->GetSizeOfCamera() < count)
 		{
-			UINT count = static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()) + 1;
 			camera_resource_data->CreateResource(device, count);
 			camera_resource->SetSizeOfCamera(count);
 		}
@@ -88,7 +125,7 @@ namespace client_fw
 		RSCameraData camera_data;
 		UINT index = 0;
 
-		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
+		for (const auto& camera : m_render_cameras)
 		{
 			if (camera->GetCameraState() == eCameraState::kActive)
 			{
@@ -115,11 +152,30 @@ namespace client_fw
 					if (camera == m_main_camera)
 					{
 						camera_data.projection_matrix = mat4::Transpose(camera->GetOrthoMatrix());
-						camera_resource_data->CopyData(static_cast<UINT>(m_cameras[eCameraUsage::kBasic].size()), camera_data);
+						camera_resource_data->CopyData(static_cast<UINT>(m_render_cameras.size() + m_shadow_cameras.size()), camera_data);
 					}
 
 					MeshVisualizer::UpdateVisibilityFromCamera(camera);
-					update_shader_function(device);
+					update_shader_function_for_render_camera(device);
+				}
+			}
+
+			++index;
+		}
+
+		for (const auto& camera : m_shadow_cameras)
+		{
+			const auto& shadow_texture = camera->GetShadowTexture();
+
+			if (camera->GetCameraState() == eCameraState::kActive)
+			{
+				if (shadow_texture->GetResource() != nullptr)
+				{
+					camera_data.view_projection_matrix = mat4::Transpose(camera->GetViewMatrix() * camera->GetProjectionMatrix());;
+					camera_resource_data->CopyData(index, camera_data);
+
+					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					update_shader_function_for_shadow_camera(device);
 				}
 			}
 
@@ -137,15 +193,47 @@ namespace client_fw
 	}
 
 	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list,
+		std::function<void(ID3D12GraphicsCommandList*)>&& shadow_function,
 		std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
 		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function, 
 		std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function)
 	{
 		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
 
-		UINT index = 0;
+		UINT index = static_cast<UINT>(m_render_cameras.size());
 
-		for (const auto& camera : m_cameras[eCameraUsage::kBasic])
+		for (const auto& camera : m_shadow_cameras)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
+
+			if (camera->GetCameraState() == eCameraState::kActive)
+			{
+				const auto& shadow_texture = camera->GetShadowTexture();
+
+				if (shadow_texture->GetResource() != nullptr)
+				{
+					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
+						index * camera_resource->GetCameraData()->GetByteSize();
+
+					const auto& cv = shadow_texture->GetTextureSize();
+					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
+					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
+					command_list->RSSetViewports(1, &view);
+					command_list->RSSetScissorRects(1, &scissor);
+
+					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
+
+					shadow_texture->PreDraw(command_list);
+					shadow_function(command_list);
+					shadow_texture->PostDraw(command_list);
+				}
+			}
+			++index;
+		}
+
+		index = 0;
+
+		for (const auto& camera : m_render_cameras)
 		{
 			D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
 
@@ -185,37 +273,34 @@ namespace client_fw
 		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
 
 		command_list->SetGraphicsRootConstantBufferView(2, camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
-			m_cameras[eCameraUsage::kBasic].size() * camera_resource->GetCameraData()->GetByteSize());
+			(m_render_cameras.size() + m_shadow_cameras.size()) * camera_resource->GetCameraData()->GetByteSize());
 	}
 
 	bool CameraManager::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		m_ready_cameras[camera_comp->GetCameraUsage()].push_back(camera_comp);
+		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+			m_ready_render_cameras.push_back(std::static_pointer_cast<RenderCameraComponent>(camera_comp));
+		else
+			m_ready_shadow_cameras.push_back(std::static_pointer_cast<ShadowCameraComponent>(camera_comp));
 		return true;
 	}
 
 	void CameraManager::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		auto& cameras = m_cameras[camera_comp->GetCameraUsage()];
-
-		auto iter = std::find(cameras.begin(), cameras.end(), camera_comp);
-		if (iter != cameras.end())
+		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
 		{
-			std::iter_swap(iter, cameras.end() - 1);
-			cameras.pop_back();
 			if (camera_comp == m_main_camera)
 				m_main_camera = nullptr;
+
+			UnregisterCameraComponent(m_ready_render_cameras, camera_comp);
+			UnregisterCameraComponent(m_wait_resource_render_cameras, camera_comp);
+			UnregisterCameraComponent(m_render_cameras, camera_comp);
 		}
-
-		auto& ready_cameras = m_ready_cameras[camera_comp->GetCameraUsage()];
-
-		iter = std::find(ready_cameras.begin(), ready_cameras.end(), camera_comp);
-		if (iter != ready_cameras.end())
+		else
 		{
-			std::iter_swap(iter, ready_cameras.end() - 1);
-			ready_cameras.pop_back();
-			if (camera_comp == m_main_camera)
-				m_main_camera = nullptr;
+			UnregisterCameraComponent(m_ready_shadow_cameras, camera_comp);
+			UnregisterCameraComponent(m_wait_resource_shadow_cameras, camera_comp);
+			UnregisterCameraComponent(m_shadow_cameras, camera_comp);
 		}
 	}
 }

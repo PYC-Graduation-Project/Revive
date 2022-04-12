@@ -15,7 +15,7 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius;
+			float r = m_attenuation_radius * 1.1f;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();
@@ -46,11 +46,5 @@ namespace client_fw
 		m_oriented_box->Transform(BOrientedBox(), GetWorldMatrix());
 		float extent = m_attenuation_radius;
 		m_oriented_box->SetExtents(Vec3(extent, extent, extent));
-	}
-
-	void PointLightComponent::SetAttenuationRadius(float radius)
-	{
-		m_attenuation_radius = radius;
-		m_update_local_matrix = true;
 	}
 }

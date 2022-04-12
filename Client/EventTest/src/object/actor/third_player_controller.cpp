@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include <client/object/component/util/camera_component.h>
+#include <client/object/component/util/render_camera_component.h>
 #include <client/object/actor/pawn.h>
 #include <client/input/input.h>
 #include "third_player_controller.h"

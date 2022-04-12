@@ -4,6 +4,10 @@
 #ifndef __OPAQUE_HLSL__
 #define __OPAQUE_HLSL__
 
+//
+// Opaque Material Mesh
+//
+
 struct VS_OPAQUE_MATERIAL_MESH_IN
 {
     float3 position : POSITION;
@@ -42,6 +46,10 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialMesh(VS_OPAQUE_MATERIAL_MESH_OUT input)
     
     return output;
 }
+
+//
+// Opaque Texture Mesh
+//
 
 struct VS_OPAQUE_TEXTURE_MESH_IN
 {
@@ -84,6 +92,10 @@ PS_GBUFFER_OUTPUT PSOpaqueTextureMesh(VS_OPAQUE_TEXTURE_MESH_OUT input)
     
     return output;
 }
+
+//
+// Opaque Normal Map Mesh
+//
 
 struct VS_OPAQUE_NORMAL_MAP_MESH_IN
 {
@@ -131,6 +143,32 @@ PS_GBUFFER_OUTPUT PSOpaqueNormalMapMesh(VS_OPAQUE_NORMAL_MAP_MESH_OUT input)
         input.normal, input.tangent, input.bitangent);
     output.normal = float4(normal + 1.0f * 0.5f, 1.0f);
     output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
+    
+    return output;
+}
+
+//
+// Opaque Mesh For Shadow
+//
+
+struct VS_OPAQUE_MESH_FOR_SHADOW_IN
+{
+    float3 position : POSITION;
+};
+
+struct VS_OPAQUE_MESH_FOR_SHADOW_OUT
+{
+    float4 sv_position : SV_POSITION;
+};
+
+VS_OPAQUE_MESH_FOR_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID)
+{
+    VS_OPAQUE_MESH_FOR_SHADOW_OUT output;
+    
+    InstanceData i_data = g_instance_data[instance_id];
+    
+    float4 position = mul(float4(input.position, 1.0f), i_data.world);
+    output.sv_position = mul(position, g_view_projection);
     
     return output;
 }

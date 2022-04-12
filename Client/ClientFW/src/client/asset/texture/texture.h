@@ -5,7 +5,7 @@ namespace client_fw
 {
 	enum class eTextureType
 	{
-		kExternal, kExternalCubeMap, kRedner, kRenderUI
+		kExternal, kExternalCubeMap, kRedner, kShadow, kRenderUI
 	};
 
 	class Texture
@@ -100,6 +100,29 @@ namespace client_fw
 		ID3D12Resource* GetDSVTexture() const { return m_dsv_texture.Get(); }
 		UINT GetDSVResourceIndex() const { return m_dsv_texture_resource_index; }
 		void SetDSVResourceIndex(UINT index) { m_dsv_texture_resource_index = index; }
+	};
+
+	class ShadowTexture : public Texture
+	{
+	public:
+		ShadowTexture(const IVec2& size);
+		virtual ~ShadowTexture();
+
+		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
+		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
+
+	private:
+		bool CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+
+	private:
+		IVec2 m_texture_size;
+		ComPtr<ID3D12DescriptorHeap> m_dsv_descriptor_heap;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_dsv_cpu_handle;
+
+	public:
+		const IVec2& GetTextureSize() const { return m_texture_size; }
 	};
 
 	// Text를 저장하기 위한 Texture이다.

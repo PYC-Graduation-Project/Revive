@@ -16,7 +16,7 @@ namespace revive
 	RevivePlayer::RevivePlayer(const std::string& name)
 		: Pawn(name)
 	{
-		m_camera_component = CreateSPtr<FollowCamera>("Follow Camera", eCameraUsage::kBasic);
+		m_camera_component = CreateSPtr<FollowCamera>("Follow Camera");
 		m_movement_component = CreateSPtr<SimpleMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_sphere_component = CreateSPtr<SphereComponent>(30.0f);

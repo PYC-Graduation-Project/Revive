@@ -17,16 +17,16 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kOpaque:
-			UpdateRenderItem(device);
+			m_render_item->Update(device, level_type);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void SkeletalMeshShader::UpdateFrameResource(ID3D12Device* device)
+	void SkeletalMeshShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void SkeletalMeshShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -35,7 +35,7 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-			DrawRenderItem(command_list);
+			m_render_item->Draw(command_list, level_type);
 			break;
 		default:
 			break;

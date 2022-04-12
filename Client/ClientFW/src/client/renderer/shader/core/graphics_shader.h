@@ -23,7 +23,7 @@ namespace client_fw
 
 	public:
 		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override {}
-		virtual void UpdateFrameResource(ID3D12Device* device) override {}
+		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override {}
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override {}
 
 	public:
@@ -73,10 +73,6 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device);
-		virtual void UpdateRenderItemResource(ID3D12Device* device);
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list) const;
-
 		virtual bool RegisterMeshComponent(ID3D12Device* device, const SPtr<MeshComponent>& mesh_comp) override final;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override final;
 
@@ -116,11 +112,6 @@ namespace client_fw
 
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
-
-		virtual void UpdateRenderItem(ID3D12Device* device);
-		virtual void UpdateRenderItemResource(ID3D12Device* device);
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list,
-			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) const;
 
 		virtual D3D12_PRIMITIVE_TOPOLOGY_TYPE GetPrimitiveTopologyType(eRenderLevelType level_type, int pso_index) const override;
 

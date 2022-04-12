@@ -13,7 +13,7 @@
 namespace client_fw
 {
 	WidgetRenderItem::WidgetRenderItem(const std::string& owner_shader_name)
-		: m_owner_shader_name(owner_shader_name)
+		: RenderItem(owner_shader_name)
 	{
 	}
 
@@ -21,27 +21,26 @@ namespace client_fw
 	{
 	}
 
-	void WidgetRenderItem::Initialize(ID3D12Device* device)
+	void WidgetRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		const auto& frame_resources = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resources)
-			frame->CreateWidgetFrameResource(device, m_owner_shader_name);
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateWidgetFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
-	void WidgetRenderItem::Shutdown()
+	void WidgetRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
+		UpdateWorldWidgets(device, level_type);
+		UpdatePivotWidgets(device, level_type);		
 	}
 
-	void WidgetRenderItem::Update(ID3D12Device* device)
-	{
-		UpdateWorldWidgets(device);
-		UpdatePivotWidgets(device);		
-	}
-
-	void WidgetRenderItem::UpdateWorldWidgets(ID3D12Device* device)
+	void WidgetRenderItem::UpdateWorldWidgets(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		WorldWidgetDrawInfo info;
-		info.start_index = static_cast<UINT>(m_world_widget_vertices.size());
+		info.start_index = static_cast<UINT>(m_world_widget_vertices[level_type].size());
 
 		for (const auto& widget : m_world_widget_components)
 		{
@@ -74,7 +73,7 @@ namespace client_fw
 								if (ui_texture->GetTexture() != nullptr)
 									resource_index = ui_texture->GetTexture()->GetResourceIndex();
 
-								m_world_widget_vertices.emplace_back(WorldWidgetVertex(new_position, ui_texture->GetSize(),
+								m_world_widget_vertices[level_type].emplace_back(WorldWidgetVertex(new_position, ui_texture->GetSize(),
 									resource_index,	ui_texture->GetBrushColor(), ui_texture->GetCoordinate(),
 									ui_texture->GetTilling(), right, up));
 							}
@@ -86,13 +85,14 @@ namespace client_fw
 			}
 		}
 
-		info.num_of_draw_data = static_cast<UINT>(m_world_widget_vertices.size() - info.start_index);
+		info.num_of_draw_data = static_cast<UINT>(m_world_widget_vertices[level_type].size() - info.start_index);
 	
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
+		const auto& widget_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name, level_type);
 		widget_resource->AddWorldWidgetDrawInfo(std::move(info));
 	}
 
-	void WidgetRenderItem::UpdatePivotWidgets(ID3D12Device* device)
+	void WidgetRenderItem::UpdatePivotWidgets(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		std::vector<PivotWidgetVertex> vertices;
 		std::vector<PivotWidgetVertex> fix_up_vertices;
@@ -143,24 +143,26 @@ namespace client_fw
 			}
 		}
 
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
+		const auto& widget_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name, level_type);
 
 		PivotWidgetDrawInfo info;
-		info.billboard_start_index = static_cast<UINT>(m_pivot_widget_vertices.size());
+		info.billboard_start_index = static_cast<UINT>(m_pivot_widget_vertices[level_type].size());
 		info.num_of_draw_billboard_data = static_cast<UINT>(vertices.size());
-		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_pivot_widget_vertices));
-		info.fix_up_start_index = static_cast<UINT>(m_pivot_widget_vertices.size());
+		std::move(vertices.begin(), vertices.end(), std::back_inserter(m_pivot_widget_vertices[level_type]));
+		info.fix_up_start_index = static_cast<UINT>(m_pivot_widget_vertices[level_type].size());
 		info.num_of_draw_fix_up_data = static_cast<UINT>(fix_up_vertices.size());
-		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_pivot_widget_vertices));
+		std::move(fix_up_vertices.begin(), fix_up_vertices.end(), std::back_inserter(m_pivot_widget_vertices[level_type]));
 
 		widget_resource->AddPivotWidgetDrawInfo(std::move(info));
 	}
 
-	void WidgetRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void WidgetRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
+		const auto& widget_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name, level_type);
 
-		UINT new_size = static_cast<UINT>(m_world_widget_vertices.size());
+		UINT new_size = static_cast<UINT>(m_world_widget_vertices[level_type].size());
 		if (new_size > 0)
 		{
 			UINT world_primitive_size = widget_resource->GetSizeOfWorldWidgetPrimitive();
@@ -178,11 +180,11 @@ namespace client_fw
 				widget_resource->SetSizeOfWorldWidgetPrimitive(world_primitive_size);
 			}
 
-			widget_resource->GetWorldWidgetPrimitive()->UpdateVertices(m_world_widget_vertices);
-			m_world_widget_vertices.clear();
+			widget_resource->GetWorldWidgetPrimitive()->UpdateVertices(m_world_widget_vertices[level_type]);
+			m_world_widget_vertices[level_type].clear();
 		}
 
-		new_size = static_cast<UINT>(m_pivot_widget_vertices.size());
+		new_size = static_cast<UINT>(m_pivot_widget_vertices[level_type].size());
 		if (new_size > 0)
 		{
 			UINT pivot_primitive_size = widget_resource->GetSizeOfPivotWidgetPrimitive();
@@ -200,16 +202,17 @@ namespace client_fw
 				widget_resource->SetSizeOfPivotWidgetPrimitive(pivot_primitive_size);
 			}
 
-			widget_resource->GetPivotWidgetPrimitive()->UpdateVertices(m_pivot_widget_vertices);
-			m_pivot_widget_vertices.clear();
+			widget_resource->GetPivotWidgetPrimitive()->UpdateVertices(m_pivot_widget_vertices[level_type]);
+			m_pivot_widget_vertices[level_type].clear();
 		}
 	}
 
-	void WidgetRenderItem::Draw(ID3D12GraphicsCommandList* command_list,
+	void WidgetRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 		std::function<void()>&& world_function, std::function<void()>&& billboard_function,
 		std::function<void()>&& fix_up_function)
 	{
-		const auto& widget_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name);
+		const auto& widget_resource = FrameResourceManager::GetManager().
+			GetCurrentFrameResource()->GetWidgetFrameResource(m_owner_shader_name, level_type);
 		WorldWidgetDrawInfo world_info = widget_resource->GetWorldWidgetDrawInfo();
 
 		if (world_info.num_of_draw_data > 0)

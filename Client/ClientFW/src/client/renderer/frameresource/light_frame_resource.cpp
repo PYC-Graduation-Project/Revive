@@ -15,6 +15,7 @@ namespace client_fw
 
 	bool LightFrameResource::Initialize(ID3D12Device* device)
 	{
+		m_light_data->CreateResource(device, m_size_of_light);
 		return true;
 	}
 

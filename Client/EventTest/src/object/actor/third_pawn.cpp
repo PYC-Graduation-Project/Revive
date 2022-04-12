@@ -1,7 +1,7 @@
 #include <include/client_core.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/util/character_movement_component.h>
-#include <client/object/component/util/camera_component.h>
+#include <client/object/component/util/render_camera_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/object/actor/player_controller.h>
@@ -35,7 +35,7 @@ namespace event_test
 		//auto sphere = CreateSPtr<SphereComponent>(100.0f);
 		//ret &= AttachComponent(sphere);
 
-		auto camera = CreateSPtr<CameraComponent>();
+		auto camera = CreateSPtr<RenderCameraComponent>();
 		const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 		if (player_controller != nullptr)
 			player_controller->SetPlayerCamera(camera);

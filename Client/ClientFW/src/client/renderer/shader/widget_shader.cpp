@@ -15,30 +15,12 @@ namespace client_fw
 
 	void WidgetShader::Initialize(ID3D12Device* device)
 	{
-		m_widget_render_item->Initialize(device);
+		m_widget_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void WidgetShader::Shutdown()
 	{
 		m_widget_render_item->Shutdown();
-	}
-
-	void WidgetShader::UpdateRenderItem(ID3D12Device* device)
-	{
-		m_widget_render_item->Update(device);
-	}
-
-	void WidgetShader::UpdateRenderItemResource(ID3D12Device* device)
-	{
-		m_widget_render_item->UpdateFrameResource(device);
-	}
-
-	void WidgetShader::DrawRenderItem(ID3D12GraphicsCommandList* command_list, 
-		std::function<void()>&& world_function, std::function<void()>&& billboard_function,
-		std::function<void()>&& fix_up_function) const
-	{
-		m_widget_render_item->Draw(command_list, std::move(world_function),
-			std::move(billboard_function), std::move(fix_up_function));
 	}
 
 	D3D12_SHADER_BYTECODE WidgetShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
@@ -148,7 +130,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			UpdateRenderItem(device);
+			m_widget_render_item->Update(device, level_type);
 			break;
 		}
 		default:
@@ -156,9 +138,9 @@ namespace client_fw
 		}
 	}
 
-	void OpaqueWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	void OpaqueWidgetShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_widget_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void OpaqueWidgetShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -167,7 +149,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			DrawRenderItem(command_list,
+			m_widget_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				},
@@ -200,7 +182,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			UpdateRenderItem(device);
+			m_widget_render_item->Update(device, level_type);
 			break;
 		}
 		default:
@@ -208,9 +190,9 @@ namespace client_fw
 		}
 	}
 
-	void MaskedWidgetShader::UpdateFrameResource(ID3D12Device* device)
+	void MaskedWidgetShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_widget_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void MaskedWidgetShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -219,7 +201,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		{
-			DrawRenderItem(command_list,
+			m_widget_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				},

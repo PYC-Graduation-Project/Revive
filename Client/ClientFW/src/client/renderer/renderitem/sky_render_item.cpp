@@ -12,7 +12,7 @@
 namespace client_fw
 {
 	SkyRenderItem::SkyRenderItem(const std::string& owner_shader_name)
-		: m_owner_shader_name(owner_shader_name)
+		: RenderItem(owner_shader_name)
 	{
 		m_sky_cube_mesh = CreateSPtr<SkyCubeMesh>();
 	}
@@ -21,23 +21,22 @@ namespace client_fw
 	{
 	}
 
-	void SkyRenderItem::Initialize(ID3D12Device* device)
+	void SkyRenderItem::Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types)
 	{
 		RenderResourceManager::GetRenderResourceManager().RegisterPrimitive(m_sky_cube_mesh);
 		const auto& frame_resource = FrameResourceManager::GetManager().GetFrameResources();
 		for (const auto& frame : frame_resource)
-			frame->CreateSkyFrameResource(device, m_owner_shader_name);
+		{
+			for (eRenderLevelType level_type : level_types)
+				frame->CreateSkyFrameResource(device, m_owner_shader_name, level_type);
+		}
 	}
 
-	void SkyRenderItem::Shutdown()
+	void SkyRenderItem::Update(ID3D12Device* device, eRenderLevelType level_type)
 	{
 	}
 
-	void SkyRenderItem::Update(ID3D12Device* device)
-	{
-	}
-
-	void SkyRenderItem::UpdateFrameResource(ID3D12Device* device)
+	void SkyRenderItem::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
 		if (m_sky_components.empty() == false)
 		{
@@ -45,7 +44,8 @@ namespace client_fw
 
 			m_draw_sky_type = last_sky->GetSkyType();
 
-			const auto& sky_frame_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkyFrameResource(m_owner_shader_name);
+			const auto& sky_frame_resource = FrameResourceManager::GetManager().
+				GetCurrentFrameResource()->GetSkyFrameResource(m_owner_shader_name, level_type);
 
 			switch (m_draw_sky_type)
 			{
@@ -71,13 +71,14 @@ namespace client_fw
 		}
 	}
 
-	void SkyRenderItem::Draw(ID3D12GraphicsCommandList* command_list,
+	void SkyRenderItem::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 		std::function<void()>&& cube_draw_function,
 		std::function<void()>&& sphere_draw_function)
 	{
 		if (m_sky_components.empty() == false)
 		{
-			const auto& sky_frame_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetSkyFrameResource(m_owner_shader_name);
+			const auto& sky_frame_resource = FrameResourceManager::GetManager().
+				GetCurrentFrameResource()->GetSkyFrameResource(m_owner_shader_name, level_type);
 
 			switch (m_draw_sky_type)
 			{

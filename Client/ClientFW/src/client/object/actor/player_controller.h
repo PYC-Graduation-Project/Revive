@@ -4,7 +4,7 @@
 namespace client_fw
 {
 	class PlayerCameraManager;
-	class CameraComponent;
+	class RenderCameraComponent;
 
 	class PlayerController : public Controller
 	{
@@ -28,16 +28,16 @@ namespace client_fw
 			const std::function<bool(float)>& func, bool consumption = true);
 
 	private:
-		SPtr<CameraComponent> m_original_camera_component;
-		SPtr<CameraComponent> m_custom_camera_component;
+		SPtr<RenderCameraComponent> m_original_camera_component;
+		SPtr<RenderCameraComponent> m_custom_camera_component;
 		float m_pitch_speed_scale = 4.0f;
 		float  m_yaw_speed_scale = 4.0f;
 		float m_roll_speed_scale = 4.0f;
 
 	public:
-		const SPtr<CameraComponent>& GetPlayerCamera() const;
+		const SPtr<RenderCameraComponent>& GetPlayerCamera() const;
 		//사용자 정의 카메라를 설정한다.
-		void SetPlayerCamera(const SPtr<CameraComponent>& camera_comp);
+		void SetPlayerCamera(const SPtr<RenderCameraComponent>& camera_comp);
 
 		void SetPitchSpeedScale(float scale) { m_pitch_speed_scale = scale; }
 		void SetYawSpeedScale(float scale) { m_yaw_speed_scale = scale; }
@@ -47,7 +47,7 @@ namespace client_fw
 		virtual void UnPossess() override;
 
 	private:
-		void SetControlledCamera(const SPtr<CameraComponent>& camera_comp);
+		void SetControlledCamera(const SPtr<RenderCameraComponent>& camera_comp);
 	};
 }
 

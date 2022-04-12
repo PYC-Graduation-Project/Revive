@@ -7,7 +7,6 @@ namespace client_fw
 	class Material;
 	class ExternalTexture;
 	class ExternalCubeMapTexture;
-	class RenderTexture;
 	class Skeleton;
 	class AnimationSequence;
 

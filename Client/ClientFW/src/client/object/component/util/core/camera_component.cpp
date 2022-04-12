@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/core/camera_component.h"
 #include "client/object/actor/core/actor.h"
 #include "client/renderer/core/render.h"
 #include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
-	CameraComponent::CameraComponent(const std::string& name, eCameraUsage usage)
-		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
+	CameraComponent::CameraComponent(eCameraUsage usage, const std::string& name)
+		: SceneComponent(name), m_camera_state(eCameraState::kActive)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
 	{
 	}
@@ -26,28 +26,9 @@ namespace client_fw
 	{
 		SceneComponent::UpdateWorldMatrix();
 
-		Vec3 target, up;
-		if (m_owner_controller.expired() || (m_owner_controller.expired() == false && m_use_controller_rotation == false))
-		{
-			m_camera_position = GetWorldPosition();
-			target = m_camera_position + GetWorldForward();
-			up = GetWorldUp();
-		}
-		else
-		{
-			const auto& owner = m_owner.lock();
-			Mat4 world_matrix = mat4::CreateScale(owner->GetScale());
-			world_matrix *= mat4::CreateRotationFromQuaternion(m_owner_controller.lock()->GetRotation());
-			world_matrix *= mat4::CreateTranslation(owner->GetPosition());
+		UpdateViewMatrix();
 
-			m_camera_position = vec3::TransformCoord(m_local_position, world_matrix);
-			target = m_camera_position + m_owner_controller.lock()->GetForward();
-			up = m_owner_controller.lock()->GetUp();
-		}
-
-		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
-		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 
 		if (m_is_updated_viewport)
 		{
@@ -55,6 +36,8 @@ namespace client_fw
 			UpdateProjectionMatrix();
 			m_is_updated_viewport = false;
 		}
+
+		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 	}
 
 	void CameraComponent::UpdateViewport(LONG left, LONG top, LONG width, LONG height)
@@ -65,6 +48,17 @@ namespace client_fw
 		m_viewport.height = height;
 		m_is_updated_viewport = true;
 		UpdateWorldMatrix();
+	}
+
+	void CameraComponent::UpdateViewMatrix()
+	{
+		Vec3 target, up;
+
+		m_camera_position = GetWorldPosition();
+		target = m_camera_position + GetWorldForward();
+		up = GetWorldUp();
+
+		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()
@@ -93,16 +87,7 @@ namespace client_fw
 		Render::UnregisterCameraComponent(SharedFromThis());
 	}
 
-	void CameraComponent::SetMainCamera()
-	{
-		Render::SetMainCamera(SharedFromThis());
-	}
 
-	void CameraComponent::SetOwnerController(const WPtr<Actor>& owner)
-	{
-		m_owner_controller = owner; 
-		UpdateWorldMatrix();
-	}
 
 	Mat4 CameraComponent::GetPerspectiveMatrix() const
 	{

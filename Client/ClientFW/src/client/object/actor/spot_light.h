@@ -9,7 +9,7 @@ namespace client_fw
 	{
 	public:
 		SpotLight(eMobilityState mobility = eMobilityState::kStatic,
-			const std::string& name = "point light");
+			const std::string& name = "spot light");
 		virtual ~SpotLight() = default;
 
 		virtual bool Initialize() override;
