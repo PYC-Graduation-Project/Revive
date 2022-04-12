@@ -74,7 +74,8 @@ namespace client_fw
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
 			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
-		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", { eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", 
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow });
 		//ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<TextureBillboardShader>(Render::ConvertShaderType(eShaderType::kTextureBillboard),
 			{eRenderLevelType::kOpaque});

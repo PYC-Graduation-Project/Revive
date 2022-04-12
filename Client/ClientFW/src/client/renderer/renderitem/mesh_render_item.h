@@ -31,7 +31,8 @@ namespace client_fw
 		MeshRenderItem(const std::string& owner_shader_name);
 		virtual ~MeshRenderItem() {}
 
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const = 0;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
+			std::function<void()>&& draw_function) const = 0;
 
 		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) = 0;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) = 0;
@@ -47,7 +48,8 @@ namespace client_fw
 
 		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
 		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
+			std::function<void()>&& draw_function) const override;
 
 		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override;
@@ -69,7 +71,8 @@ namespace client_fw
 
 		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
 		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
+			std::function<void()>&& draw_function) const override;
 
 		virtual void RegisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override;
 		virtual void UnregisterMeshComponent(const SPtr<MeshComponent>& mesh_comp) override;

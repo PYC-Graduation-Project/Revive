@@ -37,8 +37,10 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 		case eRenderLevelType::kShadow:
-			command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
-			m_render_item->Draw(command_list, level_type);
+			m_render_item->Draw(command_list, level_type, 
+				[this, command_list, level_type]() {
+					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
+				});
 			break;
 		default:
 			break;

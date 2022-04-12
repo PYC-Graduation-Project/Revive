@@ -155,7 +155,7 @@ namespace client_fw
 						camera_resource_data->CopyData(static_cast<UINT>(m_render_cameras.size() + m_shadow_cameras.size()), camera_data);
 					}
 
-					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					MeshVisualizer::UpdateVisibilityFromRenderCamera(camera);
 					update_shader_function_for_render_camera(device);
 				}
 			}
@@ -174,7 +174,7 @@ namespace client_fw
 					camera_data.view_projection_matrix = mat4::Transpose(camera->GetViewMatrix() * camera->GetProjectionMatrix());;
 					camera_resource_data->CopyData(index, camera_data);
 
-					MeshVisualizer::UpdateVisibilityFromCamera(camera);
+					MeshVisualizer::UpdateVisibilityFromShadowCamera(camera);
 					update_shader_function_for_shadow_camera(device);
 				}
 			}
@@ -227,6 +227,8 @@ namespace client_fw
 					shadow_function(command_list);
 					shadow_texture->PostDraw(command_list);
 				}
+
+				camera->SetPaused();
 			}
 			++index;
 		}

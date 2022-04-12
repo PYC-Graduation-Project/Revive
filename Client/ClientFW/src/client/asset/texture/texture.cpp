@@ -173,12 +173,16 @@ namespace client_fw
 
 	void RenderTexture::GBufferPreDraw(ID3D12GraphicsCommandList* command_list)
 	{
+		D3D12_RESOURCE_BARRIER barriers[] = {
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[0].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[1].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[2].Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET)
+		};
+
+		command_list->ResourceBarrier(3, barriers);
+
 		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
-		{
-			command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[i].Get(),
-				D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 			command_list->ClearRenderTargetView(m_gbuffer_rtv_cpu_handles[i], Colors::Black, 0, nullptr);
-		}
 
 		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		command_list->OMSetRenderTargets(m_num_of_gbuffer_texture, m_gbuffer_rtv_cpu_handles.data(), FALSE, &m_dsv_cpu_handle);
@@ -186,11 +190,13 @@ namespace client_fw
 
 	void RenderTexture::GBufferPostDraw(ID3D12GraphicsCommandList* command_list)
 	{
-		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
-		{
-			command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[i].Get(),
-				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
-		}
+		D3D12_RESOURCE_BARRIER barriers[] = {
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[0].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[1].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ),
+			CD3DX12_RESOURCE_BARRIER::Transition(m_gbuffer_textures[2].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ)
+		};
+
+		command_list->ResourceBarrier(3, barriers);
 	}
 
 	void RenderTexture::PreDraw(ID3D12GraphicsCommandList* command_list)

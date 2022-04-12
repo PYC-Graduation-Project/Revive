@@ -7,7 +7,7 @@
 namespace client_fw
 {
 	CameraComponent::CameraComponent(eCameraUsage usage, const std::string& name)
-		: SceneComponent(name), m_camera_state(eCameraState::kActive)
+		: SceneComponent(name), m_camera_state(eCameraState::kPaused)
 		, m_camera_usage(usage), m_projection_mode(eProjectionMode::kPerspective)
 	{
 	}
