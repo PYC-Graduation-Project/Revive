@@ -349,7 +349,7 @@ namespace client_fw
 		{
 			const auto& instance_data = skeletal_mesh_resource->GetInstanceData();
 			const auto& skeletal_transform_data = skeletal_mesh_resource->GetSkeletalTransformData();
-			command_list->SetGraphicsRootShaderResourceView(6, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
+			command_list->SetGraphicsRootShaderResourceView(7, skeletal_transform_data->GetResource()->GetGPUVirtualAddress());
 
 			for (const auto& mesh_info : instance_info.mesh_draw_infos)
 			{

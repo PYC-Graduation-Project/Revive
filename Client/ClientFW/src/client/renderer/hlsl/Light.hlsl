@@ -1,4 +1,5 @@
 #include "resource.hlsl"
+#include "shadow.hlsl"
 
 #ifndef __LIGHT_HLSL__
 #define __LIGHT_HLSL__
@@ -145,7 +146,7 @@ float3 CalcPointLight(float3 position, Material material, PointLight light)
     return lo;
 }
 
-float3 CalcSpotLight(float3 position, Material material, SpotLight light)
+float3 CalcSpotLight(float3 position, Material material, SpotLight light, uint shadow_texture_data_index)
 {
     float distance = length(light.position - position);
     if (distance > light.attenuation_radius)
@@ -192,10 +193,13 @@ float3 CalcSpotLight(float3 position, Material material, SpotLight light)
         spot_factor = saturate((cos_angle - cos(light.outer_angle)) / (cos(light.inner_angle) - cos(light.outer_angle)));
     
     spot_factor *= spot_factor;
-    
+        
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * spot_factor;
     
-    return lo;
+    float3 shadow_factor = 1.0f;
+    shadow_factor = CalcShadowFactor(position, g_shadow_texture_data[shadow_texture_data_index]);
+    
+    return lo * shadow_factor;
 }
 
 #endif //__LIGHT_HLSL__

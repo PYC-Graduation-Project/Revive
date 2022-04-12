@@ -62,8 +62,8 @@ namespace client_fw
 		Mat4 m_projection_matrix;
 		float m_aspect_ratio = 1.777778f;
 		float m_field_of_view = 60.0f;
-		float m_near_z = 1.01f;
-		float m_far_z = 100000.0f;
+		float m_near_z = 100.f;
+		float m_far_z = 100000.f;
 		BFrustum m_bf_projection;
 		BFrustum m_bounding_frustum;
 

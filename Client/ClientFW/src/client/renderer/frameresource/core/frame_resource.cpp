@@ -3,6 +3,7 @@
 #include "client/renderer/frameresource/render_resource_frame_resource.h"
 #include "client/renderer/frameresource/camera_frame_resource.h"
 #include "client/renderer/frameresource/light_frame_resource.h"
+#include "client/renderer/frameresource/shadow_frame_resource.h"
 #include "client/renderer/frameresource/sky_frame_resource.h"
 #include "client/renderer/frameresource/mesh_frame_resource.h"
 #include "client/renderer/frameresource/billboard_frame_resource.h"
@@ -25,6 +26,7 @@ namespace client_fw
 		m_render_resource_frame_resource = CreateUPtr<RenderResourceFrameResource>();
 		m_camera_frame_resource = CreateUPtr<CameraFrameResource>();
 		m_light_frame_resource = CreateUPtr<LightFrameResource>();
+		m_shadow_frame_resource = CreateUPtr<ShadowFrameResource>();
 	}
 
 	FrameResource::~FrameResource()
@@ -39,6 +41,11 @@ namespace client_fw
 			LOG_ERROR("Could not create command allocator");
 			return false;
 		}
+
+		m_render_resource_frame_resource->Initialize(device);
+		m_camera_frame_resource->Initialize(device);
+		m_light_frame_resource->Initialize(device);
+		m_shadow_frame_resource->Initialize(device);
 
 		return true;
 	}
@@ -57,6 +64,7 @@ namespace client_fw
 			frame_resource->Shutdown();
 		for (const auto& [shader_name, frame_resource] : m_sky_frame_resource)
 			frame_resource->Shutdown();
+		m_shadow_frame_resource->Shutdown();
 		m_light_frame_resource->Shutdown();
 		m_camera_frame_resource->Shutdown();
 		m_render_resource_frame_resource->Shutdown();

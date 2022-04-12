@@ -171,16 +171,7 @@ namespace client_fw
 			{
 				if (shadow_texture->GetResource() != nullptr)
 				{
-					camera_data.view_matrix = mat4::Transpose(camera->GetViewMatrix());
-					camera_data.projection_matrix = mat4::Transpose(camera->GetProjectionMatrix());
-					camera_data.view_projection_matrix = camera_data.projection_matrix * camera_data.view_matrix;
-					camera_data.inverse_view_matrix = mat4::Inverse(camera_data.view_matrix);
-					camera_data.perspective_values = Vec4(1.0f / camera_data.projection_matrix._11,
-						1.0f / camera_data.projection_matrix._22,
-						camera_data.projection_matrix._34,
-						-camera_data.projection_matrix._33);
-					camera_data.camera_position = camera->GetCameraPosition();
-					camera_data.final_texture_index = shadow_texture->GetResourceIndex();
+					camera_data.view_projection_matrix = mat4::Transpose(camera->GetViewMatrix() * camera->GetProjectionMatrix());;
 					camera_resource_data->CopyData(index, camera_data);
 
 					MeshVisualizer::UpdateVisibilityFromCamera(camera);
@@ -209,7 +200,38 @@ namespace client_fw
 	{
 		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
 
-		UINT index = 0;
+		UINT index = static_cast<UINT>(m_render_cameras.size());
+
+		for (const auto& camera : m_shadow_cameras)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
+
+			if (camera->GetCameraState() == eCameraState::kActive)
+			{
+				const auto& shadow_texture = camera->GetShadowTexture();
+
+				if (shadow_texture->GetResource() != nullptr)
+				{
+					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
+						index * camera_resource->GetCameraData()->GetByteSize();
+
+					const auto& cv = shadow_texture->GetTextureSize();
+					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
+					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
+					command_list->RSSetViewports(1, &view);
+					command_list->RSSetScissorRects(1, &scissor);
+
+					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
+
+					shadow_texture->PreDraw(command_list);
+					shadow_function(command_list);
+					shadow_texture->PostDraw(command_list);
+				}
+			}
+			++index;
+		}
+
+		index = 0;
 
 		for (const auto& camera : m_render_cameras)
 		{
@@ -240,35 +262,6 @@ namespace client_fw
 					camera->GetRenderTexture()->PreDraw(command_list);
 					deferred_function(command_list);
 					camera->GetRenderTexture()->PostDraw(command_list);
-				}
-			}
-			++index;
-		}
-
-		for (const auto& camera : m_shadow_cameras)
-		{
-			D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
-
-			if (camera->GetCameraState() == eCameraState::kActive)
-			{
-				const auto& shadow_texture = camera->GetShadowTexture();
-
-				if (shadow_texture->GetResource() != nullptr)
-				{
-					gpu_address = camera_resource->GetCameraData()->GetResource()->GetGPUVirtualAddress() +
-						index * camera_resource->GetCameraData()->GetByteSize();
-
-					const auto& cv = shadow_texture->GetTextureSize();
-					D3D12_VIEWPORT view = { 0.f, 0.f, static_cast<float>(cv.x), static_cast<float>(cv.y), 0.0f, 1.0f };
-					D3D12_RECT scissor = { 0, 0, static_cast<LONG>(cv.x), static_cast<LONG>(cv.y) };
-					command_list->RSSetViewports(1, &view);
-					command_list->RSSetScissorRects(1, &scissor);
-
-					command_list->SetGraphicsRootConstantBufferView(2, gpu_address);
-
-					shadow_texture->PreDraw(command_list);
-					shadow_function(command_list);
-					shadow_texture->PostDraw(command_list);
 				}
 			}
 			++index;

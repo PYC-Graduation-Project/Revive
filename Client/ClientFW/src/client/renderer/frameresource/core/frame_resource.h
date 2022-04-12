@@ -8,6 +8,7 @@ namespace client_fw
 	class StaticMeshFrameResource;	
 	class SkeletalMeshFrameResource;
 	class LightFrameResource;
+	class ShadowFrameResource;
 	class LocalLightFrameResource;
 	class BillboardFrameResource;
 	class WidgetFrameResource;
@@ -47,11 +48,13 @@ namespace client_fw
 		UPtr<RenderResourceFrameResource> m_render_resource_frame_resource;
 		UPtr<CameraFrameResource> m_camera_frame_resource;
 		UPtr<LightFrameResource> m_light_frame_resource;
+		UPtr<ShadowFrameResource> m_shadow_frame_resource;
 
 	public:
 		const UPtr<RenderResourceFrameResource>& GetRenderResourceFrameResource() const { return m_render_resource_frame_resource; }
 		const UPtr<CameraFrameResource>& GetCameraFrameResource() const { return m_camera_frame_resource; }
 		const UPtr<LightFrameResource>& GetLightFrameResource() const { return m_light_frame_resource; }
+		const UPtr<ShadowFrameResource>& GetShadowFrameResource() const { return m_shadow_frame_resource; }
 
 	private:
 		std::map<ResourceOwner, UPtr<SkyFrameResource>> m_sky_frame_resource;

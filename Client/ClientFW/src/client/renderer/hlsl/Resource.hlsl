@@ -30,6 +30,14 @@ struct LightData
     float cone_inner_angle;
     float3 light_position;
     float cone_outer_angle;
+    uint shadow_texture_data_index;
+};
+
+struct ShadowTextureData
+{
+    matrix uv_from_ndc;
+    float2 inverse_texture_size;
+    uint shadow_texture_index;
 };
 
 struct SkeletalData
@@ -40,11 +48,13 @@ struct SkeletalData
 StructuredBuffer<InstanceData> g_instance_data : register(t0, space0);
 StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
 StructuredBuffer<LightData> g_light_data : register(t2, space0);
-StructuredBuffer<SkeletalData> g_bone_transform_data : register(t3, space0);
+StructuredBuffer<ShadowTextureData> g_shadow_texture_data : register(t3, space0);
+StructuredBuffer<SkeletalData> g_bone_transform_data : register(t4, space0);
 Texture2D g_texture_data[] : register(t0, space1);
 TextureCube g_texture_cube_data[] : register(t0, space2);
 
-SamplerState g_sampler_point_wrap : register(s0);
+SamplerState g_sampler_point_wrap : register(s0, space0);
+SamplerComparisonState g_sampler_comparison_pcf_shadow : register(s6, space0);
 
 cbuffer cbMaterialIndexData : register(b0, space0)
 {

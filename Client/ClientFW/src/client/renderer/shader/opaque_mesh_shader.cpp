@@ -59,6 +59,24 @@ namespace client_fw
 		return GraphicsShader::CreateInputLayout(level_type, pso_index);
 	}
 
+	D3D12_RASTERIZER_DESC OpaqueMeshShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index) const
+	{
+		D3D12_RASTERIZER_DESC desc = GraphicsShader::CreateRasterizerState(level_type, pso_index);
+
+		switch (level_type)
+		{
+		case eRenderLevelType::kShadow:
+			desc.DepthBias = 10000;
+			desc.DepthBiasClamp = 0.0f;
+			desc.SlopeScaledDepthBias = 1.0f;
+			break;
+		default:
+			break;
+		}
+
+		return desc;
+	}
+
 	bool OpaqueMeshShader::CreatePipelineStates(ID3D12Device* device, const SPtr<GraphicsRenderLevel>& render_level)
 	{
 		bool result = true;

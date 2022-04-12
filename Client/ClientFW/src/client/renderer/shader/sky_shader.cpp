@@ -114,7 +114,7 @@ namespace client_fw
 	D3D12_RASTERIZER_DESC SkyShader::CreateRasterizerState(eRenderLevelType level_type, int pso_index) const
 	{
 		D3D12_RASTERIZER_DESC desc = GraphicsShader::CreateRasterizerState(level_type, pso_index);
-		desc.CullMode = D3D12_CULL_MODE_NONE;
+		desc.CullMode = D3D12_CULL_MODE_FRONT;
 		return desc;
 	}
 

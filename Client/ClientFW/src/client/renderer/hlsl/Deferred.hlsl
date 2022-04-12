@@ -356,8 +356,8 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.attenuation_radius = light_data.attenuation_radius;
         light.inner_angle = light_data.cone_inner_angle;
         light.outer_angle = light_data.cone_outer_angle;
-        
-        color += CalcSpotLight(g_buffer_data.position, material, light);
+                        
+        color += CalcSpotLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         
         color = color / (color + 1.0f);
         color = pow(abs(color), (1.0f / 2.2f));
