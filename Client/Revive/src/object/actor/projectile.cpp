@@ -55,4 +55,21 @@ namespace revive
 		m_projectile_movement_component->SetVelocity(velocity);
 	}
 
+	void Projectile::SetCollisionInfo(bool is_collision, const std::string collision_type, const std::string collisionable_types, bool genrate_collision_event)
+	{
+		m_sphere_component->SetCollisionInfo(is_collision, false, collision_type.c_str(), { collisionable_types.c_str() }, genrate_collision_event);
+	}
+
+	void Projectile::SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)
+	{
+		m_sphere_component->OnCollisionResponse(function);
+	}
+
+	void Projectile::SetBlockingSphereRadius(float radius)
+	{
+		m_sphere_component->SetExtents(radius);
+	}
+
+	
+
 }

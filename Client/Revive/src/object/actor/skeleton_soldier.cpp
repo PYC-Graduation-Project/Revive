@@ -16,11 +16,16 @@ namespace revive
 		bool ret = true;
 
 		ret &= Enemy::Initialize();
-		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
 		ret &= AttachComponent(m_skeletal_mesh_component);
+		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
+		m_skeletal_mesh_component->AddNotify("death end", "death", 109,
+			[this]() { m_is_disappearing = true; /*Destory되기 까지 Count를 시작한다*/ });
+		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
+			[this]() { m_skeletal_mesh_component->SetAnimation("idle"); /*히트 후에 재생할 애니메이션*/});
 		
 		ret &= SetCollisionComponent();
 
+		m_hp = 10;
 		//SetPosition(Vec3{ 2400.0f,300.0f,3500.0f });
 		SetScale(0.5f);
 
@@ -56,9 +61,33 @@ namespace revive
 		m_blocking_box->SetCollisionInfo(true, false, "default", { "default" }, true);
 		m_blocking_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
+			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
 		});
 		ret &= AttachComponent(m_blocking_box);
+
+		//Hit Box
+		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>();
+		hit_box_1->SetName("head hit box");
+		hit_box_1->SetLocalPosition(Vec3{0.0f,170.f,0.f});
+		m_hit_boxes.emplace_back(hit_box_1);
+		SPtr<BoxComponent> hit_box_2 = CreateSPtr<BoxComponent>(Vec3{32.f,35.f,20.f});
+		hit_box_2->SetName("body hit box");
+		hit_box_2->SetLocalPosition(Vec3{ 0.0f,95.f,0.f });
+		m_hit_boxes.emplace_back(hit_box_2);
+		SPtr<BoxComponent> hit_box_3 = CreateSPtr<BoxComponent>(Vec3{10.f,30.f,10.f});
+		hit_box_3->SetName("leg hit box");
+		hit_box_3->SetLocalPosition(Vec3{ 20.0f,28.f,10.f });
+		m_hit_boxes.emplace_back(hit_box_3);
+		SPtr<BoxComponent> hit_box_4 = CreateSPtr<BoxComponent>(Vec3{ 10.f,30.f,10.f });
+		hit_box_4->SetName("leg hit box");
+		hit_box_4->SetLocalPosition(Vec3{ -20.0f,28.f,10.f });
+		m_hit_boxes.emplace_back(hit_box_4);
+
+		for (const auto& hit_box : m_hit_boxes)
+		{
+			hit_box->SetCollisionInfo(true, false, "EnemyHit", { "EnemyHit" }, false);
+			ret &= AttachComponent(hit_box);
+		}
 
 		return ret;
 	}

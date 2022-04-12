@@ -10,6 +10,7 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
+#include "object/actor/enemy.h"
 #include "object/statemachine/state_machine.h"
 #include "object/actor/projectile.h"
 #include "object/actor/revive_player.h"
@@ -128,8 +129,23 @@ namespace revive
 
 		//총알 스폰
 		SPtr<Projectile> bullet = CreateSPtr<Projectile>("bullet");
-		bullet->SetPosition(GetPosition() + Vec3{0.0f,100.0f,0.0f});
-		bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
+		bullet->SetPosition(GetPosition() + Vec3{0.0f,50.0f,0.0f});
+		bullet->SetBlockingSphereRadius(10.f);
+		bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
+		bullet->SetCollisionInfo(true, "EnemyHit", "EnemyHit", true);
+		bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+		const SPtr<SceneComponent>& other_component)
+		{
+			const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+			
+			int enemy_hp = enemy->GetHP();
+			if (enemy_hp > 0)
+				enemy->Hit();
+
+			LOG_INFO("충돌 부위 :" + other_component->GetName() );
+			bullet->SetCollisionInfo(false, "default", "default", false);
+			bullet->SetActorState(eActorState::kDead);
+		});
 		SpawnActor(bullet);
 
 	}

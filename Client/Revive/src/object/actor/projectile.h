@@ -37,5 +37,9 @@ namespace revive
 		//투사체의 Velocity를 설정한다. 크기는 InitialSpeed값에 덮어 씌워진다.
 		//따라서 방향을 결정하는데 쓰인다고 보면됨.
 		void SetVelocity(const Vec3& velocity);
+		void SetCollisionInfo(bool is_collision, const std::string collision_type, const std::string collisionable_types, bool genrate_collision_event);
+		void SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
+			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function);
+		void SetBlockingSphereRadius(float radius);
 	};
 }

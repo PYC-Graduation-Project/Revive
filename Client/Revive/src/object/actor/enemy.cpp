@@ -37,11 +37,32 @@ namespace revive
 	{
 		m_skeletal_mesh_component = nullptr;
 		m_blocking_sphere = nullptr;
+		for (auto& hit_box : m_hit_boxes)
+			hit_box = nullptr;
+	}
+	void Enemy::Update(float delta_time)
+	{
+		if (m_disappear_time >= 1.0f)
+			SetActorState(eActorState::kDead);
+		if (m_is_disappearing)
+			m_disappear_time += delta_time; 
+		if (m_hp <= 0 && m_is_dead == false)
+		{
+			m_skeletal_mesh_component->SetAnimation("death", false);
+			m_is_dead = true;
+		}
+		
 	}
 	void Enemy::FixYPosition()
 	{
 		Vec3 current_position = GetPosition();
 		current_position.y = 300;
 		SetPosition(current_position);
+	}
+	void Enemy::Hit(int damage)
+	{
+		m_skeletal_mesh_component->SetAnimation("hit", false);
+		m_hp -= damage;
+		LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
 	}
 }
