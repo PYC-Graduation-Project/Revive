@@ -9,6 +9,7 @@
 #include <client/input/input.h>
 #include "object/component/follow_camera.h"
 #include "object/statemachine/state_machine.h"
+#include "object/actor/projectile.h"
 #include "object/actor/revive_player.h"
 
 namespace revive
@@ -109,6 +110,21 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalPosition(pos);
 	}
 
+	void RevivePlayer::Attack()
+	{
+		//카메라가 보는 방향으로 총을 쏴야한다(회전)
+		Vec3 direction = m_controller.lock()->GetForward();
+		direction.y = 0;
+		RotatePlayerFromCameraDirection(direction);
+
+		//총알 스폰
+		SPtr<Projectile> bullet = CreateSPtr<Projectile>("bullet");
+		bullet->SetPosition(GetPosition() + Vec3{0.0f,100.0f,0.0f});
+		bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
+		SpawnActor(bullet);
+
+	}
+
 	void RevivePlayer::RegisterEvent()
 	{
 		//테스트용 명령키
@@ -118,7 +134,8 @@ namespace revive
 
 		//공격
 		RegisterPressedEvent("attack", { {eKey::kLButton} },
-			[this]()->bool { if (m_is_attacking == false) m_is_attacking = true; LOG_INFO(m_is_attacking);  return true; });
+			[this]()->bool {  if (m_is_attacking == false)
+			m_is_attacking = true; return true; });
 
 		//이동 및 조작
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
@@ -127,6 +144,7 @@ namespace revive
 		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
 			[this](float axis)->bool { AddMovementInput(m_controller.lock()->GetRight(), axis); return true; });
 
+		
 		RegisterAxisEvent("turn", { AxisEventKeyInfo{eKey::kXMove, 1.0f} },
 			[this](float axis)->bool {
 			IVec2 relative_pos = Input::GetRelativeMousePosition();
@@ -155,9 +173,9 @@ namespace revive
 		if (vec3::Dot(old_player_forward, dest_direction) == -1)//현재보는 방향과 반대방향으로 회전 시 너무느리지않게 회전시키려면 필요한 부분
 			old_player_forward += Vec3{ 0.02f,0.0f,-0.02f };
 
-		float rotate_speed = 10.0f * 0.016f; //회전속도 delta_time을곱해야하나 없으니까 0.016곱함
+		float rotate_speed = 70.0f * 0.016f; //회전속도 delta_time을곱해야하나 없으니까 0.016곱함
 
-		Vec3 curr_player_forward = old_player_forward + dest_direction * rotate_speed;
+		Vec3 curr_player_forward = /*old_player_forward +*/ dest_direction;//* rotate_speed;
 		curr_player_forward = vec3::Normalize(curr_player_forward);
 
 		float angle = vec3::BetweenAngle(curr_player_forward, vec3::AXIS_Z); //0~PI만 반환함 (radian)

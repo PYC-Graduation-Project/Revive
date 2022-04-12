@@ -44,6 +44,8 @@ namespace revive
 		void SetAnimationSpeed(float speed);
 		void SetMeshPosition(const Vec3& pos);
 
+		void Attack();
+
 	private:
 		int m_hp = 10;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
