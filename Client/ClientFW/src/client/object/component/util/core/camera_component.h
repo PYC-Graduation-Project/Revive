@@ -14,11 +14,9 @@ namespace client_fw
 		kActive, kPaused
 	};
 
-	//아마 Light는 LightComponent에 넣을 것 같다.
-	//일단 Light를 넣을 때 다시 생각해 볼 생각이라 수정은 하지 않겠다.
 	enum class eCameraUsage
 	{
-		kBasic, kShadow,
+		kBasic, kShadow, kShadowCube,
 	};
 
 	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)
@@ -60,6 +58,7 @@ namespace client_fw
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
+		Mat4 m_view_projection_matrix;
 		float m_aspect_ratio = 1.777778f;
 		float m_field_of_view = 60.0f;
 		float m_near_z = 100.f;
@@ -77,7 +76,9 @@ namespace client_fw
 		void SetViewport(const Viewport& viewport) { m_viewport = viewport; m_is_updated_viewport = true; }
 		const Vec3& GetCameraPosition() const { return m_camera_position; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
+		const Mat4& GetInverseViewMatrix() const { return m_inverse_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
+		const Mat4& GetViewProjectionMatrix() const { return m_view_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;
 		Mat4 GetOrthoMatrix() const;
 		void SetAspectRatio(float aspect_ratio) { m_aspect_ratio = aspect_ratio; }

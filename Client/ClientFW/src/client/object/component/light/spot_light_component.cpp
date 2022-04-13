@@ -21,18 +21,23 @@ namespace client_fw
 		return ret;
 	}
 
+	void SpotLightComponent::Shutdown()
+	{
+		m_shadow_camera = nullptr;
+		LocalLightComponent::Shutdown();
+	}
+
 	void SpotLightComponent::UpdateWorldMatrix()
 	{
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius * 1.1f;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();
 			m_world_scale = m_local_scale * owner->GetScale();
 
-			m_world_matrix = mat4::CreateScale(Vec3(r, r, r));
+			m_world_matrix = mat4::CreateScale(m_attenuation_radius * 1.1f);
 			m_world_matrix *= mat4::CreateRotationFromQuaternion(m_world_rotation);
 			m_world_matrix *= mat4::CreateTranslation(m_world_position);
 

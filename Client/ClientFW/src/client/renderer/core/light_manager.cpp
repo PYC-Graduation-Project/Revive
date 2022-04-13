@@ -11,6 +11,7 @@
 #include "client/object/component/light/point_light_component.h"
 #include "client/object/component/light/spot_light_component.h"
 #include "client/object/component/util/shadow_camera_component.h"
+#include "client/object/component/util/shadow_cube_camera_component.h"
 
 #include "client/asset/texture/texture.h"
 #include "client/util/upload_buffer.h"
@@ -100,7 +101,21 @@ namespace client_fw
 			light_data.light_position = light->GetWorldPosition();
 			light_data.attenuation_radius = light->GetAttenuationRadius();
 			light->SetLightManagerRegisteredIndex(light_index++);
+			light_data.shadow_texture_data_index = shadow_index++;
 			lights_data.emplace_back(std::move(light_data));
+
+			const auto& shadow_cube_camera = light->GetShadowCubeCamera();
+			const auto& shadow_texture = shadow_cube_camera->GetShadowCubeTexture();
+			if (shadow_texture != nullptr)
+			{
+				const auto& projection = shadow_cube_camera->GetProjectionMatrix();
+
+				RSShadowTextureData shadow_texture_data;
+				shadow_texture_data.shadow_texture_index = shadow_texture->GetResourceIndex();
+				shadow_texture_data.inverse_texture_size = Vec2(projection._33, projection._43);
+
+				shadow_textures_data.emplace_back(std::move(shadow_texture_data));
+			}
 		}
 
 		for (const auto& light : m_spot_lights)
@@ -168,7 +183,6 @@ namespace client_fw
 		case eLightType::kPoint:
 		{
 			RegisterLightComponent(m_point_lights, light_comp);
-			m_num_of_shadow_texture += 5;
 			break;
 		}
 		case eLightType::kSpot:

@@ -7,6 +7,7 @@ namespace client_fw
 	CameraFrameResource::CameraFrameResource()
 	{
 		m_camera_data = CreateUPtr<UploadBuffer<RSCameraData>>(true);
+		m_cube_camera_data = CreateUPtr<UploadBuffer<RSCubeCameraData>>(true);
 	}
 
 	CameraFrameResource::~CameraFrameResource()
@@ -20,6 +21,7 @@ namespace client_fw
 
 	void CameraFrameResource::Shutdown()
 	{
+		m_cube_camera_data->Shutdown();
 		m_camera_data->Shutdown();
 	}
 }

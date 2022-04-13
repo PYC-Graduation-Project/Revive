@@ -12,6 +12,7 @@ namespace client_fw
         virtual ~SpotLightComponent() = default;
 
         virtual bool Initialize() override;
+        virtual void Shutdown() override;
 
     private:
         virtual void UpdateWorldMatrix() override;

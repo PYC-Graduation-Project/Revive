@@ -8,6 +8,12 @@ struct VS_SHADOW_OUT
     float4 sv_position : SV_POSITION;
 };
 
+struct GS_SHADOW_CUBE_OUT
+{
+    float4 sv_position : SV_POSITION;
+    uint render_target_index : SV_RENDERTARGETARRAYINDEX;
+};
+
 float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
 {
     float4 shadow_pos = mul(float4(position, 1.0f), shadow_data.uv_from_ndc);
@@ -35,6 +41,16 @@ float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
     }
     
     return percent_lit / 9.0f;
+}
+
+float CalcShadowCubeFactor(float3 to_pixel, ShadowTextureData shadow_data)
+{
+    float3 abs_to_pixel = abs(to_pixel);
+    
+    float z = max(abs_to_pixel.x, max(abs_to_pixel.y, abs_to_pixel.z));
+    float depth = (shadow_data.inverse_texture_size.x * z + shadow_data.inverse_texture_size.y) / z;
+    
+    return g_texture_cube_data[shadow_data.shadow_texture_index].SampleCmpLevelZero(g_sampler_comparison_pcf_shadow, to_pixel, depth);
 }
 
 #endif //__SHADOW_HLSL__

@@ -37,6 +37,8 @@ namespace client_fw
 			m_is_updated_viewport = false;
 		}
 
+		m_view_projection_matrix = m_view_matrix * m_projection_matrix;
+
 		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 	}
 

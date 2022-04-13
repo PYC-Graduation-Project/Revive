@@ -18,6 +18,7 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			m_render_item->Update(device, level_type);
 			break;
 		default:
@@ -37,6 +38,7 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			m_render_item->Draw(command_list, level_type, 
 				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
@@ -47,9 +49,33 @@ namespace client_fw
 		}
 	}
 
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		switch (level_type)
+		{
+		case eRenderLevelType::kShadow:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
+		case eRenderLevelType::kShadowCube:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadowCube", "vs_5_1", shader_blob);
+		default:
+			return D3D12_SHADER_BYTECODE();
+		}
+	}
+
+	D3D12_SHADER_BYTECODE OpaqueMeshShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		switch (level_type)
+		{
+		case eRenderLevelType::kShadowCube:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "GSOpaqueMeshForShadowCube", "gs_5_1", shader_blob);
+		default:
+			return MeshShader::CreateGeometryShader(shader_blob, level_type, pso_index);
+		}
+	}
+
 	std::vector<D3D12_INPUT_ELEMENT_DESC> OpaqueMeshShader::CreateInputLayout(eRenderLevelType level_type, int pso_index) const
 	{
-		if (level_type == eRenderLevelType::kShadow)
+		if (level_type == eRenderLevelType::kShadow || level_type == eRenderLevelType::kShadowCube)
 		{
 			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
 
@@ -68,6 +94,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			desc.DepthBias = 10000;
 			desc.DepthBiasClamp = 0.0f;
 			desc.SlopeScaledDepthBias = 1.0f;
@@ -86,9 +113,8 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kOpaque:
-			result &= CreatePipelineState(device, render_level, 1);
-			break;
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:
@@ -109,12 +135,10 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMaterialMesh", "vs_5_1", shader_blob);
-		case client_fw::eRenderLevelType::kShadow:
-			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
 		default:
-			return D3D12_SHADER_BYTECODE();
+			return OpaqueMeshShader::CreateVertexShader(shader_blob, level_type, pso_index);
 		}
 	}
 
@@ -122,7 +146,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueMaterialMesh", "ps_5_1", shader_blob);
 		default:
 			return GraphicsShader::CreatePixelShader(shader_blob, level_type, pso_index);
@@ -133,7 +157,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 		{
 			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(2);
 
@@ -142,7 +166,8 @@ namespace client_fw
 
 			return input_element_descs;
 		}
-		case client_fw::eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 		default:
 			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
 		}
@@ -157,12 +182,10 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueTextureMesh", "vs_5_1", shader_blob);
-		case client_fw::eRenderLevelType::kShadow:
-			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
 		default:
-			return D3D12_SHADER_BYTECODE();
+			return OpaqueMeshShader::CreateVertexShader(shader_blob, level_type, pso_index);
 		}
 	}
 
@@ -181,7 +204,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 		{
 			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
 
@@ -191,7 +214,8 @@ namespace client_fw
 
 			return input_element_descs;
 		}
-		case client_fw::eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 		default:
 			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
 		}
@@ -206,12 +230,10 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueNormalMapMesh", "vs_5_1", shader_blob);
-		case client_fw::eRenderLevelType::kShadow:
-			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "VSOpaqueMeshForShadow", "vs_5_1", shader_blob);
 		default:
-			return D3D12_SHADER_BYTECODE();
+			return OpaqueMeshShader::CreateVertexShader(shader_blob, level_type, pso_index);
 		}
 	}
 
@@ -219,7 +241,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Opaque.hlsl", "PSOpaqueNormalMapMesh", "ps_5_1", shader_blob);
 		default:
 			return GraphicsShader::CreatePixelShader(shader_blob, level_type, pso_index);
@@ -230,7 +252,7 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 		{
 			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
 
@@ -242,7 +264,8 @@ namespace client_fw
 
 			return input_element_descs;
 		}
-		case client_fw::eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 		default:
 			return OpaqueMeshShader::CreateInputLayout(level_type, pso_index);
 		}
