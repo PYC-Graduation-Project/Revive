@@ -30,7 +30,7 @@ void Room::EnterRoom(int c_id)
 
 void Room::SetRoundTime(int seconds)
 {
-	m_round_time = chrono::system_clock::now() + (1s * seconds);
+	m_round_time = chrono::system_clock::now() + (1ms * seconds);
 }
 
 

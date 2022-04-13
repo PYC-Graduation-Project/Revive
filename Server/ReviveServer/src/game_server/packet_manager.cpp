@@ -417,7 +417,7 @@ void PacketManager::SendTime(int c_id, float round_time)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_TIME;
 	packet.time = round_time;
-	
+	packet.send_time = chrono::system_clock::now().time_since_epoch().count();
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
@@ -677,11 +677,12 @@ void PacketManager::StartGame(int room_id)
 			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 	}
+	room->SetRoundTime(30000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10000));//30초다되면 넣어주는걸로 수정?
-	//g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
-	//	EVENT_TYPE::EVENT_TIME, 1000));
+	g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+		EVENT_TYPE::EVENT_TIME, 1000));
 	
 }
 
@@ -824,20 +825,18 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	case EVENT_TYPE::EVENT_TIME: {
 		//방으로 처리하도록 바꾸기
 		Room*room=m_room_manager->GetRoom(ev.target_id);
-		auto end_time = std::chrono::system_clock::now()+1000ms;
-		std::chrono::duration<float> elapsed = end_time - ev.start_time;
-		room->SetRoundTime(room->GetRoundTime() - elapsed.count());
-		//ro_time -= elapsed.count();
-		//cout << "duration:" << elapsed.count() << endl;
+		auto end_time = std::chrono::system_clock::now();
+		std::chrono::duration<float> elapsed = room->GetRoundTime()-end_time ;
+		
 		for (int pl : room->GetObjList())
 		{
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))
 				break;
-			SendTime(pl, room->GetRoundTime());
+			SendTime(pl, elapsed.count());
 		}
-		if (0.01f >= room->GetRoundTime())
+		if (end_time >= room->GetRoundTime())
 		{
-			room->SetRoundTime(30.0f);
+			room->SetRoundTime(30000);
 			room->SetRound(room->GetRound() + 1);
 			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
 				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 16));
