@@ -38,7 +38,7 @@ bool DB::Init()
 				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
 				// Connect to data source  
-				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"Revive_ODBC", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"Revive_wireless", SQL_NTS, (SQLWCHAR*)L"Revive_con", SQL_NTS, (SQLWCHAR*)L"revive",SQL_NTS);
 
 				// Allocate statement handle  
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
