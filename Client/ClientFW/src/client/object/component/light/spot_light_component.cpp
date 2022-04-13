@@ -61,6 +61,13 @@ namespace client_fw
 			GetWorldMatrix());
 	}
 
+	void SpotLightComponent::SetVisiblity(bool value)
+	{
+		m_visibility = value;
+		if (value)
+			m_shadow_camera->SetActive();
+	}
+
 	void SpotLightComponent::SetConeInnerAngle(float degrees)
 	{
 		m_cone_inner_angle = math::ToRadian(degrees);

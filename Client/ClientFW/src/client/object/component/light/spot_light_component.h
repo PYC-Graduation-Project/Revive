@@ -17,6 +17,7 @@ namespace client_fw
         virtual void UpdateWorldMatrix() override;
         virtual void UpdateLocalMatrix() override;
         virtual void UpdateOrientedBox() override;
+        virtual void SetVisiblity(bool value) override;
 
     private:
         float m_cone_inner_angle = math::ToRadian(0.0f); 
@@ -27,6 +28,7 @@ namespace client_fw
         void SetConeInnerAngle(float degrees);
         float GetConeOuterAngle() const { return m_cone_outer_angle; }
         void SetConeOuterAngle(float degrees);
+
 
     private:
         SPtr<ShadowCameraComponent> m_shadow_camera;

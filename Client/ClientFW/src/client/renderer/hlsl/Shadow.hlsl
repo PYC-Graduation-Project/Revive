@@ -3,6 +3,11 @@
 #ifndef __SHADOW_HLSL__
 #define __SHADOW_HLSL__
 
+struct VS_SHADOW_OUT
+{
+    float4 sv_position : SV_POSITION;
+};
+
 float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
 {
     float4 shadow_pos = mul(float4(position, 1.0f), shadow_data.uv_from_ndc);

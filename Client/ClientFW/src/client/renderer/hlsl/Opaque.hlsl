@@ -151,19 +151,16 @@ PS_GBUFFER_OUTPUT PSOpaqueNormalMapMesh(VS_OPAQUE_NORMAL_MAP_MESH_OUT input)
 // Opaque Mesh For Shadow
 //
 
+#include "shadow.hlsl"
+
 struct VS_OPAQUE_MESH_FOR_SHADOW_IN
 {
     float3 position : POSITION;
 };
 
-struct VS_OPAQUE_MESH_FOR_SHADOW_OUT
+VS_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID)
 {
-    float4 sv_position : SV_POSITION;
-};
-
-VS_OPAQUE_MESH_FOR_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID)
-{
-    VS_OPAQUE_MESH_FOR_SHADOW_OUT output;
+    VS_SHADOW_OUT output;
     
     InstanceData i_data = g_instance_data[instance_id];
     

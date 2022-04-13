@@ -12,8 +12,10 @@
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
+#include "object/actor/billboard_actor.h"
 #include "object/gamemode/third_game_mode.h"
 #include "object/actor/collision_test_actor.h"
+#include "object/actor/animator.h"
 
 
 namespace event_test
@@ -48,6 +50,40 @@ namespace event_test
 		plane->SetRotation(quat::CreateQuaternionFromAxis(vec3::AXIS_X, math::ToRadian(-90.0f)));
 		plane->SetScale(25.0f);
 
+		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
+		SpawnActor(siege);
+		siege->SetPosition(Vec3{ -2000.0f, 200.0f, 0.0f });
+		siege->SetScale(0.5f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(3000.0f, 0.0f, 0.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(-90.0f), 0.0f);
+		plane->SetScale(25.0f);
+
+		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
+		SpawnActor(siege);
+		siege->SetPosition(Vec3{ 2300.0f, -200.0f, 200.0f });
+		siege->SetScale(0.5f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(-3000.0f, 0.0f, 0.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(90.0f), 0.0f);
+		plane->SetScale(25.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(2200.0f, 0.0f, 2200.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(-135.0f), 0.0f);
+		plane->SetScale(25.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(-2200.0f, 0.0f, 2200.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(135.0f), 0.0f);
+		plane->SetScale(25.0f);
+
 
 		auto sphere = CreateSPtr<CollisionTestActor>();
 		SpawnActor(sphere);
@@ -79,10 +115,70 @@ namespace event_test
 		s_light->SetConeOuterAngle(22.0f);
 		SpawnActor(s_light);
 
+		s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));
+		s_light->SetPosition(Vec3(-1200.0f, 0.0f, 0.0f));
+		s_light->SetAttenuationRadius(2000.0f);
+		s_light->SetRotation(0.0f, math::ToRadian(-90.0f), 0.0f);
+		s_light->SetConeOuterAngle(33.0f);
+		SpawnActor(s_light);
+
+		s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(400000.0f, 400000.0f, 0.0f));
+		s_light->SetPosition(Vec3(1200.0f, 0.0f, 0.0f));
+		s_light->SetAttenuationRadius(2000.0f);
+		s_light->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
+		s_light->SetConeOuterAngle(44.0f);
+		SpawnActor(s_light);
+
+		s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(0.0f, 400000.0f, 0.0f));
+		s_light->SetPosition(Vec3(1500.0f, 0.0f, 1500.0f));
+		s_light->SetAttenuationRadius(2000.0f);
+		s_light->SetRotation(0.0f, math::ToRadian(45.0f), 0.0f);
+		s_light->SetConeOuterAngle(30.0f);
+		SpawnActor(s_light);
+
+		s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
+		s_light->SetPosition(Vec3(-1500.0f, 0.0f, 1500.0f));
+		s_light->SetAttenuationRadius(3000.0f);
+		s_light->SetRotation(0.0f, math::ToRadian(-45.0f), 0.0f);
+		s_light->SetConeOuterAngle(45.0f);
+		SpawnActor(s_light);
+
+		s_light = CreateSPtr<SpotLight>();
+		s_light->SetLightColor(Vec3(0.0f, 0.0f, 400000.0f));
+		s_light->SetPosition(Vec3(2000.0f, 0.0f, 2000.0f));
+		s_light->SetAttenuationRadius(3000.0f);
+		s_light->SetRotation(0.0f, math::ToRadian(135.0f), 0.0f);
+		s_light->SetConeOuterAngle(45.0f);
+		SpawnActor(s_light);
+
 		auto tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,
 			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);
 		SpawnActor(tree);
 		tree->SetPosition(Vec3(0.0f, 0.0f, 500.0f));
+
+		tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,
+			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);
+		SpawnActor(tree);
+		tree->SetPosition(Vec3(300.0f, 200.0f, 2500.0f));
+
+		auto billboard_tree = CreateSPtr<BillboardActor>(eMobilityState::kStatic, "../Contents/Tree_02.dds", Vec2(200.0f, 400.0f), true);
+		SpawnActor(billboard_tree);
+		billboard_tree->SetPosition(Vec3(300.0f, -200.0f, 2500.0f));
+
+		auto animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
+		animator->SetPosition(Vec3(-2000.0f, 0.0f, 2000.0f));
+		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(-45.0f), 0.0f);
+		animator->SetScale(100.0f);
+		SpawnActor(animator);
+
+		animator = CreateSPtr<Animator>("../Contents/Revive/violet.rev", "idle");
+		animator->SetPosition(Vec3(2000.0f, 0.0f, 2000.0f));
+		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(45.0f), 0.0f);
+		SpawnActor(animator);
 	
 		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
 		SpawnActor(sky_cube);
