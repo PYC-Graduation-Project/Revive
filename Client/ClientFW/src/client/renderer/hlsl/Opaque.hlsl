@@ -170,4 +170,35 @@ VS_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint ins
     return output;
 }
 
+//
+// Opaque Mesh For Cube Shadow
+//
+
+float4 VSOpaqueMeshForShadowCube(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
+{
+    InstanceData i_data = g_instance_data[instance_id];
+    
+    return mul(float4(input.position, 1.0f), i_data.world);
+}
+
+[maxvertexcount(18)]
+void GSOpaqueMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout TriangleStream<GS_SHADOW_CUBE_OUT> out_stream)
+{
+    GS_SHADOW_CUBE_OUT output;
+    
+    [unroll]
+    for (int face = 0; face < 6; ++face)
+    {
+        output.render_target_index = face;
+        
+        for (int i = 0; i < 3; ++i)
+        {
+            output.sv_position = mul(input[i], g_cube_view_projection[face]);
+            out_stream.Append(output);
+        }
+
+        out_stream.RestartStrip();
+    }
+}
+
 #endif // __OPAQUE_HLSL__

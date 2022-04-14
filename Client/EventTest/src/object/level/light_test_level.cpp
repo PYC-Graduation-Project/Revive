@@ -11,6 +11,7 @@
 
 #include "object/level/light_test_level.h"
 #include "object/actor/rotating_cube.h"
+#include "object/actor/local_rotating_cube.h"
 #include "object/actor/material_billboard_actor.h"
 #include "object/actor/billboard_actor.h"
 #include "object/gamemode/third_game_mode.h"
@@ -39,9 +40,36 @@ namespace event_test
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ 500.0f, 0.0f, 800.0f });
 
+		auto local_cube = CreateSPtr<LocalRotatingCube>();
+		SpawnActor(local_cube);
+		local_cube->SetPosition(Vec3{ 0.0f, 300.0f, -2000.0f });
+		local_cube->SetLocalPosition(Vec3(0.0f, 0.0f, 500.0f));
+		local_cube->SetRotatingSpeed(300.0f);
+
+		local_cube = CreateSPtr<LocalRotatingCube>();
+		SpawnActor(local_cube);
+		local_cube->SetPosition(Vec3{ 0.0f, 0.0f, -2000.0f });
+		local_cube->SetLocalPosition(Vec3(0.0f, 0.0f, 700.0f));
+
+		local_cube = CreateSPtr<LocalRotatingCube>();
+		SpawnActor(local_cube);
+		local_cube->SetPosition(Vec3{ 0.0f, -300.0f, -2000.0f });
+		local_cube->SetLocalPosition(Vec3(0.0f, 0.0f, 400.0f));
+		local_cube->SetRotatingSpeed(120.0f);
+			
 		auto siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
 		SpawnActor(siege);
 		siege->SetPosition(Vec3{ 0.0f, 0.0f, 2000.0f });
+		siege->SetScale(0.5f);
+
+		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
+		SpawnActor(siege);
+		siege->SetPosition(Vec3{ -2000.0f, 200.0f, 0.0f });
+		siege->SetScale(0.5f);
+
+		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
+		SpawnActor(siege);
+		siege->SetPosition(Vec3{ 2300.0f, -200.0f, 200.0f });
 		siege->SetScale(0.5f);
 
 		auto plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
@@ -50,22 +78,12 @@ namespace event_test
 		plane->SetRotation(quat::CreateQuaternionFromAxis(vec3::AXIS_X, math::ToRadian(-90.0f)));
 		plane->SetScale(25.0f);
 
-		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
-		SpawnActor(siege);
-		siege->SetPosition(Vec3{ -2000.0f, 200.0f, 0.0f });
-		siege->SetScale(0.5f);
-
 		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
 		SpawnActor(plane);
 		plane->SetPosition(Vec3(3000.0f, 0.0f, 0.0f));
 		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(-90.0f), 0.0f);
 		plane->SetScale(25.0f);
-
-		siege = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/Castle/SiegeRam.obj");
-		SpawnActor(siege);
-		siege->SetPosition(Vec3{ 2300.0f, -200.0f, 200.0f });
-		siege->SetScale(0.5f);
-
+	
 		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
 		SpawnActor(plane);
 		plane->SetPosition(Vec3(-3000.0f, 0.0f, 0.0f));
@@ -84,6 +102,35 @@ namespace event_test
 		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(135.0f), 0.0f);
 		plane->SetScale(25.0f);
 
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(0.0f, 0.0f, -3000.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(0.0f), 0.0f);
+		plane->SetScale(20.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(1000.0f, 0.0f, -2000.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(-90.0f), 0.0f);
+		plane->SetScale(20.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(-1000.0f, 0.0f, -2000.0f));
+		plane->SetRotation(math::ToRadian(90.0f), math::ToRadian(90.0f), 0.0f);
+		plane->SetScale(20.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(0.0f, 1000.0f, -2000.0f));
+		plane->SetRotation(math::ToRadian(180.0f), 0.0f, 0.0f);
+		plane->SetScale(20.0f);
+
+		plane = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "../Contents/plane.obj");
+		SpawnActor(plane);
+		plane->SetPosition(Vec3(0.0f, -1000.0f, -2000.0f));
+		plane->SetRotation(math::ToRadian(0.0f), 0.0f, 0.0f);
+		plane->SetScale(20.0f);
 
 		auto sphere = CreateSPtr<CollisionTestActor>();
 		SpawnActor(sphere);
@@ -106,6 +153,24 @@ namespace event_test
 		p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(0.0f, 0.0f, 400000.0f));
 		p_light->SetPosition(Vec3(500.0f, 0.0f, 0.0f));
+		SpawnActor(p_light);
+
+		p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));
+		p_light->SetPosition(Vec3(0.0f, 0.0f, -2000.0f));
+		p_light->SetAttenuationRadius(1500.0f);
+		SpawnActor(p_light);
+
+		p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(400000.0f, 400000.0f, 0.0f));
+		p_light->SetPosition(Vec3(-500.0f, 0.0f, -2000.0f));
+		p_light->SetAttenuationRadius(1500.0f);
+		SpawnActor(p_light);
+
+		p_light = CreateSPtr<PointLight>();
+		p_light->SetLightColor(Vec3(0.0f, 400000.0f, 400000.0f));
+		p_light->SetPosition(Vec3(500.0f, 0.0f, -2000.0f));
+		p_light->SetAttenuationRadius(1500.0f);
 		SpawnActor(p_light);
 
 		auto s_light = CreateSPtr<SpotLight>();
@@ -178,6 +243,23 @@ namespace event_test
 		animator = CreateSPtr<Animator>("../Contents/Revive/violet.rev", "idle");
 		animator->SetPosition(Vec3(2000.0f, 0.0f, 2000.0f));
 		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(45.0f), 0.0f);
+		SpawnActor(animator);
+
+		animator = CreateSPtr<Animator>("../Contents/Revive/violet.rev", "idle");
+		animator->SetPosition(Vec3(0.0f, 0.0f, -2500.0f));
+		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
+		SpawnActor(animator);
+
+		animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
+		animator->SetPosition(Vec3(0.0f, 400.0f, -2800.0f));
+		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
+		animator->SetScale(100.0f);
+		SpawnActor(animator);
+
+		animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
+		animator->SetPosition(Vec3(0.0f, -700.0f, -2200.0f));
+		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
+		animator->SetScale(100.0f);
 		SpawnActor(animator);
 	
 		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");

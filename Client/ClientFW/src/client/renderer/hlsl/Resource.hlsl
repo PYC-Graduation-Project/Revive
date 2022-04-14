@@ -74,4 +74,9 @@ cbuffer cbCameraData : register(b1, space0)
     uint g_num_of_directional_light;
 }
 
+cbuffer cbShadowCubeCameraData : register(b2, space0)
+{
+    matrix g_cube_view_projection[6];
+}
+
 #endif // __RESOURCE_HLSL__

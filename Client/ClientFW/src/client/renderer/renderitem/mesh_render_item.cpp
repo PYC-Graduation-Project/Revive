@@ -157,7 +157,11 @@ namespace client_fw
 							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
 							instance_data->GetByteSize());
 
-						mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
+						// 개선될 수 있는 여지가 있음
+						if(level_type == eRenderLevelType::kShadow || level_type == eRenderLevelType::kShadowCube)
+							mesh_info.mesh->DrawForShadow(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
+						else
+							mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
 					}
 				}
 			}
@@ -370,7 +374,10 @@ namespace client_fw
 							(instance_info.start_index + mesh_info.draw_start_index + mesh_info.start_index_of_lod_instance_data[lod]) *
 							instance_data->GetByteSize());
 
-						mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
+						if (level_type == eRenderLevelType::kShadow || level_type == eRenderLevelType::kShadowCube)
+							mesh_info.mesh->DrawForShadow(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
+						else
+							mesh_info.mesh->Draw(command_list, mesh_info.num_of_lod_instance_data[lod], lod);
 					}
 				}
 			}

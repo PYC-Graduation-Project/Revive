@@ -252,7 +252,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.position = light_data.light_position;
         light.attenuation_radius = light_data.attenuation_radius;
         
-        color += CalcPointLight(g_buffer_data.position, material, light);
+        color += CalcPointLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         
         color = color / (color + 1.0f);
         color = pow(abs(color), (1.0f / 2.2f));

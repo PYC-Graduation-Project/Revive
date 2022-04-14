@@ -115,14 +115,14 @@ namespace client_fw
 		for (UINT i = 0; i < m_num_of_gbuffer_texture; ++i)
 		{
 			rtv_clear_value.Format = gbuffer_rtv_formats[i];
-			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1,
+			m_gbuffer_textures.emplace_back(TextureCreator::Create2DTexture(device, gbuffer_rtv_formats[i], m_texture_size, 1, 1,
 				D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value));
 			D3DUtil::SetObjectName(m_gbuffer_textures[i].Get(), "Render g-buffer texture");
 		}
 
 		//최종 rendering texture를 생성한다.
 		rtv_clear_value.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1,
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &rtv_clear_value);
 		D3DUtil::SetObjectName(m_texture_resource.Get(), "Render rtv texture");
 
@@ -150,7 +150,7 @@ namespace client_fw
 		//depth stencil buffer를 생성한다.
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
 
-		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
+		m_dsv_texture = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_DEPTH_WRITE, &dsv_clear_value);
 		D3DUtil::SetObjectName(m_dsv_texture.Get(), "Render dsv texture");
 
@@ -260,7 +260,7 @@ namespace client_fw
 	{
 		if (CreateDescriptorHeaps(device, command_list) == false)
 		{
-			LOG_ERROR("Could not create descriptor heaps : [render texture]");
+			LOG_ERROR("Could not create descriptor heaps : [shadow texture]");
 			return false;
 		}
 
@@ -288,14 +288,14 @@ namespace client_fw
 	void ShadowTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{	
 		//depth stencil buffer를 생성한다.
-		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D24_UNORM_S8_UINT, {1.0f, 0} };
+		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D32_FLOAT, {1.0f, 0} };
 
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R24G8_TYPELESS, m_texture_size, 1,
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R32_TYPELESS, m_texture_size, 1, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, &dsv_clear_value);
 		D3DUtil::SetObjectName(m_texture_resource.Get(), "depth dsv texture");
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
-		dsv_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
 		dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;
 		dsv_desc.Texture2D.MipSlice = 0;
@@ -320,6 +320,82 @@ namespace client_fw
 			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
 
+	ShadowCubeTexture::ShadowCubeTexture(const IVec2& size)
+		: Texture(eTextureType::kShadowCubeMap)
+		, m_texture_size(size)
+	{
+	}
+
+	ShadowCubeTexture::~ShadowCubeTexture()
+	{
+	}
+
+	bool ShadowCubeTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		if (CreateDescriptorHeaps(device, command_list) == false)
+		{
+			LOG_ERROR("Could not create descriptor heaps : [shadow cube texture]");
+			return false;
+		}
+
+		CreateDSVTexture(device, command_list);
+
+		return true;
+	}
+
+	bool ShadowCubeTexture::CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
+		dsv_heap_desc.NumDescriptors = 1;
+		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		dsv_heap_desc.NodeMask = 0;
+		if (FAILED(device->CreateDescriptorHeap(&dsv_heap_desc, IID_PPV_ARGS(&m_dsv_descriptor_heap))))
+		{
+			LOG_ERROR("Could not create DSV descriptor heap");
+			return false;
+		}
+
+		return true;
+	}
+
+	void ShadowCubeTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		//depth stencil buffer를 생성한다.
+		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D32_FLOAT, {1.0f, 0} };
+
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R32_TYPELESS, m_texture_size, 6, 1,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, &dsv_clear_value);
+		D3DUtil::SetObjectName(m_texture_resource.Get(), "depth dsv texture");
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc;
+		dsv_desc.Format = DXGI_FORMAT_D32_FLOAT;
+		dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+		dsv_desc.Texture2DArray.MipSlice = 0;
+		dsv_desc.Texture2DArray.FirstArraySlice = 0;
+		dsv_desc.Texture2DArray.ArraySize = 6;
+		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
+		device->CreateDepthStencilView(m_texture_resource.Get(), &dsv_desc, dsv_heap_handle);
+		m_dsv_cpu_handle = dsv_heap_handle;
+	}
+
+	void ShadowCubeTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
+	}
+
+	void ShadowCubeTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
+
 	RenderTextTexture::RenderTextTexture(const IVec2& size)
 		: Texture(eTextureType::kRenderUI), m_texture_size(size)
 	{
@@ -329,7 +405,7 @@ namespace client_fw
 	{
 		D3D12_CLEAR_VALUE rtv_clear_value{ DXGI_FORMAT_R8G8B8A8_UNORM, {0.0f, 0.0f, 0.0f, 0.0f} };
 		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM,
-			m_texture_size, 1, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+			m_texture_size, 1, 1, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
 			D3D12_RESOURCE_STATE_RENDER_TARGET, &rtv_clear_value);
 		m_texture_resource->SetName(L"Render UI Texture");
 

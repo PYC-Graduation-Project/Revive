@@ -18,6 +18,7 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			m_render_item->Update(device, level_type);
 			break;
 		default:
@@ -36,6 +37,7 @@ namespace client_fw
 		{
 		case eRenderLevelType::kOpaque:
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			m_render_item->Draw(command_list, level_type,
 				[this, command_list, level_type]() {
 					command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
@@ -50,12 +52,25 @@ namespace client_fw
 	{
 		switch (level_type)
 		{
-		case client_fw::eRenderLevelType::kOpaque:
+		case eRenderLevelType::kOpaque:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "VSSkeletalMesh", "vs_5_1", shader_blob);
-		case client_fw::eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadow:
 			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "VSSkeletalMeshForShadow", "vs_5_1", shader_blob);
+		case eRenderLevelType::kShadowCube:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "VSSkeletalMeshForShadowCube", "vs_5_1", shader_blob);
 		default:
 			return D3D12_SHADER_BYTECODE();
+		}
+	}
+
+	D3D12_SHADER_BYTECODE SkeletalMeshShader::CreateGeometryShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const
+	{
+		switch (level_type)
+		{
+		case eRenderLevelType::kShadowCube:
+			return CompileShader(L"../ClientFW/src/client/renderer/hlsl/Skeletal.hlsl", "GSSkeletalMeshForShadowCube", "gs_5_1", shader_blob);
+		default:
+			return MeshShader::CreateGeometryShader(shader_blob, level_type, pso_index);
 		}
 	}
 
@@ -76,6 +91,7 @@ namespace client_fw
 		{
 		case client_fw::eRenderLevelType::kOpaque:
 		case client_fw::eRenderLevelType::kShadow:
+		case client_fw::eRenderLevelType::kShadowCube:
 		{
 			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
 			input_element_descs.resize(5);
@@ -100,6 +116,7 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			desc.DepthBias = 10000;
 			desc.DepthBiasClamp = 0.0f;
 			desc.SlopeScaledDepthBias = 1.0f;
@@ -118,9 +135,8 @@ namespace client_fw
 		switch (render_level->GetRenderLevelType())
 		{
 		case eRenderLevelType::kOpaque:
-			result &= CreatePipelineState(device, render_level, 1);
-			break;
 		case eRenderLevelType::kShadow:
+		case eRenderLevelType::kShadowCube:
 			result &= CreatePipelineState(device, render_level, 1);
 			break;
 		default:

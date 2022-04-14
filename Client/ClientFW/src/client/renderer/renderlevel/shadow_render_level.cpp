@@ -6,7 +6,13 @@ namespace client_fw
 {
 	ShadowRenderLevel::ShadowRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature)
 		: GraphicsRenderLevel(eRenderLevelType::kShadow, root_signature,
-			{}, DXGI_FORMAT_D24_UNORM_S8_UINT)
+			{}, DXGI_FORMAT_D32_FLOAT)
+	{
+	}
+
+	ShadowCubeRenderLevel::ShadowCubeRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature)
+		: GraphicsRenderLevel(eRenderLevelType::kShadowCube, root_signature,
+			{}, DXGI_FORMAT_D32_FLOAT)
 	{
 	}
 }
