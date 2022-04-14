@@ -20,7 +20,7 @@ namespace revive
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
 
-	private:
+	protected:
 		std::vector<SPtr<StaticMeshComponent>> m_static_mesh_components;
 		std::vector<SPtr<BoxComponent>> m_box_components;
 	};
