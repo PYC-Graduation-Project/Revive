@@ -1,10 +1,6 @@
 #pragma once
 #include "object/actor/enemy.h"
 
-namespace client_fw
-{
-}
-
 namespace revive
 {
 	class SkeletonSoldier : public Enemy
@@ -14,6 +10,7 @@ namespace revive
 		virtual ~SkeletonSoldier() = default;
 
 		virtual bool Initialize() override;
+		void Fire();
 		virtual void Shutdown() override;
 		//virtual void Update(float delta_time) override;
 

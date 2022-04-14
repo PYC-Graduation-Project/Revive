@@ -21,8 +21,8 @@ namespace revive
 
 		m_projectile_movement_component->SetInitialSpeed(1000.0f);
 		m_projectile_movement_component->SetProjectileGravityScale(0.0f);
-
 		ret &= AttachComponent(m_projectile_movement_component);
+
 		
 		m_static_mesh_component->SetMesh("../Contents/Sphere.obj");
 		m_static_mesh_component->SetLocalScale(0.1f);
@@ -56,14 +56,19 @@ namespace revive
 		m_projectile_movement_component->SetProjectileGravityScale(gravity_scale);
 	}
 
+	void Projectile::SetInitialSpeed(float initial_speed)
+	{
+		m_projectile_movement_component->SetInitialSpeed(initial_speed);
+	}
+
 	void Projectile::SetVelocity(const Vec3& velocity)
 	{
 		m_projectile_movement_component->SetVelocity(velocity);
 	}
 
-	void Projectile::SetCollisionInfo(bool is_collision, const std::string collision_type, const std::string collisionable_types, bool genrate_collision_event)
+	void Projectile::SetCollisionInfo(bool is_collision, std::string&& collision_type, std::set<std::string>&& collisionable_types, bool genrate_collision_event)
 	{
-		m_sphere_component->SetCollisionInfo(is_collision, false, collision_type.c_str(), { collisionable_types.c_str() }, genrate_collision_event);
+		m_sphere_component->SetCollisionInfo(is_collision, false, move(collision_type), move(collisionable_types), genrate_collision_event);
 	}
 
 	void Projectile::SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)

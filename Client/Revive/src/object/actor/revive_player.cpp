@@ -13,6 +13,7 @@
 #include "object/actor/enemy.h"
 #include "object/statemachine/state_machine.h"
 #include "object/actor/projectile.h"
+#include "object/actor/bullet.h"
 #include "object/actor/revive_player.h"
 
 namespace revive
@@ -55,19 +56,12 @@ namespace revive
 		
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, true, "block", { "block" }, true);
+		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "wall","enemy agro","enemy attack"}, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
-			LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
+			//LOG_INFO("Player sphere component {0} Player Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 			});
-		
-		const auto& sphere_agro = CreateSPtr<SphereComponent>(32.f,"Is Cognized");
-		sphere_agro->SetCollisionInfo(true, false, "agro", { "agro" }, true);
-		ret &= AttachComponent(sphere_agro);
-		const auto& sphere_attack = CreateSPtr<SphereComponent>(32.f, "Is Attacked");
-		sphere_attack->SetCollisionInfo(true, false, "player attack", { "player attack" }, true);
-		ret &= AttachComponent(sphere_attack);
 
 		//Hit Box
 		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>(Vec3{40.f,40.f,40.f});
@@ -89,7 +83,7 @@ namespace revive
 
 		for (const auto& hit_box : m_hit_boxes)
 		{
-			hit_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, false);
+			hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe"}, false);
 			ret &= AttachComponent(hit_box);
 		}
 
@@ -158,23 +152,26 @@ namespace revive
 		RotatePlayerFromCameraDirection(direction);
 
 		//총알 스폰
-		SPtr<Projectile> bullet = CreateSPtr<Projectile>("bullet");
+		const auto& bullet = CreateSPtr<Bullet>();
 		bullet->SetPosition(GetPosition() + Vec3{0.0f,50.0f,0.0f});
 		bullet->SetBlockingSphereRadius(10.f);
 		bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
-		bullet->SetCollisionInfo(true, "EnemyHit", "EnemyHit", true);
+		bullet->SetCollisionInfo(true, "bullet", { "enemy hit"}, true);
 		bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 		const SPtr<SceneComponent>& other_component)
 		{
+			LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 			const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-			
-			int enemy_hp = enemy->GetHP();
-			if (enemy_hp > 0)
-				enemy->Hit();
+			if (enemy != nullptr)
+			{
+				int enemy_hp = enemy->GetHP();
+				if (enemy_hp > 0)
+					enemy->Hit();
 
-			LOG_INFO("충돌 부위 :" + other_component->GetName() );
-			bullet->SetCollisionInfo(false, "default", "default", false);
-			bullet->SetActorState(eActorState::kDead);
+				LOG_INFO("충돌 부위 :" + other_component->GetName());
+				bullet->SetActorState(eActorState::kDead);
+			}
+			
 		});
 		SpawnActor(bullet);
 

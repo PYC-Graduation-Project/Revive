@@ -43,4 +43,12 @@ namespace revive
 			
 		}
 	}
+	void ProjectileMovementComponent::SetInitialSpeed(const float initial_speed)
+	{
+		if (initial_speed > 0.f)
+		{
+			m_velocity.Normalize();
+			m_velocity = m_velocity * initial_speed;
+		}
+	}
 }

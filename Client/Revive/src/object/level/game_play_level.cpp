@@ -7,17 +7,23 @@
 #include "object/level/game_play_level.h"
 #include <client/object/level/gamemode/game_mode_base.h>
 #include "object/gamemode/revive_game_mode.h"
+#include "object/actor/skeleton_king.h"
+#include "object/actor/skeleton_soldier.h"
 
 namespace revive
 {
+
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
 	}
 	bool GamePlayLevel::Initialize()
 	{
-		//auto police = CreateSPtr<StaticMeshActor>( "../Contents/Cube.obj");
-		
+		auto police = CreateSPtr<SkeletonKing>();
+		SpawnActor(police);
+		auto king = CreateSPtr<SkeletonSoldier>();
+		king->SetPosition(Vec3{ 2400.0f,300.0f,1500.0f });
+		SpawnActor(king);
 		/*for (int i = 0; i < 15; ++i)
 		{
 			auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "Contents/cliff_block_rock.obj");

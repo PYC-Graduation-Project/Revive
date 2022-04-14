@@ -35,7 +35,7 @@ namespace revive
 
 		void SetMaxSpeed(const float max_speed) { m_max_speed = max_speed; }
 
-		void SetInitialSpeed(const float initial_speed) { m_initial_speed = initial_speed; }
+		void SetInitialSpeed(const float initial_speed);
 
 		void SetProjectileGravityScale(const float projectile_gravity_scale) { m_projectile_gravity_scale = projectile_gravity_scale; }
 	};

@@ -3,6 +3,7 @@
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include "object/actor/Enemy.h"
 
 namespace revive
@@ -27,7 +28,7 @@ namespace revive
 		m_skeletal_mesh_component->SetName(m_name + " Mesh");
 
 		ret &= AttachComponent(m_agro_sphere);
-		m_agro_sphere->SetCollisionInfo(true, false, "agro",{"agro"}, true);
+		m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player","base"}, true);
 		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			Vec3 direction = GetPosition() - other_actor->GetPosition();
@@ -37,7 +38,7 @@ namespace revive
 		});
 
 		ret &= AttachComponent(m_attack_sphere);
-		m_attack_sphere->SetCollisionInfo(true, false, "player attack", { "player attack" }, true);
+		m_attack_sphere->SetCollisionInfo(true, false, "enemy attack", { "player","base"}, true);
 		
 		//Test
 		if (Input::RegisterAxisEvent(m_name +" move forward", { AxisEventKeyInfo{eKey::kUArrow, 1.0f}, AxisEventKeyInfo{eKey::kDArrow, -1.0f} },

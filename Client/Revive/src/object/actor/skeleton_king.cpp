@@ -36,7 +36,7 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");
 		
 		m_hp = 20;
-		SetPosition(Vec3{ 2400.0f,300.0f,4000.0f });
+		SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
 		SetScale(0.6f);
 		return ret;
 	}
@@ -49,7 +49,7 @@ namespace revive
 		bool ret = true;
 		m_blocking_sphere->SetExtents(80.0f);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f }); //x,y,z 상관없음
-		m_blocking_sphere->SetCollisionInfo(false, false, "default", { "default" }, true);
+		m_blocking_sphere->SetCollisionInfo(false, false, "enemy", { "wall" }, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
@@ -61,7 +61,7 @@ namespace revive
 		//멀티에서만 사용
 		m_blocking_box->SetExtents(Vec3{50.f,200.f,50.f});
 		m_blocking_box->SetLocalPosition(Vec3{ 0.0f,m_blocking_box->GetExtents().y,0.0f });
-		m_blocking_box->SetCollisionInfo(true, false, "default", { "default" }, true);
+		m_blocking_box->SetCollisionInfo(true, false, "enemy", { "wall" }, true);
 		m_blocking_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
@@ -121,7 +121,7 @@ namespace revive
 
 		for (const auto& hit_box : m_hit_boxes)
 		{
-			hit_box->SetCollisionInfo(true, false, "EnemyHit", { "EnemyHit" }, false);
+			hit_box->SetCollisionInfo(true, false, "enemy hit", { "bullet" }, false);
 			ret &= AttachComponent(hit_box);
 		}
 
