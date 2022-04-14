@@ -246,8 +246,9 @@ namespace client_fw
 			LOG_WARN("Out of range of texture GBuffer Index");
 	}
 
-	ShadowTexture::ShadowTexture(const IVec2& size)
-		: Texture(eTextureType::kShadow)
+
+	ShadowTexture::ShadowTexture(eTextureType type, const IVec2& size)
+		: Texture(type)
 		, m_texture_size(size)
 	{
 	}
@@ -284,8 +285,31 @@ namespace client_fw
 
 		return true;
 	}
+	void ShadowTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-	void ShadowTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
+	}
+
+	void ShadowTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
+	{
+		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
+
+	Shadow2DTexture::Shadow2DTexture(const IVec2& size)
+		: ShadowTexture(eTextureType::kShadow, size)
+	{
+	}
+
+	Shadow2DTexture::~Shadow2DTexture()
+	{
+	}
+
+	void Shadow2DTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{	
 		//depth stencil buffer를 생성한다.
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D32_FLOAT, {1.0f, 0} };
@@ -305,58 +329,13 @@ namespace client_fw
 		m_dsv_cpu_handle = dsv_heap_handle;
 	}
 
-	void ShadowTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
-		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
-	}
-
-	void ShadowTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-	}
-
 	ShadowCubeTexture::ShadowCubeTexture(const IVec2& size)
-		: Texture(eTextureType::kShadowCubeMap)
-		, m_texture_size(size)
+		: ShadowTexture(eTextureType::kShadowCubeMap, size)
 	{
 	}
 
 	ShadowCubeTexture::~ShadowCubeTexture()
 	{
-	}
-
-	bool ShadowCubeTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
-	{
-		if (CreateDescriptorHeaps(device, command_list) == false)
-		{
-			LOG_ERROR("Could not create descriptor heaps : [shadow cube texture]");
-			return false;
-		}
-
-		CreateDSVTexture(device, command_list);
-
-		return true;
-	}
-
-	bool ShadowCubeTexture::CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC dsv_heap_desc;
-		dsv_heap_desc.NumDescriptors = 1;
-		dsv_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsv_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		dsv_heap_desc.NodeMask = 0;
-		if (FAILED(device->CreateDescriptorHeap(&dsv_heap_desc, IID_PPV_ARGS(&m_dsv_descriptor_heap))))
-		{
-			LOG_ERROR("Could not create DSV descriptor heap");
-			return false;
-		}
-
-		return true;
 	}
 
 	void ShadowCubeTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -379,21 +358,6 @@ namespace client_fw
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
 		device->CreateDepthStencilView(m_texture_resource.Get(), &dsv_desc, dsv_heap_handle);
 		m_dsv_cpu_handle = dsv_heap_handle;
-	}
-
-	void ShadowCubeTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
-		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
-	}
-
-	void ShadowCubeTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
-	{
-		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-			m_texture_resource.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
 
 	RenderTextTexture::RenderTextTexture(const IVec2& size)

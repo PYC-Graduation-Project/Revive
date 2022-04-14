@@ -159,6 +159,7 @@ namespace event_test
 		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));
 		p_light->SetPosition(Vec3(0.0f, 0.0f, -2000.0f));
 		p_light->SetAttenuationRadius(1500.0f);
+		p_light->SetShadowTextureSize(2000);
 		SpawnActor(p_light);
 
 		p_light = CreateSPtr<PointLight>();
@@ -210,6 +211,7 @@ namespace event_test
 		s_light->SetAttenuationRadius(3000.0f);
 		s_light->SetRotation(0.0f, math::ToRadian(-45.0f), 0.0f);
 		s_light->SetConeOuterAngle(45.0f);
+		s_light->SetShadowTextureSize(2000);
 		SpawnActor(s_light);
 
 		s_light = CreateSPtr<SpotLight>();

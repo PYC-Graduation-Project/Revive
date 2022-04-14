@@ -63,7 +63,14 @@ PS_GBUFFER_OUTPUT PSSkeletalMesh(VS_SKELETAL_MESH_OUT input)
 // Skeletal Mesh For Shadow
 //
 
-VS_SHADOW_OUT VSSkeletalMeshForShadow(VS_SKELETAL_MESH_IN input, uint instance_id : SV_InstanceID)
+struct VS_SKELETAL_MESH_FOR_SHADOW_IN
+{
+    float3 position : POSITION;
+    float4 weights : BONEWEIGHT;
+    int4 indices : BONEINDEX;
+};
+
+VS_SHADOW_OUT VSSkeletalMeshForShadow(VS_SKELETAL_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID)
 {
     VS_SHADOW_OUT output;
 
@@ -88,7 +95,7 @@ VS_SHADOW_OUT VSSkeletalMeshForShadow(VS_SKELETAL_MESH_IN input, uint instance_i
 // Skeletal Mesh For Cube Shadow
 //
 
-float4 VSSkeletalMeshForShadowCube(VS_SKELETAL_MESH_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
+float4 VSSkeletalMeshForShadowCube(VS_SKELETAL_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
 {
     InstanceData i_data = g_instance_data[instance_id];
 	
@@ -114,6 +121,7 @@ void GSSkeletalMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout T
     {
         output.render_target_index = face;
         
+        [unroll]
         for (int i = 0; i < 3; ++i)
         {
             output.sv_position = mul(input[i], g_cube_view_projection[face]);

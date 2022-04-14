@@ -27,6 +27,10 @@ namespace client_fw
 		void SetConeInnerAngle(float degree);
 		float GetConeOuterAngle() const;
 		void SetConeOuterAngle(float degree);
+
+	public:
+		//Spot Light는 ~2048까지가 제한 그 이상은 자동으로 clamp합니다.
+		void SetShadowTextureSize(INT extent);
 	};
 
 }

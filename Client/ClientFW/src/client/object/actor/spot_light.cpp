@@ -60,4 +60,9 @@ namespace client_fw
 	{
 		m_spot_light_component->SetConeOuterAngle(degree);
 	}
+
+	void SpotLight::SetShadowTextureSize(INT extent)
+	{
+		m_spot_light_component->SetShadowTextureSize(extent);
+	}
 }

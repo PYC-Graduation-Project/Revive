@@ -40,4 +40,9 @@ namespace client_fw
 	{
 		m_point_light_component->SetAttenuationRadius(radius);
 	}
+
+	void PointLight::SetShadowTextureSize(INT extent)
+	{
+		m_point_light_component->SetShadowTextureSize(extent);
+	}
 }
