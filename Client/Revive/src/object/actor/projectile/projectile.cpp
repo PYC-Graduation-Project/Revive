@@ -3,7 +3,7 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include "object/component/projectile_movement.h"
-#include "object/actor/projectile.h"
+#include "object/actor/projectile/projectile.h"
 
 namespace revive
 {

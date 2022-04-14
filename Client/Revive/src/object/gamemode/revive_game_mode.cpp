@@ -1,7 +1,7 @@
 #include <include/client_core.h>
 #include "revive_game_mode.h"
-#include "object/actor/revive_controller.h"
-#include "object/actor/revive_player.h"
+#include "object/actor/character/revive_controller.h"
+#include "object/actor/character/revive_player.h"
 
 namespace revive
 {

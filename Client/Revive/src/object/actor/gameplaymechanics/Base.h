@@ -1,5 +1,4 @@
 #pragma once
-#include <include/client_core.h>
 #include "object/actor/wall.h"
 
 namespace revive

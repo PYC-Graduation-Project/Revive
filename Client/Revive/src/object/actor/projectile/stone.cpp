@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include "object/actor/stone.h"
+#include "object/actor/projectile/stone.h"
 
 namespace revive
 {

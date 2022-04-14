@@ -10,11 +10,11 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
-#include "object/actor/enemy.h"
+#include "object/actor/character/enemy.h"
+#include "object/actor/character/revive_player.h"
+#include "object/actor/projectile/projectile.h"
+#include "object/actor/projectile/bullet.h"
 #include "object/statemachine/state_machine.h"
-#include "object/actor/projectile.h"
-#include "object/actor/bullet.h"
-#include "object/actor/revive_player.h"
 
 namespace revive
 {
@@ -56,7 +56,7 @@ namespace revive
 		
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "wall","enemy agro","enemy attack"}, true);
+		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "base","wall","enemy agro","enemy attack"}, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
 			FixYPosition();

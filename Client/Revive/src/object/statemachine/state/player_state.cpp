@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include "object/actor/revive_player.h"
+#include "object/actor/character/revive_player.h"
 #include "object/statemachine/state/player_state.h"
 
 namespace revive

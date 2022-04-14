@@ -1,15 +1,15 @@
 #include <include/client_core.h>
-#include "object/actor/skeleton_king.h"
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
-#include "object/actor/revive_player.h"
 #include "client/input/input.h"
+#include "object/actor/character/revive_player.h"
+#include "object/actor/character/skeleton_king.h"
 
 namespace revive
 {
 	SkeletonKing::SkeletonKing(const std::string& name)
-		:Enemy("Contents/TestKing/skeleton_king.rev", name)
+		:Enemy("Contents/skeleton_king.rev", name)
 	{
 		m_weapon_collision_box = CreateSPtr<BoxComponent>();
 	}
@@ -36,7 +36,7 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");
 		
 		m_hp = 20;
-		SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
+		//SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
 		SetScale(0.6f);
 		return ret;
 	}

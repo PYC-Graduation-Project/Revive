@@ -2,8 +2,8 @@
 #include <client/object/component/util/camera_component.h>
 #include <client/object/actor/pawn.h>
 #include <client/input/input.h>
-#include "object/actor/revive_player.h"
-#include "object/actor/revive_controller.h"
+#include "object/actor/character/revive_player.h"
+#include "object/actor/character/revive_controller.h"
 
 namespace revive
 {

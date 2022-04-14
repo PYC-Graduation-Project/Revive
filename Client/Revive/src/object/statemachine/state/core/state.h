@@ -1,5 +1,5 @@
 #pragma once
-#include "object/actor/revive_player.h"
+#include "object/actor/character/revive_player.h"
 
 namespace revive
 {

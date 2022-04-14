@@ -1,6 +1,7 @@
-#include "object/actor/base.h"
+#include <include/client_core.h>
 #include <client/input/input.h>
 #include <client/object/component/render/box_component.h>
+#include "object/actor/gameplaymechanics/base.h"
 
 namespace revive
 {

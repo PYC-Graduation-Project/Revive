@@ -1,16 +1,16 @@
 #include <include/client_core.h>
-#include "object/actor/skeleton_soldier.h"
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
-#include "object/actor/revive_player.h"
-#include "object/actor/base.h"
-#include "object/actor/stone.h"
+#include "object/actor/character/revive_player.h"
+#include "object/actor/character/skeleton_soldier.h"
+#include "object/actor/gameplaymechanics/base.h"
+#include "object/actor/projectile/stone.h"
 namespace revive
 {
 	SkeletonSoldier::SkeletonSoldier(const std::string& name)
-		:Enemy("Contents/Test/skeleton_soldier.rev",name)
+		:Enemy("Contents/skeleton_soldier.rev",name)
 	{
 	}
 	bool SkeletonSoldier::Initialize()

@@ -1,8 +1,8 @@
 #include "object/map/map_loader.h"
 #include "object/actor/ground.h"
 #include "object/actor/Wall.h"
-#include "object/actor/spawn_area.h"
-#include "object/actor/Base.h"
+#include "object/actor/gameplaymechanics/spawn_area.h"
+#include "object/actor/gameplaymechanics/Base.h"
 
 namespace revive
 {

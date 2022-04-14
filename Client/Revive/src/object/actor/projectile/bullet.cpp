@@ -1,6 +1,6 @@
 #include <include/client_core.h>
 #include <client/object/component/render/sphere_component.h>
-#include "object/actor/bullet.h"
+#include "object/actor/projectile/bullet.h"
 
 namespace revive
 {

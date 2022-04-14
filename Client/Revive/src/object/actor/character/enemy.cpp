@@ -4,7 +4,7 @@
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
 #include <client/physics/collision/collisioner/collisioner.h>
-#include "object/actor/Enemy.h"
+#include "object/actor/character/enemy.h"
 
 namespace revive
 {
