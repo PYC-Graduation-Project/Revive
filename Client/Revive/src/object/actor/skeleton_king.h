@@ -14,6 +14,9 @@ namespace revive
 
 	private:
 		virtual bool SetCollisionComponent() override;
+		virtual void Attack() override;
+
+		SPtr<BoxComponent> m_weapon_collision_box; //юс╫ц
 
 		int m_animation_select_num = 0;
 		std::array<std::string, 6> m_animation_name =

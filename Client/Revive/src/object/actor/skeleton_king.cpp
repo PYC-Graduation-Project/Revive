@@ -3,6 +3,7 @@
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
+#include "object/actor/revive_player.h"
 #include "client/input/input.h"
 
 namespace revive
@@ -10,6 +11,7 @@ namespace revive
 	SkeletonKing::SkeletonKing(const std::string& name)
 		:Enemy("Contents/TestKing/skeleton_king.rev", name)
 	{
+		m_weapon_collision_box = CreateSPtr<BoxComponent>();
 	}
 	bool SkeletonKing::Initialize()
 	{
@@ -22,6 +24,8 @@ namespace revive
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
 			[this]() { m_skeletal_mesh_component->SetAnimation("idle");  });
+		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
+			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("idle"); /*공격 후에 재생할 애니메이션*/});
 
 		ret &= SetCollisionComponent();
 		
@@ -64,6 +68,39 @@ namespace revive
 		});
 		ret &= AttachComponent(m_blocking_box);
 
+		//무기 콜리전 설정 무기 Actor에서 해줄것
+		m_weapon_collision_box->SetName("Weapon Collision");
+		//m_weapon_collision_box->SetExtents(Vec3{}); //무기 박스 콜리전 크기
+		//m_weapon_collision_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+		//	const SPtr<SceneComponent>& other_component)
+		//{
+		//	const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
+		//	if (player != nullptr) // 안해주면 가끔 터진다.
+		//	{
+		//		int player_hp = player->GetHP();
+		//		if (player_hp > 0)
+		//			player->Hit();
+		//		LOG_INFO("충돌 부위 :" + other_component->GetName());
+		//		component->SetCollisionInfo(false, false, "Player Hit", { "Player Hit" }, false); //충돌 처리후 꺼준다.
+		//	}
+		//});
+
+		ret &= AttachComponent(m_weapon_collision_box);
+		//공격 범위 구체
+		m_attack_sphere->SetExtents(350.f);
+		m_attack_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+			const SPtr<SceneComponent>& other_component) {
+			const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
+			//m_player_position = other_actor->GetPosition();
+			if (player != nullptr)
+			{
+				if (player->GetIsDying() == false)
+				{
+					Attack();
+				}
+			}
+		});
+
 		//Hit Box
 		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>(Vec3{60.f,60.f,60.f});
 		hit_box_1->SetName("head hit box");
@@ -89,5 +126,14 @@ namespace revive
 		}
 
 		return ret;
+	}
+	void SkeletonKing::Attack()
+	{
+		if (m_is_attacking == false)
+		{
+			Enemy::Attack();
+			//m_weapon_collision_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, true);//공격 시 켜준다.
+		}
+
 	}
 }
