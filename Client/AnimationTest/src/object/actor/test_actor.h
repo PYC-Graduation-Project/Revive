@@ -1,6 +1,11 @@
 #pragma once
 #include <client/object/actor/core/actor.h>
-#include <client/object/component/mesh/skeletal_mesh_component.h>
+
+namespace client_fw
+{
+	class SkeletalMeshComponent;
+	class StaticMeshComponent;
+}
 
 namespace anim_test
 {
@@ -17,10 +22,16 @@ namespace anim_test
 		virtual void Shutdown() override;
 
 		void SetAnimation(const std::string& animation_name);
+
+		void SetWeapon(const std::string& mesh_path);
+		void SetWeaponOffset(const Vec3& offset);
 	protected:
 		std::string m_mesh_path;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
+		SPtr<StaticMeshComponent> m_static_mesh_component;
 
+		Vec3 m_weapon_offset = vec3::ZERO;
+		
 		std::string m_animation_name;
 	};
 }
