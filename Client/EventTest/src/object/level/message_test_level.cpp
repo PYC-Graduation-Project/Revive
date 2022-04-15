@@ -8,6 +8,7 @@
 #include"server/network_move_object.h"
 #include <client/event/packetevent/packet_helper.h>
 #include<object/actor/move_cube.h>
+#include "object/actor/interpolation_tester.h"
 
 std::string g_id;
 std::string g_pw;
@@ -50,9 +51,9 @@ namespace event_test
 			});
 		
 		//아이디 입력 테스트	
-		//std::cin >> g_id;
-		//std::cin >> g_pw;
-		//std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
+		std::cin >> g_id;
+		std::cin >> g_pw;
+		std::cout << "id:"<<g_id <<"pw:"<< g_pw << std::endl;
 		
 		//회원 가입 5, 로그인 6, 매칭 7
 		RegisterPressedEvent("send sign up", { { eKey::k5 } },
@@ -143,10 +144,11 @@ namespace event_test
 			//LOG_INFO("damage : {0}", obj->GetDamage());
 			//LOG_INFO("position :{0}", obj->GetPosition());
 			std::cout <<"pos: " << obj->GetPosition() << std::endl;
-			auto cube = CreateSPtr<RotatingCube>();
+			auto cube = CreateSPtr<InterpolationTester>();
 			SpawnActor(cube);
 			LOG_INFO("rotation : {0}", cube->GetRotation());
 			cube->SetPosition(msg->GetNetworkObj()->GetPosition());
+			cube->SetPreviousPosition(msg->GetNetworkObj()->GetPosition());
 			PacketHelper::ConnectActorToServer(cube, msg->GetNetworkObj()->GetID());
 			
 			//spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
