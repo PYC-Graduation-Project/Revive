@@ -65,7 +65,7 @@ void IOCPServer::CreateWorker()
 {
 	for (int i = 0; i < m_worker_num; ++i)
 		m_worker_threads.emplace_back([this]() {Worker(); });
-	cout << "CreateWorker" << endl;
+	
 	
 }
 
@@ -102,6 +102,7 @@ void IOCPServer::Worker()
 		case COMP_OP::OP_SEND: {
 			if (num_byte != exp_over->_wsa_buf.len) {
 				Disconnect(client_id);
+				cout << "Send에서 뻑남" << endl;
 			}
 			delete exp_over;
 			break;
@@ -117,7 +118,7 @@ void IOCPServer::Worker()
 			break;
 		}
 	}
-	
+	cout << "스레드 종료" << endl;
 
 }
 

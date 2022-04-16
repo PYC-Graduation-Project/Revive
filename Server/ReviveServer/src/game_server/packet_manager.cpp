@@ -16,6 +16,7 @@ PacketManager::PacketManager()
 	MoveObjManager::GetInst();
 	m_room_manager = new RoomManager;
 	m_map_manager = new MapManager;
+	//m_move_obj_manager = new MoveObjManager;
 	//m_map_manager->LoadMap("map.txt");
 	m_db = new DB;
 	m_db2 = new DB;
@@ -146,28 +147,81 @@ void PacketManager::SpawnEnemy(int room_id)
 	int king_num = room->GetMaxUser() * curr_round;
 	Enemy* enemy = NULL;
 	unordered_set<int>enemy_list;
+	//for (auto e_id : room->GetObjList())
+	//{
+	//	if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
+	//		break;
+	//	if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
+	//		continue;
+	//	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+	//	//std::atomic_thread_fence(std::memory_order_seq_cst);
+	//	if (true == enemy->GetIsActive())
+	//		continue;
+	//	if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
+	//	{
+	//		//std::atomic_thread_fence(std::memory_order_seq_cst);
+	//		enemy->SetIsActive(true);
+	//		enemy_list.insert(e_id);
+	//		
+	//	}
+	//	else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
+	//		//std::atomic_thread_fence(std::memory_order_seq_cst);
+	//		enemy->SetIsActive(true);
+	//		enemy_list.insert(e_id);
+	//	}
+	//
+	//}
 	for (auto e_id : room->GetObjList())
 	{
-		if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
+		if (enemy_list.size()== sordier_num)
 			break;
+		
 		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
 			continue;
-		Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+		
+		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+		
+		if (enemy->GetType()!=OBJ_TYPE::OT_NPC_SKULL)
+			continue;
+	
 		if (true == enemy->GetIsActive())
 			continue;
-		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
-		{
-			enemy->SetIsActive(true);
-			enemy_list.insert(e_id);
-			
-		}
-		else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
-			enemy->SetIsActive(true);
-			enemy_list.insert(e_id);
-		}
-
+	
+		enemy->SetIsActive(true);
+		
+		enemy_list.insert(e_id);
+		
 	}
 
+	for (auto e_id : room->GetObjList())
+	{
+		if (enemy_list.size() == sordier_num + king_num)
+			break;
+		
+		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
+			continue;
+		
+		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+		
+		if (enemy->GetType() != OBJ_TYPE::OT_NPC_SKULLKING)
+			continue;
+		
+		if (true == enemy->GetIsActive())
+			continue;
+		enemy->SetIsActive(true);
+		
+		enemy_list.insert(e_id);
+
+	}
+	//cout << "round" << room->GetRound() << endl;
+	//cout <<"e_list 사이즈:" << enemy_list.size() << endl;
+	//for (auto& id : enemy_list)
+	//{
+	//	cout << "현재 적 id" << id << " ";
+	//}
+	//cout << endl;
+	if (enemy_list.size() < static_cast<INT64>(sordier_num) + king_num)
+		cout << "적 객체가 모자랍니다" << endl;
 	vector<MapObj>spawn_area;
 	random_device rd;
 	mt19937 gen(rd());
@@ -191,16 +245,28 @@ void PacketManager::SpawnEnemy(int room_id)
 		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
 	}
 	
-	for (auto& en : enemy_list)
+	vector<int>user;
+	user.reserve(room->GetMaxUser());
+	for (auto pl : room->GetObjList())
 	{
-		for (auto pl : room->GetObjList())
-		{
-			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-			SendObjInfo(room->GetObjList().at(pl), en);
-		}
-		enemy->SetMoveTime(300);
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		user.push_back(pl);
 	}
+	for (auto en : enemy_list)
+	{
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		for(auto pl:user)
+			SendObjInfo(pl, en);
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+	}
+		
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		//enemy->SetMoveTime(300);
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+	
+	
 	
 	//cout << "round" << curr_round << "Wave Start" << endl;
 	//여기서 한번더 타이머 이벤트 넣어주기
@@ -210,16 +276,20 @@ void PacketManager::SpawnEnemy(int room_id)
 void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
-	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
-
+	
+	Enemy*  enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	
+	//cout << "enemy_id" << enemy->GetID() << endl;
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
 	Vector3& nlook = enemy->GetLookVec();
-	Vector3& curr_pos = enemy->GetPos();
-	MapObj base = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE);
+	
+	Vector3 curr_pos = enemy->GetPos();
+	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-		nlook = Vector3{ base.GetGroundPos() - curr_pos };
+	
+		nlook = Vector3{ base_pos - curr_pos };
 		//적 look벡터 설정
 	}
 	else
@@ -231,15 +301,18 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	Vector3 move_vec = nlook.Normalrize();
 	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
 	//cout << move_vec.x << move_vec.y << move_vec.z << endl;
-
+	enemy->SetPos(npos);
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
 	if (false == m_map_manager->CheckCollision(npos))
+	{
 		enemy->SetPos(npos);
+	}
 	else {//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
 		//unique_ptr<Astar>astar=make_unique<Astar>();
 		
-		if (enemy->GetTargetId() == -1)
-		{
+		//if (enemy->GetTargetId() == -1)
+		//{
 			//if (enemy->m_load.size() == 0)
 			//{
 			//	if (astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(),
@@ -272,11 +345,14 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				//enemy->SetPos(npos);
 				//cout << "vector pop" << endl;
 			//}
-		nlook = Vector3{ Vector3(base.GetPosX(),curr_pos.y,curr_pos.z) - curr_pos };
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		
+		nlook = Vector3{ Vector3(base_pos.x,curr_pos.y,curr_pos.z) - curr_pos };
+		
 		move_vec = nlook.Normalrize();
 		npos = curr_pos + (move_vec * MAX_SPEED);
 		enemy->SetPos(npos);
-		}
+		//}
 	}
 
 	//cout << move_vec << endl;
@@ -298,11 +374,15 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//	}
 	//}
 
-
+	//cout << "id:" << enemy_id << "pos:" << npos << endl;
 	for (auto pl:room->GetObjList())
 	{
+
+		
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
 		SendMovePacket(pl, enemy_id);
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
 		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
@@ -311,7 +391,34 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//아니면 기지 그대로
 		}
 	}
-	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
+	//std::atomic_thread_fence(std::memory_order_seq_cst);
+	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+}
+
+void PacketManager::CountTime(int room_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	auto end_time = std::chrono::system_clock::now();
+	std::chrono::duration<float> elapsed = room->GetRoundTime() - end_time;
+
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))
+			break;
+		SendTime(pl, elapsed.count());
+	}
+	if (end_time >= room->GetRoundTime())
+	{
+		room->SetRoundTime(10000);
+		if (room->GetRound() < 3)
+		{
+			room->SetRound(room->GetRound() + 1);
+			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
+				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30));
+		}
+	}
+	g_timer_queue.push(SetTimerEvent(room_id, room_id,
+		EVENT_TYPE::EVENT_TIME, 1000));
 }
 
 
@@ -332,7 +439,8 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.r_y = p->GetRotation().y;
 	packet.r_z = p->GetRotation().z;
 	packet.r_w = p->GetRotation().w;
-	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
+	cl->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendLoginFailPacket(int c_id, int reason)
@@ -408,7 +516,8 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
 	packet.z = obj->GetPosZ();
-	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
+	cl->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendTime(int c_id, float round_time)
@@ -418,7 +527,8 @@ void PacketManager::SendTime(int c_id, float round_time)
 	packet.type = SC_PACKET_TIME;
 	packet.time = round_time;
 	packet.send_time = chrono::system_clock::now().time_since_epoch().count();
-	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
+	cl->DoSend(sizeof(packet), &packet);
 }
 
 void PacketManager::SendTestPacket(int c_id, int mover, float x, float y, float z)
@@ -605,7 +715,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	
 			e=MoveObjManager::GetInst()->GetEnemy(i);
 			
-			if (!e->in_use)
+			if (false==e->in_use)
 			{
 				e->in_use = true;
 				e->SetRoomID(r_id);
@@ -648,13 +758,13 @@ void PacketManager::StartGame(int room_id)
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
-			MoveObjManager::GetInst()->InitLua("src/lua/script/enemy_sordier.lua",e->GetID());
+			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID());
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
-			MoveObjManager::GetInst()->InitLua("src/lua/script/enemy_king.lua",e->GetID());
+			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID());
 			
 		}
 	}
@@ -677,10 +787,10 @@ void PacketManager::StartGame(int room_id)
 			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 	}
-	room->SetRoundTime(30000);
+	room->SetRoundTime(10000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
-	g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
-		room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 10000));//30초다되면 넣어주는걸로 수정?
+	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
+	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?
 	g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
 		EVENT_TYPE::EVENT_TIME, 1000));
 	
@@ -802,6 +912,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 {
 	
 	EXP_OVER* ex_over = new EXP_OVER;
+	
 	switch (ev.ev) {
 	case EVENT_TYPE::EVENT_NPC_SPAWN:
 	{
@@ -819,30 +930,16 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
 		ex_over->room_id = ev.room_id;
 		ex_over->target_id = ev.target_id;
+		//std::atomic_thread_fence(std::memory_order_seq_cst);
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
 	case EVENT_TYPE::EVENT_TIME: {
 		//방으로 처리하도록 바꾸기
-		Room*room=m_room_manager->GetRoom(ev.target_id);
-		auto end_time = std::chrono::system_clock::now();
-		std::chrono::duration<float> elapsed = room->GetRoundTime()-end_time ;
+		ex_over->_comp_op = COMP_OP::OP_COUNT_TIME;
+		ex_over->room_id = ev.obj_id;
 		
-		for (int pl : room->GetObjList())
-		{
-			if (false == MoveObjManager::GetInst()->IsPlayer(pl))
-				break;
-			SendTime(pl, elapsed.count());
-		}
-		if (end_time >= room->GetRoundTime())
-		{
-			room->SetRoundTime(30000);
-			room->SetRound(room->GetRound() + 1);
-			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
-				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 16));
-		}
-		g_timer_queue.push(SetTimerEvent(ev.obj_id, ev.target_id,
-			EVENT_TYPE::EVENT_TIME, 1000));
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
 	}

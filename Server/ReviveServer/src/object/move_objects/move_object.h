@@ -23,10 +23,10 @@ public:
 	
 	Vector4 GetRotation() { return m_rotation; }
 	int GetRoomID()const { return m_room_id; }
-	bool GetIsActive()const { return m_is_active; }
+	bool GetIsActive()const { return m_is_active.load(std::memory_order_acquire); }
 	char* GetName() { return m_name; }
 
-	void SetIsActive(bool val) { m_is_active = val; }
+	void SetIsActive(bool val) { m_is_active.store(val,std::memory_order_release); }
 	
 	void SetRotaion(const Vector4& val) { m_rotation = val; }
 	void SetDamge(float val) {  m_damage=val; }

@@ -3,7 +3,7 @@
 
 #include"game_server/ingame_server.h"
 using namespace std;
-const int MAX_THREAD = 12;
+const int MAX_THREAD = 10;
 
 
 int main()

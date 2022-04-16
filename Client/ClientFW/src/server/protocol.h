@@ -18,7 +18,7 @@ const int  SORDIER_PER_USER = 9;//사람하나당 최대 해골 병사
 const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER * NPC_PER_USER; //최대 npc 개수
 
-const float FramePerSecond = 0.016f;
+const float FramePerSecond = 0.05f;
 const float MAX_SPEED = 225.0f * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
@@ -199,7 +199,7 @@ struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	unsigned char size;
 	char	type;
 	float time;
-	//float send_time;//추후에 없애야될수도 있음
+	int send_time;//추후에 없애야될수도 있음
 
 };
 #pragma pack(pop)

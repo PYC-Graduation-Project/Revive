@@ -7,7 +7,7 @@
 #include <DirectXMath.h>
 
 #include"protocol.h"
-const int BUFSIZE = 256;
+const int BUFSIZE = 1024;
 
 enum class COMP_OP {
 	OP_RECV,

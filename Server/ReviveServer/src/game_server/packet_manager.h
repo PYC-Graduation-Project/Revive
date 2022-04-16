@@ -23,7 +23,7 @@ public:
 	void UpdateObjMove();
 	void SpawnEnemy(int room_id);
 	void DoEnemyMove(int room_id, int enemy_id);
-
+	void CountTime(int room_id);
 
 	void SendMovePacket(int c_id, int mover);
 	void SendLoginFailPacket(int c_id, int reason);
@@ -54,6 +54,7 @@ private:
 	
 	
 	RoomManager* m_room_manager;
+	//MoveObjManager* m_move_obj_manager;
 	DB* m_db;
 	DB* m_db2;
 	MapManager* m_map_manager;

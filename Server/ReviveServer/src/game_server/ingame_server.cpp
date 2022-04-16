@@ -44,6 +44,11 @@ void InGameServer::OnEvent(EXP_OVER* exp_over)
 		delete exp_over;
 		break;
 	}
+	case COMP_OP::OP_COUNT_TIME: {
+		m_PacketManager->CountTime(exp_over->room_id);
+		delete exp_over;
+		break;
+	}
 	}
 }
 

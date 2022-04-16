@@ -1,7 +1,7 @@
 #include <include/client_core.h>
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
-<<<<<<< Updated upstream
+
 #include <client/asset/mesh/mesh_loader.h>
 #include "object/level/game_play_level.h"
 #include"server/network.h"
@@ -9,10 +9,10 @@
 #include"revive_server/packet/revive_packet_manager.h"
 using namespace client_fw;
 
-=======
-#include"network.h"
-#include"packet_manager.h"
->>>>>>> Stashed changes
+
+#include"server/send_manager.h"
+#include"server/packet_manager.h"
+
 namespace revive
 {
 	class Revive : public client_fw::Application

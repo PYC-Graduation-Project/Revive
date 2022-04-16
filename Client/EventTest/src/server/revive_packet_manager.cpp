@@ -44,7 +44,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//client_fw::Quaternion rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
 	//mover->SetPosition(pos);
 	//mover->SetRotation(rot);
-	//std::cout << recv_pos << std::endl;
+	LOG_INFO(recv_pos);
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<event_test::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
 }
 
@@ -139,7 +139,7 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 {
 	sc_packet_time* packet = reinterpret_cast<sc_packet_time*>(p);
 	//float d_ms = std::chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() - packet->send_time;
-	LOG_INFO(packet->time);
+	//LOG_INFO(packet->time);
 	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
 }
 

@@ -3,6 +3,8 @@
 #include"server/define.h"
 #include <thread>
 #include<iostream>
+#include<string>
+
 #include<include/client_core.h>
 //#include"client/math/quaternion.h"
 //#include"client/math/Vec3.h"
@@ -56,6 +58,8 @@ public:
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			(LPTSTR)&lpMsgBuf, 0, 0);
 		std::wcout << lpMsgBuf << std::endl;
+		
+		LOG_INFO(lpMsgBuf);
 		//while (true);
 		LocalFree(lpMsgBuf);
 	}
@@ -78,8 +82,8 @@ public:
 	SOCKET& GetSock() { return m_s_socket; }
 private:
 	void Worker();
-	void DoRecv();
-	void OnRecv(int client_id, EXP_OVER* exp_over, DWORD num_byte);
+	
+	void OnRecv(int client_id, EXP_OVER* exp_over, DWORD num_byte,SOCKET&socket);
 
 	int GetID() const
 	{
@@ -88,7 +92,7 @@ private:
 	
 	SOCKET m_s_socket;
 	HANDLE m_hiocp;
-	EXP_OVER recv_over;
+	
 	std::thread worker;
 	client_fw::UPtr<PacketManager>m_packet_manager;
 	client_fw::UPtr<SendManager>m_send_manager;
