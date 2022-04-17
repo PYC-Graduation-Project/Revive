@@ -43,21 +43,11 @@ bool Network::Connect()
 		Network::error_display(WSAGetLastError());
 		return false;
 	}
-	//m_prev_size = 0;
+	
 	m_hiocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, NULL, 0);
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(m_s_socket), m_hiocp, m_id, 0);
 	m_packet_manager->DoRecv(m_s_socket);
 
-	//int ret = WSARecv(m_s_socket, &recv_over._wsa_buf, 1,
-	//	NULL, &flag, &recv_over._wsa_over, NULL);
-	//if (SOCKET_ERROR == ret) {
-	//	int err_no = WSAGetLastError();
-	//	if (err_no != WSA_IO_PENDING)
-	//	{
-	//		Network::error_display(err_no);
-	//		return false;
-	//	}
-	//}
 		
 	return true;
 }
@@ -80,7 +70,7 @@ void Network::Worker()
 			BOOL ret = GetQueuedCompletionStatus(m_hiocp, &num_byte, (PULONG_PTR)&iocp_key, &p_over, INFINITE);
 			//cout << "GQCS returned.\n";
 			//Network::error_display(WSAGetLastError());
-			LOG_INFO(WSAGetLastError());
+			//LOG_INFO(WSAGetLastError());
 			int client_id = static_cast<int>(iocp_key);
 			EXP_OVER* exp_over = reinterpret_cast<EXP_OVER*>(p_over);
 			if (FALSE == ret) {
@@ -96,7 +86,7 @@ void Network::Worker()
 			}
 			switch (exp_over->_comp_op) {
 			case COMP_OP::OP_RECV: {
-				LOG_INFO("계속 recv중");
+				//LOG_INFO("계속 recv중");
 				OnRecv(client_id, exp_over, num_byte,m_s_socket);
 				
 				break;

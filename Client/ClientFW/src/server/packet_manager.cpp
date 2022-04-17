@@ -22,11 +22,11 @@ void PacketManager::ProcessRecv(int client_id, EXP_OVER* exp_over, DWORD num_byt
 	{
 		cout << "받은게 없데" << endl;
 	}
-	LOG_INFO("패킷 사이즈{0}", num_byte);
+	
 	int remain_data = num_byte + m_prev_size;
 	unsigned char* packet_start = exp_over->_net_buf;
 	int packet_size = packet_start[0];
-	LOG_INFO("ProcessPacket 처리시작");
+	
 	while (packet_size <= remain_data) {
 		ProcessPacket(client_id, packet_start);
 		remain_data -= packet_size;
@@ -39,7 +39,7 @@ void PacketManager::ProcessRecv(int client_id, EXP_OVER* exp_over, DWORD num_byt
 		m_prev_size = remain_data;
 		memcpy(&exp_over->_net_buf, packet_start, remain_data);
 	}
-	LOG_INFO("ProcessPacket 처리끝");
+	
 	DoRecv(socket);
 }
 

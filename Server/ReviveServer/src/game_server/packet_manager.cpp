@@ -147,72 +147,31 @@ void PacketManager::SpawnEnemy(int room_id)
 	int king_num = room->GetMaxUser() * curr_round;
 	Enemy* enemy = NULL;
 	unordered_set<int>enemy_list;
-	//for (auto e_id : room->GetObjList())
-	//{
-	//	if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
-	//		break;
-	//	if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
-	//		continue;
-	//	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
-	//	//std::atomic_thread_fence(std::memory_order_seq_cst);
-	//	if (true == enemy->GetIsActive())
-	//		continue;
-	//	if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
-	//	{
-	//		//std::atomic_thread_fence(std::memory_order_seq_cst);
-	//		enemy->SetIsActive(true);
-	//		enemy_list.insert(e_id);
-	//		
-	//	}
-	//	else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
-	//		//std::atomic_thread_fence(std::memory_order_seq_cst);
-	//		enemy->SetIsActive(true);
-	//		enemy_list.insert(e_id);
-	//	}
-	//
-	//}
 	for (auto e_id : room->GetObjList())
 	{
-		if (enemy_list.size()== sordier_num)
+		if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
 			break;
-		
 		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
 			continue;
-		
-		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
-		
-		if (enemy->GetType()!=OBJ_TYPE::OT_NPC_SKULL)
-			continue;
-	
-		if (true == enemy->GetIsActive())
-			continue;
-	
-		enemy->SetIsActive(true);
-		
-		enemy_list.insert(e_id);
-		
-	}
-
-	for (auto e_id : room->GetObjList())
-	{
-		if (enemy_list.size() == sordier_num + king_num)
-			break;
-		
-		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))
-			continue;
-		
-		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
-		
-		if (enemy->GetType() != OBJ_TYPE::OT_NPC_SKULLKING)
-			continue;
+		Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
 		
 		if (true == enemy->GetIsActive())
 			continue;
-		enemy->SetIsActive(true);
-		
-		enemy_list.insert(e_id);
-
+		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
+		{
+			
+			enemy->SetIsActive(true);
+			enemy_list.insert(e_id);
+			
+		}
+		else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
+			
+			enemy->SetIsActive(true);
+			enemy_list.insert(e_id);
+		}
+	
 	}
+	
 	//cout << "round" << room->GetRound() << endl;
 	//cout <<"e_list 사이즈:" << enemy_list.size() << endl;
 	//for (auto& id : enemy_list)
@@ -245,27 +204,20 @@ void PacketManager::SpawnEnemy(int room_id)
 		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
 	}
 	
-	vector<int>user;
-	user.reserve(room->GetMaxUser());
-	for (auto pl : room->GetObjList())
+	
+	for (auto &en : enemy_list)
 	{
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
-		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
-		user.push_back(pl);
-	}
-	for (auto en : enemy_list)
-	{
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
-		for(auto pl:user)
+		for (auto pl : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendObjInfo(pl, en);
+		}
 		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
 	}
 		
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		
 		//enemy->SetMoveTime(300);
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
-	
+		
 	
 	
 	//cout << "round" << curr_round << "Wave Start" << endl;
@@ -345,7 +297,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				//enemy->SetPos(npos);
 				//cout << "vector pop" << endl;
 			//}
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		
 		
 		nlook = Vector3{ Vector3(base_pos.x,curr_pos.y,curr_pos.z) - curr_pos };
 		
@@ -380,9 +332,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 
 		
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		
 		SendMovePacket(pl, enemy_id);
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
 		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
@@ -391,7 +342,6 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//아니면 기지 그대로
 		}
 	}
-	//std::atomic_thread_fence(std::memory_order_seq_cst);
 	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
 }
 

@@ -59,7 +59,7 @@ public:
 			(LPTSTR)&lpMsgBuf, 0, 0);
 		std::wcout << lpMsgBuf << std::endl;
 		
-		LOG_INFO(lpMsgBuf);
+		//LOG_INFO(lpMsgBuf);
 		//while (true);
 		LocalFree(lpMsgBuf);
 	}
