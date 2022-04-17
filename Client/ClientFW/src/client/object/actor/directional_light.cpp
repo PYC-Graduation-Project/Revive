@@ -29,14 +29,4 @@ namespace client_fw
 	{
 		m_light_component->SetLightColor(color);
 	}
-
-	const Vec3& DirectionalLight::GetLightDirection() const
-	{
-		return m_light_component->GetDirection();
-	}
-
-	void DirectionalLight::SetLightDirection(const Vec3& direction)
-	{
-		m_light_component->SetDirection(direction);
-	}
 }

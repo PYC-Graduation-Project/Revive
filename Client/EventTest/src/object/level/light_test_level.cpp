@@ -138,7 +138,7 @@ namespace event_test
 
 		auto d_light = CreateSPtr<DirectionalLight>();
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
-		d_light->SetLightDirection(Vec3(0.0f, -1.0f, 1.0f));
+		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
 		SpawnActor(d_light);
 
 		auto p_light = CreateSPtr<PointLight>();
