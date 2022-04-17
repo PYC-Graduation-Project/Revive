@@ -14,9 +14,10 @@ namespace revive
 		
 		void Initialize(const SPtr<RevivePlayer>& player);
 		void Update();
+		void Shutdown();
 
 	private:
-		SPtr<RevivePlayer> m_player;
+		WPtr<RevivePlayer> m_player;
 		SPtr<PlayerState> m_curr_state;
 	};
 }

@@ -4,6 +4,10 @@
 #ifndef __OPAQUE_HLSL__
 #define __OPAQUE_HLSL__
 
+//
+// Opaque Material Mesh
+//
+
 struct VS_OPAQUE_MATERIAL_MESH_IN
 {
     float3 position : POSITION;
@@ -42,6 +46,10 @@ PS_GBUFFER_OUTPUT PSOpaqueMaterialMesh(VS_OPAQUE_MATERIAL_MESH_OUT input)
     
     return output;
 }
+
+//
+// Opaque Texture Mesh
+//
 
 struct VS_OPAQUE_TEXTURE_MESH_IN
 {
@@ -84,6 +92,10 @@ PS_GBUFFER_OUTPUT PSOpaqueTextureMesh(VS_OPAQUE_TEXTURE_MESH_OUT input)
     
     return output;
 }
+
+//
+// Opaque Normal Map Mesh
+//
 
 struct VS_OPAQUE_NORMAL_MAP_MESH_IN
 {
@@ -133,6 +145,60 @@ PS_GBUFFER_OUTPUT PSOpaqueNormalMapMesh(VS_OPAQUE_NORMAL_MAP_MESH_OUT input)
     output.additional_info = float4(material_data.roughness, material_data.metallic, 1.0f, 1.0f);
     
     return output;
+}
+
+//
+// Opaque Mesh For Shadow
+//
+
+#include "shadow.hlsl"
+
+struct VS_OPAQUE_MESH_FOR_SHADOW_IN
+{
+    float3 position : POSITION;
+};
+
+VS_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID)
+{
+    VS_SHADOW_OUT output;
+    
+    InstanceData i_data = g_instance_data[instance_id];
+    
+    float4 position = mul(float4(input.position, 1.0f), i_data.world);
+    output.sv_position = mul(position, g_view_projection);
+    
+    return output;
+}
+
+//
+// Opaque Mesh For Cube Shadow
+//
+
+float4 VSOpaqueMeshForShadowCube(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
+{
+    InstanceData i_data = g_instance_data[instance_id];
+    
+    return mul(float4(input.position, 1.0f), i_data.world);
+}
+
+[maxvertexcount(18)]
+void GSOpaqueMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout TriangleStream<GS_SHADOW_CUBE_OUT> out_stream)
+{
+    GS_SHADOW_CUBE_OUT output;
+    
+    [unroll]
+    for (int face = 0; face < 6; ++face)
+    {
+        output.render_target_index = face;
+        
+        for (int i = 0; i < 3; ++i)
+        {
+            output.sv_position = mul(input[i], g_cube_view_projection[face]);
+            out_stream.Append(output);
+        }
+
+        out_stream.RestartStrip();
+    }
 }
 
 #endif // __OPAQUE_HLSL__

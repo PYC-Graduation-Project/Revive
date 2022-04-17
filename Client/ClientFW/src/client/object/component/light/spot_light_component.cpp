@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/component/light/spot_light_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/object/component/util/shadow_camera_component.h"
 
 namespace client_fw
 {
@@ -8,6 +9,22 @@ namespace client_fw
 		const std::string& draw_shader_name)
 		: LocalLightComponent(eLightType::kSpot, name, draw_shader_name)
 	{
+		m_shadow_camera = CreateSPtr<ShadowCameraComponent>();
+	}
+
+	bool SpotLightComponent::Initialize()
+	{
+		bool ret = LocalLightComponent::Initialize();
+
+		ret &= m_owner.lock()->AttachComponent(m_shadow_camera);
+
+		return ret;
+	}
+
+	void SpotLightComponent::Shutdown()
+	{
+		m_shadow_camera = nullptr;
+		LocalLightComponent::Shutdown();
 	}
 
 	void SpotLightComponent::UpdateWorldMatrix()
@@ -15,13 +32,12 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();
 			m_world_scale = m_local_scale * owner->GetScale();
 
-			m_world_matrix = mat4::CreateScale(Vec3(r, r, r));
+			m_world_matrix = mat4::CreateScale(m_attenuation_radius * 1.1f);
 			m_world_matrix *= mat4::CreateRotationFromQuaternion(m_world_rotation);
 			m_world_matrix *= mat4::CreateTranslation(m_world_position);
 
@@ -50,16 +66,18 @@ namespace client_fw
 			GetWorldMatrix());
 	}
 
-	void SpotLightComponent::SetAttenuationRadius(float radius)
+	void SpotLightComponent::SetVisiblity(bool value)
 	{
-		m_attenuation_radius = radius;
-		m_update_local_matrix = true;
+		m_visibility = value;
+		if (value)
+			m_shadow_camera->SetActive();
 	}
 
 	void SpotLightComponent::SetConeInnerAngle(float degrees)
 	{
 		m_cone_inner_angle = math::ToRadian(degrees);
 		m_cone_outer_angle = max(m_cone_inner_angle, m_cone_outer_angle);
+		m_shadow_camera->SetFieldOfView(math::ToDegrees(m_cone_outer_angle) * 2.0f);
 		m_update_local_matrix = true;
 	}
 
@@ -67,6 +85,18 @@ namespace client_fw
 	{
 		m_cone_outer_angle = math::ToRadian(degrees);
 		m_cone_inner_angle = min(m_cone_inner_angle, m_cone_outer_angle);
+		m_shadow_camera->SetFieldOfView(degrees * 2.0f);
 		m_update_local_matrix = true;
+	}
+
+	void SpotLightComponent::UpdateShadowTextureSize()
+	{
+		INT extent = std::clamp(m_shadow_texture_size, 0, 2000);
+		m_shadow_camera->SetViewport(Viewport{ 0, 0, extent, extent });
+	}
+
+	void SpotLightComponent::UpdateShadowCameraProjection()
+	{
+		m_shadow_camera->SetFarZ(m_attenuation_radius);
 	}
 }

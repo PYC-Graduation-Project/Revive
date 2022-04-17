@@ -34,6 +34,9 @@ namespace client_fw
 
 		const std::vector<Mat4>& GetBoneTransformData() { return m_animation_controller->GetBoneTransformData(); }
 
+		const Vec3 GetSocketWorldPosition(const std::string& socket_name);
+		const Mat4& GetSocketWorldMatrix(const std::string& socket_name);
+
 		void SetLooping(const bool looping) { m_looping = looping; }
 
 		void SetIsPlaying(const bool is_playing) { m_is_playing = is_playing; }

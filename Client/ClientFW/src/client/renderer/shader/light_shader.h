@@ -14,10 +14,6 @@ namespace client_fw
 		virtual void Initialize(ID3D12Device* device) override;
 		virtual void Shutdown() override;
 
-		virtual void UpdateRenderItem(ID3D12Device* device);
-		virtual void UpdateRenderItemResource(ID3D12Device* device);
-		virtual void DrawRenderItem(ID3D12GraphicsCommandList* command_list, std::function<void()>&& draw_function) const;
-
 		virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
 
 		virtual std::vector<D3D12_INPUT_ELEMENT_DESC> CreateInputLayout(eRenderLevelType level_type, int pso_index) const override;
@@ -43,7 +39,7 @@ namespace client_fw
         virtual ~PointLightShader() = default;
 
 		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
-		virtual void UpdateFrameResource(ID3D12Device* device);
+		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
 
 		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;
@@ -58,7 +54,7 @@ namespace client_fw
 		virtual ~SpotLightShader() = default;
 
 		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
-		virtual void UpdateFrameResource(ID3D12Device* device);
+		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const override;
 
 		virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** shader_blob, eRenderLevelType level_type, int pso_index) const override;

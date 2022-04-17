@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/component/light/point_light_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/object/component/util/shadow_cube_camera_component.h"
 
 namespace client_fw
 {
@@ -8,6 +9,22 @@ namespace client_fw
 		const std::string& draw_shader_name)
 		: LocalLightComponent(eLightType::kPoint, name, draw_shader_name)
 	{
+		m_shadow_cube_camera = CreateSPtr<ShadowCubeCameraComponent>();
+	}
+
+	bool PointLightComponent::Initialize()
+	{
+		bool ret = LocalLightComponent::Initialize();
+
+		ret &= m_owner.lock()->AttachComponent(m_shadow_cube_camera);
+
+		return ret;
+	}
+
+	void PointLightComponent::Shutdown()
+	{
+		m_shadow_cube_camera = nullptr;
+		LocalLightComponent::Shutdown();
 	}
 
 	void PointLightComponent::UpdateWorldMatrix()
@@ -15,13 +32,12 @@ namespace client_fw
 		const auto& owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float r = m_attenuation_radius;
 			const auto& world = owner->GetWorldMatrix();
 			m_world_position = vec3::TransformCoord(m_local_position, world);
 			m_world_rotation = m_local_rotation * owner->GetRotation();
 			m_world_scale = m_local_scale * owner->GetScale();
 
-			m_world_matrix = mat4::CreateScale(Vec3(r, r, r));
+			m_world_matrix = mat4::CreateScale(m_attenuation_radius * 1.1f);
 			m_world_matrix *= mat4::CreateTranslation(m_world_position);
 
 			UpdateOrientedBox();
@@ -44,13 +60,23 @@ namespace client_fw
 	void PointLightComponent::UpdateOrientedBox()
 	{
 		m_oriented_box->Transform(BOrientedBox(), GetWorldMatrix());
-		float extent = m_attenuation_radius;
-		m_oriented_box->SetExtents(Vec3(extent, extent, extent));
 	}
 
-	void PointLightComponent::SetAttenuationRadius(float radius)
+	void PointLightComponent::SetVisiblity(bool value)
 	{
-		m_attenuation_radius = radius;
-		m_update_local_matrix = true;
+		m_visibility = value;
+		if (value)
+			m_shadow_cube_camera->SetActive();
+	}
+
+	void PointLightComponent::UpdateShadowTextureSize()
+	{
+		INT extent = std::clamp(m_shadow_texture_size, 0, 2000);
+		m_shadow_cube_camera->SetViewport(Viewport{ 0, 0, extent, extent });
+	}
+
+	void PointLightComponent::UpdateShadowCameraProjection()
+	{
+		m_shadow_cube_camera->SetFarZ(m_attenuation_radius);
 	}
 }

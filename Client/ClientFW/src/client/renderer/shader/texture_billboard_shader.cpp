@@ -17,16 +17,16 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			UpdateRenderItem(device);
+			m_billboard_render_item->Update(device, level_type);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void TextureBillboardShader::UpdateFrameResource(ID3D12Device* device)
+	void TextureBillboardShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		UpdateRenderItemResource(device);
+		m_billboard_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void TextureBillboardShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -34,7 +34,8 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-			DrawRenderItem(command_list, [this, command_list, level_type]() {
+			m_billboard_render_item->Draw(command_list, level_type, 
+				[this, command_list, level_type]() {
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				},
 				[this, command_list, level_type]() {

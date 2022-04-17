@@ -9,6 +9,15 @@ namespace client_fw
 	{
 	}
 
+	bool LocalLightComponent::Initialize()
+	{
+		bool ret = LightComponent::Initialize();
+
+		UpdateShadowCameraProjection();
+
+		return ret;
+	}
+
 	void LocalLightComponent::RegisterToVisualOctree()
 	{
 		RenderComponent::RegisterToVisualOctree();
@@ -17,5 +26,12 @@ namespace client_fw
 	void LocalLightComponent::UnregisterFromVisualOctree()
 	{
 		RenderComponent::UnregisterFromVisualOctree();
+	}
+
+	void LocalLightComponent::SetAttenuationRadius(float radius)
+	{
+		m_attenuation_radius = std::clamp(radius, 0.0f, s_max_attenuation_radius);
+		UpdateShadowCameraProjection();
+		m_update_local_matrix = true;
 	}
 }

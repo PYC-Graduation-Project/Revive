@@ -1,4 +1,5 @@
 #pragma once
+#include "client/renderer/renderitem/core/render_item.h"
 
 namespace client_fw
 {
@@ -10,26 +11,22 @@ namespace client_fw
 	class UploadPrimitive;
 	class BillboardVertex;
 
-	class BillboardRenderItem
+	class BillboardRenderItem : public RenderItem
 	{
 	public:
 		BillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~BillboardRenderItem();
 
-		void Initialize(ID3D12Device* device);
-		void Shutdown();
+		void Initialize(ID3D12Device* device, const std::vector<eRenderLevelType>& level_types) override;
 
-		virtual void Update(ID3D12Device* device) = 0;
-		virtual void UpdateFrameResource(ID3D12Device* device) = 0;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) = 0;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) {}
 
 	protected:
-		std::string m_owner_shader_name;
-		std::vector<BillboardVertex> m_vertices;
+		std::map<eRenderLevelType, std::vector<BillboardVertex>> m_vertices;
 	};
 	
 	class TextureBillboardRenderItem final : public BillboardRenderItem
@@ -38,9 +35,9 @@ namespace client_fw
 		TextureBillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~TextureBillboardRenderItem();
 
-		virtual void Update(ID3D12Device* device) override;
-		virtual void UpdateFrameResource(ID3D12Device* device) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list,
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
+		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
 			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) override;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
@@ -56,10 +53,10 @@ namespace client_fw
 		MaterialBillboardRenderItem(const std::string& owner_shader_name);
 		virtual ~MaterialBillboardRenderItem();
 
-		virtual void Update(ID3D12Device* device) override;
-		virtual void UpdateFrameResource(ID3D12Device* device) override;
-		virtual void Draw(ID3D12GraphicsCommandList* command_list,
-			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function);
+		virtual void Update(ID3D12Device* device, eRenderLevelType level_type) override;
+		virtual void UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type) override;
+		virtual void Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type,
+			std::function<void()>&& draw_function, std::function<void()>&& fix_up_draw_function) override;
 
 		virtual void RegisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;
 		virtual void UnregisterBillboardComponent(const SPtr<BillboardComponent>& bb_comp) override;

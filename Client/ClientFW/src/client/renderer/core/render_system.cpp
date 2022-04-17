@@ -5,6 +5,7 @@
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
 
 #include "client/renderer/renderlevel/opaque_render_level.h"
+#include "client/renderer/renderlevel/shadow_render_level.h"
 #include "client/renderer/renderlevel/deferred_render_level.h"
 #include "client/renderer/renderlevel/final_view_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
@@ -30,7 +31,8 @@
 #include "client/object/component/render/shape_component.h"
 #include "client/object/component/render/billboard_component.h"
 #include "client/object/component/render/widget_component.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/core/camera_component.h"
+#include "client/object/component/util/render_camera_component.h"
 #include "client/object/component/light/core/light_component.h"
 #include "client/object/component/light/core/local_light_component.h"
 #include "client/object/component/sky/sky_component.h"
@@ -61,38 +63,56 @@ namespace client_fw
 		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsRenderLevel<ShadowRenderLevel>(eRenderLevelType::kShadow);
+		ret &= RegisterGraphicsRenderLevel<ShadowCubeRenderLevel>(eRenderLevelType::kShadowCube);
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 
-		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh), eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh), eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh), eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<TextureBillboardShader>("texture billboard", eRenderLevelType::kOpaque);
+		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh),
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh),
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", 
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+		//ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<TextureBillboardShader>(Render::ConvertShaderType(eShaderType::kTextureBillboard),
+			{eRenderLevelType::kOpaque});
 		ret &= RegisterGraphicsShader<OpaqueMaterialBaseColorBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialBaseColorBillboard), 
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialBaseColorBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), eRenderLevelType::kOpaque);
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialBaseColorBillboard), 
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<OpaqueMaterialTextureBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard), eRenderLevelType::kOpaque);
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialTextureBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialTextureBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard), eRenderLevelType::kOpaque);
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialTextureBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<OpaqueMaterialNormalMapBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
+			(Render::ConvertShaderType(eShaderType::kOpaqueMaterialNormalMapBillboard),
+				{ eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<MaskedMaterialNormalMapBillboardShader>
-			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard), eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<OpaqueWidgetShader>("opaque widget", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<MaskedWidgetShader>("masked widget", eRenderLevelType::kOpaque);
-		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), eRenderLevelType::kOpaque); 
+			(Render::ConvertShaderType(eShaderType::kMaskedMaterialNormalMapBillboard),
+				{ eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<OpaqueWidgetShader>(Render::ConvertShaderType(eShaderType::kOpaqueWidget),
+			{ eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<MaskedWidgetShader>(Render::ConvertShaderType(eShaderType::kMaskedWidget),
+			{ eRenderLevelType::kOpaque });
+		ret &= RegisterGraphicsShader<SkyShader>(Render::ConvertShaderType(eShaderType::kSky), { eRenderLevelType::kOpaque });
 
-		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred), eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight), eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight), eRenderLevelType::kDeferred);
-		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", eRenderLevelType::kFinalView);
-		ret &= RegisterGraphicsShader<UIShader>("ui", eRenderLevelType::kUI);
+		ret &= RegisterGraphicsShader<DeferredShader>(Render::ConvertShaderType(eShaderType::kDeferred),
+			{ eRenderLevelType::kDeferred });
+		ret &= RegisterGraphicsShader<PointLightShader>(Render::ConvertShaderType(eShaderType::kPointLight),
+			{ eRenderLevelType::kDeferred });
+		ret &= RegisterGraphicsShader<SpotLightShader>(Render::ConvertShaderType(eShaderType::kSpotLight),
+			{ eRenderLevelType::kDeferred });
 
+		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", { eRenderLevelType::kFinalView });
+		ret &= RegisterGraphicsShader<UIShader>("ui", { eRenderLevelType::kUI });
 
 		ret &= m_render_asset_manager->Initialize(device);
 
@@ -121,6 +141,12 @@ namespace client_fw
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
 				m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
+			},
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kShadow)->Update(device);
+			},
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Update(device);
 			});
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
@@ -129,8 +155,9 @@ namespace client_fw
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
-		for (const auto& [name, shader] : m_graphics_shaders)
-			shader->UpdateFrameResource(device);
+
+		for (const auto& [level_type, render_level] : m_graphics_render_levels)
+			render_level->UpdateFrameResource(device);
 	}
 
 
@@ -151,6 +178,16 @@ namespace client_fw
 
 		if (m_camera_manager->GetMainCamera() != nullptr)
 		{
+			m_camera_manager->DrawShadow(command_list,
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kShadow)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Draw(command_list);
+				});
+
 			m_camera_manager->Draw(command_list,
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
@@ -164,7 +201,6 @@ namespace client_fw
 				{
 				});
 		}
-		
 	}
 
 	void RenderSystem::DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const
@@ -187,16 +223,19 @@ namespace client_fw
 		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 
-	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, eRenderLevelType level_type)
+	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types)
 	{
-		if (m_added_shaders.find(shader_name) != m_added_shaders.cend() && 
-			m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
+		for (eRenderLevelType level_type : level_types)
 		{
-			auto& shader = m_graphics_shaders[shader_name];
-			m_added_shaders.erase(shader_name);
-			m_graphics_render_levels[level_type]->UnregisterGraphicsShader(shader);
-			shader->Shutdown();
-			m_graphics_shaders.erase(shader_name);
+			if (m_added_shaders.find(shader_name) != m_added_shaders.cend() &&
+				m_graphics_render_levels.find(level_type) != m_graphics_render_levels.cend())
+			{
+				auto& shader = m_graphics_shaders[shader_name];
+				m_added_shaders.erase(shader_name);
+				m_graphics_render_levels[level_type]->UnregisterGraphicsShader(shader);
+				shader->Shutdown();
+				m_graphics_shaders.erase(shader_name);
+			}
 		}
 	}
 
@@ -327,7 +366,7 @@ namespace client_fw
 		m_camera_manager->UnregisterCameraComponent(camera_comp);
 	}
 
-	void RenderSystem::SetMainCamera(const SPtr<CameraComponent>& camera_comp)
+	void RenderSystem::SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		const auto& window = m_window.lock();
 		m_camera_manager->SetMainCamera(camera_comp);

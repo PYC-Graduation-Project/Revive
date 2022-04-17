@@ -6,21 +6,24 @@
 #include <client/util/octree/octree.h>
 #include "object/level/game_play_level.h"
 #include <client/object/level/gamemode/game_mode_base.h>
-#include "object/level/revive_game_mode.h"
+#include "object/gamemode/revive_game_mode.h"
 #include <client/event/packetevent/packet_helper.h>
 #include <client/event/messageevent/message_helper.h>
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
+
 namespace revive
 {
+
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
 	}
 	bool GamePlayLevel::Initialize()
 	{
-		//auto police = CreateSPtr<StaticMeshActor>( "../Contents/Cube.obj");
-		
+		/*auto police = CreateSPtr<SkeletonSoldier>();
+		SpawnActor(police);*/
+
 		/*for (int i = 0; i < 15; ++i)
 		{
 			auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "Contents/cliff_block_rock.obj");

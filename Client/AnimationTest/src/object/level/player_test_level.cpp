@@ -23,16 +23,18 @@ namespace anim_test
 		/*auto cube = CreateSPtr<StaticMeshActor>(eMobilityState::kMovable, "../Contents/Cube.obj");
 		SpawnActor(cube);
 		cube->SetPosition(Vec3{ 0,0,1000.0f });*/
-		auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/violet.rev","idle");
-		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","run");
+		/*auto violet_idle = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skel.rev","idle");
 		SpawnActor(violet_idle);
-		SpawnActor(skel_run);
 		violet_idle->SetPosition(Vec3{ 10.0f, -35.0f, 1100.0f });
-		violet_idle->SetScale(Vec3(0.5f,0.5f,0.5f));
-		violet_idle->SetRotation(80.0f, 0.0f, 0.0f);
+		violet_idle->SetScale(50.f);
+		violet_idle->SetRotation(80.0f, 0.0f, 0.0f);*/
+		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skeleton_soldier.rev","idle");
+		SpawnActor(skel_run);
 		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		skel_run->SetScale(Vec3(50.0f, 50.0f, 50.0f));
+		skel_run->SetScale(1.f);
 		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
+		skel_run->SetWeapon("../Contents/Cube.obj");
+		//skel_run->SetWeaponOffset(Vec3{50.f,-10.f,0.f});
 		
 
 		Input::SetInputMode(eInputMode::kGameOnly);
@@ -50,7 +52,7 @@ namespace anim_test
 
 	void PlayerTestLevel::Update(float delta_time)
 	{
-		
+		/*
 		static float x = -300.0f, y = 0.0f, z = 1100.0f;
 		static float time = 0.0f;
 
@@ -98,7 +100,7 @@ namespace anim_test
 			}
 
 			time -= 0.016f;
-		}
+		}*/
 	}
 
 	std::vector<SPtr<VisualOctree>> PlayerTestLevel::CreateVisualOctrees() const

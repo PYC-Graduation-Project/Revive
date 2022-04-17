@@ -18,6 +18,7 @@ namespace client_fw
 		virtual bool Initialize(ID3D12Device* device) { return true; }
 		virtual void Shutdown() {}
 		virtual void Update(ID3D12Device* device) = 0;
+		virtual void UpdateFrameResource(ID3D12Device* device) = 0;
 		
 	protected:
 		eRenderLevelType m_level_type;
@@ -35,6 +36,7 @@ namespace client_fw
 
 		virtual void Shutdown() override;
 		virtual void Update(ID3D12Device* device) override;
+		virtual void UpdateFrameResource(ID3D12Device* device) override;
 		virtual void Draw(ID3D12GraphicsCommandList* command_list) const;
 
 		bool RegisterGraphicsShader(ID3D12Device* device, const SPtr<GraphicsShader>& graphics_shader);

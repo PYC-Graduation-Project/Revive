@@ -92,7 +92,7 @@ namespace client_fw
 		m_vertex_infos.at(lod)->Draw(command_list);
 		if (m_is_draw_index)
 			m_index_infos.at(lod)->Draw(command_list);
-			
+
 
 		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
 		{
@@ -106,7 +106,24 @@ namespace client_fw
 			else
 				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
 		}
-	}	
+	}
+
+	void StaticMesh::DrawForShadow(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const
+	{
+		m_vertex_infos.at(lod)->Draw(command_list);
+		if (m_is_draw_index)
+			m_index_infos.at(lod)->Draw(command_list);
+
+
+		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
+		{
+			const auto& [count, start_location] = m_mesh_vertex_info.at(lod)[mat_index];
+			if (m_is_draw_index)
+				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);
+			else
+				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
+		}
+	}
 
 	bool SkeletalMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
@@ -152,6 +169,22 @@ namespace client_fw
 		{
 			command_list->SetGraphicsRootConstantBufferView(0, m_material_index_data.at(lod)->GetResource()->GetGPUVirtualAddress() +
 				mat_index * m_material_index_data.at(lod)->GetByteSize());
+			const auto& [count, start_location] = m_mesh_vertex_info.at(lod)[mat_index];
+			if (m_is_draw_index)
+				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);
+			else
+				command_list->DrawInstanced(count, num_of_draw_data, start_location, 0);
+		}
+	}
+
+	void SkeletalMesh::DrawForShadow(ID3D12GraphicsCommandList* command_list, UINT num_of_draw_data, UINT lod) const
+	{
+		m_vertex_infos.at(lod)->Draw(command_list);
+		if (m_is_draw_index)
+			m_index_infos.at(lod)->Draw(command_list);
+
+		for (size_t mat_index = 0; mat_index < m_materials.at(lod).size(); ++mat_index)
+		{
 			const auto& [count, start_location] = m_mesh_vertex_info.at(lod)[mat_index];
 			if (m_is_draw_index)
 				command_list->DrawIndexedInstanced(count, num_of_draw_data, start_location, 0, 0);

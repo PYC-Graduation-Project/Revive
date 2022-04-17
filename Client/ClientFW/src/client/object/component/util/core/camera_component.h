@@ -4,9 +4,6 @@
 
 namespace client_fw
 {
-	class Actor;
-	class RenderTexture;
-
 	enum class eProjectionMode
 	{
 		kPerspective, kOrthographic
@@ -17,11 +14,9 @@ namespace client_fw
 		kActive, kPaused
 	};
 
-	//아마 Light는 LightComponent에 넣을 것 같다.
-	//일단 Light를 넣을 때 다시 생각해 볼 생각이라 수정은 하지 않겠다.
 	enum class eCameraUsage
 	{
-		kBasic, kLight,
+		kBasic, kShadow, kShadowCube,
 	};
 
 	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)
@@ -35,16 +30,18 @@ namespace client_fw
 
 	class CameraComponent : public SceneComponent
 	{
-	public:
-		CameraComponent(const std::string& name = "camera component",
-			eCameraUsage usage = eCameraUsage::kBasic);
+	protected:
+		CameraComponent(eCameraUsage usage, 
+			const std::string& name = "camera component");
 		virtual ~CameraComponent() = default;
 
+	public:
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void UpdateWorldMatrix() override;
 		virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
+		virtual void UpdateViewMatrix();
 		virtual void UpdateProjectionMatrix();
 
 	private:
@@ -52,8 +49,6 @@ namespace client_fw
 		void UnregisterFromRenderSystem();
 
 	protected:
-		WPtr<Actor> m_owner_controller;
-		bool m_use_controller_rotation = false;
 		eCameraState m_camera_state;
 		eCameraUsage m_camera_usage;
 		eProjectionMode m_projection_mode;
@@ -63,18 +58,15 @@ namespace client_fw
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
+		Mat4 m_view_projection_matrix;
 		float m_aspect_ratio = 1.777778f;
-		float m_field_of_view = 45.0f;
-		float m_near_z = 1.01f;
-		float m_far_z = 100000.0f;
+		float m_field_of_view = 60.0f;
+		float m_near_z = 100.f;
+		float m_far_z = 100000.f;
 		BFrustum m_bf_projection;
 		BFrustum m_bounding_frustum;
 
 	public:
-		void SetMainCamera();
-		void SetOwnerController(const WPtr<Actor>& owner);
-		bool IsUseControllerRotation() const { return m_use_controller_rotation; }
-		void UseControllerRotation(bool use) { m_use_controller_rotation = use; }
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
@@ -84,7 +76,9 @@ namespace client_fw
 		void SetViewport(const Viewport& viewport) { m_viewport = viewport; m_is_updated_viewport = true; }
 		const Vec3& GetCameraPosition() const { return m_camera_position; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
+		const Mat4& GetInverseViewMatrix() const { return m_inverse_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
+		const Mat4& GetViewProjectionMatrix() const { return m_view_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;
 		Mat4 GetOrthoMatrix() const;
 		void SetAspectRatio(float aspect_ratio) { m_aspect_ratio = aspect_ratio; }
@@ -92,15 +86,6 @@ namespace client_fw
 		void SetNearZ(float near_z) { m_near_z = near_z; }
 		void SetFarZ(float far_z) { m_far_z = far_z; }
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
-
-	private:
-		SPtr<RenderTexture> m_render_texture;
-
-	public:
-		const SPtr<RenderTexture>& GetRenderTexture() const { return m_render_texture; }
-		// 카메라가 생성되면 카메라가 보는 장면을 그릴 Texture가 필요한데, 그 Texture를 뜻한다. 
-		// 사용자가 직접적으로 호출할 필요는 없다.
-		void SetRenderTexture(const SPtr<RenderTexture>& texture) { m_render_texture = texture; }
 
 	protected:
 		SPtr<CameraComponent> SharedFromThis();

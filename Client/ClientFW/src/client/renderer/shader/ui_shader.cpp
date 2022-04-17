@@ -16,7 +16,7 @@ namespace client_fw
 
 	void UIShader::Initialize(ID3D12Device* device)
 	{
-		m_render_item->Initialize(device);
+		m_render_item->Initialize(device, m_registered_render_levels);
 	}
 
 	void UIShader::Shutdown()
@@ -29,16 +29,16 @@ namespace client_fw
 		switch (level_type)
 		{
 		case eRenderLevelType::kUI:
-			m_render_item->Update(device, Render::GetWindowSize());
+			m_render_item->Update(device, level_type);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void UIShader::UpdateFrameResource(ID3D12Device* device)
+	void UIShader::UpdateFrameResource(ID3D12Device* device, eRenderLevelType level_type)
 	{
-		m_render_item->UpdateFrameResource(device);
+		m_render_item->UpdateFrameResource(device, level_type);
 	}
 
 	void UIShader::Draw(ID3D12GraphicsCommandList* command_list, eRenderLevelType level_type) const
@@ -47,7 +47,8 @@ namespace client_fw
 		{
 		case eRenderLevelType::kUI:
 		{
-			m_render_item->Draw(command_list, [this, command_list, level_type]() {
+			m_render_item->Draw(command_list, level_type,
+				[this, command_list, level_type]() {
 				command_list->SetPipelineState(m_pipeline_states.at(level_type)[0].Get());
 				});
 			break;

@@ -1,5 +1,6 @@
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
+#include <client/asset/mesh/mesh_loader.h>
 #include "object/level/event_test_level.h"
 #include "object/level/physics_test_level.h"
 #include "object/level/message_test_level.h"
@@ -51,6 +52,11 @@ namespace event_test
 				[this]()->bool {OpenLevel(CreateSPtr<LightTestLevel>()); return true; });
 
 			return result;
+		}
+
+		UPtr<MeshLoader> CreateMeshLoader() const override
+		{
+			return CreateUPtr<RevLoader>();
 		}
 
 		void Shutdown() override

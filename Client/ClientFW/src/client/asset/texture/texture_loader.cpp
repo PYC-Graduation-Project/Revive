@@ -73,7 +73,7 @@ namespace client_fw
 	}
 
 	ComPtr<ID3D12Resource> TextureCreator::Create2DTexture(ID3D12Device* device, DXGI_FORMAT format, 
-		const IVec2& size, UINT mip_levels, D3D12_RESOURCE_FLAGS resource_flags,
+		const IVec2& size, UINT array_size, UINT mip_levels, D3D12_RESOURCE_FLAGS resource_flags,
 		D3D12_RESOURCE_STATES resource_states, D3D12_CLEAR_VALUE* clear_value)
 	{
 		ComPtr<ID3D12Resource> texture;
@@ -84,7 +84,7 @@ namespace client_fw
 		texture_desc.Alignment = 0;
 		texture_desc.Width = size.x;
 		texture_desc.Height = size.y;
-		texture_desc.DepthOrArraySize = 1;
+		texture_desc.DepthOrArraySize = array_size;
 		texture_desc.MipLevels = mip_levels;
 		texture_desc.Format = format;
 		texture_desc.SampleDesc.Count = 1;
@@ -227,6 +227,35 @@ namespace client_fw
 		view_desc.Texture2D.MipLevels = 1;
 		view_desc.Texture2D.ResourceMinLODClamp = 0.0f;
 		view_desc.Texture2D.PlaneSlice = 0;
+
+		return view_desc;
+	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescFor32DSV(const ComPtr<ID3D12Resource>& dsv_resource)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
+
+		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view_desc.Format = DXGI_FORMAT_R32_FLOAT;
+		view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		view_desc.Texture2D.MostDetailedMip = 0;
+		view_desc.Texture2D.MipLevels = 1;
+		view_desc.Texture2D.ResourceMinLODClamp = 0.0f;
+		view_desc.Texture2D.PlaneSlice = 0;
+
+		return view_desc;
+	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescFor32DSVCube(const ComPtr<ID3D12Resource>& dsv_resource)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
+
+		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view_desc.Format = DXGI_FORMAT_R32_FLOAT;
+		view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		view_desc.Texture2DArray.MipLevels = 1;
+		view_desc.Texture2DArray.MostDetailedMip = 0;
+		view_desc.Texture2DArray.ResourceMinLODClamp = 0.0f;
 
 		return view_desc;
 	}

@@ -1,5 +1,5 @@
 #include <include/client_core.h>
-#include "object/actor/spawn_area.h"
+#include "object/actor/gameplaymechanics/spawn_area.h"
 
 namespace revive
 {

@@ -3,99 +3,50 @@
 #include "client/util/octree/octree.h"
 #include "client/util/octree/octree_manager.h"
 #include "client/asset/mesh/mesh.h"
-#include "client/object/component/util/camera_component.h"
+#include "client/object/component/util/core/camera_component.h"
 #include "client/object/component/core/render_component.h"
 #include "client/physics/core/bounding_mesh.h"
 
 namespace client_fw
 {
-	void MeshVisualizer::UpdateVisibilityFromCamera(const SPtr<CameraComponent>& camera)
+	void MeshVisualizer::UpdateVisibilityFromRenderCamera(const SPtr<CameraComponent>& camera)
 	{
-		const auto& bounding_frustum = camera->GetBoudingFrustum();
-		const auto& eye = camera->GetWorldPosition();
-
-		const auto& visual_octrees = VisualOctreeManager::GetOctreeManager().GetVisualOctrees();
-		for (const auto& octree : visual_octrees)
+		auto trigger_function = 
+			[](const SPtr<RenderComponent>& render_cmp)
 		{
-			const auto& root_node = octree->GetRootNode();
+			return (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false);
+		};
 
-			ContainmentType type = bounding_frustum.Contains(root_node->bounding_box);
-			if (type != ContainmentType::DISJOINT)
-			{
-				UpdateVisibilityFromCamera(bounding_frustum, type, root_node, eye);
-			}
-		}
-
-		const auto& movable_render_comps = VisualOctreeManager::GetOctreeManager().GetMovableRenderComps();
-
-		for (const auto& render_comp : movable_render_comps)
-		{
-			if (render_comp->IsHiddenInGame() == false &&
-				bounding_frustum.Intersects(*render_comp->GetOrientedBox()))
-			{
-				render_comp->SetVisiblity(true);
-				render_comp->UpdateLevelOfDetail(eye);
-			}
-		}
+		UpdateVisibility(camera->GetBoudingFrustum(), camera->GetWorldPosition(), trigger_function);
 	}
 
-	void MeshVisualizer::UpdateVisibilityFromCamera(const BFrustum& bounding_frustum,
-		ContainmentType type, const SPtr<VisualTreeNode>& node, const Vec3& eye)
+	void MeshVisualizer::UpdateVisibilityFromShadowCamera(const SPtr<CameraComponent>& camera)
 	{
-		if (node->child_nodes[0] == nullptr)
+		auto trigger_function =
+			[](const SPtr<RenderComponent>& render_cmp)
 		{
-			switch (type)
-			{
-			case DirectX::INTERSECTS:
-				for (const auto& render_cmp : node->render_components)
-				{
-					if (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false)
-					{
-						if (bounding_frustum.Intersects(*render_cmp->GetOrientedBox()))
-						{
-							render_cmp->SetVisiblity(true);
-							render_cmp->UpdateLevelOfDetail(eye);
-						}
-					}
-				}
-				break;
-			case DirectX::CONTAINS:
-				for (const auto& render_cmp : node->render_components)
-				{
-					if (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false)
-					{
-						render_cmp->SetVisiblity(true);
-						render_cmp->UpdateLevelOfDetail(eye);
-					}
-				}
-				break;
-			default:
-				break;
-			}
+			//Mesh를 제외하면 그림자를 생성하지 않는다.
+			return
+				(render_cmp->GetRenderType() == eRenderType::kMesh)
+				&& (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false);
+		};
 
-			return;
-		}
+		UpdateVisibility(camera->GetBoudingFrustum(), camera->GetWorldPosition(), trigger_function);
+	}
 
-		switch (type)
+	void MeshVisualizer::UpdateVisibliityFromShadowSphere(const Vec3& eye, float radius)
+	{
+		auto trigger_function =
+			[](const SPtr<RenderComponent>& render_cmp)
 		{
-		case DirectX::INTERSECTS:
-		{
-			ContainmentType type;
-			for (UINT i = 0; i < 8; ++i)
-			{
-				type = bounding_frustum.Contains(node->child_nodes[i]->bounding_box);
-				if (type != ContainmentType::DISJOINT)
-					UpdateVisibilityFromCamera(bounding_frustum, type, node->child_nodes[i], eye);
-			}
-			break;
-		}
-		case DirectX::CONTAINS:
-			for (UINT i = 0; i < 8; ++i)
-				UpdateVisibilityFromCamera(bounding_frustum, type, node->child_nodes[i], eye);
-			break;
-		default:
-			break;
-		}
+			//Mesh를 제외하면 그림자를 생성하지 않는다.
+			return
+				(render_cmp->GetRenderType() == eRenderType::kMesh)
+				&& (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false);
+		};
+		
+		BSphere bounding_sphere = BSphere(eye, radius);
 
+		UpdateVisibility(bounding_sphere, eye, trigger_function);
 	}
 }

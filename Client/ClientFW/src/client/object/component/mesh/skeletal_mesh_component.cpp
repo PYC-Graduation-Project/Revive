@@ -71,6 +71,20 @@ namespace client_fw
 		}
 	}
 
+	const Vec3 SkeletalMeshComponent::GetSocketWorldPosition(const std::string& socket_name)
+	{
+		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+		const auto& socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
+
+		return Vec3{socket_matrix._41,socket_matrix._42,socket_matrix._43};
+	}
+
+	const Mat4& SkeletalMeshComponent::GetSocketWorldMatrix(const std::string& socket_name)
+	{
+		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+		return GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
+	}
+
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()
 	{
 		return std::static_pointer_cast<SkeletalMeshComponent>(shared_from_this());
