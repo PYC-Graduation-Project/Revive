@@ -49,10 +49,11 @@ namespace revive
 		{
 			m_is_fire = true;
 			const auto& stone = CreateSPtr<Stone>();
-			stone->SetPosition(GetPosition() + Vec3{ 0.0f,100.0f,0.0f });
+			stone->SetMeshLocalPosition(m_skeletal_mesh_component->GetSocketWorldPosition("mount0"));
+			stone->SetPosition(GetPosition());
+			stone->SetRotation(m_skeletal_mesh_component->GetLocalRotation() * GetRotation());
 			stone->SetBlockingSphereRadius(10.f);
 			Vec3 direction = vec3::Normalize(m_player_position - stone->GetPosition());
-			direction.y = 0;
 			stone->SetVelocity(direction);
 			stone->SetCollisionInfo(true, "stone", { "player hit","base"}, true);
 			stone->SetOnCollisionResponse([stone](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -89,6 +90,11 @@ namespace revive
 	void SkeletonSoldier::Shutdown()
 	{
 		Enemy::Shutdown();
+	}
+
+	void SkeletonSoldier::Update(float delta_time)
+	{
+		Enemy::Update(delta_time);
 	}
 
 	bool SkeletonSoldier::SetCollisionComponent()

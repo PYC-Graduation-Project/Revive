@@ -12,6 +12,7 @@ namespace revive
 
 		virtual bool Initialize() override;
 		virtual void Update(float delta_time) override;
-	
+
+		void SetMeshLocalPosition(const Vec3& position);
 	};
 }
