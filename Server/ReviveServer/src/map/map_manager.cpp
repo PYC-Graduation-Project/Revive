@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "map_manager.h"
 
+#include"../collision_checker.h"
 #include<fstream>
 #include<sstream>
 #include<vector>
+#include<bitset>
 using namespace std;
 void MapManager::LoadMap(const std::string& path)
 {
@@ -189,4 +191,31 @@ bool MapManager::CheckCollision(const Vector3& obj_pos)
 		}
 	}
 	return false;
+}
+
+bool MapManager::CheckInRange(BoxCollision& collision)
+{
+	bitset<4>check_set;
+	check_set.reset();
+	
+	for (auto& map_obj : m_map_objects)
+	{
+		if (OBJ_TYPE::OT_ACTIViTY_AREA != map_obj.GetType())continue;
+		if (CollisionChecker::CheckInRange(collision.GetMinPos().x, collision.GetMinPos().z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) { check_set.set(0); }
+		if (CollisionChecker::CheckInRange(collision.GetMinPos().x, collision.GetMaxPos().z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			check_set.set(1);
+		}
+		if (CollisionChecker::CheckInRange(collision.GetMaxPos().x, collision.GetMinPos().z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			check_set.set(2);
+		}
+		if (CollisionChecker::CheckInRange(collision.GetMaxPos().x, collision.GetMaxPos().z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			check_set.set(3);
+		}
+	}
+	
+	return check_set.all();
 }

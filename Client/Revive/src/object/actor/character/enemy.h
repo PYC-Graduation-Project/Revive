@@ -21,7 +21,7 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
-
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 	protected:
 		int m_hp;
 		float m_disappear_time = 0.0f;

@@ -3,6 +3,7 @@
 #include"object/map_object/map_object.h"
 #include"map_info.h"
 #include"define.h"
+#include"util/collisioner.h"
 class MapManager
 {
 public:
@@ -22,6 +23,7 @@ public:
 	void LoadMap(const std::string& path);
 	void BlockTileMap();
 	bool CheckCollision(const Vector3& obj_pos);
+	bool CheckInRange(BoxCollision& collision);
 	const std::vector<MapObj>& GetMapObjVec() const
 	{
 		return m_map_objects;

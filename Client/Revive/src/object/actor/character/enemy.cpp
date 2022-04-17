@@ -5,7 +5,7 @@
 #include <client/input/input.h>
 #include <client/physics/collision/collisioner/collisioner.h>
 #include "object/actor/character/enemy.h"
-
+#include"revive_server/message/message_event_info.h"
 namespace revive
 {
 	Enemy::Enemy(const std::string& mesh_path, const std::string& name)
@@ -48,6 +48,7 @@ namespace revive
 		if (Input::RegisterAxisEvent(m_name + " move right", { AxisEventKeyInfo{eKey::kRArrow, 1.0f}, AxisEventKeyInfo{eKey::kLArrow, -1.0f} },
 			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ axis * 100.0f,0.0f,0.0f  }); return true; }, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " move right");
+		RegisterReceiveMessage(HashCode("move object"));
 		return ret;
 	}
 
@@ -74,6 +75,50 @@ namespace revive
 			m_is_dead = true;
 		}
 		
+	}
+
+	void Enemy::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
+	{
+		switch (message->GetEventID())
+		{
+		
+		case HashCode("move object"): {
+			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
+			//msg->m_move_lock.lock();
+			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
+			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			//SetPosition(msg->GetObjPosition());
+
+
+			//진짜 다음좌표 보내는것
+			SetPosition(msg->GetObjPosition());
+			//std::cout << msg->GetObjPosition() << std::endl;
+			//Vec3 a{ msg->GetObjPosition() };
+			//LOG_INFO(a);
+			//msg->m_move_lock.unlock();
+			break;
+		}
+		case HashCode("testmove"): {
+			auto msg = std::static_pointer_cast<TestMessageEventInfo>(message);
+			//msg->m_move_lock.lock();
+			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
+			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+			//SetPosition(msg->GetObjPosition());
+
+			//-----------방향벡터 보내는 테스트----------//
+			//m_network_vec = msg->GetPosition();
+			//------------------------------------------//
+
+
+			//std::cout << msg->GetObjPosition() << std::endl;
+			//Vec3 a{ msg->GetObjPosition() };
+			//LOG_INFO(a);
+			//msg->m_move_lock.unlock();
+			break;
+		}
+		default:
+			break;
+		}
 	}
 
 	void Enemy::FixYPosition()

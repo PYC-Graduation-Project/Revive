@@ -8,6 +8,7 @@
 #include"map/map_manager.h"
 #include"lua/functions/lua_functions.h"
 #include"util/Astar.h"
+#include"util/collisioner.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
@@ -161,6 +162,7 @@ void PacketManager::SpawnEnemy(int room_id)
 		{
 			
 			enemy->SetIsActive(true);
+			
 			enemy_list.insert(e_id);
 			
 		}
@@ -202,6 +204,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
 		enemy = MoveObjManager::GetInst()->GetEnemy(en);
 		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
+		enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	}
 	
 	
@@ -253,10 +256,11 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	Vector3 move_vec = nlook.Normalrize();
 	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
 	//cout << move_vec.x << move_vec.y << move_vec.z << endl;
-	enemy->SetPos(npos);
+	//enemy->SetPos(npos);
+	enemy->GetCollision().UpdateCollision(npos);
 	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
 		//std::atomic_thread_fence(std::memory_order_seq_cst);
-	if (false == m_map_manager->CheckCollision(npos))
+	if (true == m_map_manager->CheckInRange(enemy->GetCollision()))
 	{
 		enemy->SetPos(npos);
 	}
@@ -304,6 +308,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		move_vec = nlook.Normalrize();
 		npos = curr_pos + (move_vec * MAX_SPEED);
 		enemy->SetPos(npos);
+		enemy->GetCollision().UpdateCollision(npos);
 		//}
 	}
 
@@ -709,13 +714,14 @@ void PacketManager::StartGame(int room_id)
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID());
+			e->SetCollision(move(BoxCollision(pos, SOLDIER_LOCAL_POS, SOLDIER_EXTENT, SOLDIER_SCALE)));
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID());
-			
+			e->SetCollision(move(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE)));
 		}
 	}
 

@@ -11,7 +11,10 @@
 #include <client/event/messageevent/message_helper.h>
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
-
+#include"object/actor/character/skeleton_soldier.h"
+#include"object/actor/character/skeleton_king.h"
+std::string g_id;
+std::string g_pw;
 namespace revive
 {
 
@@ -21,23 +24,45 @@ namespace revive
 	}
 	bool GamePlayLevel::Initialize()
 	{
-		/*auto police = CreateSPtr<SkeletonSoldier>();
-		SpawnActor(police);*/
-
-		/*for (int i = 0; i < 15; ++i)
+		//auto police = CreateSPtr<SkeletonSoldier>();
+		//SpawnActor(police);
+		//police->SetPosition(Vec3{ 2400.0f , 300.0f, 1200.0f });
+		for (int i = 0; i < 15; ++i)
 		{
 			auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "Contents/cliff_block_rock.obj");
 			police->SetScale(300.0f); 
 			police->SetPosition(Vec3{ -500.0f + i * 500.0f, 0.0f, 6000.0f  });
 			SpawnActor(police);
-		}*/
+		}
 		
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
 			SpawnActor(actor);
 		}
-		
+		std::cin >> g_id;
+		std::cin >> g_pw;
+		std::cout << "id:" << g_id << "pw:" << g_pw << std::endl;
+
+		//회원 가입 5, 로그인 6, 매칭 7
+		RegisterPressedEvent("send sign up", { { eKey::k5 } },
+			[this]()->bool {
+
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
+				return true;
+			});
+		RegisterPressedEvent("send sign in", { { eKey::k6 } },
+			[this]()->bool {
+
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
+				return true;
+			});
+		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
+			[this]()->bool {
+
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				return true;
+			});
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
@@ -76,17 +101,32 @@ namespace revive
 			auto obj = msg->GetNetworkObj();
 			LOG_INFO("id : {0}", obj->GetID());
 			LOG_INFO("name : {0}", obj->GetName());
-			//LOG_INFO("hp : {0}", obj->GetHp());
-			//LOG_INFO("damage : {0}", obj->GetDamage());
-			//LOG_INFO("position :{0}", obj->GetPosition());
 			std::cout << "pos: " << obj->GetPosition() << std::endl;
-			//auto cube = CreateSPtr<RotatingCube>();
-			//SpawnActor(cube);
-			//LOG_INFO("rotation : {0}", cube->GetRotation());
-			//cube->SetPosition(msg->GetNetworkObj()->GetPosition());
-			//PacketHelper::ConnectActorToServer(cube, msg->GetNetworkObj()->GetID());
+			switch ((NW_OBJ_TYPE)obj->GetType())
+			{
+			case NW_OBJ_TYPE::OT_BASE: {
+				break;
+			}
+			case NW_OBJ_TYPE::OT_PLAYER: {
+				break;
+			}
+			case NW_OBJ_TYPE::OT_NPC_SKULL: {
+				auto police = CreateSPtr<SkeletonSoldier>();
+				SpawnActor(police);
+				police->SetPosition(obj->GetPosition());
+				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
 
-			//spawn_pos += Vec3(100.0f, 0.0f, 100.0f);
+				break;
+			}
+			case NW_OBJ_TYPE::OT_NPC_SKULLKING: {
+				auto police = CreateSPtr<SkeletonKing>();
+				SpawnActor(police);
+				police->SetPosition(obj->GetPosition());
+				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
+				break;
+			}
+			}
+
 			break;
 		}
 

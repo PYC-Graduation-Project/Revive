@@ -14,6 +14,7 @@ void Enemy::InitEnemy(OBJ_TYPE type, int room_id,
 	SetPos(pos);
 	m_damage = damage;
 	strcpy_s(m_name, name);
+	
 }
 
 void Enemy::SetSpawnPoint(float x, float z)
@@ -21,6 +22,7 @@ void Enemy::SetSpawnPoint(float x, float z)
 	Vector3 pos(x, 300.0f, z);
 	SetOriginPos(pos);
 	SetPos(pos);
+	
 }
 
 void Enemy::SetMoveTime(int val)

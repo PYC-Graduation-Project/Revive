@@ -1,6 +1,7 @@
 #pragma once
 #include "move_object.h"
 #include "define.h"
+#include"util/collisioner.h"
 #include<mutex>
 #include<atomic>
 #include<vector>
@@ -26,6 +27,8 @@ public:
         float max_hp, Vector3& pos, float damage,const char* name);
     void SetSpawnPoint(float x,float z);
     Vector3& GetLookVec()  { return m_look; }
+    BoxCollision& GetCollision() { return m_collision; }
+    void SetCollision(const BoxCollision&& val) { m_collision = val; }
     //void RegisterAPI();
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
@@ -37,6 +40,8 @@ public:
     std::vector<Vector3>m_load;
 private:
     std::chrono::system_clock::time_point	m_move_time;
+    BoxCollision m_collision;
+
     lua_State* m_L;
     Vector3 m_look;
     std::atomic_int target_id;
