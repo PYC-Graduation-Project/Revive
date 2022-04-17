@@ -11,6 +11,7 @@
 #include <client/event/messageevent/message_helper.h>
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
+#include "object/actor/character/skeleton_king.h"
 
 namespace revive
 {
@@ -21,8 +22,9 @@ namespace revive
 	}
 	bool GamePlayLevel::Initialize()
 	{
-		/*auto police = CreateSPtr<SkeletonSoldier>();
-		SpawnActor(police);*/
+		auto police = CreateSPtr<SkeletonKing>();
+		police->SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
+		SpawnActor(police);
 
 		/*for (int i = 0; i < 15; ++i)
 		{

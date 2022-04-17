@@ -3,6 +3,8 @@
 
 namespace revive
 {
+	class Axe;
+
 	class SkeletonKing : public Enemy
 	{
 	public:
@@ -10,14 +12,14 @@ namespace revive
 		virtual ~SkeletonKing() = default;
 
 		virtual bool Initialize() override;
+		virtual void Update(float delta_time) override;
 		virtual void Shutdown() override;
 
 	private:
 		virtual bool SetCollisionComponent() override;
 		virtual void Attack() override;
 
-		SPtr<BoxComponent> m_weapon_collision_box; //юс╫ц
-
+		SPtr<Axe> m_weapon;
 		int m_animation_select_num = 0;
 		std::array<std::string, 6> m_animation_name =
 		{

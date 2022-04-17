@@ -17,6 +17,7 @@ namespace revive
 {
 	using namespace client_fw;
 
+	class Weapon;
 	class PlayerFSM;
 
 	class RevivePlayer : public Pawn
@@ -28,8 +29,6 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
-
-		
 
 	private:
 		int m_hp = 10;

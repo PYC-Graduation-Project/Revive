@@ -2,16 +2,17 @@
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
-#include "client/input/input.h"
+#include <client/input/input.h>
+#include "object/actor/weapon/axe.h"
 #include "object/actor/character/revive_player.h"
 #include "object/actor/character/skeleton_king.h"
-
 namespace revive
 {
 	SkeletonKing::SkeletonKing(const std::string& name)
 		:Enemy("Contents/skeleton_king.rev", name)
 	{
-		m_weapon_collision_box = CreateSPtr<BoxComponent>();
+		m_weapon = CreateSPtr<Axe>();
+		SpawnActor(m_weapon);
 	}
 	bool SkeletonKing::Initialize()
 	{
@@ -19,14 +20,16 @@ namespace revive
 
 		ret &= Enemy::Initialize();
 		ret &= AttachComponent(m_skeletal_mesh_component);
-		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
 		m_skeletal_mesh_component->AddNotify("death end", "death", 82,
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
 			[this]() { m_skeletal_mesh_component->SetAnimation("idle");  });
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
 			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("idle"); /*공격 후에 재생할 애니메이션*/});
-
+		
+		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
+		m_weapon->SetSocketName("mount0");
+		m_weapon->SetScale(0.6f);
 		ret &= SetCollisionComponent();
 		
 		if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kT} },
@@ -36,14 +39,23 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");
 		
 		m_hp = 20;
-		//SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
+		mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
+
 		return ret;
 	}
+
+	void SkeletonKing::Update(float delta_time)
+	{
+		Enemy::Update(delta_time);
+	}
+
 	void SkeletonKing::Shutdown()
 	{
 		Enemy::Shutdown();
+		m_weapon->SetActorState(eActorState::kDead);
 	}
+
 	bool SkeletonKing::SetCollisionComponent()
 	{
 		bool ret = true;
@@ -69,7 +81,6 @@ namespace revive
 		ret &= AttachComponent(m_blocking_box);
 
 		//무기 콜리전 설정 무기 Actor에서 해줄것
-		m_weapon_collision_box->SetName("Weapon Collision");
 		//m_weapon_collision_box->SetExtents(Vec3{}); //무기 박스 콜리전 크기
 		//m_weapon_collision_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 		//	const SPtr<SceneComponent>& other_component)
@@ -85,7 +96,6 @@ namespace revive
 		//	}
 		//});
 
-		ret &= AttachComponent(m_weapon_collision_box);
 		//공격 범위 구체
 		m_attack_sphere->SetExtents(350.f);
 		m_attack_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -127,6 +137,7 @@ namespace revive
 
 		return ret;
 	}
+
 	void SkeletonKing::Attack()
 	{
 		if (m_is_attacking == false)
