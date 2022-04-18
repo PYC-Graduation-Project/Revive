@@ -8,7 +8,7 @@
 #include"map/map_manager.h"
 #include"lua/functions/lua_functions.h"
 #include"util/Astar.h"
-#include"util/collisioner.h"
+#include"util/collision/collisioner.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
@@ -237,34 +237,22 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//cout << "enemy_id" << enemy->GetID() << endl;
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
-	Vector3& nlook = enemy->GetLookVec();
+	//Vector3& nlook = enemy->GetLookVec();
 	
-	Vector3 curr_pos = enemy->GetPos();
+	
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
-	
-		nlook = Vector3{ base_pos - curr_pos };
-		//적 look벡터 설정
+		enemy->DoMove(base_pos);
 	}
 	else
 	{
-		//Vector3 nlook = 타겟 오브젝트 - 자기 normalize
-		nlook = Vector3{ MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos() - curr_pos };
+		enemy->DoMove(MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos());
 	}
-	//타겟이 누군지에 따라서 계산 다르게 해주기
-	Vector3 move_vec = nlook.Normalrize();
-	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
-	//cout << move_vec.x << move_vec.y << move_vec.z << endl;
-	//enemy->SetPos(npos);
-	enemy->GetCollision().UpdateCollision(npos);
-	//여기서 충돌확인후 원래좌표로 해주고 a*사용하기
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
-	if (true == m_map_manager->CheckInRange(enemy->GetCollision()))
+	
+	if (false == m_map_manager->CheckInRange(enemy->GetCollision()))
 	{
-		enemy->SetPos(npos);
-	}
-	else {//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
+		//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
 		//unique_ptr<Astar>astar=make_unique<Astar>();
 		
 		//if (enemy->GetTargetId() == -1)
@@ -303,35 +291,18 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//}
 		
 		
-		nlook = Vector3{ Vector3(base_pos.x,curr_pos.y,curr_pos.z) - curr_pos };
 		
-		move_vec = nlook.Normalrize();
-		npos = curr_pos + (move_vec * MAX_SPEED);
-		enemy->SetPos(npos);
-		enemy->GetCollision().UpdateCollision(npos);
-		//}
+		enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
+		
 	}
 
-	//cout << move_vec << endl;
+	
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
 	//다음 위치 보내주기
 	
 	
-	
-	//-----동기화 코드 
-	//auto end_t = std::chrono::system_clock::now();
-	//if (end_t >= enemy->GetMoveTime())
-	//{
-	//	cout << "적 id" << enemy_id << "동기화" << endl;
-	//	enemy->SetMoveTime(300);
-	//	for (auto pl : room->GetObjList())
-	//	{
-	//		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-	//		SendMovePacket(pl, enemy_id);
-	//	}
-	//}
 
-	//cout << "id:" << enemy_id << "pos:" << npos << endl;
+
 	for (auto pl:room->GetObjList())
 	{
 

@@ -5,7 +5,7 @@
 #include<functional>
 #include<set>
 #include<vector>
-#include<bitset>
+
 #include"vec3.h"
 const int ROW = 41;
 const int COL = 41;
@@ -17,6 +17,7 @@ const float REAL_DISTANCE = 45.0f;
 using Vec2 = std::pair<short, short>;
 //using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
 class MapObj;
+class BoxCollision;
 class Node {
 public:
 	Node() {
@@ -67,17 +68,14 @@ public:
 	};
 	~Astar() {};
 
-	bool SearchAllPath(const std::vector<MapObj>& map_objects, const Vector3& src, const Vector3& dst);
-	bool IsBlocked(const std::vector<MapObj>& map_objects,const Vec2& dst);
+	bool SearchAllPath(const std::vector<MapObj>& map_objects, const Vector3& src, const Vector3& dst,const BoxCollision& collision);
+	bool IsBlocked(const std::vector<MapObj>& map_objects,const Vec2& dst, const BoxCollision& collision);
 	bool IsInRange(const Vec2& pos);
 	
 	int GethValue(int row, int col, Vec2 dst) {
 		return std::sqrt(std::pow(row - dst.first, 2) + std::pow(col - dst.second, 2));
 	}
-	bool isDestination(int row, int col, Vec2 dst) {
-		if (row == dst.first && col == dst.second) return true;
-		return false;
-	}
+	
 	void TracePath(Node& now, Vec2 src, Vec2 dst);
 	Vec2 GetDestination(const Vector3& src, const Vector3& dst);
 	std::vector<Vector3>m_enemy_load;

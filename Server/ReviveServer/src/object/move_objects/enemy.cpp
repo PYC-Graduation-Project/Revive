@@ -30,4 +30,27 @@ void Enemy::SetMoveTime(int val)
 	m_move_time = std::chrono::system_clock::now() + (1ms*val);
 }
 
+void Enemy::DoMove(const Vector3& target_pos)
+{
+	Vector3& nlook = m_look;
+	Vector3& curr_pos = m_pos;
+	m_prev_pos = m_pos;
+	nlook = Vector3{ target_pos - curr_pos };
+	Vector3 move_vec = nlook.Normalrize();
+	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
+	m_collision.UpdateCollision(npos);
+	m_pos = npos;
+}
+
+void Enemy::DoPrevMove(const Vector3& target_pos)
+{
+	Vector3& nlook = m_look;
+	Vector3& curr_pos = m_prev_pos;
+	nlook = Vector3{ target_pos - curr_pos };
+	Vector3 move_vec = nlook.Normalrize();
+	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
+	m_pos = npos;
+	m_collision.UpdateCollision(npos);
+}
+
 

@@ -1,5 +1,6 @@
 #pragma once
 #include"../object.h"
+#include"util/collision/collisioner.h"
 class MapObj : public Object 
 {
 public:
@@ -32,7 +33,7 @@ private:
 	Vector3 m_max_pos;
 	Vector3 m_extent;
 	Vector3 m_ground_pos;
-
+	
 
 };
 

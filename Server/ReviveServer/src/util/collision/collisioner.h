@@ -12,7 +12,7 @@ const Vector3 KING_EXTENT{ 50.0f,200.0f,50.0f };
 
 class Collisioner {
 public:
-	Collisioner(const Vector3& player_position,const Vector3& local_position,const float scale=1.0f )
+	Collisioner(const Vector3& player_position, const Vector3& local_position = Vector3{ 0.0f,0.0f,0.0f }, const float scale = 1.0f)
 		:m_local_pos(local_position),m_scale(scale)
 	{
 		m_center_pos = player_position + (local_position*scale);
@@ -44,6 +44,14 @@ public:
 		:Collisioner(player_position, local_position,scale)
 	{
 		m_extent = extent * scale;
+		m_min_pos = m_center_pos - extent;
+		m_max_pos = m_center_pos + extent;
+	}
+	BoxCollision(const Vector3& position, const Vector3& extent)
+		:Collisioner(position)
+	{
+		m_extent = extent ;
+		m_center_pos = position;
 		m_min_pos = m_center_pos - extent;
 		m_max_pos = m_center_pos + extent;
 	}

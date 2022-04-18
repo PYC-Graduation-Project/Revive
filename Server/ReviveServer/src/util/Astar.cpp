@@ -1,16 +1,17 @@
 #include "pch.h"
 #include "Astar.h"
 #include"object/map_object/map_object.h"
+#include"util/collision/collision_checker.h"
 #include<iostream>
 #include<cmath>
-
+#include<bitset>
 using namespace std;
-bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& start_pos, const Vector3& dst_pos)
+bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& start_pos, const Vector3& dst_pos , const BoxCollision& collision)
 {
 	Vec2 dst=GetDestination(start_pos,dst_pos);
 	Vec2 src= m_start_pos;
 	if (false == IsInRange(dst))return false;
-	if (true == IsBlocked(map_objects, dst))
+	if (true == IsBlocked(map_objects, dst, collision))
 	{
 		cout << "¸·Èù°÷" << endl;
 		return false;
@@ -46,7 +47,7 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 			int ny = now.pos.first + dirY[i];
 			Vec2 new_pos{ ny,nx };
 			if (false == IsInRange(new_pos))continue;
-			if (true == IsBlocked(map_objects, new_pos))continue;
+			if (true == IsBlocked(map_objects, new_pos,collision))continue;
 			if (close_set.find(new_pos) != close_set.end())continue;
 			int ng = now.g + cost[i];
 			int nh = GethValue(ny, nx, dst);
@@ -67,45 +68,59 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 	return false;
 }
 
-bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst)
+bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const BoxCollision& collision)
 {
 	float x = (dst.second  * REAL_DISTANCE )+ m_zero_position.x;
 	float z = (dst.first * REAL_DISTANCE) + m_zero_position.z;
+	BoxCollision test_collision{ collision };
+	test_collision.UpdateCollision(move(Vector3(x, 300.0f, z)));
+	bitset<4>check_set;
+	check_set.reset();
 	for (auto map_obj : map_objects)
 	{
 		if (OBJ_TYPE::OT_SPAWN_AREA == map_obj.GetType())continue;
-		else if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType()) 
+
+		if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType())
 		{
-			if (map_obj.GetMinPos().x > x && map_obj.GetMaxPos().x < x &&
-				map_obj.GetMinPos().z > z && map_obj.GetMaxPos().z < z)
-			{
 
-				//test_map[dst.first][dst.second] = '1';
-				return true;
-
+			if (CollisionChecker::CheckInRange(test_collision.GetMinPos().x, test_collision.GetMinPos().z,
+				map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+				check_set.set(0);
 			}
-			
-		}
-		else if (OBJ_TYPE::OT_BASE == map_obj.GetType())
-		{
-			if (abs(map_obj.GetPosX() - x) <= 10.0f && abs(map_obj.GetPosZ() - z) <= 10.0f)
-			{
-				return true;
+			if (CollisionChecker::CheckInRange(test_collision.GetMinPos().x, test_collision.GetMaxPos().z,
+				map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+				check_set.set(1);
 			}
-		}
-		else {
-			if (map_obj.GetMinPos().x <= x && map_obj.GetMaxPos().x >= x &&
-				map_obj.GetMinPos().z <= z && map_obj.GetMaxPos().z >= z)
-			{
-
-				//test_map[dst.first][dst.second] = '1';
-				return true;
-
+			if (CollisionChecker::CheckInRange(test_collision.GetMaxPos().x, test_collision.GetMinPos().z,
+				map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+				check_set.set(2);
+			}
+			if (CollisionChecker::CheckInRange(test_collision.GetMaxPos().x, test_collision.GetMaxPos().z,
+				map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+				check_set.set(3);
 			}
 		}
+	}
+	if (check_set.all() == false)return true;
+		//else if (OBJ_TYPE::OT_BASE == map_obj.GetType())
+		//{
+		//	if (abs(map_obj.GetPosX() - x) <= 10.0f && abs(map_obj.GetPosZ() - z) <= 10.0f)
+		//	{
+		//		return true;
+		//	}
+		//}
+	for (auto map_obj : map_objects)
+	{
+		if (OBJ_TYPE::OT_SPAWN_AREA == map_obj.GetType())continue;
+		if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType())continue;
+		if (CollisionChecker::CheckCollisions(test_collision,
+			BoxCollision(map_obj.GetPos(),map_obj.GetExtent())))return true;
+
 		
 		
 	}
+		
+	
 	return false;
 }
 

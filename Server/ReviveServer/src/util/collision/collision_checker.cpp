@@ -1,5 +1,5 @@
 #include "collision_checker.h"
-#include"util/collisioner.h"
+#include"util/collision/collisioner.h"
 bool CollisionChecker::CheckCollisions(BoxCollision& a, BoxCollision& b)
 {
     return (a.GetMinPos().x <= b.GetMaxPos().x && a.GetMaxPos().x >= b.GetMinPos().x) &&
