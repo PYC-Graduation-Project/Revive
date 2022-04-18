@@ -33,11 +33,10 @@ namespace revive
 		WPtr<SkeletalMeshComponent> m_attached_skeletal_mesh_component;
 
 		Vec3 m_position_offset = vec3::ZERO;
-		Quaternion m_rotation_offset = Quaternion{ 0.f,0.f,0.f,1.f };
+		Vec3 m_rotation_offset = vec3::ZERO;
 
 		void const GetSocketMatrix(Mat4& out_matrix);
 	public:
-		//void AttachSkeletalMeshComponent(const SPtr<SkeletalMeshComponent> skeletal_mesh_component);
 		void SetAttachedActor(const SPtr<Actor> actor, const SPtr<SkeletalMeshComponent> skeletal_mesh_component);
 		void SetSocketName(const std::string& socket_name) { m_socket_name = socket_name; }
 		//void SetSocket(const Mat4& socket_matrix, const Mat4& actor_matrix);

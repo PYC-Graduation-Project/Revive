@@ -23,7 +23,7 @@ namespace revive
 	bool GamePlayLevel::Initialize()
 	{
 		auto police = CreateSPtr<SkeletonKing>();
-		police->SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
+		police->SetPosition(Vec3{ 2000.f,300.f,4000.f });
 		SpawnActor(police);
 
 		/*for (int i = 0; i < 15; ++i)

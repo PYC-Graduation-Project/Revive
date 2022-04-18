@@ -2,6 +2,7 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/box_component.h>
+#include <client/input/input.h>
 #include "object/actor/weapon/weapon.h"
 
 namespace revive
@@ -22,20 +23,25 @@ namespace revive
 		return ret;
 	}
 
+
 	void Weapon::Update(float delta_time)
 	{
 		Mat4 socket_world_matrix;
 		GetSocketMatrix(socket_world_matrix);
 		SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 } + m_position_offset);
-		SetRotation(m_attached_actor.lock()->GetRotation());
+		Mat4 socket_local_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
+		Quaternion q;
+		XMStoreFloat4(&q, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_local_matrix)));
+		SetRotation(
+			quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(m_rotation_offset.x), math::ToRadian(m_rotation_offset.y), math::ToRadian(m_rotation_offset.z))/*quat::CreateQuaternionFromAxis(vec3::AXIS_X,math::ToRadian(70.f))*///오프셋 값
+			* q 
+			* m_attached_actor.lock()->GetRotation());
 	}
 
 	void const Weapon::GetSocketMatrix(Mat4& out_matrix)
 	{
 		const auto& skeletal_mesh_component = m_attached_skeletal_mesh_component.lock();
 		Mat4 socket_local_matrix = skeletal_mesh_component->GetSocketWorldMatrix(m_socket_name);
-		/*Mat4 bone_matrix = mat4::CreateRotationFromQuaternion(skeletal_mesh_component->GetWorldRotation());
-		bone_matrix *= mat4::CreateTranslation(skeletal_mesh_component->GetWorldPosition());*/
 		out_matrix = socket_local_matrix * m_attached_actor.lock()->GetWorldMatrix();
 		//LOG_INFO(out_matrix);
 	}
