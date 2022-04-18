@@ -52,6 +52,7 @@ StructuredBuffer<ShadowTextureData> g_shadow_texture_data : register(t3, space0)
 StructuredBuffer<SkeletalData> g_bone_transform_data : register(t4, space0);
 Texture2D g_texture_data[] : register(t0, space1);
 TextureCube g_texture_cube_data[] : register(t0, space2);
+Texture2DArray g_texture_array_data[] : register(t0, space3);
 
 SamplerState g_sampler_point_wrap : register(s0, space0);
 SamplerComparisonState g_sampler_comparison_pcf_shadow : register(s6, space0);

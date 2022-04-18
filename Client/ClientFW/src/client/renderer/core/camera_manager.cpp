@@ -10,6 +10,8 @@
 #include "client/object/component/util/render_camera_component.h"
 #include "client/object/component/util/shadow_camera_component.h"
 #include "client/object/component/util/shadow_cube_camera_component.h"
+#include "client/object/component/util/shadow_cascade_camera_component.h"
+#include "client/object/component/light/directional_light_component.h"
 
 #include "client/asset/texture/texture.h"
 #include "client/util/upload_buffer.h"
@@ -39,6 +41,7 @@ namespace client_fw
 		UpdateRenderCameras(device);
 		UpdateShadowCameras(device);
 		UpdateShadowCubeCameras(device);
+		UpdateShadowCascadeCameras(device);
 
 		UpdateCameraResource(device,
 			std::move(update_shader_function_for_render_camera),
@@ -54,6 +57,8 @@ namespace client_fw
 			m_main_camera = m_ready_main_camera;
 			m_ready_main_camera = nullptr;
 		}
+
+		UpdateRenderCamerasForCascadeShadow(device);
 
 		// 여기서 wait와 ready camera가 있는데 이와 같이 있는 이유는 
 		// camera가 등록되면서 camera의 render texture를 초기화 할 필요가 있는데
@@ -82,6 +87,35 @@ namespace client_fw
 			}
 			m_ready_render_cameras.clear();
 		}	
+	}
+
+	void CameraManager::UpdateRenderCamerasForCascadeShadow(ID3D12Device* device)
+	{
+		const auto& light_manager = LightManager::GetLightManager();
+		const auto& ready_directional_lights = light_manager.GetReadyDirectionalLights();
+		if (ready_directional_lights.empty() == false)
+		{
+			for (const auto& directional_light : ready_directional_lights)
+			{
+				for (const auto& camera : m_ready_render_cameras)
+					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				for (const auto& camera : m_wait_resource_render_cameras)
+					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				for (const auto& camera : m_render_cameras)
+					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+			}
+		}
+		const auto& directional_lights = light_manager.GetDirectionalLights();
+		if (directional_lights.empty() == false)
+		{
+			for (const auto& directional_light : ready_directional_lights)
+			{
+				for (const auto& camera : m_ready_render_cameras)
+					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				for (const auto& camera : m_wait_resource_render_cameras)
+					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+			}
+		}
 	}
 
 	void CameraManager::UpdateShadowCameras(ID3D12Device* device)
@@ -129,6 +163,28 @@ namespace client_fw
 				m_wait_resource_shadow_cube_cameras.push_back(camera);
 			}
 			m_ready_shadow_cube_cameras.clear();
+		}
+	}
+
+	void CameraManager::UpdateShadowCascadeCameras(ID3D12Device* device)
+	{
+		if (m_wait_resource_shadow_cascade_cameras.empty() == false)
+		{
+			for (const auto& camera : m_wait_resource_shadow_cascade_cameras)
+				m_shadow_cascade_cameras.push_back(camera);
+			m_wait_resource_shadow_cascade_cameras.clear();
+		}
+
+		if (m_ready_shadow_cascade_cameras.empty() == false)
+		{
+			for (const auto& camera : m_ready_shadow_cascade_cameras)
+			{
+				camera->SetShadowArrayTexture(CreateSPtr<ShadowArrayTexture>(IVec2(2048, 2048), s_max_cascade_level));
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetShadowArrayTexture());
+
+				m_wait_resource_shadow_cascade_cameras.push_back(camera);
+			}
+			m_ready_shadow_cascade_cameras.clear();
 		}
 	}
 
@@ -239,6 +295,18 @@ namespace client_fw
 			}
 
 			++index;
+		}
+
+		index = 0;
+
+		for (const auto& camera : m_shadow_cascade_cameras)
+		{
+			const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
+
+			if (shadow_cascade_texture->GetResource() != nullptr)
+			{
+				//LOG_INFO("여기 어때?");
+			}
 		}
 	}
 
@@ -375,6 +443,37 @@ namespace client_fw
 			++index;
 		}
 
+		index = 0;
+
+		for (const auto& camera : m_shadow_cascade_cameras)
+		{
+			const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
+
+			if (shadow_cascade_texture->GetResource() != nullptr)
+			{
+				gpu_address = camera_resource->GetCubeCameraData()->GetResource()->GetGPUVirtualAddress() +
+					index * camera_resource->GetCubeCameraData()->GetByteSize();
+
+				const auto& size = shadow_cascade_texture->GetTextureSize();
+
+				std::array<D3D12_VIEWPORT, s_max_cascade_level> views;
+				views.fill({ 0.f, 0.f, static_cast<float>(size.x), static_cast<float>(size.y), 0.0f, 1.0f });
+				std::array<D3D12_RECT, s_max_cascade_level> scissors;
+				scissors.fill({ 0, 0, static_cast<LONG>(size.x), static_cast<LONG>(size.y) });
+
+				command_list->RSSetViewports(s_max_cascade_level, views.data());
+				command_list->RSSetScissorRects(s_max_cascade_level, scissors.data());
+
+				//command_list->SetGraphicsRootConstantBufferView(8, gpu_address);
+
+				shadow_cascade_texture->PreDraw(command_list);
+				//shadow_cube_function(command_list);
+				shadow_cascade_texture->PostDraw(command_list);
+
+				//camera->SetPaused();
+			}
+		}
+
 	}
 
 	void CameraManager::DrawMainCameraForUI(ID3D12GraphicsCommandList* command_list)
@@ -391,14 +490,18 @@ namespace client_fw
 			m_ready_render_cameras.push_back(std::static_pointer_cast<RenderCameraComponent>(camera_comp));
 		else if (camera_comp->GetCameraUsage() == eCameraUsage::kShadow)
 			m_ready_shadow_cameras.push_back(std::static_pointer_cast<ShadowCameraComponent>(camera_comp));
-		else
+		else if (camera_comp->GetCameraUsage() == eCameraUsage::kShadowCube)
 			m_ready_shadow_cube_cameras.push_back(std::static_pointer_cast<ShadowCubeCameraComponent>(camera_comp));
+		else
+			m_ready_shadow_cascade_cameras.push_back(std::static_pointer_cast<ShadowCascadeCameraComponent>(camera_comp));
 		return true;
 	}
 
 	void CameraManager::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+		switch (camera_comp->GetCameraUsage())
+		{
+		case eCameraUsage::kBasic:
 		{
 			if (camera_comp == m_main_camera)
 				m_main_camera = nullptr;
@@ -406,18 +509,47 @@ namespace client_fw
 			UnregisterCameraComponent(m_ready_render_cameras, camera_comp);
 			UnregisterCameraComponent(m_wait_resource_render_cameras, camera_comp);
 			UnregisterCameraComponent(m_render_cameras, camera_comp);
+			UnregisterRenderCameraToDirectionalLights(std::static_pointer_cast<RenderCameraComponent>(camera_comp));
+			break;
 		}
-		else if(camera_comp->GetCameraUsage() == eCameraUsage::kShadow)
+		case eCameraUsage::kShadow:
 		{
 			UnregisterCameraComponent(m_ready_shadow_cameras, camera_comp);
 			UnregisterCameraComponent(m_wait_resource_shadow_cameras, camera_comp);
 			UnregisterCameraComponent(m_shadow_cameras, camera_comp);
+			break;
 		}
-		else
+		case eCameraUsage::kShadowCube:
 		{
 			UnregisterCameraComponent(m_ready_shadow_cube_cameras, camera_comp);
 			UnregisterCameraComponent(m_wait_resource_shadow_cube_cameras, camera_comp);
 			UnregisterCameraComponent(m_shadow_cube_cameras, camera_comp);
+			break;
+		}
+		case eCameraUsage::kShadowCascade:
+		{
+			UnregisterCameraComponent(m_ready_shadow_cascade_cameras, camera_comp);
+			UnregisterCameraComponent(m_wait_resource_shadow_cascade_cameras, camera_comp);
+			UnregisterCameraComponent(m_shadow_cascade_cameras, camera_comp);
+			break;
+		}
+		default:
+			break;
 		}
 	}
+
+	void CameraManager::UnregisterRenderCameraToDirectionalLights(const SPtr<RenderCameraComponent>& camera_comp)
+	{
+		const auto& light_manager = LightManager::GetLightManager();
+		const auto& ready_directional_lights = light_manager.GetReadyDirectionalLights();
+
+		for (const auto& light : ready_directional_lights)
+			light->UnregisterRenderCamera(camera_comp);
+
+		const auto& directional_lights = light_manager.GetDirectionalLights();
+
+		for (const auto& light : directional_lights)
+			light->UnregisterRenderCamera(camera_comp);
+	}
+
 }

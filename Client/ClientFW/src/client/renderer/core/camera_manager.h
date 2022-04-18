@@ -2,11 +2,14 @@
 
 namespace client_fw
 {
+	constexpr static UINT s_max_cascade_level = 3;
+
 	enum class eCameraUsage;
 	class CameraComponent;
 	class RenderCameraComponent;
 	class ShadowCameraComponent;
 	class ShadowCubeCameraComponent;
+	class ShadowCascadeCameraComponent;
 
 	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
 	class CameraManager final
@@ -41,8 +44,10 @@ namespace client_fw
 
 	private:
 		void UpdateRenderCameras(ID3D12Device* device);
+		void UpdateRenderCamerasForCascadeShadow(ID3D12Device* device);
 		void UpdateShadowCameras(ID3D12Device* device);
 		void UpdateShadowCubeCameras(ID3D12Device* device);
+		void UpdateShadowCascadeCameras(ID3D12Device* device);
 		void UpdateCameraResource(ID3D12Device* device, 
 			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
 			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera,
@@ -58,6 +63,7 @@ namespace client_fw
 				cameras.pop_back();
 			}
 		}
+		void UnregisterRenderCameraToDirectionalLights(const SPtr<RenderCameraComponent>& camera_comp);
 
 	private:
 		static CameraManager* s_camera_manager;
@@ -73,6 +79,10 @@ namespace client_fw
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_ready_shadow_cube_cameras;
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_wait_resource_shadow_cube_cameras;
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_shadow_cube_cameras;
+
+		std::vector<SPtr<ShadowCascadeCameraComponent>> m_ready_shadow_cascade_cameras;
+		std::vector<SPtr<ShadowCascadeCameraComponent>> m_wait_resource_shadow_cascade_cameras;
+		std::vector<SPtr<ShadowCascadeCameraComponent>> m_shadow_cascade_cameras;
 
 		SPtr<RenderCameraComponent> m_ready_main_camera;
 		SPtr<RenderCameraComponent> m_main_camera;

@@ -25,16 +25,17 @@ namespace client_fw
 
 	bool GraphicsSuperRootSignature::CreateRootSignature(ID3D12Device* device)
 	{
-		std::array<CD3DX12_DESCRIPTOR_RANGE, 2> descriptor_range;
+		std::array<CD3DX12_DESCRIPTOR_RANGE, 3> descriptor_range;
 		descriptor_range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_2D_TEXTURE_RESOURCE_SIZE, 0, 1);
 		descriptor_range[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_CUBE_TEXTURE_RESOURCE_SIZE, 0, 2);
+		descriptor_range[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_ARRAY_TEXTURE_RESOURCE_SIZE, 0, 3);
 
 		std::array<CD3DX12_ROOT_PARAMETER, 9> root_parameters;
 		root_parameters[0].InitAsConstantBufferView(0, 0);
 		root_parameters[1].InitAsShaderResourceView(0, 0);
 		root_parameters[2].InitAsConstantBufferView(1, 0);
 		root_parameters[3].InitAsShaderResourceView(1, 0);
-		root_parameters[4].InitAsDescriptorTable(2, &descriptor_range[0]);
+		root_parameters[4].InitAsDescriptorTable(3, &descriptor_range[0]);
 		root_parameters[5].InitAsShaderResourceView(2, 0);
 		root_parameters[6].InitAsShaderResourceView(3, 0);
 		root_parameters[7].InitAsShaderResourceView(4, 0);

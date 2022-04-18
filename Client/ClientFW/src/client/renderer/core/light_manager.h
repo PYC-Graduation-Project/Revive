@@ -53,6 +53,8 @@ namespace client_fw
 		static LightManager* s_light_manager;
 		UINT m_num_of_light = 0;
 		UINT m_num_of_shadow_texture = 0;
+
+		std::vector<SPtr<DirectionalLightComponent>> m_ready_directional_lights;
 		std::vector<SPtr<DirectionalLightComponent>> m_directional_lights;
 		std::vector<SPtr<PointLightComponent>> m_point_lights;
 		std::vector<SPtr<SpotLightComponent>> m_spot_lights;
@@ -60,6 +62,8 @@ namespace client_fw
 	public:
 		static LightManager& GetLightManager() { return *s_light_manager; }
 		UINT GetNumOfLight() const { return m_num_of_light; }
+
+		const std::vector<SPtr<DirectionalLightComponent>>& GetReadyDirectionalLights() const { return m_ready_directional_lights; }
 		const std::vector<SPtr<DirectionalLightComponent>>& GetDirectionalLights() const { return m_directional_lights; }
 
 	private:

@@ -16,7 +16,7 @@ namespace client_fw
 
 	enum class eCameraUsage
 	{
-		kBasic, kShadow, kShadowCube,
+		kBasic, kShadow, kShadowCube, kShadowCascade
 	};
 
 	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)

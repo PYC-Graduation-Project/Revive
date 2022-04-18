@@ -135,7 +135,6 @@ namespace client_fw
 
 	void RenderSystem::Update(ID3D12Device* device)
 	{
-		m_light_manager->Update(device);
 
 		m_camera_manager->Update(device, 
 			[this](ID3D12Device* device) {
@@ -155,6 +154,7 @@ namespace client_fw
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
+		m_light_manager->Update(device);
 
 		for (const auto& [level_type, render_level] : m_graphics_render_levels)
 			render_level->UpdateFrameResource(device);

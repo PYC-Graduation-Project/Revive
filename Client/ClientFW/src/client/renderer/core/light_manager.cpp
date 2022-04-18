@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/renderer/core/light_manager.h"
+#include "client/renderer/core/camera_manager.h"
 
 #include "client/renderer/frameresource/core/frame_resource_manager.h"
 #include "client/renderer/frameresource/core/frame_resource.h"
@@ -85,6 +86,10 @@ namespace client_fw
 
 		UINT light_index = 0;
 		UINT shadow_index = 0;
+		
+		std::move(m_ready_directional_lights.begin(), m_ready_directional_lights.end(), std::back_inserter(m_directional_lights));
+		m_ready_directional_lights.clear();
+
 		for (const auto& light : m_directional_lights)
 		{
 			RSLightData light_data;
@@ -174,8 +179,11 @@ namespace client_fw
 		{
 		case eLightType::kDirectional:
 		{
-			if (m_directional_lights.size() < 4)
-				RegisterLightComponent(m_directional_lights, light_comp);
+			if (m_directional_lights.size() + m_ready_directional_lights.size() < 4)
+			{
+				RegisterLightComponent(m_ready_directional_lights, light_comp);
+				//CameraManager::GetCameraManager();
+			}
 			else
 				return false;
 			break;
