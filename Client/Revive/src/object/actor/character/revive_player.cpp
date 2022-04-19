@@ -10,7 +10,7 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
-#include "object/actor/weapon/weapon.h"
+#include "object/actor/weapon/pistol.h"
 #include "object/actor/character/enemy.h"
 #include "object/actor/character/revive_player.h"
 #include "object/actor/projectile/projectile.h"
@@ -28,7 +28,12 @@ namespace revive
 		m_player_fsm = CreateSPtr<PlayerFSM>();
 		m_mesh_path = "Contents/violet.rev";
 		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
-
+		for (auto& weapon : m_weapon)
+		{
+			weapon = CreateSPtr<Pistol>();
+			SpawnActor(weapon);
+			weapon->SetScale(0.2f);
+		}
 	}
 
 	bool RevivePlayer::Initialize()
@@ -53,6 +58,19 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8, 
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
 
+		std::array<std::string,2> weapon_names = { "left", "right"};
+		std::array<std::string,2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand"};
+		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{-80.f,20.f,0.f} };
+		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{90.f,90.f,-55.f} };
+	
+		for (int i=0; i<2; ++i)
+		{
+			m_weapon[i]->SetName(m_weapon[i]->GetName() + weapon_names[i]);
+			m_weapon[i]->SetAttachedActor(shared_from_this(), m_skeletal_mesh_component);
+			m_weapon[i]->SetSocketName(socket_names[i]);
+			m_weapon[i]->SetPositionOffset(pos_offset[i]);
+			m_weapon[i]->SetRotationOffset(rot_offset[i]);
+		}
 		
 		m_player_fsm->Initialize(SharedFromThis());
 		
@@ -127,6 +145,8 @@ namespace revive
 		m_camera_component = nullptr;
 		m_player_fsm->Shutdown();
 		m_player_fsm = nullptr;
+		for (auto& weapon : m_weapon)
+			weapon = nullptr;
 	}
 	
 

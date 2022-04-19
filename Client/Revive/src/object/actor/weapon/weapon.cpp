@@ -28,7 +28,8 @@ namespace revive
 	{
 		Mat4 socket_world_matrix;
 		GetSocketMatrix(socket_world_matrix);
-		SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 } + m_position_offset);
+		m_static_mesh_component->SetLocalPosition(m_position_offset);
+		SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });
 		Mat4 socket_local_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
 		Quaternion q;
 		XMStoreFloat4(&q, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_local_matrix)));

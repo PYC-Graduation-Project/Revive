@@ -17,7 +17,7 @@ namespace revive
 {
 	using namespace client_fw;
 
-	class Weapon;
+	class Pistol;
 	class PlayerFSM;
 
 	class RevivePlayer : public Pawn
@@ -55,6 +55,7 @@ namespace revive
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<RenderCameraComponent> m_camera_component;
 		std::vector<SPtr<BoxComponent>> m_hit_boxes;
+		std::array<SPtr<Pistol>,2> m_weapon;
 
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;
