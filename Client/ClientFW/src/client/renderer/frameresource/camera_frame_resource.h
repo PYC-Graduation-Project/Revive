@@ -4,7 +4,7 @@ namespace client_fw
 {
 	template<class T> class UploadBuffer;
 
-	struct RSCameraData
+	struct RSRenderCameraData
 	{
 		Mat4 view_matrix;
 		Mat4 projection_matrix;
@@ -17,10 +17,11 @@ namespace client_fw
 		UINT num_of_directional_light;
 	};
 
-	struct RSCubeCameraData
+	struct RSShadowCameraData
 	{
-		std::array<Mat4, 6> cube_view_projection;
+		Mat4 view_projection_matrix;
 	};
+
 
 	class CameraFrameResource
 	{
@@ -32,20 +33,20 @@ namespace client_fw
 		void Shutdown();
 
 	private:
-		UPtr<UploadBuffer<RSCameraData>> m_camera_data;
-		UINT m_size_of_camera = 0;
+		UPtr<UploadBuffer<RSRenderCameraData>> m_render_camera_data;
+		UINT m_size_of_render_camera = 1;
 
-		UPtr<UploadBuffer<RSCubeCameraData>> m_cube_camera_data;
-		UINT m_size_of_cube_camera = 0;
+		UPtr<UploadBuffer<RSShadowCameraData>> m_shadow_camera_data;
+		UINT m_size_of_shadow_camera = 1;
 
 	public:
-		const UPtr<UploadBuffer<RSCameraData>>& GetCameraData() const { return m_camera_data; }
-		UINT GetSizeOfCamera() const { return m_size_of_camera; }
-		void SetSizeOfCamera(UINT count) { m_size_of_camera = count; }
+		const UPtr<UploadBuffer<RSRenderCameraData>>& GetRenderCameraData() const { return m_render_camera_data; }
+		UINT GetSizeOfRenderCamera() const { return m_size_of_render_camera; }
+		void SetSizeOfRenderCamera(UINT count) { m_size_of_render_camera = count; }
 
-		const UPtr<UploadBuffer<RSCubeCameraData>>& GetCubeCameraData() const { return m_cube_camera_data; }
-		UINT GetSizeOfCubeCamera() const { return m_size_of_cube_camera; }
-		void SetSizeOfCubeCamera(UINT count) { m_size_of_cube_camera = count; }
+		const UPtr<UploadBuffer<RSShadowCameraData>>& GetShadowCameraData() const { return m_shadow_camera_data; }
+		UINT GetSizeOfShadowCamera() const { return m_size_of_shadow_camera; }
+		void SetSizeOfShadowCamera(UINT count) { m_size_of_shadow_camera = count; }
 	};
 }
 

@@ -86,7 +86,7 @@ VS_SHADOW_OUT VSSkeletalMeshForShadow(VS_SKELETAL_MESH_FOR_SHADOW_IN input, uint
     }
 	
     float4 final_position = mul(float4(pos, 1.0f), i_data.world);
-    output.sv_position = mul(final_position, g_view_projection);
+    output.sv_position = mul(final_position, g_shadow_camera_data[0].g_view_projection);
 
     return output;
 }
@@ -124,7 +124,7 @@ void GSSkeletalMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout T
         [unroll]
         for (int i = 0; i < 3; ++i)
         {
-            output.sv_position = mul(input[i], g_cube_view_projection[face]);
+            output.sv_position = mul(input[i], g_shadow_camera_data[face].g_view_projection);
             out_stream.Append(output);
         }
 

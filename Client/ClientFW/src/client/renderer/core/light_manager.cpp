@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "client/renderer/core/light_manager.h"
-#include "client/renderer/core/camera_manager.h"
 
 #include "client/renderer/frameresource/core/frame_resource_manager.h"
 #include "client/renderer/frameresource/core/frame_resource.h"

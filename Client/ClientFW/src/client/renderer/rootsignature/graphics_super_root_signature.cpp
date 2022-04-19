@@ -37,9 +37,9 @@ namespace client_fw
 		root_parameters[3].InitAsShaderResourceView(1, 0);
 		root_parameters[4].InitAsDescriptorTable(3, &descriptor_range[0]);
 		root_parameters[5].InitAsShaderResourceView(2, 0);
-		root_parameters[6].InitAsShaderResourceView(3, 0);
-		root_parameters[7].InitAsShaderResourceView(4, 0);
-		root_parameters[8].InitAsConstantBufferView(2, 0);
+		root_parameters[6].InitAsShaderResourceView(4, 0);
+		root_parameters[7].InitAsShaderResourceView(5, 0);
+		root_parameters[8].InitAsShaderResourceView(3, 0);
 
 		std::array<CD3DX12_STATIC_SAMPLER_DESC, 2> static_samplers;
 		static_samplers[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP,

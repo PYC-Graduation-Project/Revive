@@ -42,6 +42,7 @@ namespace client_fw
 			m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
 			m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;
 			m_num_of_render_cube_map_texture_data = START_INDEX_RENDER_CUBE_MAP_TEXTURE;
+			m_num_of_render_array_texture_data = START_INDEX_RENDER_ARRAY_TEXTURE;
 			});
 
 		return true;
