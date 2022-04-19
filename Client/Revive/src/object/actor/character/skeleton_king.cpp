@@ -20,6 +20,7 @@ namespace revive
 
 		ret &= Enemy::Initialize();
 		ret &= AttachComponent(m_skeletal_mesh_component);
+		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.f), 0.f, 0.f);
 		m_skeletal_mesh_component->AddNotify("death end", "death", 82,
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
@@ -39,7 +40,7 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");
 		
 		m_hp = 20;
-		mesh_rotate = Vec3{ -90.f,0.f,0.f };
+		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
 
 		return ret;
