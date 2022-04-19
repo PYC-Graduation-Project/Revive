@@ -179,16 +179,14 @@ void MapManager::BlockTileMap()
 
 
 
-bool MapManager::CheckCollision(const Vector3& obj_pos)
+bool MapManager::CheckCollision(BoxCollision& obj_collision)
 {
 	for (auto& map_obj : m_map_objects)
 	{
 		if (map_obj.GetIsBlocked() == false)continue;
-		if (map_obj.GetMinPos().x <= obj_pos.x && map_obj.GetMaxPos().x >= obj_pos.x &&
-			map_obj.GetMinPos().z <= obj_pos.z && map_obj.GetMaxPos().z >= obj_pos.z)
-		{
-			return true;
-		}
+		if (CollisionChecker::CheckCollisions(obj_collision,
+			BoxCollision(map_obj.GetPos(), map_obj.GetExtent())))return true;
+		
 	}
 	return false;
 }

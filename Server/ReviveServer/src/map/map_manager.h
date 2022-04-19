@@ -22,7 +22,7 @@ public:
 	~MapManager()=default;
 	void LoadMap(const std::string& path);
 	void BlockTileMap();
-	bool CheckCollision(const Vector3& obj_pos);
+	bool CheckCollision(BoxCollision& obj_collision);
 	bool CheckInRange(BoxCollision& collision);
 	const std::vector<MapObj>& GetMapObjVec() const
 	{

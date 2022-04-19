@@ -115,9 +115,6 @@ bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const 
 		if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType())continue;
 		if (CollisionChecker::CheckCollisions(test_collision,
 			BoxCollision(map_obj.GetPos(),map_obj.GetExtent())))return true;
-
-		
-		
 	}
 		
 	
@@ -141,15 +138,7 @@ void Astar::TracePath(Node& now, Vec2 src, Vec2 dst)
 		//test_map[node.parant_pos.first][node.parant_pos.second] = '*';
 		node = testing_map[node.parant_pos.first][node.parant_pos.second];
 	}
-	//for (int i = 0; i < ROW; ++i)
-	//{
-	//	for (int j = 0; j < COL; ++j)
-	//	{
-	//		
-	//		cout << test_map[i][j];
-	//	}
-	//	cout << endl;
-	//}
+
 
 	for (auto i= result_vec.rbegin(); i!=result_vec.rend(); ++i)
 	{

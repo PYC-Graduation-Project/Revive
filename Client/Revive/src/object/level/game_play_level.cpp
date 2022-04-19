@@ -60,7 +60,7 @@ namespace revive
 		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
 			[this]()->bool {
 
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 3));
 				return true;
 			});
 

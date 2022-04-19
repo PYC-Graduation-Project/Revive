@@ -252,6 +252,21 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	
 	if (false == m_map_manager->CheckInRange(enemy->GetCollision()))
 	{
+		enemy->SetToPrevPos();
+		if (enemy->GetTargetId() == -1)
+			enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
+	}
+	else
+	{
+		if (true == m_map_manager->CheckCollision(enemy->GetCollision()))
+		{
+			unique_ptr<Astar>astar = make_unique<Astar>();
+			bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(), base_pos, enemy->GetCollision());//나중에는 타겟포즈로 넣어주기
+			astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
+			cout << endl;
+		}
+		
+	}
 		//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
 		//unique_ptr<Astar>astar=make_unique<Astar>();
 		
@@ -292,9 +307,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		
 		
 		
-		enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
-		
-	}
+	
+		//enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
 
 	
 	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기

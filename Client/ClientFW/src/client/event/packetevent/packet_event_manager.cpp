@@ -62,6 +62,7 @@ namespace client_fw
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
 			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
 			{
+				//여기서 플레이어 좌표랑 rotation 보내주기
 				//LOG_INFO(pawn->GetPosition());
 			}
 		}

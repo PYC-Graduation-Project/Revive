@@ -38,6 +38,11 @@ public:
     const std::chrono::system_clock::time_point& GetMoveTime() { return m_move_time; }
     void DoMove(const Vector3& target_pos);
     void DoPrevMove(const Vector3& target_pos);
+    void SetToPrevPos() { 
+        m_pos = m_prev_pos; 
+        m_collision.UpdateCollision(m_pos);
+    }
+    
     std::atomic_bool in_use;
     std::mutex lua_lock;
 private:
