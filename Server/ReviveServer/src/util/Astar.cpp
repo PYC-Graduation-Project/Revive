@@ -68,6 +68,11 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 	return false;
 }
 
+bool Astar::SearchMapTileLoad(MapTile[][16], const Vector3& src, const Vector3& dst)
+{
+	return false;
+}
+
 bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const BoxCollision& collision)
 {
 	float x = (dst.second  * REAL_DISTANCE )+ m_zero_position.x;

@@ -27,7 +27,7 @@ void Enemy::SetSpawnPoint(float x, float z)
 
 void Enemy::SetMoveTime(int val)
 {
-	m_move_time = std::chrono::system_clock::now() + (1ms*val);
+	m_attack_time = std::chrono::system_clock::now() + (1ms*val);
 }
 
 void Enemy::DoMove(const Vector3& target_pos)

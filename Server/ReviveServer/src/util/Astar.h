@@ -17,6 +17,7 @@ const float REAL_DISTANCE = 45.0f;
 using Vec2 = std::pair<short, short>;
 //using CloseList = std::pair < std::bitset<ROW>, std::bitset<COL>>;
 class MapObj;
+struct MapTile;
 class BoxCollision;
 class Node {
 public:
@@ -69,6 +70,7 @@ public:
 	~Astar() {};
 
 	bool SearchAllPath(const std::vector<MapObj>& map_objects, const Vector3& src, const Vector3& dst,const BoxCollision& collision);
+	bool SearchMapTileLoad(MapTile[][16], const Vector3& src, const Vector3& dst);
 	bool IsBlocked(const std::vector<MapObj>& map_objects,const Vec2& dst, const BoxCollision& collision);
 	bool IsInRange(const Vec2& pos);
 	

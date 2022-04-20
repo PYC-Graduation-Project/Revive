@@ -5,7 +5,9 @@ enum class MAP_OBJ_TYPE
 {
 	NONE,
 	BLOCK,
-	UNBLOCK
+	UNBLOCK,
+	BASE,
+	SPAWN_AREA
 };
 class MapInfo
 {
