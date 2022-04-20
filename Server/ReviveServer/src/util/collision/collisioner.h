@@ -41,8 +41,11 @@ class BoxCollision
 public:
 	BoxCollision() = default;
 	BoxCollision(const Vector3& player_position, const Vector3& local_position, const Vector3& extent,const float scale)
-		:Collisioner(player_position, local_position,scale)
+		//:Collisioner(player_position, local_position,scale)
 	{
+		m_center_pos = player_position + (local_position * scale);
+		m_local_pos = local_position;
+		m_scale = scale;
 		m_extent = extent * scale;
 		m_min_pos = m_center_pos - extent;
 		m_max_pos = m_center_pos + extent;

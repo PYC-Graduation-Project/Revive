@@ -37,9 +37,9 @@ enemy_state["move"]=function (target_id)
 
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then
 		skull_sordier.m_curr_state="attack"
-		API_attack(t_id);--만들어 주기
+		API_attack(skull_sordier.m_id,t_id);--만들어 주기
 	else
-		API_move(t_id);
+		API_move(skull_sordier.m_id,t_id);
 	end
 
 end
@@ -60,10 +60,10 @@ enemy_state["attack"]=function (target_id)
 	now_z=API_get_z(skull_sordier.m_id);
 	if math.sqrt((math.abs(pl_x-nowx)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then
 		skull_sordier.m_curr_state="attack"
-		API_attack(t_id);--만들어주기
+		API_attack(skull_sordier.m_id,t_id);--만들어주기
 	else
 		skull_sordier.m_curr_state="move"
-		API_move(t_id);--만들어 주기
+		API_move(skull_sordier.m_id,t_id);--만들어 주기
 	end
 end
 

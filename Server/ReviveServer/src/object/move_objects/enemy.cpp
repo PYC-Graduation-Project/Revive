@@ -38,8 +38,8 @@ void Enemy::DoMove(const Vector3& target_pos)
 	nlook = Vector3{ target_pos - curr_pos };
 	Vector3 move_vec = nlook.Normalrize();
 	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
-	m_collision.UpdateCollision(npos);
 	m_pos = npos;
+	//m_collision.UpdateCollision(m_pos);
 }
 
 void Enemy::DoPrevMove(const Vector3& target_pos)
@@ -50,7 +50,7 @@ void Enemy::DoPrevMove(const Vector3& target_pos)
 	Vector3 move_vec = nlook.Normalrize();
 	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
 	m_pos = npos;
-	m_collision.UpdateCollision(npos);
+	//m_collision.UpdateCollision(m_pos);
 }
 
 

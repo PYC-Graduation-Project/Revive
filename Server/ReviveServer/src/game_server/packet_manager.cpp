@@ -241,16 +241,20 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//충돌체크,A*적용하기
 	//Vector3& nlook = enemy->GetLookVec();
 	
-	
+	BoxCollision& en_collision = enemy->GetCollision();
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
 		enemy->DoMove(base_pos);
 		//enemy->DoMove(Vector3(base_pos.x, base_pos.y, base_pos.z + 400.0f));
+		
+		en_collision.UpdateCollision(enemy->GetPos());
+		
 	}
 	else
 	{
 		enemy->DoMove(MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos());
+		enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	}
 	
 	if (false == m_map_manager->CheckInRange(enemy->GetCollision()))
