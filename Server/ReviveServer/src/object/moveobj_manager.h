@@ -44,7 +44,7 @@ public:
 	bool IsNear(int a, int b);
 	bool IsNPC(int id);
 	float ObjDistance(int a, int b);
-	void InitLua(const char* script_name,int obj_id);
+	void InitLua(const char* script_name,int obj_id, const Vector3& base_pos);
 	void RegisterAPI(lua_State* L);
 	
 	static void LuaErrorDisplay(lua_State* L,int err_num);

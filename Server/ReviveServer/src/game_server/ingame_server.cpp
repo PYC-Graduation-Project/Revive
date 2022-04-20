@@ -51,6 +51,8 @@ void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 	}
 	case COMP_OP::OP_NPC_ATTACK: {
 		m_PacketManager->DoEnemyAttack(c_id,exp_over->target_id,exp_over->room_id);
+		delete exp_over;
+		break;
 	}
 	}
 }

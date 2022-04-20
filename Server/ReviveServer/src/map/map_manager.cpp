@@ -6,6 +6,7 @@
 #include<sstream>
 #include<vector>
 #include<bitset>
+#include"util/Astar.h"
 using namespace std;
 void MapManager::LoadMap(const std::string& path)
 {
@@ -158,6 +159,8 @@ void MapManager::BlockTileMap()
 			}
 		}
 	}
+	int sx, sy;
+	int dx, dy;
 	for (int i = 0; i < 36; ++i)
 	{
 		for (int j = 0; j < 16; ++j)
@@ -173,9 +176,13 @@ void MapManager::BlockTileMap()
 			else if(m_tile_map[i][j].type == MAP_OBJ_TYPE::BASE )
 			{
 				cout << "B";
+				dy = i;
+				dx = j;
 			}
 			else if (m_tile_map[i][j].type == MAP_OBJ_TYPE::SPAWN_AREA)
 			{
+				sy = i;
+				sx = j;
 				cout << "S";
 			}
 			else
@@ -185,6 +192,10 @@ void MapManager::BlockTileMap()
 		}
 		cout << endl;
 	}
+	Astar* astar = new Astar;
+	bool ret=astar->SearchMapTileLoad(m_tile_map, sx, sy, dx, dy);
+	ret ? cout << "Ã£" : cout << "¸øÃ£";
+	delete astar;
 }
 
 

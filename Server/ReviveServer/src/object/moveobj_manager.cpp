@@ -24,7 +24,7 @@ float MoveObjManager::ObjDistance(int a, int b)
 	return sqrt(pow(abs(obj_a.x - obj_b.x), 2) + pow(abs(obj_a.z - obj_b.z), 2));
 }
 
-void MoveObjManager::InitLua(const char* script_name, int obj_id)
+void MoveObjManager::InitLua(const char* script_name, int obj_id,const Vector3& base_pos)
 {
 	Enemy* en = GetEnemy(obj_id);
 	lua_State* L = en->GetLua();
@@ -42,7 +42,10 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id)
 	lua_pushnumber(L, en->GetPosZ());
 	lua_pushnumber(L, en->GetHP());
 	lua_pushnumber(L, en->GetDamge());
-	error = lua_pcall(L, 6, 0, 0);
+	lua_pushnumber(L, base_pos.x);
+	lua_pushnumber(L, base_pos.y);
+	lua_pushnumber(L, base_pos.z);
+	error = lua_pcall(L, 9, 0, 0);
 	if (error)
 		MoveObjManager::LuaErrorDisplay(L, error);
 	RegisterAPI(L);
@@ -54,6 +57,9 @@ void MoveObjManager::RegisterAPI(lua_State* L)
 	lua_register(L, "API_get_x", API_get_x);
 	lua_register(L, "API_get_y", API_get_y);
 	lua_register(L, "API_get_z", API_get_z);
+	lua_register(L, "API_move", API_move);
+	lua_register(L, "API_attack", API_attack);
+	
 	lua_register(L, "API_test_lua", API_test_lua);
 	
 }

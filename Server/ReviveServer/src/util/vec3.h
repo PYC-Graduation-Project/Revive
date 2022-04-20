@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<ostream>
+using Vec2 = std::pair<short, short>;
 class Vector3
 {
 public:

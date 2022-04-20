@@ -30,7 +30,7 @@ public:
     Vector3& GetLookVec()  { return m_look; }
     Vector3& GetPrevPos() { return m_prev_pos; }
     BoxCollision& GetCollision() { return m_collision; }
-    void SetCollision(const BoxCollision&& val) { m_collision = val; }
+    void SetCollision(const BoxCollision& val) { m_collision = val; }
   
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }

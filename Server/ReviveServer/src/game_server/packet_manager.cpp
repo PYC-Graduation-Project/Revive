@@ -730,7 +730,7 @@ void PacketManager::StartGame(int room_id)
 	Room*room=m_room_manager->GetRoom(room_id);
 	//맵 오브젝트 정보는 보내줄 필요없음
 	//npc와 player 초기화 및 보내주기
-	
+	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 	Enemy* e = NULL;
 	Player* pl = NULL;
 	Vector3 pos = Vector3(0.0f, 300.0f, 0.0f);//npc 초기화용 위치 추후수정
@@ -749,15 +749,17 @@ void PacketManager::StartGame(int room_id)
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
 				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
-			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID());
-			e->SetCollision(move(BoxCollision(pos, SOLDIER_LOCAL_POS, SOLDIER_EXTENT, SOLDIER_SCALE)));
+			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID(),base_pos);
+			e->SetCollision(BoxCollision(pos, SOLDIER_LOCAL_POS, SOLDIER_EXTENT, SOLDIER_SCALE));
+			
 		}
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
 				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
-			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID());
-			e->SetCollision(move(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE)));
+			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID(),base_pos);
+			e->SetCollision(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE));
+			
 		}
 	}
 
