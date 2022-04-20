@@ -111,6 +111,7 @@ namespace client_fw
 	{
 	public:
 		BSphere(Vec3 center = vec3::ZERO, float radius = 1.f);
+		BSphere(const BFrustum& frustum);
 
 		Vec3 GetCenter() const { return Vec3(m_bounding.Center); }
 		float GetRadius() const { return m_bounding.Radius; }

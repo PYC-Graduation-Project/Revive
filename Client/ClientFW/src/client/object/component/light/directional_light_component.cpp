@@ -12,6 +12,13 @@ namespace client_fw
 	{
 	}
 
+	bool DirectionalLightComponent::Initialize()
+	{
+		bool ret = LightComponent::Initialize();
+		m_owner.lock()->UseUpdate();
+		return ret;
+	}
+
 	void DirectionalLightComponent::RegisterCascadeAndRenderCamera(const WPtr<RenderCameraComponent>& render_camera_comp,
 		const SPtr<ShadowCascadeCameraComponent>& cascade_camera_comp)
 	{
@@ -23,6 +30,7 @@ namespace client_fw
 
 		if (iter == m_cascade_shadows_camera.end())
 		{
+			cascade_camera_comp->SetRenderCamera(render_camera_comp);
 			m_owner.lock()->AttachComponent(cascade_camera_comp);
 			m_cascade_shadows_camera.emplace_back(std::move(cascade_shadow));
 		}

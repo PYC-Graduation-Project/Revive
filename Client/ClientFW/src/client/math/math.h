@@ -339,6 +339,13 @@ namespace client_fw
 			return ret;
 		}
 
+		inline Mat4 Ortho(float width, float height, float near_z, float far_z)
+		{
+			Mat4 ret;
+			XMStoreFloat4x4(&ret, XMMatrixOrthographicLH(width, height, near_z, far_z));
+			return ret;
+		}
+
 		inline Mat4 Perspective(float fovy, float aspect, float near_z, float far_z)
 		{
 			Mat4 ret;

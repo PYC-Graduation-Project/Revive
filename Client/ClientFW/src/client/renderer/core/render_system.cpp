@@ -67,18 +67,19 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsRenderLevel<ShadowRenderLevel>(eRenderLevelType::kShadow);
 		ret &= RegisterGraphicsRenderLevel<ShadowCubeRenderLevel>(eRenderLevelType::kShadowCube);
+		ret &= RegisterGraphicsRenderLevel<ShadowCascadeRenderLevel>(eRenderLevelType::kShadowCascade);
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 
 		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", 
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		//ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<TextureBillboardShader>(Render::ConvertShaderType(eShaderType::kTextureBillboard),
 			{eRenderLevelType::kOpaque});
@@ -149,6 +150,9 @@ namespace client_fw
 			},
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Update(device);
+			},
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kShadowCascade)->Update(device);
 			});
 
 		if (m_render_camera_manager->GetMainCamera() != nullptr)
@@ -189,6 +193,10 @@ namespace client_fw
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
 					m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kShadowCascade)->Draw(command_list);
 				});
 
 			m_render_camera_manager->Draw(command_list,

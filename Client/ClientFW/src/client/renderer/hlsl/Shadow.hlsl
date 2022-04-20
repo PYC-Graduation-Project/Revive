@@ -14,6 +14,12 @@ struct GS_SHADOW_CUBE_OUT
     uint render_target_index : SV_RENDERTARGETARRAYINDEX;
 };
 
+struct GS_SHADOW_CASCADE_OUT
+{
+    float4 sv_position : SV_POSITION;
+    uint render_target_index : SV_RENDERTARGETARRAYINDEX;
+};
+
 float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
 {
     float4 shadow_pos = mul(float4(position, 1.0f), shadow_data.uv_from_ndc);

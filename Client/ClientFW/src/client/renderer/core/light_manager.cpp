@@ -12,6 +12,7 @@
 #include "client/object/component/light/spot_light_component.h"
 #include "client/object/component/util/shadow_camera_component.h"
 #include "client/object/component/util/shadow_cube_camera_component.h"
+#include "client/object/actor/core/actor.h"
 
 #include "client/asset/texture/texture.h"
 #include "client/util/upload_buffer.h"
@@ -93,7 +94,7 @@ namespace client_fw
 		{
 			RSLightData light_data;
 			light_data.light_color = light->GetLightColor();
-			light_data.light_direction = light->GetWorldForward();
+			light_data.light_direction = light->GetOwner().lock()->GetForward();
 			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));
 		}

@@ -40,7 +40,6 @@ namespace client_fw
 		SceneComponent::UpdateWorldMatrix();
 
 		UpdateViewMatrix();
-		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 
 		m_view_projection_matrix = m_view_matrix * m_projection_matrix;
 
@@ -61,10 +60,13 @@ namespace client_fw
 		Vec3 target, up;
 
 		m_camera_position = GetWorldPosition();
-		target = m_camera_position + GetWorldForward();
+		m_camera_forward = GetWorldForward();
+		target = m_camera_position + m_camera_forward;
 		up = GetWorldUp();
 
 		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
+
+		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 	}
 
 	void CameraComponent::UpdateProjectionMatrix()

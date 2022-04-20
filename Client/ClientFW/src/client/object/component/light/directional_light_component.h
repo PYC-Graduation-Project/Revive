@@ -18,6 +18,8 @@ namespace client_fw
 		DirectionalLightComponent();
 		virtual ~DirectionalLightComponent() = default;
 
+		virtual bool Initialize() override;
+
 	private:
 		std::vector<CascadeShadowForRenderCamera> m_cascade_shadows_camera;
 

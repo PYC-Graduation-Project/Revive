@@ -131,3 +131,44 @@ void GSSkeletalMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout T
         out_stream.RestartStrip();
     }
 }
+
+//
+// Skeletal Mesh For Cascade Shadow
+//
+
+float4 VSSkeletalMeshForShadowCascade(VS_SKELETAL_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
+{
+    InstanceData i_data = g_instance_data[instance_id];
+	
+    float3 pos = 0.0f;
+	
+	[unroll]
+    for (uint i = 0; i < 4; ++i)
+    {
+        SkeletalData skeletal_data = g_bone_transform_data[i_data.additional_info + input.indices[i]];
+        pos += mul(float4(input.position, 1.0f), skeletal_data.bone_transform).xyz * input.weights[i];
+    }
+	
+    return mul(float4(pos, 1.0f), i_data.world);
+}
+
+[maxvertexcount(9)]
+void GSSkeletalMeshForShadowCascade(triangle float4 input[3] : SV_POSITION, inout TriangleStream<GS_SHADOW_CASCADE_OUT> out_stream)
+{
+    GS_SHADOW_CASCADE_OUT output;
+    
+    [unroll]
+    for (int face = 0; face < 3; ++face)
+    {
+        output.render_target_index = face;
+        
+        [unroll]
+        for (int i = 0; i < 3; ++i)
+        {
+            output.sv_position = mul(input[i], g_shadow_camera_data[face].g_view_projection);
+            out_stream.Append(output);
+        }
+
+        out_stream.RestartStrip();
+    }
+}
