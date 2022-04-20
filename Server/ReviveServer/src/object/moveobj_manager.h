@@ -42,7 +42,7 @@ public:
 	bool IsPlayer(int id) { return (id >= 0) && (id < MAX_USER); }
 	bool IsNear(int a, int b);
 	bool IsNPC(int id);
-
+	float ObjDistance(int a, int b);
 	void InitLua(const char* script_name,int obj_id);
 	void RegisterAPI(lua_State* L);
 	

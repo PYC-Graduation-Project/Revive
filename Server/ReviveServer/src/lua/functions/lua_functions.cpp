@@ -48,6 +48,11 @@ int API_attack(lua_State* L)
 	int target_id = (int)lua_tointeger(L, -1);
 	int npc_id = (int)lua_tointeger(L, -2);
 	lua_pop(L, 3);
+	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
+	auto attack_t = chrono::system_clock::now();
+	if (attack_t < en->GetAttackTime())return 0;
+	timer_event t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 30);
+	PacketManager::g_timer_queue.push(move(t));
 	return 0;
 }
 

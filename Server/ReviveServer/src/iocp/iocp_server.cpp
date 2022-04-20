@@ -114,7 +114,7 @@ void IOCPServer::Worker()
 			break;
 		}
 		default:
-			OnEvent(exp_over);
+			OnEvent(client_id,exp_over);
 			break;
 		}
 	}

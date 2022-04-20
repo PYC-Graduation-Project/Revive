@@ -1,3 +1,4 @@
+#include<map>
 #include "pch.h"
 #include "packet_manager.h"
 #include"database/db.h"
@@ -9,6 +10,7 @@
 #include"lua/functions/lua_functions.h"
 #include"util/Astar.h"
 #include"util/collision/collisioner.h"
+
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
@@ -244,6 +246,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
 		enemy->DoMove(base_pos);
+		//enemy->DoMove(Vector3(base_pos.x, base_pos.y, base_pos.z + 400.0f));
 	}
 	else
 	{
@@ -262,8 +265,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		{
 			unique_ptr<Astar>astar = make_unique<Astar>();
 			bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(), base_pos, enemy->GetCollision());//나중에는 타겟포즈로 넣어주기
-			astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
-			cout << endl;
+			//astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
+			//cout << endl;
 		}
 		
 	}
@@ -315,8 +318,10 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//다음 위치 보내주기
 	
 	
-
-
+	map<float, int>distance_map;
+	
+	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
+	distance_map.try_emplace(base_dist, -1);
 	for (auto pl:room->GetObjList())
 	{
 
@@ -327,12 +332,23 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
+			auto fail_obj=distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
+			
 			//여기서 기지와 플레이어 거리 비교후
 			//플레이어가 더 가까우면 target_id 플레이어로
 			//아니면 기지 그대로
 		}
 	}
-	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+	auto nealist = distance_map.begin();
+	lua_State* L = enemy->GetLua();
+	enemy->lua_lock.lock();
+	lua_getglobal(L, "state_machine");
+	lua_pushnumber(L, nealist->second);
+	int err=lua_pcall(L, 1, 0, 0);
+	if (err)
+		MoveObjManager::LuaErrorDisplay(L, err);
+	enemy->lua_lock.unlock();
+	//g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
 }
 
 void PacketManager::CountTime(int room_id)
@@ -361,6 +377,29 @@ void PacketManager::CountTime(int room_id)
 		EVENT_TYPE::EVENT_TIME, 1000));
 }
 
+void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
+{
+	//초당두발
+	Room* room = m_room_manager->GetRoom(room_id);
+	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	for (int pl : room->GetObjList())
+	{
+		if (false==MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		SendNPCAttackPacket(pl, enemy_id, target_id);
+
+	}
+	auto& attack_time = enemy->GetAttackTime();
+	attack_time = chrono::system_clock::now() + 500ms;
+	lua_State* L = enemy->GetLua();
+	enemy->lua_lock.lock();
+	lua_getglobal(L, "state_machine");
+	lua_pushnumber(L, target_id);
+	int err = lua_pcall(L, 1, 0, 0);
+	if (err)
+		MoveObjManager::LuaErrorDisplay(L, err);
+	enemy->lua_lock.unlock();
+}
+
 
 
 
@@ -379,6 +418,17 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.r_y = p->GetRotation().y;
 	packet.r_z = p->GetRotation().z;
 	packet.r_w = p->GetRotation().w;
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
+	cl->DoSend(sizeof(packet), &packet);
+}
+
+void PacketManager::SendNPCAttackPacket(int c_id,int obj_id, int target_id)
+{
+	sc_packet_npc_attack packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_NPC_ATTACK;
+	packet.obj_id = obj_id;
+	packet.target_id = target_id;
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	cl->DoSend(sizeof(packet), &packet);
 }
@@ -550,6 +600,7 @@ void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
 
 void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 {
+	//player가 총을쐈을때
 }
 
 void PacketManager::ProcessMove(int c_id,unsigned char* p)
@@ -871,7 +922,15 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
 		ex_over->room_id = ev.room_id;
 		ex_over->target_id = ev.target_id;
-		//std::atomic_thread_fence(std::memory_order_seq_cst);
+		
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+		break;
+	}
+	case EVENT_TYPE::EVENT_NPC_ATTACK: {
+		ex_over->_comp_op = COMP_OP::OP_NPC_ATTACK;
+		ex_over->room_id = ev.room_id;
+		ex_over->target_id = ev.target_id;
+	
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}

@@ -3,10 +3,12 @@
 #include<concurrent_queue.h>
 #include<thread>
 //#include<concurrent_priority_queue.h>
+
 class MoveObjManager;
 class DB;
 class RoomManager;
 class MapManager;
+
 class PacketManager
 {
 public:
@@ -24,8 +26,10 @@ public:
 	void SpawnEnemy(int room_id);
 	void DoEnemyMove(int room_id, int enemy_id);
 	void CountTime(int room_id);
+	void DoEnemyAttack(int enemy_id, int target_id, int room_id);
 
 	void SendMovePacket(int c_id, int mover);
+	void SendNPCAttackPacket(int c_id,int obj_id, int target_id);
 	void SendLoginFailPacket(int c_id, int reason);
 	void SendLoginFailPacket(SOCKET& c_socket, int reason);
 	void SendSignInOK(int c_id);

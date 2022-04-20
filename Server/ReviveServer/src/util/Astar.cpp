@@ -13,7 +13,7 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 	if (false == IsInRange(dst))return false;
 	if (true == IsBlocked(map_objects, dst, collision))
 	{
-		cout << "¸·Èù°÷" << endl;
+		//cout << "¸·Èù°÷" << endl;
 		return false;
 	}
 

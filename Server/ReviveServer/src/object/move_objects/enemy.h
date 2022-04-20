@@ -14,6 +14,7 @@ public:
     Enemy(int i) :in_use(false),m_L(NULL){
         m_id = i;
         target_id = -1;
+        m_attack_time = std::chrono::system_clock::now();
         
     };
     ~Enemy() 
@@ -35,7 +36,7 @@ public:
     const int GetTargetId()const { return target_id; }
     void SetTargetId(const int val) { target_id = val; }
     void SetMoveTime(int val); 
-    const std::chrono::system_clock::time_point& GetMoveTime() { return m_move_time; }
+    std::chrono::system_clock::time_point& GetAttackTime() { return m_attack_time; }
     void DoMove(const Vector3& target_pos);
     void DoPrevMove(const Vector3& target_pos);
     void SetToPrevPos() { 
@@ -47,7 +48,7 @@ public:
     std::mutex lua_lock;
 private:
     std::vector<Vector3>m_load;
-    std::chrono::system_clock::time_point	m_move_time;
+    std::chrono::system_clock::time_point	m_attack_time;
     BoxCollision m_collision;
     Vector3 m_prev_pos{ 0.0f,0.0f,0.0f };
     lua_State* m_L;

@@ -30,6 +30,8 @@ enemy_state["move"]=function (target_id)
 	if math.sqrt((math.abs(pl_x-nowx)^2)+(math.abs(pl_z-now_z)^2))<=skull_king.m_atk_range then
 		skull_king.m_curr_state="attack"
 		API_attack(t_id);--만들어 주기
+	else
+		API_move(t_id);
 	end
 
 end

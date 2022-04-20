@@ -25,7 +25,7 @@ bool InGameServer::OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes)
 	return true;
 }
 
-void InGameServer::OnEvent(EXP_OVER* exp_over)
+void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 {
 	switch (exp_over->_comp_op)
 	{
@@ -48,6 +48,9 @@ void InGameServer::OnEvent(EXP_OVER* exp_over)
 		m_PacketManager->CountTime(exp_over->room_id);
 		delete exp_over;
 		break;
+	}
+	case COMP_OP::OP_NPC_ATTACK: {
+		m_PacketManager->DoEnemyAttack(c_id,exp_over->target_id,exp_over->room_id);
 	}
 	}
 }
