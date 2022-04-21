@@ -108,6 +108,12 @@ namespace revive
         RecvAttackEventInfo(UINT event_id);
   
     };
+    class MatchingMessageOKEventInfo final :public MessageEventInfo
+    {
+    public:
+        MatchingMessageOKEventInfo(UINT event_id);
+   
+    };
 }
 
 

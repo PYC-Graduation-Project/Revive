@@ -44,4 +44,8 @@ namespace revive
 		: MessageEventInfo(event_id)
 	{
 	}
+	MatchingMessageOKEventInfo::MatchingMessageOKEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
 }

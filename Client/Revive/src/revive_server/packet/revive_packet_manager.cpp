@@ -99,8 +99,9 @@ void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
 
 void RevivePacketManager::ProcessMatching(int c_id, unsigned char* p)
 {
-	sc_packet_sign_up_ok* packet = reinterpret_cast<sc_packet_sign_up_ok*>(p);
+	sc_packet_matching* packet = reinterpret_cast<sc_packet_matching*>(p);
 	cout << "¸ÅÄª¼º»ç" << endl;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::MatchingMessageOKEventInfo>(HashCode("match")));
 }
 
 void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
