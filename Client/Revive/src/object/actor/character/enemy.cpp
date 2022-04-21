@@ -5,7 +5,7 @@
 #include <client/input/input.h>
 #include <client/physics/collision/collisioner/collisioner.h>
 #include "object/actor/character/enemy.h"
-#include"revive_server/message/message_event_info.h"
+#include "revive_server/message/message_event_info.h"
 namespace revive
 {
 	Enemy::Enemy(const std::string& mesh_path, const std::string& name)
@@ -24,11 +24,11 @@ namespace revive
 		bool ret = true;
 
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
-		m_skeletal_mesh_component->SetAnimation("idle");
+		m_skeletal_mesh_component->SetAnimation("run");
 		m_skeletal_mesh_component->SetName(m_name + " Mesh");
 
-		ret &= AttachComponent(m_agro_sphere);
-		m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
+		//ret &= AttachComponent(m_agro_sphere);
+		//m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
 		
 
 		//ret &= AttachComponent(m_attack_sphere);
@@ -76,12 +76,13 @@ namespace revive
 		
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
+			//옆으로걷기 -> 회전넣기
+			SetRotation(FindLookAtRotation(GetPosition(), msg->GetObjPosition()));
 			//msg->m_move_lock.lock();
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
 			//SetPosition(msg->GetObjPosition());
-
-
+			
 			//진짜 다음좌표 보내는것
 			SetPosition(msg->GetObjPosition());
 			//std::cout << msg->GetObjPosition() << std::endl;
@@ -108,6 +109,13 @@ namespace revive
 			//msg->m_move_lock.unlock();
 			break;
 		}
+		case HashCode("npc attack"):
+		{
+			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
+			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
+			Attack();
+			break;
+		}
 		default:
 			break;
 		}
@@ -120,13 +128,15 @@ namespace revive
 		SetPosition(current_position);
 	}
 
-	void Enemy::RotateFromPlayer(const Vec3& direction)
+	Quaternion Enemy::FindLookAtRotation(const Vec3& start, const Vec3& target)
 	{
+		Vec3 direction = start - target;
+		direction.Normalize();
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
 		Vec3 rotate_player = mesh_rotate + Vec3{ 0.f,math::ToDegrees(angle),0.f };
-		SetRotation( quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y),math::ToRadian(rotate_player.z)));
+		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y),math::ToRadian(rotate_player.z));
 	}
 
 	void Enemy::Attack()

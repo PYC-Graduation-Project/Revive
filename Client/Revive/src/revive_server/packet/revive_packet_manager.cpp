@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-
+#include"server/network.h"
 #include"server/network_obj_manager.h"
 #include"server/network_move_object.h"
 #include "revive_packet_manager.h"
@@ -107,6 +107,7 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 {
 	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
 	NetworkObj* obj = NULL;
+	Network::matching_end = true;
 	if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
 	{
 		//obj = new NetworkObj(

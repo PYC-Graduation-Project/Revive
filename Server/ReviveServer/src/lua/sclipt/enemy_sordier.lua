@@ -58,7 +58,7 @@ enemy_state["attack"]=function (target_id)
 
 	now_x=API_get_x(skull_sordier.m_id);
 	now_z=API_get_z(skull_sordier.m_id);
-	if math.sqrt((math.abs(pl_x-nowx)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then
+	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then
 		skull_sordier.m_curr_state="attack"
 		API_attack(skull_sordier.m_id,t_id);--만들어주기
 	else

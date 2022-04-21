@@ -7,7 +7,7 @@
 
 using namespace std;
 Network* Network::m_pInst = NULL;
-
+bool Network::matching_end = false;
 bool Network::Init(client_fw::UPtr<PacketManager>&& packet_manager, client_fw::UPtr<SendManager>&& send_manager)
 {
 	m_id = 0;
@@ -36,7 +36,7 @@ bool Network::Connect()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET,"172.30.1.58", &server_addr.sin_addr);
+	inet_pton(AF_INET,"127.0.0.1", &server_addr.sin_addr);
 	int retval = WSAConnect(m_s_socket, reinterpret_cast<sockaddr*>(&server_addr),
 		sizeof(server_addr), NULL, NULL, NULL, NULL);
 	if (0 != retval) {
@@ -118,6 +118,6 @@ void Network::SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventI
 
 void Network::SendMovePacket(const client_fw::Vec3& position, const client_fw::Quaternion& rotation)
 {
-	//m_send_manager->SendMovePacket(m_s_socket,position, rotation); 일단제거
+	m_send_manager->SendMovePacket(m_s_socket,position, rotation); 
 }
 

@@ -26,18 +26,22 @@ namespace revive
 
 	void Weapon::Update(float delta_time)
 	{
-		Mat4 socket_world_matrix;
-		GetSocketMatrix(socket_world_matrix);
-		m_static_mesh_component->SetLocalPosition(m_position_offset);
-		SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });
-		Mat4 socket_local_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
-		Quaternion q;
-		XMStoreFloat4(&q, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_local_matrix)));
-		SetRotation(
-			quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(m_rotation_offset.x), math::ToRadian(m_rotation_offset.y), math::ToRadian(m_rotation_offset.z))/*quat::CreateQuaternionFromAxis(vec3::AXIS_X,math::ToRadian(70.f))*///오프셋 값
-			* q 
-			* m_attached_skeletal_mesh_component.lock()->GetLocalRotation()
-			* m_attached_actor.lock()->GetRotation());
+		if (m_attached_actor.expired() == false)
+		{
+			Mat4 socket_world_matrix;
+			GetSocketMatrix(socket_world_matrix);
+			m_static_mesh_component->SetLocalPosition(m_position_offset);
+			SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });
+			Mat4 socket_local_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
+			Quaternion q;
+			XMStoreFloat4(&q, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_local_matrix)));
+			SetRotation(
+				quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(m_rotation_offset.x), math::ToRadian(m_rotation_offset.y), math::ToRadian(m_rotation_offset.z))/*quat::CreateQuaternionFromAxis(vec3::AXIS_X,math::ToRadian(70.f))*///오프셋 값
+				* q
+				* m_attached_skeletal_mesh_component.lock()->GetLocalRotation()
+				* m_attached_actor.lock()->GetRotation());
+		}
+		
 	}
 
 	void const Weapon::GetSocketMatrix(Mat4& out_matrix)

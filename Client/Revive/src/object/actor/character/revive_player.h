@@ -20,7 +20,7 @@ namespace revive
 	class Pistol;
 	class PlayerFSM;
 
-	class DefaultPlayer : public Pawn
+	class DefaultPlayer : public Actor
 	{
 	public:
 		DefaultPlayer(const std::string& name = "player");
@@ -29,30 +29,32 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
-	protected:
+	private:
 		int m_hp = 10;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
+
+		float m_speed = 0.f;
 
 		bool m_is_attacking = false;
 		bool m_is_hitting = false;
 		bool m_is_dying = false;
-		
 
 		std::string m_mesh_path;
 		SPtr<PlayerFSM> m_player_fsm;
-		SPtr<CharacterMovementComponent> m_movement_component;
+		//SPtr<CharacterMovementComponent> m_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<BoxComponent> m_hit_box;
 		std::array<SPtr<Pistol>, 2> m_weapon;
 
-		void RotatePlayerFromCameraDirection(Vec3& dest_direction);
+		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
 
 		SPtr<DefaultPlayer> SharedFromThis() { return std::static_pointer_cast<DefaultPlayer>(shared_from_this()); }
 
 	public:
+		virtual const float GetVelocity() const;
 		const int GetHitCount() const { return m_hit_count; }
-		const float GetVelocity() const;
 		const int GetHP() const { return m_hp; }
 		const bool GetIsAttacking() const { return m_is_attacking; }
 		const bool GetIsHitting() const { return m_is_hitting; }
@@ -69,7 +71,7 @@ namespace revive
 		virtual void Hit(int damage = 1);
 	};
 
-	class RevivePlayer : public DefaultPlayer
+	class RevivePlayer : public Pawn
 	{
 	public:
 		RevivePlayer(const std::string& name = "Player");
@@ -78,20 +80,33 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
-
 	private:
-		bool m_is_cheating = false;
+		int m_hp = 10;
 
-		virtual void AddMovementInput(const Vec3& direction, float scale) override;
-		virtual void Hit(int damage) override;
+		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
+		bool m_is_attacking = false;
+		bool m_is_hitting = false;
+		bool m_is_dying = false; 
+		bool m_is_cheating = false;
+		
+
+		
+
+		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
+		void AddMovementInput(const Vec3& direction, float scale) override;
+		
 		void RegisterEvent(); //등록할 것이 많아져서 따로 분리했다.
-		void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
-		void FixYPosition();
 
 		//player의 state를 관리하는 객체
 		//원래는 State자체를 저장하고 플레이어 Update에서 바꿔주려고 했으나,
 		//이렇게 할 경우 캐스팅이 매번 일어나기 때문에 PlayerFSM에서 관리만 해주는 형태로 변경함
 
+		std::string m_mesh_path;
+		SPtr<PlayerFSM> m_player_fsm;
+		SPtr<CharacterMovementComponent> m_movement_component;
+		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
+		SPtr<BoxComponent> m_hit_box;
+		std::array<SPtr<Pistol>, 2> m_weapon; 
 		SPtr<SphereComponent> m_blocking_sphere;
 		SPtr<RenderCameraComponent> m_camera_component;
 
@@ -99,13 +114,35 @@ namespace revive
 		using Pawn::SetUseControllerYaw;
 		using Pawn::SetUseControllerRoll;
 
+		SPtr<RevivePlayer> SharedFromThis() { return std::static_pointer_cast<RevivePlayer>(shared_from_this()); }
+
 	public:
 		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
 
 		const SPtr<RenderCameraComponent>& GetCameraComponent() { return m_camera_component; }
 		//void SetIsAttacking(bool value) { m_is_attacking = value; }
 		//void SetIsHitting(bool value) { m_is_hitting = value; }
+		const float GetVelocity() const;
+		const int GetHitCount() const { return m_hit_count; }
+		const int GetHP() const { return m_hp; }
+		const bool GetIsAttacking() const { return m_is_attacking; }
+		const bool GetIsHitting() const { return m_is_hitting; }
+		const bool GetIsDying() const { return m_is_dying; }
+
+		void Attack();
+		void Hit(int damage);
+
+		void SetIsDying(bool value) { m_is_dying = value; }
+		void SetAnimation(const std::string& animation_name, bool looping);
+		void SetMeshPosition(const Vec3& pos);
+		void SetAnimationSpeed(float speed);
+
 		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
+		void DecrementHitCount() { m_hit_count--; }
+
+		//Controller에서 호출
+		//void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
+		void FixYPosition();
 
 	};
 

@@ -64,7 +64,10 @@ namespace client_fw
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
 			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
 			{
-				Network::GetInst()->SendMovePacket(pawn->GetPosition(), pawn->GetRotation());
+				if (true == Network::matching_end)
+				{
+					Network::GetInst()->SendMovePacket(pawn->GetPosition(), pawn->GetRotation());
+				}
 				
 				//여기서 플레이어 좌표랑 rotation 보내주기
 				//LOG_INFO(pawn->GetPosition());

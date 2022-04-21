@@ -23,10 +23,10 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("death end", "death", 109,
 			[this]() { m_is_disappearing = true; /*Destory되기 까지 Count를 시작한다*/ });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
-			[this]() { m_skeletal_mesh_component->SetAnimation("idle"); /*히트 후에 재생할 애니메이션*/});
+			[this]() { m_skeletal_mesh_component->SetAnimation("run"); /*히트 후에 재생할 애니메이션*/});
 		m_skeletal_mesh_component->AddNotify("fire", "attack", 12, [this]() { Fire();});
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 24,
-			[this]() { m_is_attacking = false; m_is_fire = false; m_skeletal_mesh_component->SetAnimation("idle"); /*공격 후에 재생할 애니메이션*/});
+			[this]() { m_is_attacking = false; m_is_fire = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
 		ret &= SetCollisionComponent();
 
 		m_hp = 10;
@@ -123,10 +123,8 @@ namespace revive
 		//공격 범위 구체
 		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			Vec3 direction = GetPosition() - other_actor->GetPosition();
-			float distance = direction.Length();
-			direction.Normalize();
-			RotateFromPlayer(direction);
+			float distance = (GetPosition() - other_actor->GetPosition()).Length();
+			SetRotation(FindLookAtRotation(GetPosition(), other_actor->GetPosition()));
 			if (distance < 1700.f)
 			{
 				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
