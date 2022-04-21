@@ -10,7 +10,7 @@ namespace revive
 	public:
 		PlayerState() = default;
 
-		virtual void Initialize(const WPtr<RevivePlayer>& player) { m_player = player; Enter(); }
+		virtual void Initialize(const WPtr<DefaultPlayer>& player) { m_player = player; Enter(); }
 
 		virtual void Enter() {} //State 진입 시 해줄 것
 		virtual void Update() {} 
@@ -19,7 +19,7 @@ namespace revive
 		virtual SPtr<PlayerState> ChageState() { return nullptr; } //State를 전환한다. (Transition)
 
 	protected:
-		WPtr<RevivePlayer> m_player;
+		WPtr<DefaultPlayer> m_player;
 	};
 
 	

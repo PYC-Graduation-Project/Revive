@@ -15,7 +15,7 @@ namespace revive
 		m_blocking_sphere = CreateSPtr<SphereComponent>(32.f, "Blocking Sphere");
 		m_blocking_box = CreateSPtr<BoxComponent>(Vec3{ 32.f,32.f,32.f }, "Blocking Box");
 		m_agro_sphere = CreateSPtr<SphereComponent>(1800.f, "agro sphere");
-		m_attack_sphere = CreateSPtr<SphereComponent>(350.f, "attack sphere");
+		m_hit_box = CreateSPtr<BoxComponent>(Vec3{ 32.f,32.f,32.f }, "hit box");
 		m_mesh_path = mesh_path;
 	}
 
@@ -28,26 +28,20 @@ namespace revive
 		m_skeletal_mesh_component->SetName(m_name + " Mesh");
 
 		ret &= AttachComponent(m_agro_sphere);
-		m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player","base"}, true);
-		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-			const SPtr<SceneComponent>& other_component) {
-			Vec3 direction = GetPosition() - other_actor->GetPosition();
-			direction.Normalize();
-			RotateFromPlayer(direction);
-			//LOG_INFO("시야 범위에 인식된 플레이어 :" + other_actor->GetName());
-		});
+		m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
+		
 
-		ret &= AttachComponent(m_attack_sphere);
-		m_attack_sphere->SetCollisionInfo(true, false, "enemy attack", { "player","base"}, true);
+		//ret &= AttachComponent(m_attack_sphere);
+		//m_attack_sphere->SetCollisionInfo(true, false, "enemy attack", { "player hit","base"}, true);
 		
 		//Test
-		/*if (Input::RegisterAxisEvent(m_name +" move forward", { AxisEventKeyInfo{eKey::kUArrow, 1.0f}, AxisEventKeyInfo{eKey::kDArrow, -1.0f} },
+		if (Input::RegisterAxisEvent(m_name +" move forward", { AxisEventKeyInfo{eKey::kUArrow, 1.0f}, AxisEventKeyInfo{eKey::kDArrow, -1.0f} },
 			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ 0.0f,0.0f, axis*100.0f }); return true; }, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " move forward");
 
 		if (Input::RegisterAxisEvent(m_name + " move right", { AxisEventKeyInfo{eKey::kRArrow, 1.0f}, AxisEventKeyInfo{eKey::kLArrow, -1.0f} },
 			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ axis * 100.0f,0.0f,0.0f  }); return true; }, true, eInputOwnerType::kActor))
-			RegisterInputEvent(m_name + " move right");*/
+			RegisterInputEvent(m_name + " move right");
 		return ret;
 	}
 
@@ -57,9 +51,7 @@ namespace revive
 		m_blocking_sphere = nullptr;
 		m_blocking_box = nullptr;
 		m_agro_sphere = nullptr;
-		m_attack_sphere = nullptr;
-		for (auto& hit_box : m_hit_boxes)
-			hit_box = nullptr;
+		m_hit_box = nullptr;
 	}
 
 	void Enemy::Update(float delta_time)

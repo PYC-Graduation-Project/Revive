@@ -4,7 +4,7 @@ namespace revive
 {
 	using namespace client_fw;
 
-	class RevivePlayer;
+	class DefaultPlayer;
 	class PlayerState;
 
 	class PlayerFSM
@@ -12,12 +12,12 @@ namespace revive
 	public:
 		PlayerFSM() = default;
 		
-		void Initialize(const SPtr<RevivePlayer>& player);
+		void Initialize(const SPtr<DefaultPlayer>& player);
 		void Update();
 		void Shutdown();
 
 	private:
-		WPtr<RevivePlayer> m_player;
+		WPtr<DefaultPlayer> m_player;
 		SPtr<PlayerState> m_curr_state;
 	};
 }

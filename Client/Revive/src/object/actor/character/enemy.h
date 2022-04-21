@@ -37,8 +37,7 @@ namespace revive
 		SPtr<BoxComponent> m_blocking_box; //¸ÖÆ¼
 
 		SPtr<SphereComponent> m_agro_sphere; 
-		SPtr<SphereComponent> m_attack_sphere;
-		std::vector<SPtr<BoxComponent>> m_hit_boxes;
+		SPtr<BoxComponent> m_hit_box;
 
 		void FixYPosition();
 		void RotateFromPlayer(const Vec3& direction);

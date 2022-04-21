@@ -60,7 +60,7 @@ namespace revive
 				const SPtr<SceneComponent>& other_component)
 			{
 				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
+				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 				if (player != nullptr)
 				{
 					int player_hp = player->GetHP();
@@ -113,7 +113,7 @@ namespace revive
 		//멀티에서만 사용
 		m_blocking_box->SetExtents(Vec3{25.f,90.f,45.f});
 		m_blocking_box->SetLocalPosition(Vec3{ 0.0f,m_blocking_box->GetExtents().y,0.0f });
-		m_blocking_box->SetCollisionInfo(true, false, "enemy", { "wall" }, true);
+		m_blocking_box->SetCollisionInfo(false, false, "enemy", { "wall" }, true);
 		m_blocking_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
@@ -121,51 +121,39 @@ namespace revive
 		ret &= AttachComponent(m_blocking_box);
 
 		//공격 범위 구체
-		m_attack_sphere->SetExtents(1700.f);
-		m_attack_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
-			m_player_position = other_actor->GetPosition();
-			if (player != nullptr)
+			Vec3 direction = GetPosition() - other_actor->GetPosition();
+			float distance = direction.Length();
+			direction.Normalize();
+			RotateFromPlayer(direction);
+			if (distance < 1700.f)
 			{
-				if (player->GetIsDying() == false) Attack();
-			}
-			else
-			{
-				const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
-				if (base != nullptr)
+				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+				m_player_position = other_actor->GetPosition();
+				if (player != nullptr)
 				{
-					int base_hp = base->GetHP();
-					if (base_hp > 0)
-						Attack();
+					if (player->GetIsDying() == false) Attack();
+				}
+				else
+				{
+					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+					if (base != nullptr)
+					{
+						int base_hp = base->GetHP();
+						if (base_hp > 0)
+							Attack();
+					}
 				}
 			}
+			//LOG_INFO("시야 범위에 인식된 플레이어 :" + other_actor->GetName());
 		});
 
 		//Hit Box
-		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>();
-		hit_box_1->SetName("head hit box");
-		hit_box_1->SetLocalPosition(Vec3{0.0f,170.f,0.f});
-		m_hit_boxes.emplace_back(hit_box_1);
-		SPtr<BoxComponent> hit_box_2 = CreateSPtr<BoxComponent>(Vec3{32.f,35.f,20.f});
-		hit_box_2->SetName("body hit box");
-		hit_box_2->SetLocalPosition(Vec3{ 0.0f,95.f,0.f });
-		m_hit_boxes.emplace_back(hit_box_2);
-		SPtr<BoxComponent> hit_box_3 = CreateSPtr<BoxComponent>(Vec3{10.f,30.f,10.f});
-		hit_box_3->SetName("leg hit box");
-		hit_box_3->SetLocalPosition(Vec3{ 20.0f,28.f,10.f });
-		m_hit_boxes.emplace_back(hit_box_3);
-		SPtr<BoxComponent> hit_box_4 = CreateSPtr<BoxComponent>(Vec3{ 10.f,30.f,10.f });
-		hit_box_4->SetName("leg hit box");
-		hit_box_4->SetLocalPosition(Vec3{ -20.0f,28.f,10.f });
-		m_hit_boxes.emplace_back(hit_box_4);
-
-		for (const auto& hit_box : m_hit_boxes)
-		{
-			hit_box->SetCollisionInfo(true, false, "enemy hit", { "bullet" }, false);
-			ret &= AttachComponent(hit_box);
-		}
-
+		m_hit_box->SetExtents(Vec3{ 30.0f,100.f,40.f });
+		m_hit_box->SetLocalPosition(Vec3{ 0.0f,100.f,0.f });
+		m_hit_box->SetCollisionInfo(true, false, "enemy hit", { "bullet" }, false);
+		ret &= AttachComponent(m_hit_box);
 		return ret;
 	}
 	void SkeletonSoldier::Attack()
