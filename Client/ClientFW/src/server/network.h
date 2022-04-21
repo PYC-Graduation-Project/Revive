@@ -79,6 +79,7 @@ public:
 	//void SendPacket(int num_byte ,void* packet);
 
 	void SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventInfo>& message);
+	void SendMovePacket(const client_fw::Vec3& position, const client_fw::Quaternion& rotation);
 	SOCKET& GetSock() { return m_s_socket; }
 private:
 	void Worker();

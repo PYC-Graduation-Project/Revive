@@ -3,8 +3,8 @@
 #include"server/network_move_object.h"
 namespace revive
 {
-	RotSpeedMessageEventInfo::RotSpeedMessageEventInfo(UINT event_id, float speed)
-		: MessageEventInfo(event_id), m_speed(speed)
+	NpcAttackEventInfo::NpcAttackEventInfo(UINT event_id, int target_id)
+		: MessageEventInfo(event_id), m_target_id(target_id)
 	{
 	}
 	SignInMessageEventInfo::SignInMessageEventInfo(UINT event_id, char* id, char* pw):

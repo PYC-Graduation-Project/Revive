@@ -7,6 +7,7 @@
 #include "client/object/actor/core/actor.h"
 #include "client/object/actor/pawn.h"
 #include "client/core/application.h"
+#include "client/event/packetevent/packet_helper.h"
 #include"server/network.h"
 namespace client_fw
 {
@@ -59,9 +60,12 @@ namespace client_fw
 		const auto& current_level = LevelManager::GetLevelManager().GetCurrentLevel();
 		if (current_level != nullptr)
 		{
+			SPtr<MessageEventInfo>move_message;
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
 			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
 			{
+				Network::GetInst()->SendMovePacket(pawn->GetPosition(), pawn->GetRotation());
+				
 				//여기서 플레이어 좌표랑 rotation 보내주기
 				//LOG_INFO(pawn->GetPosition());
 			}

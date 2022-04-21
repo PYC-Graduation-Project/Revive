@@ -241,14 +241,13 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//충돌체크,A*적용하기
 	//Vector3& nlook = enemy->GetLookVec();
 	
-	BoxCollision& en_collision = enemy->GetCollision();
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 	if (enemy->GetTargetId() == -1)//-1기지 아이디
 	{
 		enemy->DoMove(base_pos);
 		//enemy->DoMove(Vector3(base_pos.x, base_pos.y, base_pos.z + 400.0f));
 		
-		en_collision.UpdateCollision(enemy->GetPos());
+		enemy->GetCollision().UpdateCollision(enemy->GetPos());
 		
 	}
 	else
@@ -612,7 +611,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
-	
+	Vector4 rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
@@ -640,13 +639,14 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}*/
 
 	cl->SetPos(pos);
+	cl->SetRotaion(rot);
 	std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 		<< packet->r_z<< ", w : " << packet->r_w << endl;
 	for (auto other_pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
-			break;
+			continue;
 		if (c_id == other_pl)
 			continue;
 		SendMovePacket(other_pl, c_id);

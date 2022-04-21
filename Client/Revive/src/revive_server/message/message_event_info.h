@@ -8,16 +8,18 @@ namespace revive
 {
     using namespace client_fw;
    
-    class RotSpeedMessageEventInfo final : public MessageEventInfo
+    class NpcAttackEventInfo final : public MessageEventInfo
     {
     public:
-        RotSpeedMessageEventInfo(UINT event_id, float speed);
+        NpcAttackEventInfo(UINT event_id,int target_id);
 
     private:
-        float m_speed;
+        
+        int m_target_id;
 
     public:
-        float GetSpeed() const { return m_speed; }
+       
+        int GetTargetID() const { return m_target_id; }
     };
 
     class SignInMessageEventInfo final :public MessageEventInfo

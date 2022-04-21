@@ -36,7 +36,7 @@ bool Network::Connect()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET,"127.0.0.1", &server_addr.sin_addr);
+	inet_pton(AF_INET,"172.30.1.58", &server_addr.sin_addr);
 	int retval = WSAConnect(m_s_socket, reinterpret_cast<sockaddr*>(&server_addr),
 		sizeof(server_addr), NULL, NULL, NULL, NULL);
 	if (0 != retval) {
@@ -114,5 +114,10 @@ void Network::OnRecv(int client_id,EXP_OVER*exp_over,DWORD num_byte, SOCKET& soc
 void Network::SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventInfo>& message)
 {
 	m_send_manager->ProcessSend(m_s_socket,message);
+}
+
+void Network::SendMovePacket(const client_fw::Vec3& position, const client_fw::Quaternion& rotation)
+{
+	//m_send_manager->SendMovePacket(m_s_socket,position, rotation); 일단제거
 }
 

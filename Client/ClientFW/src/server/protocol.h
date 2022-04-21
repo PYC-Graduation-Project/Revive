@@ -1,7 +1,7 @@
 #pragma once
 
 const short SERVER_PORT = 9000;
-
+const int BASE_ID = -1;
 //cm기준, 타일 : 36 x 16
 const int  WORLD_HEIGHT = 4800;// 전체맵 크기는 아님
 const int  WORLD_WIDTH = 10800;
@@ -19,7 +19,8 @@ const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER * NPC_PER_USER; //최대 npc 개수
 
 const float FramePerSecond = 0.05f;
-const float MAX_SPEED = 225.0f * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
+const float SPEED_PER_SECOND = 225.0f;
+const float MAX_SPEED = SPEED_PER_SECOND * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;
@@ -54,7 +55,7 @@ const char SC_PACKET_MATCHING = 9;
 const char SC_PACKET_OBJ_INFO = 10;
 const char SC_PACKET_TIME = 11;
 const char SC_PACKET_TEST = 12;
-
+const char SC_PACKET_NPC_ATTACK = 13;
 
 
 
@@ -89,8 +90,8 @@ struct cs_packet_test {
 struct cs_packet_move {
 	unsigned char size;
 	char	type;
-	char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
-	int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
+	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
+	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
 	float r_x, r_y, r_z, r_w;
 
@@ -135,6 +136,12 @@ struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
+};
+struct sc_packet_npc_attack {
+	unsigned char size;
+	char type;
+	int obj_id;
+	int target_id;
 };
 struct sc_packet_move {
 	unsigned char size;

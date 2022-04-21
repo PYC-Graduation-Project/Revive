@@ -19,6 +19,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_OBJ_INFO, [this](int c_id, unsigned char* p) {ProcessObjInfo(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -150,4 +151,11 @@ void RevivePacketManager::ProcessTest(int c_id, unsigned char* p)
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
 	
 	
+}
+
+void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
+{
+	sc_packet_npc_attack*packet= reinterpret_cast<sc_packet_npc_attack*>(p);
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
+		packet->target_id), packet->obj_id);
 }
