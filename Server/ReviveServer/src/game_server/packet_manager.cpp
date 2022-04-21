@@ -543,6 +543,7 @@ void PacketManager::SendAttackPacket(int c_id, int attacker)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_ATTACK;
 	packet.obj_id = attacker;
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 

@@ -20,6 +20,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -174,4 +175,6 @@ void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
 	auto attacker = m_obj_map.find(packet->obj_id);
 	if (attacker != m_obj_map.end())
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
+	else
+		LOG_INFO("None");
 }

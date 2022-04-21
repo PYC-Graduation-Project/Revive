@@ -117,6 +117,8 @@ namespace revive
 			case HashCode("player attack"):
 			{
 				auto msg = std::static_pointer_cast<RecvAttackEventInfo>(message);
+				m_is_attacking = true;
+				break;
 			}
 		}
 	}
@@ -345,6 +347,7 @@ namespace revive
 					ret = m_is_attacking = true;
 				//공격추가
 					client_fw::PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack")));
+					LOG_INFO("공격 패킷 보냄");
 				}
 			return ret;
 		});
