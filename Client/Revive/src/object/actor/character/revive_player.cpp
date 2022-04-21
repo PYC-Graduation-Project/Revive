@@ -10,6 +10,7 @@
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
+#include<client/event/packetevent/packet_helper.h>
 #include "object/actor/weapon/pistol.h"
 #include "object/actor/character/enemy.h"
 #include "object/actor/character/revive_player.h"
@@ -96,7 +97,7 @@ namespace revive
 		if (m_speed > 0)
 		{
 			m_speed -= 8000 * delta_time;
-			LOG_INFO(m_speed);
+			//LOG_INFO(m_speed);
 		}
 		m_speed = std::clamp(m_speed, 0.0f, 1200.f);
 	}
@@ -111,6 +112,11 @@ namespace revive
 				if (msg->GetObjPosition() != GetPosition()) m_speed += 64.f;
 				SetPosition(msg->GetObjPosition());
 				SetRotation(msg->GetObjRotation());
+				break;
+			}
+			case HashCode("player attack"):
+			{
+				auto msg = std::static_pointer_cast<RecvAttackEventInfo>(message);
 			}
 		}
 	}
@@ -335,8 +341,11 @@ namespace revive
 			[this]()->bool {  
 			bool ret = false;
 			if(m_is_dying == false)
-				if (m_is_attacking == false)
-					ret = m_is_attacking = true; 
+				if (m_is_attacking == false) {
+					ret = m_is_attacking = true;
+				//공격추가
+					client_fw::PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack")));
+				}
 			return ret;
 		});
 		

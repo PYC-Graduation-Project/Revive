@@ -51,7 +51,7 @@ void PacketManager::RegisterRecvFunction(char key, const std::function<void(int,
 void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 {
 	unsigned char packet_type = p[1];
-	if ((int)packet_type > 13)
+	if ((int)packet_type > 14)
 	{
 		
 		LOG_INFO("처음보는 패킷타입:{0}", (int)packet_type);

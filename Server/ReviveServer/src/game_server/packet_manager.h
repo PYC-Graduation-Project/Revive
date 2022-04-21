@@ -39,7 +39,7 @@ public:
 	void SendObjInfo(int c_id, int obj_id);
 	void SendTime(int c_id,float round_time);
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
-
+	void SendAttackPacket(int c_id, int attacker);
 	void End();
 	void Disconnect(int c_id);
 

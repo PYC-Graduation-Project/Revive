@@ -157,6 +157,20 @@ void RevivePacketManager::ProcessTest(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 {
 	sc_packet_npc_attack*packet= reinterpret_cast<sc_packet_npc_attack*>(p);
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-		packet->target_id), packet->obj_id);
+	auto target = m_obj_map.find(packet->target_id);
+	if (target != m_obj_map.end()) {
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
+			target->second->GetPosition()), packet->obj_id);
+		LOG_INFO(target->second->GetPosition());
+	}
+	else
+		LOG_INFO("없는 객체 공격");
+}
+
+void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
+{
+	sc_packet_attack* packet = reinterpret_cast<sc_packet_attack*>(p);
+	auto attacker = m_obj_map.find(packet->obj_id);
+	if (attacker != m_obj_map.end())
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
 }

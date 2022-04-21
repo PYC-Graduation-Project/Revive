@@ -108,6 +108,7 @@ namespace revive
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				break;
 			}
+			
 			case NW_OBJ_TYPE::OT_NPC_SKULL: {
 				auto police = CreateSPtr<SkeletonSoldier>();
 				SpawnActor(police);
