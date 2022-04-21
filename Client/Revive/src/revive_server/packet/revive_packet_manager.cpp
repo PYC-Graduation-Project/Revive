@@ -156,6 +156,11 @@ void RevivePacketManager::ProcessTest(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 {
 	sc_packet_npc_attack*packet= reinterpret_cast<sc_packet_npc_attack*>(p);
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-		packet->target_id), packet->obj_id);
+	auto target = m_obj_map.find(packet->target_id);
+	if (target != m_obj_map.end()) {
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
+			target->second->GetPosition()), packet->obj_id);
+	}
+	else
+		LOG_INFO("등록된 객체가 없습니다.");
 }

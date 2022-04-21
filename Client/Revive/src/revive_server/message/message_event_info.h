@@ -11,15 +11,13 @@ namespace revive
     class NpcAttackEventInfo final : public MessageEventInfo
     {
     public:
-        NpcAttackEventInfo(UINT event_id,int target_id);
+        NpcAttackEventInfo(UINT event_id, const Vec3& pos);
 
     private:
-        
-        int m_target_id;
-
+        Vec3 m_target_pos;
     public:
        
-        int GetTargetID() const { return m_target_id; }
+        const Vec3& GetTargetPosition() const { return m_target_pos; }
     };
 
     class SignInMessageEventInfo final :public MessageEventInfo
