@@ -29,7 +29,7 @@ namespace revive
 	}
 	bool GamePlayLevel::Initialize()
 	{
-<<<<<<< HEAD
+
 		//auto police = CreateSPtr<SkeletonSoldier>();
 		//SpawnActor(police);
 		//police->SetPosition(Vec3{ 2400.0f , 300.0f, 1200.0f });
@@ -41,8 +41,7 @@ namespace revive
 			SpawnActor(police);
 		}
 		
-=======
->>>>>>> develop
+
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
