@@ -22,12 +22,7 @@ namespace revive
 		m_projectile_movement_component->SetInitialSpeed(1000.0f);
 		m_projectile_movement_component->SetProjectileGravityScale(0.0f);
 		ret &= AttachComponent(m_projectile_movement_component);
-
 		
-		m_static_mesh_component->SetMesh("../Contents/Sphere.obj");
-		m_static_mesh_component->SetLocalScale(0.1f);
-		ret &= AttachComponent(m_static_mesh_component);
-
 		ret &= AttachComponent(m_sphere_component);
 		m_life_span = 1.0f;
 		return ret;
@@ -85,6 +80,8 @@ namespace revive
 	{
 		return m_sphere_component->GetExtents().y;
 	}
+
+
 
 	
 

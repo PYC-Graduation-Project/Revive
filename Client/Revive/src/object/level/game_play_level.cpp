@@ -11,10 +11,15 @@
 #include <client/event/messageevent/message_helper.h>
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
-#include"object/actor/character/skeleton_soldier.h"
-#include"object/actor/character/skeleton_king.h"
+
+
+#include "object/actor/character/skeleton_King.h"
+#include "object/actor/character/skeleton_soldier.h"
+#include "object/actor/character/revive_player.h"
 std::string g_id;
 std::string g_pw;
+
+
 namespace revive
 {
 
@@ -24,6 +29,7 @@ namespace revive
 	}
 	bool GamePlayLevel::Initialize()
 	{
+<<<<<<< HEAD
 		//auto police = CreateSPtr<SkeletonSoldier>();
 		//SpawnActor(police);
 		//police->SetPosition(Vec3{ 2400.0f , 300.0f, 1200.0f });
@@ -35,6 +41,8 @@ namespace revive
 			SpawnActor(police);
 		}
 		
+=======
+>>>>>>> develop
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
@@ -149,9 +157,9 @@ namespace revive
 	std::vector<SPtr<CollisionOctree>> GamePlayLevel::CreateCollisionOctrees() const
 	{
 		std::vector<SPtr<CollisionOctree>> collision_octrees;
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 2500.0f)));
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 7500.0f)));
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 12500.0f))); //가로는 2500만큼 감싸고(양옆) 세로는 1000만큼 감싸야하지만 정사각형이므로 2500만큼 감싼다.
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f),0));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(3600.0f, Vec3(2400.0f, 0, 6600.0f),0));
+		//collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 12500.0f),0)); //가로는 2500만큼 감싸고(양옆) 세로는 1000만큼 감싸야하지만 정사각형이므로 2500만큼 감싼다.
 		return collision_octrees;
 	}
 }

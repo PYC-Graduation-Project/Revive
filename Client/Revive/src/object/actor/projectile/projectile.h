@@ -49,5 +49,6 @@ namespace revive
 		void SetBlockingSphereRadius(float radius);
 
 		const float GetSphereRadius() const;
+
 	};
 }

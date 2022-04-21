@@ -25,22 +25,25 @@ namespace revive
 	protected:
 		int m_hp;
 		float m_disappear_time = 0.0f;
+
 		bool m_is_disappearing = false;
 		bool m_is_dead = false;
 		bool m_is_attacking = false;
+
+		Vec3 mesh_rotate = vec3::ZERO;
 
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<SphereComponent> m_blocking_sphere; //½Ì±Û
 		SPtr<BoxComponent> m_blocking_box; //¸ÖÆ¼
 
 		SPtr<SphereComponent> m_agro_sphere; 
-		SPtr<SphereComponent> m_attack_sphere;
-		std::vector<SPtr<BoxComponent>> m_hit_boxes;
+		SPtr<BoxComponent> m_hit_box;
 
 		void FixYPosition();
 		void RotateFromPlayer(const Vec3& direction);
 		virtual void Attack();
 		virtual bool SetCollisionComponent() { return true; }
+
 	private:
 		std::string m_mesh_path;
 	

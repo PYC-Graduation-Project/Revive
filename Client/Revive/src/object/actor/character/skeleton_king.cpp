@@ -2,16 +2,18 @@
 #include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
-#include "client/input/input.h"
+#include <client/input/input.h>
+#include "object/actor/weapon/axe.h"
+#include "object/actor/gameplaymechanics/base.h"
 #include "object/actor/character/revive_player.h"
 #include "object/actor/character/skeleton_king.h"
-
 namespace revive
 {
 	SkeletonKing::SkeletonKing(const std::string& name)
 		:Enemy("Contents/skeleton_king.rev", name)
 	{
-		m_weapon_collision_box = CreateSPtr<BoxComponent>();
+		m_weapon = CreateSPtr<Axe>();
+		SpawnActor(m_weapon);
 	}
 	bool SkeletonKing::Initialize()
 	{
@@ -19,14 +21,17 @@ namespace revive
 
 		ret &= Enemy::Initialize();
 		ret &= AttachComponent(m_skeletal_mesh_component);
-		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
+		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.f), 0.f, 0.f);
 		m_skeletal_mesh_component->AddNotify("death end", "death", 82,
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
 			[this]() { m_skeletal_mesh_component->SetAnimation("idle");  });
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
 			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("idle"); /*공격 후에 재생할 애니메이션*/});
-
+		
+		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
+		m_weapon->SetSocketName("mount0");
+		m_weapon->SetScale(0.6f);
 		ret &= SetCollisionComponent();
 		
 		if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kT} },
@@ -36,14 +41,23 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");
 		
 		m_hp = 20;
-		//SetPosition(Vec3{ 2000.0f,300.0f,4000.0f });
+		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
+
 		return ret;
 	}
+
+	void SkeletonKing::Update(float delta_time)
+	{
+		Enemy::Update(delta_time);
+	}
+
 	void SkeletonKing::Shutdown()
 	{
 		Enemy::Shutdown();
+		m_weapon->SetActorState(eActorState::kDead);
 	}
+
 	bool SkeletonKing::SetCollisionComponent()
 	{
 		bool ret = true;
@@ -61,7 +75,7 @@ namespace revive
 		//멀티에서만 사용
 		m_blocking_box->SetExtents(Vec3{50.f,200.f,50.f});
 		m_blocking_box->SetLocalPosition(Vec3{ 0.0f,m_blocking_box->GetExtents().y,0.0f });
-		m_blocking_box->SetCollisionInfo(true, false, "enemy", { "wall" }, true);
+		m_blocking_box->SetCollisionInfo(false, false, "enemy", { "wall" }, true);
 		m_blocking_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
@@ -69,7 +83,6 @@ namespace revive
 		ret &= AttachComponent(m_blocking_box);
 
 		//무기 콜리전 설정 무기 Actor에서 해줄것
-		m_weapon_collision_box->SetName("Weapon Collision");
 		//m_weapon_collision_box->SetExtents(Vec3{}); //무기 박스 콜리전 크기
 		//m_weapon_collision_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 		//	const SPtr<SceneComponent>& other_component)
@@ -85,48 +98,51 @@ namespace revive
 		//	}
 		//});
 
-		ret &= AttachComponent(m_weapon_collision_box);
 		//공격 범위 구체
-		m_attack_sphere->SetExtents(350.f);
-		m_attack_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
-			//m_player_position = other_actor->GetPosition();
-			if (player != nullptr)
+			Vec3 direction = GetPosition() - other_actor->GetPosition();
+			float distance = direction.Length();
+			direction.Normalize();
+			
+			if (distance < 350.f)
 			{
-				if (player->GetIsDying() == false)
+				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+				if (player != nullptr)
 				{
-					Attack();
+					if (player->GetIsDying() == false)
+					{
+						RotateFromPlayer(direction);
+						Attack();
+					}
+				}
+				else
+				{
+					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+					if (base != nullptr)
+					{
+						int base_hp = base->GetHP();
+						LOG_INFO(base_hp);
+						if (base_hp > 0)
+						{
+							RotateFromPlayer(direction);
+							Attack();
+						}
+					}
 				}
 			}
+			//LOG_INFO("시야 범위에 인식된 플레이어 :" + other_actor->GetName());
 		});
 
 		//Hit Box
-		SPtr<BoxComponent> hit_box_1 = CreateSPtr<BoxComponent>(Vec3{60.f,60.f,60.f});
-		hit_box_1->SetName("head hit box");
-		hit_box_1->SetLocalPosition(Vec3{ 0.0f,330.f,0.f });
-		m_hit_boxes.emplace_back(hit_box_1);
-		SPtr<BoxComponent> hit_box_2 = CreateSPtr<BoxComponent>(Vec3{ 50.f,60.f,32.f });
-		hit_box_2->SetName("body hit box");
-		hit_box_2->SetLocalPosition(Vec3{ 0.0f,210.f,0.f });
-		m_hit_boxes.emplace_back(hit_box_2);
-		SPtr<BoxComponent> hit_box_3 = CreateSPtr<BoxComponent>(Vec3{ 20.f,65.f,30.f });
-		hit_box_3->SetName("leg hit box");
-		hit_box_3->SetLocalPosition(Vec3{ 40.0f,75.f,10.f });
-		m_hit_boxes.emplace_back(hit_box_3);
-		SPtr<BoxComponent> hit_box_4 = CreateSPtr<BoxComponent>(Vec3{ 20.f,65.f,30.f });
-		hit_box_4->SetName("leg hit box");
-		hit_box_4->SetLocalPosition(Vec3{ -40.0f,75.f,10.f });
-		m_hit_boxes.emplace_back(hit_box_4);
-
-		for (const auto& hit_box : m_hit_boxes)
-		{
-			hit_box->SetCollisionInfo(true, false, "enemy hit", { "bullet" }, false);
-			ret &= AttachComponent(hit_box);
-		}
+		m_hit_box->SetExtents(Vec3{ 60.f,200.f,60.f });
+		m_hit_box->SetLocalPosition(Vec3{ 0.0f,200.f,0.f });
+		m_hit_box->SetCollisionInfo(true, false, "enemy hit", { "bullet" }, false);
+		ret &= AttachComponent(m_hit_box);
 
 		return ret;
 	}
+
 	void SkeletonKing::Attack()
 	{
 		if (m_is_attacking == false)

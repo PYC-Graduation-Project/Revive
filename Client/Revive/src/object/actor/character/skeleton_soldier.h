@@ -10,13 +10,13 @@ namespace revive
 		virtual ~SkeletonSoldier() = default;
 
 		virtual bool Initialize() override;
-		void Fire();
 		virtual void Shutdown() override;
-		//virtual void Update(float delta_time) override;
+		virtual void Update(float delta_time) override;
 
 	private:
 		virtual bool SetCollisionComponent() override;
 		virtual void Attack() override;
+		void Fire();
 
 		Vec3 m_player_position = vec3::ZERO;
 

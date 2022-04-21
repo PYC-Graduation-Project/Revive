@@ -1,5 +1,6 @@
 #include <include/client_core.h>
 #include <client/object/component/render/sphere_component.h>
+#include <client/object/component/mesh/static_mesh_component.h>
 #include "object/actor/projectile/bullet.h"
 
 namespace revive
@@ -13,7 +14,12 @@ namespace revive
 	{
 		Projectile::Initialize();
 		SetInitialSpeed(5000.f);
-		return true;
+
+		bool ret = m_static_mesh_component->SetMesh("../Contents/sphere.obj");
+		ret &= AttachComponent(m_static_mesh_component);
+		m_static_mesh_component->SetLocalScale(0.1f);
+
+		return ret;
 	}
 
 

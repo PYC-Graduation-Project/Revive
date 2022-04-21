@@ -18,7 +18,7 @@ namespace revive
 
 		for (auto& box_component : m_box_components)
 		{
-			box_component->SetCollisionInfo(true, true, "base", { "player","enemy","stone", "enemy agro", "enemy attack" }, false);
+			box_component->SetCollisionInfo(true, true, "base", { "player","enemy","stone", "enemy agro" }, false);
 			ret &= AttachComponent(box_component);
 		}
 

@@ -4,7 +4,7 @@
 #include "state_machine.h"
 namespace revive
 {
-	void PlayerFSM::Initialize(const SPtr<RevivePlayer>& player)
+	void PlayerFSM::Initialize(const SPtr<DefaultPlayer>& player)
 	{
 		m_player = player;
 		m_curr_state = CreateSPtr<IdleState>();
