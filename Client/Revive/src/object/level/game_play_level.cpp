@@ -16,8 +16,6 @@
 #include "object/actor/character/skeleton_King.h"
 #include "object/actor/character/skeleton_soldier.h"
 #include "object/actor/character/revive_player.h"
-std::string g_id;
-std::string g_pw;
 
 
 namespace revive
@@ -35,30 +33,7 @@ namespace revive
 		{
 			SpawnActor(actor);
 		}
-		std::cin >> g_id;
-		std::cin >> g_pw;
-		std::cout << "id:" << g_id << "pw:" << g_pw << std::endl;
-
-		//회원 가입 5, 로그인 6, 매칭 7
-		RegisterPressedEvent("send sign up", { { eKey::k5 } },
-			[this]()->bool {
-
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
-				return true;
-			});
-		RegisterPressedEvent("send sign in", { { eKey::k6 } },
-			[this]()->bool {
-
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
-				return true;
-			});
-		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
-			[this]()->bool {
-
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
-				return true;
-			});
-
+		
 		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
 
