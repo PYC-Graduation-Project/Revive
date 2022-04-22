@@ -21,7 +21,10 @@ namespace revive
 			[this, player](float axis)->bool {
 			bool ret = player->GetIsDying();
 			if (ret == false)
+			{
 				m_controlled_pawn->AddMovementInput(GetForward(), axis);
+				player->FixYPosition();
+			}
 			return ret;
 			});
 
@@ -29,7 +32,10 @@ namespace revive
 			[this, player](float axis)->bool {
 			bool ret = player->GetIsDying();
 			if (ret == false)
+			{
 				m_controlled_pawn->AddMovementInput(GetRight(), axis);
+				player->FixYPosition();
+			}
 			return ret; 
 			});
 
@@ -37,6 +43,7 @@ namespace revive
 			[this](float axis)->bool {
 				IVec2 relative_pos = Input::GetRelativeMousePosition();
 				AddYawInput(axis * relative_pos.x);
+				MinPItch();
 				return true;
 			});
 
@@ -48,5 +55,14 @@ namespace revive
 			});
 		
 		return ret;
+	}
+	void ReviveController::MinPItch()
+	{
+		Vec3 rot = quat::QuaternionToEuler(GetRotation());
+		if (math::ToDegrees(rot.x) < 5) //컨트롤러에서 SetRotation(rot);를 안해주는게 제일 좋은 방법
+		{
+			rot.x += math::ToRadian(5.0f) - rot.x;
+			SetRotation(quat::CreateQuaternionFromRollPitchYaw(rot.x, rot.y, rot.z));
+		}
 	}
 }

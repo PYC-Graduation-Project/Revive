@@ -3,8 +3,10 @@
 #include"server/network_move_object.h"
 namespace revive
 {
-	NpcAttackEventInfo::NpcAttackEventInfo(UINT event_id, const Vec3& pos)
-		: MessageEventInfo(event_id), m_target_pos(pos)
+
+	NpcAttackEventInfo::NpcAttackEventInfo(UINT event_id, const Vec3& target_pos)
+		: MessageEventInfo(event_id), m_target_pos(target_pos)
+
 	{
 	}
 	SignInMessageEventInfo::SignInMessageEventInfo(UINT event_id, char* id, char* pw):
@@ -34,6 +36,18 @@ namespace revive
 	}
 	MoveObjectMessageEventInfo::MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos, const Quaternion& rot)
 		: MessageEventInfo(event_id), m_pos(pos),m_rot(rot)
+	{
+	}
+	SendAttackEventInfo::SendAttackEventInfo(UINT event_id)
+		: MessageEventInfo(event_id)
+	{
+	}
+	RecvAttackEventInfo::RecvAttackEventInfo(UINT event_id)
+		: MessageEventInfo(event_id)
+	{
+	}
+	MatchingMessageOKEventInfo::MatchingMessageOKEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
 	{
 	}
 }

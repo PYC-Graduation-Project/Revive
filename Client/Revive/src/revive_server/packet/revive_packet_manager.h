@@ -20,6 +20,7 @@ public:
     void ProcessTime(int c_id, unsigned char* p);
     void ProcessTest(int c_id, unsigned char* p);
     void ProcessNpcAttack(int c_id, unsigned char* p);
+    void ProcessAttack(int c_id, unsigned char* p);
 private:
     std::unordered_map<int, client_fw::SPtr<NetworkMoveObj>>m_obj_map;
 };

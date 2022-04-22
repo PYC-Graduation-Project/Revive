@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-
+#include"server/network.h"
 #include"server/network_obj_manager.h"
 #include"server/network_move_object.h"
 #include "revive_packet_manager.h"
@@ -99,14 +99,16 @@ void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
 
 void RevivePacketManager::ProcessMatching(int c_id, unsigned char* p)
 {
-	sc_packet_sign_up_ok* packet = reinterpret_cast<sc_packet_sign_up_ok*>(p);
+	sc_packet_matching* packet = reinterpret_cast<sc_packet_matching*>(p);
 	cout << "매칭성사" << endl;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::MatchingMessageOKEventInfo>(HashCode("match")));
 }
 
 void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 {
 	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
 	NetworkObj* obj = NULL;
+	Network::matching_end = true;
 	if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
 	{
 		//obj = new NetworkObj(
@@ -160,7 +162,17 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	if (target != m_obj_map.end()) {
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);
+
 	}
 	else
-		LOG_INFO("등록된 객체가 없습니다.");
+		LOG_INFO("없는 객체 공격");
+}
+
+void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
+{
+	sc_packet_attack* packet = reinterpret_cast<sc_packet_attack*>(p);
+	auto attacker = m_obj_map.find(packet->obj_id);
+	if (attacker != m_obj_map.end())
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
+
 }

@@ -30,18 +30,6 @@ namespace revive
 	bool GamePlayLevel::Initialize()
 	{
 
-		//auto police = CreateSPtr<SkeletonSoldier>();
-		//SpawnActor(police);
-		//police->SetPosition(Vec3{ 2400.0f , 300.0f, 1200.0f });
-		for (int i = 0; i < 15; ++i)
-		{
-			auto police = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic, "Contents/cliff_block_rock.obj");
-			police->SetScale(300.0f); 
-			police->SetPosition(Vec3{ -500.0f + i * 500.0f, 0.0f, 6000.0f  });
-			SpawnActor(police);
-		}
-		
-
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
@@ -115,8 +103,13 @@ namespace revive
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
+				auto player = CreateSPtr<DefaultPlayer>("other player");
+				SpawnActor(player);
+				player->SetPosition(obj->GetPosition());
+				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				break;
 			}
+			
 			case NW_OBJ_TYPE::OT_NPC_SKULL: {
 				auto police = CreateSPtr<SkeletonSoldier>();
 				SpawnActor(police);

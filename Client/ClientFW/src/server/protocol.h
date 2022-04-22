@@ -56,6 +56,7 @@ const char SC_PACKET_OBJ_INFO = 10;
 const char SC_PACKET_TIME = 11;
 const char SC_PACKET_TEST = 12;
 const char SC_PACKET_NPC_ATTACK = 13;
+const char SC_PACKET_ATTACK = 14;
 
 
 
@@ -207,6 +208,13 @@ struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	char	type;
 	float time;
 	int send_time;//추후에 없애야될수도 있음
+
+};
+struct sc_packet_attack {
+	unsigned char size;
+	char type;
+	int	obj_id;
+	//float x, y, z;
 
 };
 #pragma pack(pop)

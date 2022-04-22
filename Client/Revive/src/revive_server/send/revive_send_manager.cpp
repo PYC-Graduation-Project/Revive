@@ -20,6 +20,11 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 		SendMatchingPacket(s_socket, msg->GetUserNum());
 		break;
 	}
+	case HashCode("send attack"): {
+		auto msg = std::static_pointer_cast<revive::SendAttackEventInfo>(message);
+		SendAttackPacket(s_socket);
+		break;
+	}
 	}
 }
 
@@ -79,5 +84,13 @@ void ReviveSendManager::SendMovePacket(const SOCKET& s_socket, client_fw::Vec3& 
 	packet.r_y = rot.y;
 	packet.r_z = rot.z;
 	packet.r_w = rot.w;
+	SendPacket(s_socket, sizeof(packet), &packet);
+}
+
+void ReviveSendManager::SendAttackPacket(const SOCKET& s_socket)
+{
+	cs_packet_attack packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_ATTACK;
 	SendPacket(s_socket, sizeof(packet), &packet);
 }

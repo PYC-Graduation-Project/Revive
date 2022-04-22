@@ -25,9 +25,9 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("death end", "death", 82,
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
-			[this]() { m_skeletal_mesh_component->SetAnimation("idle");  });
+			[this]() { m_skeletal_mesh_component->SetAnimation("run");  });
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
-			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("idle"); /*공격 후에 재생할 애니메이션*/});
+			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
 		
 		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
 		m_weapon->SetSocketName("mount0");
@@ -101,9 +101,7 @@ namespace revive
 		//공격 범위 구체
 		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			Vec3 direction = GetPosition() - other_actor->GetPosition();
-			float distance = direction.Length();
-			direction.Normalize();
+			float distance = (GetPosition() - other_actor->GetPosition()).Length();
 			
 			if (distance < 350.f)
 			{
@@ -112,7 +110,7 @@ namespace revive
 				{
 					if (player->GetIsDying() == false)
 					{
-						RotateFromPlayer(direction);
+						SetRotation(FindLookAtRotation(GetPosition(), other_actor->GetPosition()));
 						Attack();
 					}
 				}
@@ -125,7 +123,8 @@ namespace revive
 						LOG_INFO(base_hp);
 						if (base_hp > 0)
 						{
-							RotateFromPlayer(direction);
+							SetRotation(FindLookAtRotation(GetPosition(), other_actor->GetPosition()));
+
 							Attack();
 						}
 					}

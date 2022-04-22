@@ -40,7 +40,7 @@ namespace revive
 		SPtr<BoxComponent> m_hit_box;
 
 		void FixYPosition();
-		void RotateFromPlayer(const Vec3& direction);
+		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
 		virtual void Attack();
 		virtual bool SetCollisionComponent() { return true; }
 

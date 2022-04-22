@@ -13,6 +13,7 @@ public:
     void SendSignUPPacket  (const SOCKET&s_socket,char*, char*);
     void SendMatchingPacket(const SOCKET&s_socket,int user_num);
     void SendMovePacket    (const SOCKET&s_socket,client_fw::Vec3& pos, client_fw::Quaternion& rot);
+    void SendAttackPacket(const SOCKET& s_socket);
    
 };
 

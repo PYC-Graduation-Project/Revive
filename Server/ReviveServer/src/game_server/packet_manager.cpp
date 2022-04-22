@@ -537,6 +537,14 @@ void PacketManager::SendTestPacket(int c_id, int mover, float x, float y, float 
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendAttackPacket(int c_id, int attacker)
+{
+	sc_packet_attack packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_ATTACK;
+	packet.obj_id = attacker;
+}
+
 
 
 
@@ -603,7 +611,16 @@ void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
 
 void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 {
+	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	Room* room = m_room_manager->GetRoom(player->GetRoomID());
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		if (pl == c_id)continue;
+		SendAttackPacket(pl,c_id);
+	}
 	//player°¡ ÃÑÀ»½úÀ»¶§
+	
 }
 
 void PacketManager::ProcessMove(int c_id,unsigned char* p)
@@ -640,9 +657,9 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 
 	cl->SetPos(pos);
 	cl->SetRotaion(rot);
-	std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
-	std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
-		<< packet->r_z<< ", w : " << packet->r_w << endl;
+	//std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
+	//std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
+	//	<< packet->r_z<< ", w : " << packet->r_w << endl;
 	for (auto other_pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))

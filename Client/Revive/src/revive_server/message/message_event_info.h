@@ -11,10 +11,14 @@ namespace revive
     class NpcAttackEventInfo final : public MessageEventInfo
     {
     public:
-        NpcAttackEventInfo(UINT event_id, const Vec3& pos);
+
+        NpcAttackEventInfo(UINT event_id, const Vec3& target_pos);
 
     private:
+        
         Vec3 m_target_pos;
+
+
     public:
        
         const Vec3& GetTargetPosition() const { return m_target_pos; }
@@ -91,8 +95,26 @@ namespace revive
         MatchingMessageEventInfo(UINT event_id, int user_num);
     private:
         int m_user_num;
-        public:
+    public:
         int GetUserNum()const { return m_user_num; }
+    };
+
+    class SendAttackEventInfo final : public MessageEventInfo
+    {
+    public:
+        SendAttackEventInfo(UINT event_id);
+    };
+    class RecvAttackEventInfo final : public MessageEventInfo
+    {
+    public:
+        RecvAttackEventInfo(UINT event_id);
+  
+    };
+    class MatchingMessageOKEventInfo final :public MessageEventInfo
+    {
+    public:
+        MatchingMessageOKEventInfo(UINT event_id);
+   
     };
 }
 
