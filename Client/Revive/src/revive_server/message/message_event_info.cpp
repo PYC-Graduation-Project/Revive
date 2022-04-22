@@ -3,8 +3,10 @@
 #include"server/network_move_object.h"
 namespace revive
 {
+
 	NpcAttackEventInfo::NpcAttackEventInfo(UINT event_id, const Vec3& target_pos)
 		: MessageEventInfo(event_id), m_target_pos(target_pos)
+
 	{
 	}
 	SignInMessageEventInfo::SignInMessageEventInfo(UINT event_id, char* id, char* pw):

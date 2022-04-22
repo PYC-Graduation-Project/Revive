@@ -11,11 +11,13 @@ namespace revive
     class NpcAttackEventInfo final : public MessageEventInfo
     {
     public:
-        NpcAttackEventInfo(UINT event_id, const Vec3& m_target_pos);
+
+        NpcAttackEventInfo(UINT event_id, const Vec3& target_pos);
 
     private:
         
         Vec3 m_target_pos;
+
 
     public:
        

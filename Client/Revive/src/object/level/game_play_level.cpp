@@ -29,6 +29,7 @@ namespace revive
 	}
 	bool GamePlayLevel::Initialize()
 	{
+
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{

@@ -163,7 +163,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	if (target != m_obj_map.end()) {
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);
-		LOG_INFO(target->second->GetPosition());
+
 	}
 	else
 		LOG_INFO("없는 객체 공격");
@@ -177,4 +177,5 @@ void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
 	else
 		LOG_INFO("None");
+
 }

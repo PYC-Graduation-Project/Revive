@@ -268,7 +268,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		{
 			unique_ptr<Astar>astar = make_unique<Astar>();
 			bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(), base_pos, enemy->GetCollision());//나중에는 타겟포즈로 넣어주기
-			//astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
+			astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
 			//cout << endl;
 		}
 		
@@ -712,6 +712,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			player->is_matching = false;
 			player->state_lock.lock();
 			player->SetState(STATE::ST_INGAME);
+			player->SetRoomID(r_id);
 			player->state_lock.unlock();
 			//room->EnterRoom(id);//방에 아이디 넘겨주기
 			//cout << id << endl;
