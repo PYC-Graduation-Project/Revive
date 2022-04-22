@@ -41,7 +41,8 @@ void Player::Init(SOCKET&c_socket)
 
 void Player::ResetPlayer()
 {
-	m_state = STATE::ST_FREE;
+	if(m_room_id==-1)
+		m_state = STATE::ST_FREE;
 	m_is_active = false;
 	is_matching = false;
 	ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
