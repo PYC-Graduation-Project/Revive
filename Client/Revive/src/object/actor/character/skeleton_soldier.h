@@ -18,7 +18,6 @@ namespace revive
 		virtual void Attack() override;
 		void Fire();
 
-		Vec3 m_player_position = vec3::ZERO;
 
 		bool m_is_fire = false;
 		int m_animation_select_num = 0;

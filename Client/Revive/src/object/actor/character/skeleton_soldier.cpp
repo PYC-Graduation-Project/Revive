@@ -53,35 +53,37 @@ namespace revive
 			stone->SetPosition(GetPosition());
 			stone->SetRotation(m_skeletal_mesh_component->GetLocalRotation() * GetRotation());
 			stone->SetBlockingSphereRadius(10.f);
-			Vec3 direction = vec3::Normalize(m_player_position - stone->GetPosition());
+			Vec3 direction = vec3::Normalize(m_target_position - stone->GetPosition());
 			stone->SetVelocity(direction);
 			stone->SetCollisionInfo(true, "stone", { "player hit","base"}, true);
 			stone->SetOnCollisionResponse([stone](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-				if (player != nullptr)
+				if (stone->GetIsCollision())
 				{
-					int player_hp = player->GetHP();
-					if (player_hp > 0)
-						player->Hit();
+					stone->SetIsCollision(false);
+					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+					const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+					if (player != nullptr)
+					{
+						int player_hp = player->GetHP();
+						if (player_hp > 0)
+							player->Hit();
+					}
+					else
+					{
+						const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+						if (base != nullptr)
+						{
+							int base_hp = base->GetHP();
+							if (base_hp > 0)
+								base->SetHP(base_hp - 1);
+						}
+					}
 					LOG_INFO("面倒 何困 :" + other_component->GetName());
 					stone->SetActorState(eActorState::kDead);
+
 				}
-				else
-				{
-					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
-					if (base != nullptr)
-					{
-						int base_hp = base->GetHP();
-						if (base_hp > 0)
-							base->SetHP(base_hp - 1);
-						LOG_INFO("面倒 何困 :" + other_component->GetName());
-						stone->SetActorState(eActorState::kDead);
-					}
-				}
-				
 			});
 			SpawnActor(stone);
 		}
@@ -128,7 +130,7 @@ namespace revive
 			if (distance < 1700.f)
 			{
 				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-				m_player_position = other_actor->GetPosition();
+				m_target_position = other_actor->GetPosition();
 				if (player != nullptr)
 				{
 					if (player->GetIsDying() == false) Attack();

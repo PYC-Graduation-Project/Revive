@@ -31,6 +31,7 @@ namespace revive
 		bool m_is_attacking = false;
 
 		Vec3 mesh_rotate = vec3::ZERO;
+		Vec3 m_target_position = vec3::ZERO;
 
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<SphereComponent> m_blocking_sphere; //½Ì±Û

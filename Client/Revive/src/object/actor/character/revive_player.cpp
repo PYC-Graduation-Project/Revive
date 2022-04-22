@@ -22,7 +22,7 @@
 namespace revive
 {
 	DefaultPlayer::DefaultPlayer(const std::string& name)
-		:Actor(eMobilityState::kMovable,name)
+		:Pawn(name)
 	{
 		//m_movement_component = CreateSPtr<CharacterMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
@@ -189,18 +189,21 @@ namespace revive
 		bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component)
 		{
-			LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-			const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-			if (enemy != nullptr)
+			if (bullet->GetIsCollision())
 			{
-				int enemy_hp = enemy->GetHP();
-				if (enemy_hp > 0)
-					enemy->Hit();
+				bullet->SetIsCollision(false);
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+				if (enemy != nullptr)
+				{
+					int enemy_hp = enemy->GetHP();
+					if (enemy_hp > 0)
+						enemy->Hit();
 
-				LOG_INFO("충돌 부위 :" + other_component->GetName());
-				bullet->SetActorState(eActorState::kDead);
+					LOG_INFO("충돌 부위 :" + other_component->GetName());
+					bullet->SetActorState(eActorState::kDead);
+				}
 			}
-
 		});
 		SpawnActor(bullet);
 	}
@@ -213,70 +216,20 @@ namespace revive
 	}
 
 	RevivePlayer::RevivePlayer(const std::string& name)
-		: Pawn(name)
+		: DefaultPlayer(name)
 	{
 		m_camera_component = CreateSPtr<RenderCameraComponent>("Follow Camera");
 		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
 		m_movement_component = CreateSPtr<CharacterMovementComponent>();
-		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
-		m_hit_box = CreateSPtr<BoxComponent>();
-		m_player_fsm = CreateSPtr<PlayerFSM>();
-		m_mesh_path = "Contents/violet.rev";
-		for (auto& weapon : m_weapon)
-		{
-			weapon = CreateSPtr<Pistol>();
-			SpawnActor(weapon);
-			weapon->SetScale(0.2f);
-		}
 	}
 
 	bool RevivePlayer::Initialize()
 	{
-		bool ret = Pawn::Initialize();
-
-		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
-		ret &= AttachComponent(m_skeletal_mesh_component);
-
-		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
-		m_skeletal_mesh_component->SetLocalScale(0.01f);
-
-		m_skeletal_mesh_component->AddNotify("Attack End", "attack", 18,
-			[this]() { m_is_attacking = false; /*LOG_INFO(m_is_attacking);*/ });
-		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
-			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
+		bool ret = DefaultPlayer::Initialize();
 
 		ret &= AttachComponent(m_movement_component);
 		m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)
 		m_movement_component->UseOrientRotationToMovement(true);
-
-		std::array<std::string, 2> weapon_names = { "left", "right" };
-		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
-		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{-80.f,20.f,0.f} };
-		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{90.f,90.f,-55.f} };
-
-		for (int i = 0; i < 2; ++i)
-		{
-			m_weapon[i]->SetName(m_weapon[i]->GetName() + weapon_names[i]);
-			m_weapon[i]->SetAttachedActor(shared_from_this(), m_skeletal_mesh_component);
-			m_weapon[i]->SetSocketName(socket_names[i]);
-			m_weapon[i]->SetPositionOffset(pos_offset[i]);
-			m_weapon[i]->SetRotationOffset(rot_offset[i]);
-		}
-
-		m_player_fsm->Initialize(SharedFromThis());
-
-		//Hit Box
-		m_hit_box->SetExtents(Vec3{ 40.f,80.f,40.f });
-		m_hit_box->SetLocalPosition(Vec3{ 0.0f,80.f,0.f });
-		m_hit_box->SetName("hit box");
-		m_hit_box->SetCollisionInfo(true, false, "player hit", { "enemy agro","stone","axe" }, false);
-		ret &= AttachComponent(m_hit_box);
-
-		SetScale(0.5f);
-		//Notify 기능을 사용할 애니메이션을 미리 등록한다 
-		//Notify 이름,애니메이션 이름, 특정 키프레임, 특정 시간에 실행할 함수
-		//Notify 이름을 언리얼처럼 넣어주긴 했으나, 정작 사용하지는 않고 있다.
-		
 
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
@@ -308,22 +261,15 @@ namespace revive
 
 	void RevivePlayer::Update(float delta_time)
 	{
-		Pawn::Update(delta_time);
-		m_player_fsm->Update();
-		//FixYPosition();
+		DefaultPlayer::Update(delta_time);
 	}
 
 	void RevivePlayer::Shutdown()
 	{
-		Pawn::Shutdown();
+		DefaultPlayer::Shutdown();
 		m_movement_component = nullptr;
 		m_blocking_sphere = nullptr;
 		m_camera_component = nullptr;
-		m_skeletal_mesh_component = nullptr;
-		m_player_fsm->Shutdown();
-		m_player_fsm = nullptr;
-		for (auto& weapon : m_weapon)
-			weapon = nullptr;
 	}
 
 	void RevivePlayer::RegisterEvent()
@@ -359,32 +305,6 @@ namespace revive
 		return m_movement_component->GetVelocity().Length();
 	}
 
-	void RevivePlayer::SetAnimation(const std::string& animation_name, bool looping)
-	{
-		m_skeletal_mesh_component->SetAnimation(animation_name, looping);
-	}
-
-	void RevivePlayer::SetMeshPosition(const Vec3& pos)
-	{
-		m_skeletal_mesh_component->SetLocalPosition(pos);
-	}
-
-	void RevivePlayer::SetAnimationSpeed(float speed)
-	{
-		m_skeletal_mesh_component->SetAnimationSpeed(speed);
-	}
-
-	Quaternion RevivePlayer::FindLookAtRotation(const Vec3& start, const Vec3& target)
-	{
-		Vec3 direction = start - target;
-		direction.Normalize();
-		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
-		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
-			angle = -angle;
-		Vec3 rotate_player = Vec3{ 0.f,math::ToDegrees(angle),0.f };
-		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));
-	}
-
 	void RevivePlayer::AddMovementInput(const Vec3& direction, float scale)
 	{
 		m_movement_component->AddInputVector(Vec3{ direction.x,0.0f,direction.z } * scale);
@@ -405,16 +325,19 @@ namespace revive
 		bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component)
 		{
-			LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-			const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-			if (enemy != nullptr)
+			if (bullet->GetIsCollision())
 			{
-				int enemy_hp = enemy->GetHP();
-				if (enemy_hp > 0)
-					enemy->Hit();
+				bullet->SetIsCollision(false); LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+				if (enemy != nullptr)
+				{
+					int enemy_hp = enemy->GetHP();
+					if (enemy_hp > 0)
+						enemy->Hit();
 
-				LOG_INFO("충돌 부위 :" + other_component->GetName());
-				bullet->SetActorState(eActorState::kDead);
+					LOG_INFO("충돌 부위 :" + other_component->GetName());
+					bullet->SetActorState(eActorState::kDead);
+				}
 			}
 
 		});

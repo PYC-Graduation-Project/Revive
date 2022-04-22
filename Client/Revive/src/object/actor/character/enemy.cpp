@@ -76,8 +76,8 @@ namespace revive
 		
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
-			//옆으로걷기 -> 회전넣기
-			SetRotation(FindLookAtRotation(GetPosition(), msg->GetObjPosition()));
+			//옆으로걷기 -> 회전넣기 충돌 시 회전하면 클라가 터짐
+			//SetRotation(FindLookAtRotation(GetPosition(), msg->GetObjPosition()));
 			//msg->m_move_lock.lock();
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
@@ -113,6 +113,7 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
 			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
+			m_target_position = msg->GetTargetPosition();
 			Attack();
 			break;
 		}

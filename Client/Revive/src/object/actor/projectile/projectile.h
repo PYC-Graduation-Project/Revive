@@ -30,6 +30,8 @@ namespace revive
 		SPtr<StaticMeshComponent> m_static_mesh_component;
 		SPtr<ProjectileMovementComponent> m_projectile_movement_component;
 
+		bool m_is_collision = true;
+
 		//액터의 수명 0.0f == 죽지 않음, 
 		//이 값은 런타임에 수정되면 안된다.
 		float m_life_span = 0.0f;
@@ -42,6 +44,7 @@ namespace revive
 	public:
 		//투사체의 Velocity를 설정한다. 크기는 InitialSpeed값에 덮어 씌워진다.
 		//따라서 방향을 결정하는데 쓰인다고 보면됨.
+		void SetIsCollision(const bool value) { m_is_collision = value; }
 		void SetVelocity(const Vec3& velocity);
 		void SetCollisionInfo(bool is_collision, std::string&& collision_type, std::set<std::string>&& collisionable_types, bool genrate_collision_event);
 		void SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
@@ -49,6 +52,6 @@ namespace revive
 		void SetBlockingSphereRadius(float radius);
 
 		const float GetSphereRadius() const;
-
+		const bool GetIsCollision() const { return m_is_collision; }
 	};
 }
