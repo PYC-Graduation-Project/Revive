@@ -1,6 +1,7 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
 #include <client/object/level/core/level_manager.h>
+#include <client/object/level/core/level_loader.h>
 #include <client/event/packetevent/packet_helper.h>
 #include <client/event/messageevent/message_helper.h>
 #include "revive_server/message/message_event_info.h"
@@ -12,10 +13,9 @@ std::string g_pw;
 
 namespace revive
 {
-	LobbyLevel::LobbyLevel(const std::function<void()>& func)
+	LobbyLevel::LobbyLevel()
 		:Level("lobby level")
 	{
-		m_open_level = func;
 	}
 	bool LobbyLevel::Initialize()
 	{
@@ -64,8 +64,7 @@ namespace revive
 		case HashCode("match"):
 		{
 			auto msg = std::static_pointer_cast<MatchingMessageOKEventInfo>(message);
-			m_open_level();
-			//LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
 			break;
 		}
 		}

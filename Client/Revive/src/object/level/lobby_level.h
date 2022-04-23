@@ -8,7 +8,7 @@ namespace revive
 	class LobbyLevel final : public Level
 	{
 	public:
-		LobbyLevel(const std::function<void()>& func);
+		LobbyLevel();
 		virtual ~LobbyLevel() = default;
 
 
@@ -18,7 +18,5 @@ namespace revive
 		virtual void Update(float delta_time) override;
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
-	private:
-		std::function<void()> m_open_level;
 	};
 }
