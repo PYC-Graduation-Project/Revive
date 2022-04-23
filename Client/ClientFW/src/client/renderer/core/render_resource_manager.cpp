@@ -105,7 +105,7 @@ namespace client_fw
 			}
 			case eTextureType::kShadow:
 			{
-				m_ready_shadow_textures.push_back(std::static_pointer_cast<ShadowTexture>(texture));
+				m_ready_shadow_textures.push_back(std::static_pointer_cast<Shadow2DTexture>(texture));
 				break;
 			}
 			case eTextureType::kShadowCubeMap:

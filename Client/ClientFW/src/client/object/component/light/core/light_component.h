@@ -35,7 +35,7 @@ namespace client_fw
 		void SetLightManagerRegisteredIndex(UINT index) { m_light_manager_registered_index = index; }
 
 	protected:
-		INT m_shadow_texture_size = 1000;
+		INT m_shadow_texture_size = 1024;
 
 	public:
 		// 초기화 과정이 아닌 Runtime에 호출을 하면 작동하지 않는다.

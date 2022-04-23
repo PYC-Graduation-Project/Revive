@@ -166,8 +166,8 @@ namespace client_fw
 					UnregisterSceneComp(tree_node.lock()->movable_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
 				else
 					UnregisterSceneComp(tree_node.lock()->static_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
-				scene_comp->ResetCollisionTreeNode();
 			}
+			scene_comp->ResetCollisionTreeNode();
 		}
 	}
 

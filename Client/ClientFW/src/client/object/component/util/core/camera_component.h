@@ -38,6 +38,7 @@ namespace client_fw
 	public:
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
+		virtual void Update(float delta_time) override;
 
 		virtual void UpdateWorldMatrix() override;
 		virtual void UpdateViewport(LONG left, LONG top, LONG width, LONG height);
@@ -81,10 +82,10 @@ namespace client_fw
 		const Mat4& GetViewProjectionMatrix() const { return m_view_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;
 		Mat4 GetOrthoMatrix() const;
-		void SetAspectRatio(float aspect_ratio) { m_aspect_ratio = aspect_ratio; }
-		void SetFieldOfView(float fov) { m_field_of_view = fov; }
-		void SetNearZ(float near_z) { m_near_z = near_z; }
-		void SetFarZ(float far_z) { m_far_z = far_z; }
+		void SetAspectRatio(float aspect_ratio); 
+		void SetFieldOfView(float fov);
+		void SetNearZ(float near_z);
+		void SetFarZ(float far_z);
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
 
 	protected:

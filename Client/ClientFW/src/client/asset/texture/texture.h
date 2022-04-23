@@ -106,19 +106,20 @@ namespace client_fw
 
 	class ShadowTexture : public Texture
 	{
-	public:
-		ShadowTexture(const IVec2& size);
+	protected:
+		ShadowTexture(eTextureType type, const IVec2& size);
 		virtual ~ShadowTexture();
 
+	public:
 		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
 		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
 
 	private:
-		bool CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual bool CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
+		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) = 0;
 
-	private:
+	protected:
 		IVec2 m_texture_size;
 		ComPtr<ID3D12DescriptorHeap> m_dsv_descriptor_heap;
 		D3D12_CPU_DESCRIPTOR_HANDLE m_dsv_cpu_handle;
@@ -127,27 +128,24 @@ namespace client_fw
 		const IVec2& GetTextureSize() const { return m_texture_size; }
 	};
 
-	class ShadowCubeTexture : public Texture
+	class Shadow2DTexture : public ShadowTexture
+	{
+	public:
+		Shadow2DTexture(const IVec2& size);
+		virtual ~Shadow2DTexture();
+
+	private:
+		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+	};
+
+	class ShadowCubeTexture : public ShadowTexture
 	{
 	public:
 		ShadowCubeTexture(const IVec2& size);
 		virtual ~ShadowCubeTexture();
 
-		virtual bool Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
-		virtual void PreDraw(ID3D12GraphicsCommandList* command_list);
-		virtual void PostDraw(ID3D12GraphicsCommandList* command_list);
-
 	private:
-		bool CreateDescriptorHeaps(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-		void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list);
-
-	private:
-		IVec2 m_texture_size;
-		ComPtr<ID3D12DescriptorHeap> m_dsv_descriptor_heap;
-		D3D12_CPU_DESCRIPTOR_HANDLE m_dsv_cpu_handle;
-
-	public:
-		const IVec2& GetTextureSize() const { return m_texture_size; }
+		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 	};
 
 	// Text를 저장하기 위한 Texture이다.
