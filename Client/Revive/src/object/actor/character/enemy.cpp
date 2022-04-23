@@ -77,7 +77,10 @@ namespace revive
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 			//옆으로걷기 -> 회전넣기 충돌 시 회전하면 클라가 터짐
-			//SetRotation(FindLookAtRotation(GetPosition(), msg->GetObjPosition()));
+			auto rot = FindLookAtRotation(GetPosition(), msg->GetObjPosition());
+			LOG_INFO(rot);
+			if (false == isnan(rot.x) && false == isnan(rot.y) && false == isnan(rot.z) && false == isnan(rot.w))
+				SetRotation(rot);
 			//msg->m_move_lock.lock();
 			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
 			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
@@ -137,7 +140,8 @@ namespace revive
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
 		Vec3 rotate_player = mesh_rotate + Vec3{ 0.f,math::ToDegrees(angle),0.f };
-		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y),math::ToRadian(rotate_player.z));
+
+		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));
 	}
 
 	void Enemy::Attack()
