@@ -26,6 +26,7 @@ namespace client_fw
 	protected:
 		virtual void UpdateOrientedBox();
 		void RegisterToCollisionOctree();
+		void ReregisterToCollisionOctree();
 		void UnregisterToCollsionOctree();
 
 	protected:
@@ -65,6 +66,10 @@ namespace client_fw
 			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp);
 
 	public:
+		//
+		//  ↓ 사용자용 함수 O
+		//
+
 		const Mat4& GetWorldMatrix() const { return m_world_matrix; }
 		const Vec3& GetWorldPosition() const { return m_world_position; }
 		const Vec3& GetWorldPreviousPosition() const { return m_world_previous_position; }
@@ -90,14 +95,23 @@ namespace client_fw
 		const SPtr<BOrientedBox>& GetOrientedBox() const { return m_oriented_box; }
 
 		const UPtr<Collisioner>& GetCollisioner() const;
-		void SetCollisionInfo(std::string&& collision_type,
-			std::set<std::string>&& collisionable_types, bool generate_collision_event = true);
+		//SetCollision 관련 함수는 Actor에 AttachComponent함수를 호출한 후에 불러주세요.
+		//Collision 변경 런타임 안전한 코드들
+		void SetNoCollision();
+		void SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collsion_event);
+		//Collision 변경 런타임 안전하지 않은 코드들
 		void SetCollisionInfo(bool is_collision, bool is_blocking, std::string&& collision_type,
 			std::set<std::string>&& collisionable_types, bool generate_collision_event);
 
 		bool IsPhysics() const { return m_is_physics; }
 		// 물리 기능을 설정합니다. (중력)
 		void SetPhysics(bool value);
+
+		
+	public:
+		//
+		//  ↓ 사용자용 함수 X
+		//
 
 		// 충돌에 필요한 Octree에서 어떤 Node에 있는지 추가하는 함수입니다.
 		// 삭제 시 빠르게 삭제하기 위한 기능입니다. 사용자가 따로 호출할 필요는 없는 함수입니다. 

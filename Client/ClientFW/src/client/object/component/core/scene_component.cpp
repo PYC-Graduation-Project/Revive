@@ -61,7 +61,7 @@ namespace client_fw
 
 			m_is_updated_world_matrix = true;
 
-			RegisterToCollisionOctree();
+			ReregisterToCollisionOctree();
 		}
 	}
 
@@ -84,18 +84,30 @@ namespace client_fw
 
 	void SceneComponent::RegisterToCollisionOctree()
 	{
+		if (m_collisioner != nullptr && m_owner.expired() == false)
+		{
+			const auto& info = m_collisioner->GetCollisionInfo();
+			if (info.is_collision == true && info.collisionable_types.empty() == false)
+				CollisionOctreeManager::GetOctreeManager().RegisterSceneComponent(shared_from_this());
+		}
+	}
+
+	void SceneComponent::ReregisterToCollisionOctree()
+	{
 		if (m_collisioner != nullptr)
 		{
-			if (m_collisioner->GetCollisionInfo().is_collision == true)
+			const auto& info = m_collisioner->GetCollisionInfo();
+			if (info.is_collision == true && info.collisionable_types.empty() == false)
 				CollisionOctreeManager::GetOctreeManager().ReregisterSceneComponent(shared_from_this());
 		}
 	}
 
 	void SceneComponent::UnregisterToCollsionOctree()
 	{
-		if (m_collisioner != nullptr)
+		if (m_collisioner != nullptr && m_owner.expired() == false)
 		{
-			if (m_collisioner->GetCollisionInfo().is_collision == true)
+			const auto& info = m_collisioner->GetCollisionInfo();
+			if (info.collisionable_types.empty() == false)
 				CollisionOctreeManager::GetOctreeManager().UnregisterSceneComponent(shared_from_this());
 		}
 	}
@@ -144,19 +156,52 @@ namespace client_fw
 		return m_collisioner;
 	}
 
-	void SceneComponent::SetCollisionInfo(std::string&& collision_type, 
-		std::set<std::string>&& collisionable_types, bool generate_collision_event)
+	void SceneComponent::SetNoCollision()
 	{
 		if (m_collisioner != nullptr)
-			m_collisioner->SetCollisionInfo(std::move(collision_type), std::move(collisionable_types), generate_collision_event);
+		{
+			CollisionInfo info = m_collisioner->GetCollisionInfo();
+			info.is_collision = false;
+			m_collisioner->SetCollisionInfo(std::move(info));
+
+			UnregisterToCollsionOctree();
+		}
+	}
+
+	void SceneComponent::SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collsion_event)
+	{
+		if (m_collisioner != nullptr)
+		{
+			CollisionInfo info = m_collisioner->GetCollisionInfo();
+			info.is_collision = is_collision;
+			info.is_blocking = is_blocking;
+			info.generate_collision_event = generate_collsion_event;
+			m_collisioner->SetCollisionInfo(std::move(info));
+
+			if (is_collision)
+				RegisterToCollisionOctree();
+			else
+				UnregisterToCollsionOctree();
+		}
 	}
 
 	void SceneComponent::SetCollisionInfo(bool is_collision, bool is_blocking,
 		std::string&& collision_type, std::set<std::string>&& collisionable_types, bool generate_collision_event)
 	{
 		if (m_collisioner != nullptr)
+		{
+			if (collisionable_types.empty())
+				LOG_WARN("if collisionable_types empty, high possibility of errors during runtime. {0} - {1}",
+					GetOwner().lock()->GetName(), GetName());
+
 			m_collisioner->SetCollisionInfo(is_collision, is_blocking,
 				std::move(collision_type), std::move(collisionable_types), generate_collision_event);
+
+			if (is_collision)
+				RegisterToCollisionOctree();
+			else
+				UnregisterToCollsionOctree();
+		}
 	}
 
 	void SceneComponent::SetPhysics(bool value)

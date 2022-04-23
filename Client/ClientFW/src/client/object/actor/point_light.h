@@ -23,6 +23,10 @@ namespace client_fw
         void SetLightColor(const Vec3& color);
         float GetAttenuationRadius() const;
         void SetAttenuationRadius(float radius);
+
+    public:
+        //Point Light는 ~2048까지가 제한 그 이상은 자동으로 clamp합니다.
+        void SetShadowTextureSize(INT extent);
     };
 
 }
