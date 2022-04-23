@@ -22,20 +22,25 @@ namespace client_fw
 		UnregisterFromRenderSystem();
 	}
 
+	void CameraComponent::Update(float delta_time)
+	{
+		if (m_is_updated_viewport)
+		{
+			SetAspectRatio(static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height));
+			UpdateProjectionMatrix();
+
+			m_view_projection_matrix = m_view_matrix * m_projection_matrix;
+
+			m_is_updated_viewport = false;
+		}
+	}
+
 	void CameraComponent::UpdateWorldMatrix()
 	{
 		SceneComponent::UpdateWorldMatrix();
 
 		UpdateViewMatrix();
-
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
-
-		if (m_is_updated_viewport)
-		{
-			SetAspectRatio(static_cast<float>(m_viewport.width) / static_cast<float>(m_viewport.height));
-			UpdateProjectionMatrix();
-			m_is_updated_viewport = false;
-		}
 
 		m_view_projection_matrix = m_view_matrix * m_projection_matrix;
 
@@ -49,7 +54,6 @@ namespace client_fw
 		m_viewport.top = top;
 		m_viewport.height = height;
 		m_is_updated_viewport = true;
-		UpdateWorldMatrix();
 	}
 
 	void CameraComponent::UpdateViewMatrix()
@@ -75,6 +79,7 @@ namespace client_fw
 			break;
 		}
 		m_bf_projection = BFrustum(m_projection_matrix);
+		m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
 	}
 
 	bool CameraComponent::RegisterToRenderSystem()
@@ -102,6 +107,30 @@ namespace client_fw
 			static_cast<float>(m_viewport.left + m_viewport.width),
 			static_cast<float>(m_viewport.top + m_viewport.height),
 			static_cast<float>(m_viewport.top), m_near_z, m_far_z);
+	}
+
+	void CameraComponent::SetAspectRatio(float aspect_ratio)
+	{
+		m_aspect_ratio = aspect_ratio;
+		m_is_updated_viewport = true;
+	}
+
+	void CameraComponent::SetFieldOfView(float fov)
+	{
+		m_field_of_view = fov;
+		m_is_updated_viewport = true;
+	}
+
+	void CameraComponent::SetNearZ(float near_z)
+	{
+		m_near_z = near_z;
+		m_is_updated_viewport = true;
+	}
+
+	void CameraComponent::SetFarZ(float far_z)
+	{
+		m_far_z = far_z;
+		m_is_updated_viewport = true;
 	}
 
 	SPtr<CameraComponent> CameraComponent::SharedFromThis()

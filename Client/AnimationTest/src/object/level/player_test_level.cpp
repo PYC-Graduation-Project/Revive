@@ -33,7 +33,7 @@ namespace anim_test
 		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
 		skel_run->SetScale(1.f);
 		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
-		skel_run->SetWeapon("../Contents/Cube.obj");
+		skel_run->SetWeapon("../Contents/Cube.obj","mount0");
 		//skel_run->SetWeaponOffset(Vec3{50.f,-10.f,0.f});
 		
 

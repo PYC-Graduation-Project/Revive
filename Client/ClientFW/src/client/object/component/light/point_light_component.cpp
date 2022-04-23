@@ -71,7 +71,7 @@ namespace client_fw
 
 	void PointLightComponent::UpdateShadowTextureSize()
 	{
-		INT extent = std::clamp(m_shadow_texture_size, 0, 2000);
+		INT extent = std::clamp(m_shadow_texture_size, 0, 2048);
 		m_shadow_cube_camera->SetViewport(Viewport{ 0, 0, extent, extent });
 	}
 

@@ -103,6 +103,8 @@ namespace client_fw
 	{
 	public:
 		BFrustum(Mat4 mat = mat4::IDENTITY);
+
+		std::array<Vec3, 8> GetCorners() const;
 	};
 
 	class BSphere : public Bounding<BoundingSphere>

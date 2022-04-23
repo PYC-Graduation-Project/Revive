@@ -10,15 +10,6 @@ namespace client_fw
 	{
 	}
 
-	void Collisioner::SetCollisionInfo(std::string&& collision_type, 
-		std::set<std::string>&& collisionable_types, bool generate_collision_event)
-	{
-		m_collision_info.is_collision = true;
-		m_collision_info.collision_type = std::move(collision_type);
-		m_collision_info.collisionable_types = std::move(collisionable_types);
-		m_collision_info.generate_collision_event = generate_collision_event;
-	}
-
 	void Collisioner::SetCollisionInfo(bool is_collision, bool is_blocking,
 		std::string&& collision_type, std::set<std::string>&& collisionable_types, bool generate_collision_event)
 	{

@@ -37,7 +37,7 @@ namespace revive
 		Vec3 m_position_offset = vec3::ZERO;
 		Vec3 m_rotation_offset = vec3::ZERO;
 
-		void const GetSocketMatrix(Mat4& out_matrix);
+		//void const GetSocketMatrix(Mat4& out_matrix);
 	public:
 		void SetPositionOffset(const Vec3& position_offset) { m_position_offset = position_offset; }
 		void SetRotationOffset(const Vec3& rotation_offset) { m_rotation_offset = rotation_offset; }

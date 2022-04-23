@@ -78,7 +78,6 @@ namespace revive
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 			//옆으로걷기 -> 회전넣기 충돌 시 회전하면 클라가 터짐
 			auto rot = FindLookAtRotation(GetPosition(), msg->GetObjPosition());
-			LOG_INFO(rot);
 			if (false == isnan(rot.x) && false == isnan(rot.y) && false == isnan(rot.z) && false == isnan(rot.w))
 				SetRotation(rot);
 			//msg->m_move_lock.lock();

@@ -18,7 +18,7 @@ namespace client_fw
 	class ExternalTexture;
 	class ExternalCubeMapTexture;
 	class RenderTexture;
-	class ShadowTexture;
+	class Shadow2DTexture;
 	class ShadowCubeTexture;
 	class RenderTextTexture;
 	enum class eTextureType;
@@ -61,7 +61,7 @@ namespace client_fw
 		std::vector<SPtr<Primitive>> m_ready_primitives;
 		std::vector<SPtr<ExternalTexture>> m_ready_external_textures;
 		std::vector<SPtr<RenderTexture>> m_ready_render_textures;
-		std::vector<SPtr<ShadowTexture>> m_ready_shadow_textures;
+		std::vector<SPtr<Shadow2DTexture>> m_ready_shadow_textures;
 		std::vector<SPtr<ShadowCubeTexture>> m_ready_shadow_cube_textures;
 		std::vector<SPtr<RenderTextTexture>> m_ready_render_text_textures;
 		std::vector<SPtr<ExternalCubeMapTexture>> m_ready_external_cube_map_textures;

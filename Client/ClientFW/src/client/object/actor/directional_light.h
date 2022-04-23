@@ -21,8 +21,6 @@ namespace client_fw
 	public:
 		const Vec3& GetLightColor() const;
 		void SetLightColor(const Vec3& color);
-		const Vec3& GetLightDirection() const;
-		void SetLightDirection(const Vec3& direction);
 	};
 }
 
