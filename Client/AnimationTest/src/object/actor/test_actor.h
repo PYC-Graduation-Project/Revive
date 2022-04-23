@@ -23,10 +23,12 @@ namespace anim_test
 
 		void SetAnimation(const std::string& animation_name);
 
-		void SetWeapon(const std::string& mesh_path);
+		void SetWeapon(const std::string& mesh_path,const std::string& socket_name);
 		void SetWeaponOffset(const Vec3& offset);
 	protected:
+		bool m_is_eqquiped = false;
 		std::string m_mesh_path;
+		std::string m_socket_name;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<StaticMeshComponent> m_static_mesh_component;
 

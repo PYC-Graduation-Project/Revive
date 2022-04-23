@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/asset/animation/animation_sequence.h"
 #include "client/object/component/mesh/skeletal_mesh_component.h"
+#include "client/object/actor/core/actor.h"
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 
@@ -73,16 +74,29 @@ namespace client_fw
 
 	const Vec3 SkeletalMeshComponent::GetSocketWorldPosition(const std::string& socket_name)
 	{
-		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
-		const auto& socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
-
-		return Vec3{socket_matrix._41,socket_matrix._42,socket_matrix._43};
+		const auto& socket_world_matrix = GetSocketWorldMatrix(socket_name);
+		return Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43};
 	}
 
-	const Mat4& SkeletalMeshComponent::GetSocketWorldMatrix(const std::string& socket_name)
+	const Mat4 SkeletalMeshComponent::GetSocketWorldMatrix(const std::string& socket_name)
 	{
 		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
-		return GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
+		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
+		Mat4 mesh_matrix = mat4::CreateScale(GetScale());
+		mesh_matrix *= mat4::CreateRotationFromQuaternion(GetLocalRotation());
+		mesh_matrix *= mat4::CreateTranslation(GetLocalPosition());
+		//socket_matrix *= m_owner.lock()->GetWorldMatrix();
+		return socket_matrix * mesh_matrix * m_owner.lock()->GetWorldMatrix();
+	}
+
+	const Quaternion SkeletalMeshComponent::GetSocketWorldRotation(const std::string& socket_name)
+	{
+		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
+		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
+		Quaternion socket_rotation;
+		XMStoreFloat4(&socket_rotation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_matrix)));
+
+		return socket_rotation * GetLocalRotation() * m_owner.lock()->GetRotation();
 	}
 
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()
