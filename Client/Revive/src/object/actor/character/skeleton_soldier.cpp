@@ -49,11 +49,10 @@ namespace revive
 		{
 			m_is_fire = true;
 			const auto& stone = CreateSPtr<Stone>();
-			stone->SetMeshLocalPosition(m_skeletal_mesh_component->GetSocketWorldPosition("mount0"));
-			stone->SetPosition(GetPosition());
+			stone->SetPosition(m_skeletal_mesh_component->GetSocketWorldPosition("mount0"));
 			stone->SetRotation(m_skeletal_mesh_component->GetLocalRotation() * GetRotation());
 			stone->SetBlockingSphereRadius(10.f);
-			Vec3 direction = vec3::Normalize(m_player_position - stone->GetPosition());
+			Vec3 direction = vec3::Normalize(m_player_position + Vec3{0.f,100.f,0.f} - stone->GetPosition());//플레이어 위치조정 필요
 			stone->SetVelocity(direction);
 			stone->SetCollisionInfo(true, "stone", { "player hit","base"}, true);
 			stone->SetOnCollisionResponse([stone](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
