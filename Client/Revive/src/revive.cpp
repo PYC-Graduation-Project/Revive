@@ -4,6 +4,7 @@
 
 #include <client/asset/mesh/mesh_loader.h>
 #include "object/level/game_play_level.h"
+#include "object/level/lobby_level.h"
 #include"server/network.h"
 #include"revive_server/send/revive_send_manager.h"
 #include"revive_server/packet/revive_packet_manager.h"
@@ -37,9 +38,12 @@ namespace revive
 					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
 				RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
 					[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
-				RegisterPressedEvent("open render rect level", { {eKey::k1} },
-					[this]()->bool {OpenLevel(CreateSPtr<GamePlayLevel>());  return true; });
-
+				
+				RegisterPressedEvent("open lobby level", { {eKey::k1} },
+					[this]()->bool {OpenLevel(CreateSPtr<LobbyLevel>());  return true; });
+				RegisterPressedEvent("open game play level", { {eKey::k2} },
+					[this]()->bool { OpenLevel(CreateSPtr<GamePlayLevel>()); 
+			      return true; });
 			}
 
 			return result;

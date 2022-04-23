@@ -69,7 +69,10 @@ namespace revive
 					{
 						int player_hp = player->GetHP();
 						if (player_hp > 0)
+						{
+							//플레이어 피격했다고 서버에 알리기
 							player->Hit();
+						}
 					}
 					else
 					{
@@ -78,7 +81,10 @@ namespace revive
 						{
 							int base_hp = base->GetHP();
 							if (base_hp > 0)
+							{
+								//기지 피격했다고 서버에 알리기
 								base->SetHP(base_hp - 1);
+							}
 						}
 					}
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
