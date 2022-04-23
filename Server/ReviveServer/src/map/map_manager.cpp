@@ -205,8 +205,8 @@ bool MapManager::CheckCollision(BoxCollision& obj_collision)
 	for (auto& map_obj : m_map_objects)
 	{
 		if (map_obj.GetIsBlocked() == false)continue;
-		if (CollisionChecker::CheckCollisions(obj_collision,
-			BoxCollision(map_obj.GetPos(), map_obj.GetExtent())))return true;
+		if (CollisionChecker::CheckCollisions(obj_collision,BoxCollision(map_obj.GetPos(), map_obj.GetExtent())
+			))return true;
 		
 	}
 	return false;

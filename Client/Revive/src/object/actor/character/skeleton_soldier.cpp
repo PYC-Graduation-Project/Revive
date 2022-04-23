@@ -61,6 +61,7 @@ namespace revive
 			{
 				if (stone->GetIsCollision())
 				{
+					//이게 피격
 					stone->SetIsCollision(false);
 					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 					const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);

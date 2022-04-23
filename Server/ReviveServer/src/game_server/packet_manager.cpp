@@ -217,7 +217,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendObjInfo(pl, en);
 		}
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 	}
 		
 		
@@ -267,9 +267,14 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		if (true == m_map_manager->CheckCollision(enemy->GetCollision()))
 		{
 			unique_ptr<Astar>astar = make_unique<Astar>();
-			bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(), base_pos, enemy->GetCollision());//나중에는 타겟포즈로 넣어주기
-			astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
-			//cout << endl;
+			 //astar_ret = true;
+			if (enemy->GetTargetId() != -1) {
+				bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(),
+					MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos(), enemy->GetCollision());
+				astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
+				cout << endl;
+			}
+			cout << "콜리전은 OK" << endl;
 		}
 		
 	}

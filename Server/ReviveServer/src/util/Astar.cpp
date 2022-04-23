@@ -10,10 +10,14 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 {
 	Vec2 src= Vec2((ROW - 1) / 2, (COL - 1) / 2);
 	Vec2 dst=GetDestination(src,start_pos,dst_pos);
-	if (false == IsInRange(dst))return false;
+	if (false == IsInRange(dst)) {
+		cout << "dst x"<<dst.second<< "dst z"<<dst.first << endl;
+		cout << "범위 밖" << endl;
+		return false;
+	};
 	if (true == IsBlocked(map_objects, dst, collision))
 	{
-		//cout << "막힌곳" << endl;
+		cout << "막힌곳" << endl;
 		return false;
 	}
 
@@ -64,7 +68,7 @@ bool Astar::SearchAllPath(const vector<MapObj>& map_objects, const Vector3& star
 		}
 
 	}
-
+	cout << "여기온다" << endl;
 	return false;
 }
 
@@ -135,7 +139,7 @@ bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const 
 
 		if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType())
 		{
-
+			continue;
 			if (CollisionChecker::CheckInRange(test_collision.GetMinPos().x, test_collision.GetMinPos().z,
 				map_obj.GetMinPos(), map_obj.GetMaxPos())) {
 				check_set.set(0);
@@ -154,7 +158,7 @@ bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const 
 			}
 		}
 	}
-	if (check_set.all() == false)return true;
+	if (check_set.all() == false) { cout << "응 밖이야" << endl; return true; }
 		//else if (OBJ_TYPE::OT_BASE == map_obj.GetType())
 		//{
 		//	if (abs(map_obj.GetPosX() - x) <= 10.0f && abs(map_obj.GetPosZ() - z) <= 10.0f)
@@ -166,8 +170,7 @@ bool Astar::IsBlocked(const vector<MapObj>& map_objects, const Vec2& dst, const 
 	{
 		if (OBJ_TYPE::OT_SPAWN_AREA == map_obj.GetType())continue;
 		if (OBJ_TYPE::OT_ACTIViTY_AREA == map_obj.GetType())continue;
-		if (CollisionChecker::CheckCollisions(test_collision,
-			BoxCollision(map_obj.GetPos(),map_obj.GetExtent())))return true;
+		if (CollisionChecker::CheckCollisions(test_collision,BoxCollision(map_obj.GetPos(),map_obj.GetExtent()) ) )return true;
 	}
 		
 	
@@ -254,11 +257,11 @@ void Astar::TracePath(MapTile tile_map[36][16], Node& now, Vec2 src, Vec2 dst)
 Vec2 Astar::GetDestination(const Vec2&astar_src,const Vector3& src, const Vector3& dst)
 {
 	Vec2 destination;
-	m_zero_position=Vector3{ src.x - REAL_DISTANCE * astar_src.first,0.0f,src.z - REAL_DISTANCE * astar_src.second };
+	m_zero_position=Vector3{ src.x - REAL_DISTANCE * astar_src.second,0.0f,src.z - REAL_DISTANCE * astar_src.first };
 	Vector3 dst_position{ (dst.x - m_zero_position.x) / REAL_DISTANCE,0.0f,(dst.z - m_zero_position.z) / REAL_DISTANCE };
 	destination.first = round(dst_position.z);
 	destination.second = round(dst_position.x);
-	if (destination.first > 40)destination.first = 40;
-	if (destination.second > 40)destination.second = 40;
+	//if (destination.first > 40)destination.first = 40;
+	//if (destination.second > 40)destination.second = 40;
 	return destination;
 }
