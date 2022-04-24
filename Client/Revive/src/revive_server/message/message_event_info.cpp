@@ -16,7 +16,12 @@ namespace revive
 		strcpy_s(m_user_pw, pw);
 
 	}
-	
+
+	SignInMessageOkEventInfo::SignInMessageOkEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
+
 	ObjectInfoMessageEventInfo::ObjectInfoMessageEventInfo(UINT event_id, const SPtr<NetworkMoveObj>& other)
 		:MessageEventInfo(event_id),m_network_object(other)
 	{
@@ -50,8 +55,10 @@ namespace revive
 		:MessageEventInfo(event_id)
 	{
 	}
+
 	ObjectHitMessageOKEventInfo::ObjectHitMessageOKEventInfo(UINT event_id, int victim_id)
 		: MessageEventInfo(event_id),m_victim_id(victim_id)
 	{
 	}
+
 }

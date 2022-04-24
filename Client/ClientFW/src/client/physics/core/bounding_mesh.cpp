@@ -84,6 +84,18 @@ namespace client_fw
 		BoundingFrustum::CreateFromMatrix(m_bounding, XMLoadFloat4x4(&mat));
 	}
 
+	std::array<Vec3, 8> BFrustum::GetCorners() const
+	{
+		XMFLOAT3 corners[8];
+		m_bounding.GetCorners(corners);
+
+		std::array<Vec3, 8> ret;
+		for (UINT i = 0; i < 8; ++i)
+			ret[i] = Vec3(corners[i]);
+
+		return ret;
+	}
+
 	BSphere::BSphere(Vec3 center, float radius)
 	{
 		SetCenter(center);

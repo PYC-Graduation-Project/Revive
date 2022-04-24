@@ -89,7 +89,7 @@ namespace client_fw
 		{
 			RSLightData light_data;
 			light_data.light_color = light->GetLightColor();
-			light_data.light_direction = light->GetDirection();
+			light_data.light_direction = light->GetWorldForward();
 			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));
 		}

@@ -26,8 +26,8 @@ namespace anim_test
 
 	void TestActor::Update(float delta_time)
 	{
-		m_static_mesh_component->SetLocalPosition(m_skeletal_mesh_component->GetSocketWorldPosition("mount1") + m_weapon_offset);
-		//LOG_INFO(m_skeletal_mesh_component->GetSocketWorldMatrix("mount1"));
+		if(m_is_eqquiped)
+			m_static_mesh_component->SetLocalPosition(m_skeletal_mesh_component->GetSocketWorldPosition(m_socket_name) + m_weapon_offset);
 	}
 
 	void TestActor::Shutdown()
@@ -41,11 +41,13 @@ namespace anim_test
 		m_skeletal_mesh_component->SetAnimation(animation_name);
 	}
 
-	void TestActor::SetWeapon(const std::string& mesh_path)
+	void TestActor::SetWeapon(const std::string& mesh_path, const std::string& socket_name)
 	{
 		//무기클래스에서 해줄것
 		m_static_mesh_component->SetMesh(mesh_path);
 		m_static_mesh_component->SetLocalScale(0.1f);
+		m_is_eqquiped = true;
+		m_socket_name = socket_name;
 	}
 	void TestActor::SetWeaponOffset(const Vec3& offset)
 	{

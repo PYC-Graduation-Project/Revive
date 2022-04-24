@@ -27,7 +27,7 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
 			[this]() { m_skeletal_mesh_component->SetAnimation("run");  });
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
-			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
+			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run");  m_weapon->SetIsCollision(false);/*공격 후에 재생할 애니메이션*/});
 		
 		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
 		m_weapon->SetSocketName("mount0");
@@ -147,6 +147,7 @@ namespace revive
 		if (m_is_attacking == false)
 		{
 			Enemy::Attack();
+			m_weapon->SetIsCollision(true);
 			//m_weapon_collision_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, true);//공격 시 켜준다.
 		}
 

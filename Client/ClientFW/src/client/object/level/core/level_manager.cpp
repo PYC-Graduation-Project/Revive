@@ -25,6 +25,7 @@ namespace client_fw
 			m_ready_level->ShutdownLevel();
 		if (m_cur_level != nullptr)
 			m_cur_level->ShutdownLevel();
+		m_octree_manager->UnregisterOctrees();
 		s_instance = nullptr;
 	}
 
@@ -32,8 +33,8 @@ namespace client_fw
 	{
 		if (m_dead_level != nullptr)
 		{
-			m_octree_manager->UnregisterOctrees();
 			m_dead_level->ShutdownLevel();
+			m_octree_manager->UnregisterOctrees();
 			m_dead_level = nullptr;
 		}
 

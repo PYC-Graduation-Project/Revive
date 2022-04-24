@@ -99,7 +99,7 @@ namespace client_fw
 			{
 				IVec2 size = IVec2(camera->GetViewport().width, camera->GetViewport().height);
 
-				camera->SetShadowTexture(CreateSPtr<ShadowTexture>(size));
+				camera->SetShadowTexture(CreateSPtr<Shadow2DTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetShadowTexture());
 
 				m_wait_resource_shadow_cameras.push_back(camera);
@@ -246,9 +246,15 @@ namespace client_fw
 	{
 		//Resize (Texture 재생성)가 지원하지 않는 이상 무의미한 코드
 		if (m_ready_main_camera != nullptr)
+		{
 			m_ready_main_camera->UpdateViewport(0, 0, width, height);
-		else if(m_main_camera != nullptr)
+			m_ready_main_camera->SetNearZ(10.0f);
+		}
+		else if (m_main_camera != nullptr)
+		{
 			m_main_camera->UpdateViewport(0, 0, width, height);
+			m_main_camera->SetNearZ(10.0f);
+		}
 	}
 
 	void CameraManager::Draw(ID3D12GraphicsCommandList* command_list,

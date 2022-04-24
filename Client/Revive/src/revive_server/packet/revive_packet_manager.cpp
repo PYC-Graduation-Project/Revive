@@ -55,7 +55,7 @@ void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)
 	sc_packet_sign_in_ok* packet = reinterpret_cast<sc_packet_sign_in_ok*>(p);
 	m_id = packet->id;
 	LOG_INFO("로그인 성공" );
-
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::SignInMessageOkEventInfo>(HashCode("sign in")));
 
 }
 

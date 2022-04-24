@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	class SimpleMovementComponent;
+	class CharacterMovementComponent;
 	class SkeletalMeshComponent;
 	class SphereComponent;
 	class BoxComponent;
@@ -27,7 +29,12 @@ namespace revive
 	protected:
 		int m_hp;
 		float m_disappear_time = 0.0f;
+
 		int m_network_id = 9999;
+
+		float m_time = 0.0f;
+
+
 		bool m_is_disappearing = false;
 		bool m_is_dead = false;
 		bool m_is_attacking = false;
@@ -35,6 +42,12 @@ namespace revive
 		Vec3 mesh_rotate = vec3::ZERO;
 		Vec3 m_target_position = vec3::ZERO;
 
+		Vec3 m_velocity;
+		Vec3 m_inter_velocity;
+		Vec3 m_next_pos;
+		Vec3 m_previous_pos;
+
+		SPtr<SimpleMovementComponent> m_simple_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<SphereComponent> m_blocking_sphere; //½Ì±Û
 		SPtr<BoxComponent> m_blocking_box; //¸ÖÆ¼

@@ -90,17 +90,25 @@ namespace client_fw
 		switch (level_type)
 		{
 		case client_fw::eRenderLevelType::kOpaque:
-		case client_fw::eRenderLevelType::kShadow:
-		case client_fw::eRenderLevelType::kShadowCube:
 		{
-			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(1);
-			input_element_descs.resize(5);
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(5);
 
 			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 			input_element_descs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 			input_element_descs[2] = { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 			input_element_descs[3] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 			input_element_descs[4] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+			return input_element_descs;
+		}
+		case client_fw::eRenderLevelType::kShadow:
+		case client_fw::eRenderLevelType::kShadowCube:
+		{
+			std::vector<D3D12_INPUT_ELEMENT_DESC> input_element_descs(3);
+
+			input_element_descs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[1] = { "BONEWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+			input_element_descs[2] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, 48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 			return input_element_descs;
 		}

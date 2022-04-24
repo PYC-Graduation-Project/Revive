@@ -23,6 +23,8 @@ namespace revive
 		virtual void Shutdown() override;
 
 	protected:
+		bool m_is_collision = false;
+
 		std::string m_mesh_path;
 		std::string m_socket_name;
 
@@ -35,12 +37,13 @@ namespace revive
 		Vec3 m_position_offset = vec3::ZERO;
 		Vec3 m_rotation_offset = vec3::ZERO;
 
-		void const GetSocketMatrix(Mat4& out_matrix);
+		//void const GetSocketMatrix(Mat4& out_matrix);
 	public:
 		void SetPositionOffset(const Vec3& position_offset) { m_position_offset = position_offset; }
 		void SetRotationOffset(const Vec3& rotation_offset) { m_rotation_offset = rotation_offset; }
 		void SetAttachedActor(const SPtr<Actor> actor, const SPtr<SkeletalMeshComponent> skeletal_mesh_component);
 		void SetSocketName(const std::string& socket_name) { m_socket_name = socket_name; }
+		void SetIsCollision(const bool value) { m_is_collision = value; }
 		//void SetSocket(const Mat4& socket_matrix, const Mat4& actor_matrix);
 	};
 }

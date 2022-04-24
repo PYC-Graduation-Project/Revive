@@ -191,6 +191,7 @@ void GSOpaqueMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout Tri
     {
         output.render_target_index = face;
         
+        [unroll]
         for (int i = 0; i < 3; ++i)
         {
             output.sv_position = mul(input[i], g_cube_view_projection[face]);

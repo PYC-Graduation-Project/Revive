@@ -18,6 +18,8 @@ namespace event_test
 
     private:
         bool m_is_box;
+        bool m_is_col = true;
+        float m_time = 0.0f;
     };
 
 }
