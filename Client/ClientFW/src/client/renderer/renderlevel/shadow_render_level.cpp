@@ -15,4 +15,10 @@ namespace client_fw
 			{}, DXGI_FORMAT_D32_FLOAT)
 	{
 	}
+
+	ShadowCascadeRenderLevel::ShadowCascadeRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature)
+		: GraphicsRenderLevel(eRenderLevelType::kShadowCascade, root_signature,
+			{}, DXGI_FORMAT_D32_FLOAT)
+	{
+	}
 }

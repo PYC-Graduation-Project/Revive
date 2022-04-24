@@ -117,6 +117,9 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
         GBufferDataWithoutBaseColor g_buffer_data = UnpackGBufferWithoutBaseColorFromUV(input.uv);
              
         Material material = GetMaterial(base_color, g_buffer_data);
+        
+        DirectionalLightShadowInfo shadow_info;
+        shadow_info.render_camera_index = g_render_camera_index;
     
         float3 color = float3(0.f, 0.f, 0.f);
         [unroll(4)]
@@ -125,8 +128,9 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
             DirectionalLight light;
             light.light_color = g_light_data[i].light_color;
             light.direction = g_light_data[i].light_direction;
-
-            color += CalcDiretionalLight(g_buffer_data.position, material, light);
+            shadow_info.shadow_texture_data_index = g_light_data[i].shadow_texture_data_index;
+            
+            color += CalcDiretionalLight(g_buffer_data.position, material, light, shadow_info);
         }
     
      

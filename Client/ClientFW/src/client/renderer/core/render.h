@@ -16,7 +16,8 @@ namespace client_fw
 	//거울같은 반사는 언제 어떻게 처리를 해야 할지.. 
 	enum class eRenderLevelType
 	{
-		kOpaque, kShadow, kShadowCube, kDeferred, kTransparent, kUI, kFinalView
+		kOpaque, kShadow, kShadowCube, kShadowCascade,
+		kDeferred, kTransparent, kUI, kFinalView
 	};
 
 	enum class eShaderType

@@ -13,7 +13,8 @@ namespace client_fw
 	class RenderCameraComponent;
 	enum class eKindOfRenderLevel;
 	class RenderResourceManager;
-	class CameraManager;
+	class RenderCameraManager;
+	class ShadowCameraManager;
 	class LightComponent;
 	class LightManager;
 
@@ -93,7 +94,8 @@ namespace client_fw
 		std::set<std::string> m_added_shaders;
 
 		UPtr<RenderResourceManager> m_render_asset_manager;
-		UPtr<CameraManager> m_camera_manager;
+		UPtr<RenderCameraManager> m_render_camera_manager;
+		UPtr<ShadowCameraManager> m_shadow_camera_manager;
 		UPtr<LightManager> m_light_manager;
 
 	public:

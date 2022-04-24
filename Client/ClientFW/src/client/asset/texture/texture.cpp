@@ -329,21 +329,22 @@ namespace client_fw
 		m_dsv_cpu_handle = dsv_heap_handle;
 	}
 
-	ShadowCubeTexture::ShadowCubeTexture(const IVec2& size)
-		: ShadowTexture(eTextureType::kShadowCubeMap, size)
+	ShadowArrayTexture::ShadowArrayTexture(const IVec2& size, UINT array_size)
+		: ShadowTexture(eTextureType::kShadowArray, size)
+		, m_array_size(array_size)
 	{
 	}
 
-	ShadowCubeTexture::~ShadowCubeTexture()
+	ShadowArrayTexture::~ShadowArrayTexture()
 	{
 	}
 
-	void ShadowCubeTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	void ShadowArrayTexture::CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
 		//depth stencil buffer를 생성한다.
 		D3D12_CLEAR_VALUE dsv_clear_value{ DXGI_FORMAT_D32_FLOAT, {1.0f, 0} };
 
-		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R32_TYPELESS, m_texture_size, 6, 1,
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R32_TYPELESS, m_texture_size, m_array_size, 1,
 			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, &dsv_clear_value);
 		D3DUtil::SetObjectName(m_texture_resource.Get(), "depth dsv texture");
 
@@ -352,12 +353,22 @@ namespace client_fw
 		dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
 		dsv_desc.Texture2DArray.MipSlice = 0;
 		dsv_desc.Texture2DArray.FirstArraySlice = 0;
-		dsv_desc.Texture2DArray.ArraySize = 6;
+		dsv_desc.Texture2DArray.ArraySize = m_array_size;
 		dsv_desc.Flags = D3D12_DSV_FLAG_NONE;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv_heap_handle(m_dsv_descriptor_heap->GetCPUDescriptorHandleForHeapStart());
 		device->CreateDepthStencilView(m_texture_resource.Get(), &dsv_desc, dsv_heap_handle);
 		m_dsv_cpu_handle = dsv_heap_handle;
+	}
+
+	ShadowCubeTexture::ShadowCubeTexture(const IVec2& size)
+		: ShadowArrayTexture(size, 6)
+	{
+		m_texture_type = eTextureType::kShadowCubeMap;
+	}
+
+	ShadowCubeTexture::~ShadowCubeTexture()
+	{
 	}
 
 	RenderTextTexture::RenderTextTexture(const IVec2& size)

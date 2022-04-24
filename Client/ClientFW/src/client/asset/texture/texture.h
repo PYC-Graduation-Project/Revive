@@ -6,7 +6,7 @@ namespace client_fw
 	enum class eTextureType
 	{
 		kExternal, kExternalCubeMap, 
-		kRedner, kShadow, kShadowCubeMap, 
+		kRedner, kShadow, kShadowCubeMap, kShadowArray,
 		kRenderUI
 	};
 
@@ -138,15 +138,30 @@ namespace client_fw
 		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 	};
 
-	class ShadowCubeTexture : public ShadowTexture
+	class ShadowArrayTexture : public ShadowTexture
+	{
+	public:
+		ShadowArrayTexture(const IVec2& size, UINT array_size);
+		virtual ~ShadowArrayTexture();
+
+	private:
+		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
+
+	private:
+		UINT m_array_size = 1;
+
+	public:
+		UINT GetArraySize() const { return m_array_size; }
+	};
+
+	class ShadowCubeTexture : public ShadowArrayTexture
 	{
 	public:
 		ShadowCubeTexture(const IVec2& size);
 		virtual ~ShadowCubeTexture();
-
-	private:
-		virtual void CreateDSVTexture(ID3D12Device* device, ID3D12GraphicsCommandList* command_list) override;
 	};
+
+	
 
 	// Text를 저장하기 위한 Texture이다.
 	// text는 DX12에서 지원하지 않기 때문에 dx11과 dwrite를 통해서 그린 후,

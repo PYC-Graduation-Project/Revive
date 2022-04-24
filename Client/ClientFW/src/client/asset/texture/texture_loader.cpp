@@ -246,6 +246,23 @@ namespace client_fw
 		return view_desc;
 	}
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescFor32DSVArray(const ComPtr<ID3D12Resource>& dsv_resource, UINT array_size)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;
+
+		view_desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view_desc.Format = DXGI_FORMAT_R32_FLOAT;
+		view_desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		view_desc.Texture2DArray.FirstArraySlice = 0;
+		view_desc.Texture2DArray.ArraySize = array_size;
+		view_desc.Texture2DArray.MostDetailedMip = 0;
+		view_desc.Texture2DArray.MipLevels = 1;
+		view_desc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+		view_desc.Texture2DArray.PlaneSlice = 0;
+
+		return view_desc;
+	}
+
 	D3D12_SHADER_RESOURCE_VIEW_DESC TextureCreator::GetShaderResourceViewDescFor32DSVCube(const ComPtr<ID3D12Resource>& dsv_resource)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC view_desc;

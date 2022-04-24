@@ -12,7 +12,9 @@ namespace client_fw
 		virtual ~ShadowCubeCameraComponent() = default;
 
 		virtual bool Initialize() override;
+		virtual void Update(float delta_time) override;
 		virtual void UpdateViewMatrix() override;
+		virtual void UpdateProjectionMatrix() override;
 
 	private:
 		SPtr<ShadowCubeTexture> m_shadow_cube_texture;
@@ -25,7 +27,6 @@ namespace client_fw
 		void SetShadowCubeTexture(const SPtr<ShadowCubeTexture>& texture) { m_shadow_cube_texture = texture; }
 
 		const std::array<Mat4, 6>& GetCubeViewMatrixs() const { return m_cube_view_matrixs; }
-		float GetFarZ() const { return m_far_z; }
 	};
 
 

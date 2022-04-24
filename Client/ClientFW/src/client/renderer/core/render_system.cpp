@@ -23,7 +23,8 @@
 #include "client/renderer/shader/skeletal_mesh_shader.h"
 
 #include "client/renderer/core/render_resource_manager.h"
-#include "client/renderer/core/camera_manager.h"
+#include "client/renderer/core/render_camera_manager.h"
+#include "client/renderer/core/shadow_camera_manager.h"
 #include "client/renderer/core/light_manager.h"
 
 #include "client/object/component/core/render_component.h"
@@ -48,7 +49,8 @@ namespace client_fw
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
-		m_camera_manager = CreateUPtr<CameraManager>();
+		m_render_camera_manager = CreateUPtr<RenderCameraManager>();
+		m_shadow_camera_manager = CreateUPtr<ShadowCameraManager>();
 		m_light_manager = CreateUPtr<LightManager>();
 	}
 
@@ -65,18 +67,19 @@ namespace client_fw
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsRenderLevel<ShadowRenderLevel>(eRenderLevelType::kShadow);
 		ret &= RegisterGraphicsRenderLevel<ShadowCubeRenderLevel>(eRenderLevelType::kShadowCube);
+		ret &= RegisterGraphicsRenderLevel<ShadowCascadeRenderLevel>(eRenderLevelType::kShadowCascade);
 		ret &= RegisterGraphicsRenderLevel<DeferredRenderLevel>(eRenderLevelType::kDeferred);
 		ret &= RegisterGraphicsRenderLevel<FinalViewRenderLevel>(eRenderLevelType::kFinalView);
 		ret &= RegisterGraphicsRenderLevel<UIRenderLevel>(eRenderLevelType::kUI);
 
 		ret &= RegisterGraphicsShader<OpaqueMaterialMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueMaterialMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<OpaqueTextureMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueTextureMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<OpaqueNormalMapMeshShader>(Render::ConvertShaderType(eShaderType::kOpaqueNormalMapMesh),
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		ret &= RegisterGraphicsShader<SkeletalMeshShader>("skeletal mesh", 
-			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube });
+			{ eRenderLevelType::kOpaque, eRenderLevelType::kShadow, eRenderLevelType::kShadowCube, eRenderLevelType::kShadowCascade });
 		//ret &= RegisterGraphicsShader<BoxShapeShader>("shape box", { eRenderLevelType::kOpaque });
 		ret &= RegisterGraphicsShader<TextureBillboardShader>(Render::ConvertShaderType(eShaderType::kTextureBillboard),
 			{eRenderLevelType::kOpaque});
@@ -128,33 +131,37 @@ namespace client_fw
 		m_graphics_super_root_signature->Shutdown();
 		m_render_asset_manager->Shutdown();
 		m_light_manager->Shutdown();
-		m_camera_manager->Shutdown();
 		m_device = nullptr;
 		Render::s_render_system = nullptr;
 	}
 
 	void RenderSystem::Update(ID3D12Device* device)
 	{
-		m_light_manager->Update(device);
 
-		m_camera_manager->Update(device, 
+		m_render_camera_manager->Update(device,
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
 				m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Update(device);
-			},
+			});
+
+		m_shadow_camera_manager->Update(device,
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kShadow)->Update(device);
 			},
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Update(device);
+			},
+			[this](ID3D12Device* device) {
+				m_graphics_render_levels.at(eRenderLevelType::kShadowCascade)->Update(device);
 			});
 
-		if (m_camera_manager->GetMainCamera() != nullptr)
+		if (m_render_camera_manager->GetMainCamera() != nullptr)
 		{
 			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Update(device);
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
+		m_light_manager->Update(device);
 
 		for (const auto& [level_type, render_level] : m_graphics_render_levels)
 			render_level->UpdateFrameResource(device);
@@ -176,9 +183,9 @@ namespace client_fw
 		m_render_asset_manager->Draw(command_list);
 		m_light_manager->Draw(command_list);
 
-		if (m_camera_manager->GetMainCamera() != nullptr)
+		if (m_render_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_camera_manager->DrawShadow(command_list,
+			m_shadow_camera_manager->Draw(command_list,
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
 					m_graphics_render_levels.at(eRenderLevelType::kShadow)->Draw(command_list);
@@ -186,9 +193,13 @@ namespace client_fw
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
 					m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Draw(command_list);
+				},
+				[this](ID3D12GraphicsCommandList* command_list)
+				{
+					m_graphics_render_levels.at(eRenderLevelType::kShadowCascade)->Draw(command_list);
 				});
 
-			m_camera_manager->Draw(command_list,
+			m_render_camera_manager->Draw(command_list,
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
 					m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Draw(command_list);
@@ -205,9 +216,9 @@ namespace client_fw
 
 	void RenderSystem::DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const
 	{
-		if (m_camera_manager->GetMainCamera() != nullptr)
+		if (m_render_camera_manager->GetMainCamera() != nullptr)
 		{
-			m_camera_manager->DrawMainCameraForUI(command_list);
+			m_render_camera_manager->DrawMainCameraForUI(command_list);
 			m_graphics_render_levels.at(eRenderLevelType::kFinalView)->Draw(command_list);
 		}
 	}
@@ -220,7 +231,7 @@ namespace client_fw
 	void RenderSystem::UpdateViewport()
 	{
 		const auto& window = m_window.lock();
-		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
+		m_render_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 
 	void RenderSystem::UnregisterGraphicsShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types)
@@ -358,18 +369,24 @@ namespace client_fw
 
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		return m_camera_manager->RegisterCameraComponent(camera_comp);
+		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+			return m_render_camera_manager->RegisterCameraComponent(camera_comp);
+		else
+			return m_shadow_camera_manager->RegisterCameraComponent(camera_comp);
 	}
 
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
-		m_camera_manager->UnregisterCameraComponent(camera_comp);
+		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+			m_render_camera_manager->UnregisterCameraComponent(camera_comp);
+		else
+			m_shadow_camera_manager->UnregisterCameraComponent(camera_comp);
 	}
 
 	void RenderSystem::SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp)
 	{
 		const auto& window = m_window.lock();
-		m_camera_manager->SetMainCamera(camera_comp);
-		m_camera_manager->UpdateMainCameraViewport(window->width, window->height);
+		m_render_camera_manager->SetMainCamera(camera_comp);
+		m_render_camera_manager->UpdateMainCameraViewport(window->width, window->height);
 	}
 }
