@@ -41,7 +41,7 @@ public:
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
 	void SendAttackPacket(int c_id, int attacker);
 	void SendBaseStatus(int c_id ,int room_id);
-	
+	void SendStatusChange(int c_id, int obj_id, float hp);
 	
 	void End();
 	void Disconnect(int c_id);

@@ -148,8 +148,9 @@ namespace revive
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
-		Vec3 rotate_player = Vec3{ 0.f,math::ToDegrees(angle),0.f };
-		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));
+		return quat::CreateQuaternionFromRollPitchYaw(0.f, angle, 0.f);
+		/*Vec3 rotate_player = Vec3{ 0.f,math::ToDegrees(angle),0.f };
+		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));*/
 
 	}
 
@@ -198,7 +199,7 @@ namespace revive
 				{
 					int enemy_hp = enemy->GetHP();
 					if (enemy_hp > 0)
-						enemy->Hit();
+						enemy->Hit(0);
 
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
 					bullet->SetActorState(eActorState::kDead);
@@ -314,8 +315,8 @@ namespace revive
 	{
 		Vec3 direction = m_controller.lock()->GetForward();
 		direction.y = 0;
-		FindLookAtRotation(direction,vec3::ZERO);
-
+		SetRotation(FindLookAtRotation(direction, vec3::ZERO));
+		//RotateFromDirection(direction);
 		//총알 스폰
 		const auto& bullet = CreateSPtr<Bullet>();
 		bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
@@ -334,8 +335,11 @@ namespace revive
 				{
 					int enemy_hp = enemy->GetHP();
 					if (enemy_hp > 0)
+
 					{
-						enemy->Hit(m_network_id);
+
+						enemy->Hit(0);
+
 
 					}
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
@@ -364,6 +368,21 @@ namespace revive
 	//		rot.x += math::ToRadian(5.0f) - rot.x;
 	//		m_controller.lock()->SetRotation(quat::CreateQuaternionFromRollPitchYaw(rot.x, rot.y, rot.z));
 	//	}
+	//}
+
+	//void RevivePlayer::RotateFromDirection(const Vec3& direction)
+	//{
+
+	//	Vec3 curr_player_forward = /*old_player_forward +*/ direction;//* rotate_speed;
+	//	curr_player_forward = vec3::Normalize(curr_player_forward);
+
+	//	float angle = vec3::BetweenAngle(curr_player_forward, vec3::AXIS_Z); //0~PI만 반환함 (radian)
+
+	//	if (vec3::Cross(curr_player_forward, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
+	//		angle = -angle;
+	//	LOG_INFO(math::ToDegrees(angle));
+	//	auto player_rot = quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f); //angle만큼 Y축 회전
+	//	SetRotation(player_rot);
 	//}
 
 	void RevivePlayer::FixYPosition()

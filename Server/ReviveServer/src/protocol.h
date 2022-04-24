@@ -212,7 +212,7 @@ struct sc_packet_status_change {
 	unsigned char size;
 	char type;
 	int id;
-	float	hp, maxhp;
+	float	hp;
 };
 struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	unsigned char size;

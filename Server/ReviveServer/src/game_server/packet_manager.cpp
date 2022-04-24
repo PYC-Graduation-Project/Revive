@@ -562,6 +562,16 @@ void PacketManager::SendBaseStatus(int c_id ,int room_id)
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendStatusChange(int c_id, int obj_id, float hp)
+{
+	sc_packet_status_change packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_STATUS_CHANGE;
+	packet.id = obj_id;
+	packet.hp = hp;
+	MoveObjManager::GetInst()->GetPlayer(obj_id)->DoSend(sizeof(packet), &packet);
+}
+
 
 
 
@@ -788,6 +798,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	cs_packet_hit* packet = reinterpret_cast<cs_packet_hit*>(p);
 	MoveObj* victim = MoveObjManager::GetInst()->GetMoveObj(packet->victim_id);
 	MoveObj*attacker= MoveObjManager::GetInst()->GetMoveObj(packet->attacker_id);
+	Room* room = m_room_manager->GetRoom(attacker->GetRoomID());
 	float hp;
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
@@ -796,7 +807,10 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	if (hp <= 0.0f)victim->SetIsActive(false);
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();
-	//상태변화 패킷보내기
+	for (int obj_id : room->GetObjList())
+	{
+		if (true == MoveObjManager::GetInst()->IsPlayer(obj_id));
+	}
 	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
 
 }
