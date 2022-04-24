@@ -5,11 +5,11 @@ using namespace std;
 Room::Room(int room_id):room_id(room_id),max_user(0),max_npc(0)
 {
 	m_round_time =chrono::system_clock::now();
-	m_base = new Object;
+	/*m_base = new Object;
 	for (int i = 0; i < MAX_BULLET; ++i)
 	{
 		m_bullet_pool[i] = new Bullet(room_id,i);
-	}
+	}*/
 }
 
 Room::~Room()
@@ -37,24 +37,24 @@ void Room::SetRoundTime(int seconds)
 	m_round_time = chrono::system_clock::now() + (1ms * seconds);
 }
 
-int Room::GetNewBullet()
-{
-	
-	for (int i = 0; i < MAX_BULLET; ++i)
-	{
-
-		if (false == m_bullet_pool[i]->GetInUse())
-		{
-			m_bullet_pool[i]->SetInUse(true);
-			
-			return i;
-		}
-		
-	}
-	cout << "남는아이디 없음" << endl;
-	return -1;
-	
-}
+//int Room::GetNewBullet()
+//{
+//	
+//	for (int i = 0; i < MAX_BULLET; ++i)
+//	{
+//
+//		if (false == m_bullet_pool[i]->GetInUse())
+//		{
+//			m_bullet_pool[i]->SetInUse(true);
+//			
+//			return i;
+//		}
+//		
+//	}
+//	cout << "남는아이디 없음" << endl;
+//	return -1;
+//	
+//}
 
 
 

@@ -3,6 +3,7 @@
 #include<unordered_map>
 #include "server/packet_manager.h"
 #include"server/network_move_object.h"
+#include"revive_server/game_info.h"
 class RevivePacketManager :
     public PacketManager
 {
@@ -21,7 +22,9 @@ public:
     void ProcessTest(int c_id, unsigned char* p);
     void ProcessNpcAttack(int c_id, unsigned char* p);
     void ProcessAttack(int c_id, unsigned char* p);
+    void ProcessBaseStatus(int c_id, unsigned char* p);
 private:
     std::unordered_map<int, client_fw::SPtr<NetworkMoveObj>>m_obj_map;
+    GameInfo m_game_info;
 };
 

@@ -25,6 +25,11 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 		SendAttackPacket(s_socket);
 		break;
 	}
+	case HashCode("send hit"): {
+		auto msg = std::static_pointer_cast<revive::ObjectHitMessageEventInfo>(message);
+		SendHitPacket(s_socket,msg->GetVictimID(),msg->GetAttackerID());
+		break;
+	}
 	}
 }
 
@@ -92,5 +97,15 @@ void ReviveSendManager::SendAttackPacket(const SOCKET& s_socket)
 	cs_packet_attack packet;
 	packet.size = sizeof(packet);
 	packet.type = CS_PACKET_ATTACK;
+	SendPacket(s_socket, sizeof(packet), &packet);
+}
+
+void ReviveSendManager::SendHitPacket(const SOCKET& s_socket,int obj_id,int attacker_id)
+{
+	cs_packet_hit packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_HIT;
+	packet.victim_id = obj_id;
+	packet.attacker_id = attacker_id;
 	SendPacket(s_socket, sizeof(packet), &packet);
 }

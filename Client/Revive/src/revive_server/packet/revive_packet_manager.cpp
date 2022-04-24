@@ -20,7 +20,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
-	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -38,22 +38,14 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	{
 		LOG_INFO("No Object");
 	}
-	//if (!mover) {
-	//	cout << "없는 객체입니다!" << endl;
-	//	return;
-	//}
-	//client_fw::Vec3 pos{ packet->x,packet->y ,packet->z };
-	//client_fw::Quaternion rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
-	//mover->SetPosition(pos);
-	//mover->SetRotation(rot);
-	//std::cout << recv_pos << std::endl;
+	
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
 }
 
 void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)
 {
 	sc_packet_sign_in_ok* packet = reinterpret_cast<sc_packet_sign_in_ok*>(p);
-	m_id = packet->id;
+	m_game_info.SetNetworkID( packet->id);
 	LOG_INFO("로그인 성공" );
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::SignInMessageOkEventInfo>(HashCode("sign in")));
 
@@ -110,21 +102,6 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
 	NetworkObj* obj = NULL;
 	Network::matching_end = true;
-	if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
-	{
-		//obj = new NetworkObj(
-		//	packet->id,
-		//	packet->maxhp,
-		//	packet->name,
-		//	packet->x,
-		//	packet->y,
-		//	packet->z,
-		//	(NW_OBJ_TYPE)packet->object_type
-		//);
-		//NetworkObjManager::GetInst()->AddObj(packet->id, obj);
-	}
-	else
-	{
 		auto res=m_obj_map.try_emplace(packet->id, CreateSPtr<NetworkMoveObj>(
 			packet->id,
 			packet->maxhp,
@@ -135,7 +112,6 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 			(NW_OBJ_TYPE)packet->object_type,
 			packet->damage
 		));
-	}
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));
 }
 
@@ -178,4 +154,13 @@ void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
 	else
 		LOG_INFO("None");
 
+}
+
+void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
+{
+	sc_packet_base_status* packet = reinterpret_cast<sc_packet_base_status*>(p);
+	if (m_game_info.GetRoomID() == -1)
+		m_game_info.SetRoomID(packet->room_id);
+	m_game_info.SetBaseHp(packet->hp);
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp));
 }

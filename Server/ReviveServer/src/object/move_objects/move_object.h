@@ -36,6 +36,7 @@ public:
 	void SetRoomID(int val) { m_room_id = val; }
 
 	void SetOriginPos(const Vector3& val) { m_origin_pos = val; }
+	std::mutex m_hp_lock;
 protected:
 	std::atomic_bool m_is_active = false; //죽어있는지 살아있는지
 	int m_room_id;

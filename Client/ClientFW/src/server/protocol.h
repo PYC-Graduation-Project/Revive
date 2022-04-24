@@ -42,6 +42,8 @@ const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
 const char CS_PACKET_TEST = 7;
+const char CS_PACKET_HIT = 7;
+
 
 const char SC_PACKET_SIGN_IN_OK = 1;
 const char SC_PACKET_SIGN_UP_OK = 2;
@@ -57,7 +59,7 @@ const char SC_PACKET_TIME = 11;
 const char SC_PACKET_TEST = 12;
 const char SC_PACKET_NPC_ATTACK = 13;
 const char SC_PACKET_ATTACK = 14;
-
+const char SC_PACKET_BASE_STATUS = 15;
 
 
 #pragma pack (push, 1)
@@ -118,7 +120,14 @@ struct cs_packet_teleport {
 	char	type;
 };
 
-
+struct cs_packet_hit {
+	// 서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
+	// 더미 클라이언트에서 동접 테스트용으로 사용.
+	unsigned char size;
+	char	type;
+	int victim_id;
+	int attacker_id;
+};
 
 
 struct sc_packet_sign_in_ok {
@@ -217,6 +226,13 @@ struct sc_packet_attack {
 	char type;
 	int	obj_id;
 	//float x, y, z;
+
+};
+struct sc_packet_base_status {
+	unsigned char size;
+	char type;
+	int	room_id;
+	float hp;
 
 };
 #pragma pack(pop)

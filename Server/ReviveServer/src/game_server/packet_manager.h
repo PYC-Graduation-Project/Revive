@@ -40,6 +40,9 @@ public:
 	void SendTime(int c_id,float round_time);
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
 	void SendAttackPacket(int c_id, int attacker);
+	void SendBaseStatus(int c_id ,int room_id);
+	
+	
 	void End();
 	void Disconnect(int c_id);
 
@@ -75,7 +78,7 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
-	
+	void ProcessHit(int c_id, unsigned char* p);
 
 	void StartGame(int room_id);
 };

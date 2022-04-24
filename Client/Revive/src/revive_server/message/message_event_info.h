@@ -128,14 +128,25 @@ namespace revive
         MatchingMessageOKEventInfo(UINT event_id);
    
     };
-    class ObjectHitMessageOKEventInfo final :public MessageEventInfo
+    class ObjectHitMessageEventInfo final :public MessageEventInfo
     {
     public:
-        ObjectHitMessageOKEventInfo(UINT event_id,int victim_id);
+        ObjectHitMessageEventInfo(UINT event_id,int victim_id, int attacker_id);
     private:
+        int m_attacker_id;
         int m_victim_id;
     public:
         const int GetVictimID() { return m_victim_id; }
+        const int GetAttackerID() { return m_attacker_id; }
+    };
+    class BaseHpChangeEventInfo final :public MessageEventInfo
+    {
+    public:
+        BaseHpChangeEventInfo(UINT event_id, float base_hp);
+    private:
+        float m_base_hp;
+    public:
+        const float GetVictimID() { return m_base_hp; }
     };
 }
 

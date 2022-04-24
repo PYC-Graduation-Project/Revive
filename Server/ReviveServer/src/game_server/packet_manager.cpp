@@ -68,10 +68,10 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		ProcessMatching(c_id, p);
 		break;
 	}
-	//case CS_PACKET_ROTATION: {
-	//	ProcessRotation(c_id, p);
-	//	break;
-	//}
+	case CS_PACKET_HIT: {
+		ProcessHit(c_id, p);
+		break;
+	}
 	}
 }
 
@@ -218,7 +218,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendObjInfo(pl, en);
 		}
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en));
 	}
 		
 		
@@ -552,6 +552,16 @@ void PacketManager::SendAttackPacket(int c_id, int attacker)
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
+void PacketManager::SendBaseStatus(int c_id ,int room_id)
+{
+	sc_packet_base_status packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_BASE_STATUS;
+	packet.hp = m_room_manager->GetRoom(room_id)->GetBaseHp();
+	packet.room_id = room_id;
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
 
 
 
@@ -773,6 +783,24 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
 }
 
+void PacketManager::ProcessHit(int c_id, unsigned char* p)
+{
+	cs_packet_hit* packet = reinterpret_cast<cs_packet_hit*>(p);
+	MoveObj* victim = MoveObjManager::GetInst()->GetMoveObj(packet->victim_id);
+	MoveObj*attacker= MoveObjManager::GetInst()->GetMoveObj(packet->attacker_id);
+	float hp;
+	if (false == victim->GetIsActive())return;
+	victim->m_hp_lock.lock();
+	victim->SetHP(victim->GetHP() - attacker->GetDamge());
+	hp = victim->GetHP();
+	if (hp <= 0.0f)victim->SetIsActive(false);
+	//player였으면 게임오버 추가
+	victim->m_hp_lock.unlock();
+	//상태변화 패킷보내기
+	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
+
+}
+
 
 void PacketManager::StartGame(int room_id)
 {
@@ -829,6 +857,7 @@ void PacketManager::StartGame(int room_id)
 			SendObjInfo(c_id, room->GetObjList().at(i));
 			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
+		SendBaseStatus(c_id, room->GetRoomID());
 	}
 	room->SetRoundTime(10000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요

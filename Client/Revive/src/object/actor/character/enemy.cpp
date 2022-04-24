@@ -6,6 +6,7 @@
 #include <client/physics/collision/collisioner/collisioner.h>
 #include <client/object/component/util/simple_movement_component.h>
 #include <client/object/component/util/character_movement_component.h>
+#include<client/event/packetevent/packet_helper.h>
 #include "object/actor/character/enemy.h"
 #include "revive_server/message/message_event_info.h"
 namespace revive
@@ -170,11 +171,11 @@ namespace revive
 		m_is_attacking = true;
 	}
 
-	void Enemy::Hit(int damage)
+	void Enemy::Hit(int nw_id,int damage)
 	{
 		m_skeletal_mesh_component->SetAnimation("hit", false);
-		m_hp -= damage;
-		
+		//m_hp -= damage;
+		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 		LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
 	}
 }

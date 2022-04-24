@@ -113,7 +113,7 @@ namespace revive
 		const int GetHP() const { return m_hp; }
 
 		void Attack();
-		void Hit(int damage);
+		void Hit(int nw_id,int damage);
 
 		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
 

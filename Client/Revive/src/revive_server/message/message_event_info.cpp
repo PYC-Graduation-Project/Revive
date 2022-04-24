@@ -56,8 +56,13 @@ namespace revive
 	{
 	}
 
-	ObjectHitMessageOKEventInfo::ObjectHitMessageOKEventInfo(UINT event_id, int victim_id)
-		: MessageEventInfo(event_id),m_victim_id(victim_id)
+	ObjectHitMessageEventInfo::ObjectHitMessageEventInfo(UINT event_id, int victim_id,int attacker_id)
+		: MessageEventInfo(event_id),m_victim_id(victim_id),m_attacker_id(attacker_id)
+	{
+	}
+
+	BaseHpChangeEventInfo::BaseHpChangeEventInfo(UINT event_id, float base_hp)
+		: MessageEventInfo(event_id), m_base_hp(base_hp)
 	{
 	}
 
