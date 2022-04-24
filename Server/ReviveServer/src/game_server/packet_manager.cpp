@@ -381,6 +381,19 @@ void PacketManager::CountTime(int room_id)
 			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
 				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30));
 		}
+		
+	}
+	if (room->GetRound() == 3)
+	{
+		Enemy* enemy = nullptr;
+		int live_count{ 0 };
+		for (int obj_id : room->GetObjList())
+		{
+			if (true == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
+			enemy = MoveObjManager::GetInst()->GetEnemy(obj_id);
+			if (enemy->GetIsActive() == true)live_count++;
+		}
+		if (live_count == 0);//여기서 게임 승리 보내기
 	}
 	g_timer_queue.push(SetTimerEvent(room_id, room_id,
 		EVENT_TYPE::EVENT_TIME, 1000));
@@ -391,11 +404,24 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	//초당두발
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	float base_hp;
+	if (enemy->GetTargetId() == -1)
+	{
+		room->m_base_hp_lock.lock();
+		base_hp =room->GetBaseHp()- enemy->GetDamge();
+		room->SetBaseHp(base_hp);
+		room->m_base_hp_lock.unlock();
+	}
 	for (int pl : room->GetObjList())
 	{
 		if (false==MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		SendNPCAttackPacket(pl, enemy_id, target_id);
-
+		if (enemy->GetTargetId() == -1)
+		{
+			SendNPCAttackPacket(pl, enemy_id, target_id);
+			SendBaseStatus(pl, room_id);
+		}
+		else
+			SendNPCAttackPacket(pl, enemy_id, target_id);
 	}
 	auto& attack_time = enemy->GetAttackTime();
 	attack_time = chrono::system_clock::now() + 500ms;
@@ -809,7 +835,9 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	victim->m_hp_lock.unlock();
 	for (int obj_id : room->GetObjList())
 	{
-		if (true == MoveObjManager::GetInst()->IsPlayer(obj_id));
+		if (false == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
+		if (victim->GetID() == obj_id||attacker->GetID()==obj_id)continue;
+		SendStatusChange(obj_id, victim->GetID(), victim->GetHP());
 	}
 	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
 

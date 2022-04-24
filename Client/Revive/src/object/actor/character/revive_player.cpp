@@ -351,13 +351,13 @@ namespace revive
 		SpawnActor(bullet);
 	}
 
-	void RevivePlayer::Hit(int nw_id,int damage)
+	void RevivePlayer::Hit(int damage)
 	{
 		++m_hit_count;
 		m_is_hitting = true;
 		if (m_is_cheating == false)m_hp -= damage;
 		else --m_hit_count;
-		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
+		//PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 	}
 
 	//void RevivePlayer::MinPitch()

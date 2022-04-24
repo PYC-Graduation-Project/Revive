@@ -21,6 +21,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessStatusChange(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -163,4 +164,15 @@ void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
 		m_game_info.SetRoomID(packet->room_id);
 	m_game_info.SetBaseHp(packet->hp);
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp));
+}
+
+void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
+{
+	sc_packet_status_change*packet = reinterpret_cast<sc_packet_status_change*>(p);
+	auto obj = m_obj_map.find(packet->id);
+	if (obj != m_obj_map.end())
+	{
+		obj->second->SetHP(packet->hp);
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
+	}
 }

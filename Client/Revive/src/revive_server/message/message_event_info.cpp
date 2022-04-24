@@ -66,4 +66,9 @@ namespace revive
 	{
 	}
 
+	StatusChangeEventInfo::StatusChangeEventInfo(UINT event_id, float obj_hp)
+		: MessageEventInfo(event_id), m_obj_hp(obj_hp)
+	{
+	}
+
 }

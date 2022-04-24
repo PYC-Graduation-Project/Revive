@@ -146,7 +146,18 @@ namespace revive
     private:
         float m_base_hp;
     public:
-        const float GetVictimID() { return m_base_hp; }
+        const float GetBaseHp() { return m_base_hp; }
+    };
+    class StatusChangeEventInfo final :public MessageEventInfo
+    {
+    public:
+        StatusChangeEventInfo(UINT event_id, float obj_hp);
+    private:
+        float m_obj_hp;
+      
+    public:
+       
+        const float GetObjHp() { return m_obj_hp; }
     };
 }
 

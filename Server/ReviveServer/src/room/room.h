@@ -39,7 +39,7 @@ public:
 	{
 		return m_obj_list;
 	}
-	std::mutex m_bullet_lock;
+	std::mutex m_base_hp_lock;
 private:
 	int room_id;
 	int max_user;
