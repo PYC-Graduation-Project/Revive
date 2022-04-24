@@ -101,4 +101,9 @@ namespace client_fw
 		SetCenter(center);
 		SetRadius(radius);
 	}
+
+	BSphere::BSphere(const BFrustum& frustum)
+	{
+		BoundingSphere::CreateFromFrustum(m_bounding, frustum.GetBounding());
+	}
 }

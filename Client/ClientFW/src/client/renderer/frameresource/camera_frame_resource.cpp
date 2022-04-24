@@ -6,8 +6,8 @@ namespace client_fw
 {
 	CameraFrameResource::CameraFrameResource()
 	{
-		m_camera_data = CreateUPtr<UploadBuffer<RSCameraData>>(true);
-		m_cube_camera_data = CreateUPtr<UploadBuffer<RSCubeCameraData>>(true);
+		m_render_camera_data = CreateUPtr<UploadBuffer<RSRenderCameraData>>(true);
+		m_shadow_camera_data = CreateUPtr<UploadBuffer<RSShadowCameraData>>();
 	}
 
 	CameraFrameResource::~CameraFrameResource()
@@ -16,12 +16,14 @@ namespace client_fw
 
 	bool CameraFrameResource::Initialize(ID3D12Device* device)
 	{
+		m_render_camera_data->CreateResource(device, m_size_of_render_camera);
+		m_shadow_camera_data->CreateResource(device, m_size_of_shadow_camera);
 		return true;
 	}
 
 	void CameraFrameResource::Shutdown()
 	{
-		m_cube_camera_data->Shutdown();
-		m_camera_data->Shutdown();
+		m_shadow_camera_data->Shutdown();
+		m_render_camera_data->Shutdown();
 	}
 }

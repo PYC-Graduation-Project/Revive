@@ -14,6 +14,12 @@ struct GS_SHADOW_CUBE_OUT
     uint render_target_index : SV_RENDERTARGETARRAYINDEX;
 };
 
+struct GS_SHADOW_CASCADE_OUT
+{
+    float4 sv_position : SV_POSITION;
+    uint render_target_index : SV_RENDERTARGETARRAYINDEX;
+};
+
 float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
 {
     float4 shadow_pos = mul(float4(position, 1.0f), shadow_data.uv_from_ndc);
@@ -51,6 +57,41 @@ float CalcShadowCubeFactor(float3 to_pixel, ShadowTextureData shadow_data)
     float depth = (shadow_data.inverse_texture_size.x * z + shadow_data.inverse_texture_size.y) / z;
     
     return g_texture_cube_data[shadow_data.shadow_texture_index].SampleCmpLevelZero(g_sampler_comparison_pcf_shadow, to_pixel, depth);
+}
+
+float CalcCascadeShadow(float3 position, ShadowTextureData shadow_data, CascadeShadowTextureData cascade_shadow_data)
+{
+    float4 shadow_pos = mul(float4(position, 1.0f), shadow_data.uv_from_ndc);
+    
+    if(shadow_pos.z >= 1.0f)
+        return 1.0f;
+    
+    float4 cascade_x_pos = (cascade_shadow_data.cascade_offset_x + shadow_pos.xxxx) * cascade_shadow_data.cascade_scale;
+    float4 cascade_y_pos = (cascade_shadow_data.cascade_offset_y + shadow_pos.yyyy) * cascade_shadow_data.cascade_scale;
+    
+    float4 in_cascade_x = abs(cascade_x_pos) <= 1.0f;
+    float4 in_cascade_y = abs(cascade_y_pos) <= 1.0f;
+    float4 in_cascade = in_cascade_x * in_cascade_y;
+    
+    float4 best_cascade_mask = in_cascade;
+    best_cascade_mask.yzw = (1.0f - best_cascade_mask.x) * best_cascade_mask.yzw;
+    best_cascade_mask.zw = (1.0f - best_cascade_mask.y) * best_cascade_mask.zw;
+    best_cascade_mask.w = (1.0f - best_cascade_mask.z) * best_cascade_mask.w;
+    float best_cascade = dot(best_cascade_mask, float4(0.0f, 1.0f, 2.0f, 3.0f));
+    
+    float3 uvd;
+    uvd.x = dot(cascade_x_pos, best_cascade_mask);
+    uvd.y = dot(cascade_y_pos, best_cascade_mask);
+    uvd.z = shadow_pos.z;
+    
+    uvd.xy = 0.5f * uvd.xy + 0.5f;
+    uvd.y = 1.0f - uvd.y;
+    
+    float shadow = g_texture_array_data[shadow_data.shadow_texture_index].SampleCmpLevelZero(g_sampler_comparison_pcf_shadow, float3(uvd.xy, best_cascade), uvd.z);
+    
+    shadow = saturate(shadow + 1.0f - any(best_cascade_mask));
+    
+    return shadow;
 }
 
 #endif //__SHADOW_HLSL__

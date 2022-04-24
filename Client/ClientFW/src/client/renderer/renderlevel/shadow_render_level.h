@@ -16,6 +16,13 @@ namespace client_fw
 		ShadowCubeRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
 		virtual ~ShadowCubeRenderLevel() = default;
 	};
+
+	class ShadowCascadeRenderLevel final : public GraphicsRenderLevel
+	{
+	public:
+		ShadowCascadeRenderLevel(const SPtr<GraphicsSuperRootSignature>& root_signature);
+		virtual ~ShadowCascadeRenderLevel() = default;
+	};
 }
 
 

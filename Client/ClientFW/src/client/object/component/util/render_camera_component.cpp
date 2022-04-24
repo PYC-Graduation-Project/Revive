@@ -16,7 +16,8 @@ namespace client_fw
 		if (m_owner_controller.expired() || (m_owner_controller.expired() == false && m_use_controller_rotation == false))
 		{
 			m_camera_position = GetWorldPosition();
-			target = m_camera_position + GetWorldForward();
+			m_camera_forward = GetWorldForward();
+			target = m_camera_position + m_camera_forward;
 			up = GetWorldUp();
 		}
 		else
@@ -27,11 +28,14 @@ namespace client_fw
 			world_matrix *= mat4::CreateTranslation(owner->GetPosition());
 
 			m_camera_position = vec3::TransformCoord(m_local_position, world_matrix);
-			target = m_camera_position + m_owner_controller.lock()->GetForward();
+			m_camera_forward = m_owner_controller.lock()->GetForward();
+			target = m_camera_position + m_camera_forward;
 			up = m_owner_controller.lock()->GetUp();
 		}
 
 		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
+
+		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 	}
 
 	void RenderCameraComponent::SetMainCamera()

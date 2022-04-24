@@ -26,6 +26,14 @@ namespace client_fw
     void AnimationController::AnimToPlay(float delta_time, bool m_looping)
     {
         if (m_anim_seq) {
+
+            for (const auto& [name, data] : m_notify_map)
+            {
+                if (m_animation_name == data.animation_name) //애니메이션 이름을 확인해주지않으면 아무 애니메이션이나 함수가 호출된다.
+                    if (m_prev_time_index == data.frame_index)
+                        data.notify_function();
+            }
+
             float time_pos = m_time_pos;
             if (m_looping)
             {
@@ -46,12 +54,7 @@ namespace client_fw
                     m_time_pos = time_pos;
                 }
             }
-            for (const auto& [name, data] : m_notify_map)
-            {
-                if(m_animation_name == data.animation_name) //애니메이션 이름을 확인해주지않으면 아무 애니메이션이나 함수가 호출된다.
-                    if (m_prev_time_index == data.frame_index)
-                        data.notify_function();
-            }
+            
             m_anim_seq->AnimToPlay(m_prev_time_index, time_pos);
         }
         

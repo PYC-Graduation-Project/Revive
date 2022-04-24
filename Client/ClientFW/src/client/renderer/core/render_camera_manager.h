@@ -2,37 +2,34 @@
 
 namespace client_fw
 {
+	
+
 	enum class eCameraUsage;
 	class CameraComponent;
 	class RenderCameraComponent;
 	class ShadowCameraComponent;
 	class ShadowCubeCameraComponent;
+	class ShadowCascadeCameraComponent;
 
 	// 카메라의 정보를 GPU에서 사용하기 위해 Camera를 관리하는 클래스
-	class CameraManager final
+	class RenderCameraManager final
 	{
 	public:
-		CameraManager();
-		~CameraManager();
+		RenderCameraManager();
+		~RenderCameraManager();
 
-		CameraManager(const CameraManager&) = delete;
-		CameraManager& operator=(const CameraManager&) = delete;
+		RenderCameraManager(const RenderCameraManager&) = delete;
+		RenderCameraManager& operator=(const RenderCameraManager&) = delete;
 
 		void Shutdown();
 		void Update(ID3D12Device* device,
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera,
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_cube_camera);
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera);
 		void UpdateMainCameraViewport(LONG width, LONG height);
 
 		void Draw(ID3D12GraphicsCommandList* command_list, 
 			std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
 			std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function,
 			std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function);
-
-		void DrawShadow(ID3D12GraphicsCommandList* command_list,
-			std::function<void(ID3D12GraphicsCommandList*)>&& shadow_function,
-			std::function<void(ID3D12GraphicsCommandList*)>&& shadow_cube_function);
 
 		void DrawMainCameraForUI(ID3D12GraphicsCommandList* command_list);
 
@@ -41,12 +38,9 @@ namespace client_fw
 
 	private:
 		void UpdateRenderCameras(ID3D12Device* device);
-		void UpdateShadowCameras(ID3D12Device* device);
-		void UpdateShadowCubeCameras(ID3D12Device* device);
+		void UpdateRenderCamerasForCascadeShadow(ID3D12Device* device);
 		void UpdateCameraResource(ID3D12Device* device, 
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera,
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_camera,
-			std::function<void(ID3D12Device*)>&& update_shader_function_for_shadow_cube_camera);
+			std::function<void(ID3D12Device*)>&& update_shader_function_for_render_camera);
 
 		template <class T>
 		void UnregisterCameraComponent(std::vector<SPtr<T>>& cameras, const SPtr<CameraComponent>& camera_comp)
@@ -59,26 +53,17 @@ namespace client_fw
 			}
 		}
 
-	private:
-		static CameraManager* s_camera_manager;
+		void UnregisterRenderCameraToDirectionalLights(const SPtr<RenderCameraComponent>& camera_comp);
 
+	private:
 		std::vector<SPtr<RenderCameraComponent>> m_ready_render_cameras;
 		std::vector<SPtr<RenderCameraComponent>> m_wait_resource_render_cameras;
 		std::vector<SPtr<RenderCameraComponent>> m_render_cameras;
-
-		std::vector<SPtr<ShadowCameraComponent>> m_ready_shadow_cameras;
-		std::vector<SPtr<ShadowCameraComponent>> m_wait_resource_shadow_cameras;
-		std::vector<SPtr<ShadowCameraComponent>> m_shadow_cameras;
-
-		std::vector<SPtr<ShadowCubeCameraComponent>> m_ready_shadow_cube_cameras;
-		std::vector<SPtr<ShadowCubeCameraComponent>> m_wait_resource_shadow_cube_cameras;
-		std::vector<SPtr<ShadowCubeCameraComponent>> m_shadow_cube_cameras;
 
 		SPtr<RenderCameraComponent> m_ready_main_camera;
 		SPtr<RenderCameraComponent> m_main_camera;
 
 	public:
-		static CameraManager& GetCameraManager() { return *s_camera_manager; }
 		const SPtr<RenderCameraComponent> GetMainCamera() { return m_main_camera; }
 		void SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp) { m_ready_main_camera = camera_comp; }
 	};

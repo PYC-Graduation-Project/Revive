@@ -26,7 +26,7 @@ namespace client_fw
 	bool RenderResourceManager::Initialize(ID3D12Device* device)
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC texture_heap_desc;
-		texture_heap_desc.NumDescriptors = MAX_2D_TEXTURE_RESOURCE_SIZE + MAX_CUBE_TEXTURE_RESOURCE_SIZE;
+		texture_heap_desc.NumDescriptors = MAX_2D_TEXTURE_RESOURCE_SIZE + MAX_CUBE_TEXTURE_RESOURCE_SIZE + MAX_ARRAY_TEXTURE_RESOURCE_SIZE;
 		texture_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		texture_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		texture_heap_desc.NodeMask = 0;
@@ -42,6 +42,7 @@ namespace client_fw
 			m_num_of_render_texture_data = START_INDEX_RENDER_TEXTURE;
 			m_num_of_render_text_texture_data = START_INDEX_RENDER_TEXT_TEXTURE;
 			m_num_of_render_cube_map_texture_data = START_INDEX_RENDER_CUBE_MAP_TEXTURE;
+			m_num_of_render_array_texture_data = START_INDEX_RENDER_ARRAY_TEXTURE;
 			});
 
 		return true;
@@ -111,6 +112,11 @@ namespace client_fw
 			case eTextureType::kShadowCubeMap:
 			{
 				m_ready_shadow_cube_textures.push_back(std::static_pointer_cast<ShadowCubeTexture>(texture));
+				break;
+			}
+			case eTextureType::kShadowArray:
+			{
+				m_ready_shadow_array_textures.push_back(std::static_pointer_cast<ShadowArrayTexture>(texture));
 				break;
 			}
 			case eTextureType::kRenderUI:
@@ -190,6 +196,7 @@ namespace client_fw
 		UpdateShadowCubeTextureResource(device, command_list);
 		UpdateRenderTextTextureResource(device, command_list);
 		UpdateExternalCubeMapTextureResource(device, command_list);
+		UpdateShadowArrayTextureResource(device, command_list);
 	}
 
 	void RenderResourceManager::UpdateExternalTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
@@ -304,6 +311,24 @@ namespace client_fw
 		}
 
 		m_ready_shadow_cube_textures.clear();
+	}
+
+	void RenderResourceManager::UpdateShadowArrayTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpu_handle(m_texture_desciptor_heap->GetCPUDescriptorHandleForHeapStart());
+		cpu_handle.Offset(m_num_of_render_array_texture_data, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+
+		for (const auto& texture : m_ready_shadow_array_textures)
+		{
+			texture->Initialize(device, command_list);
+
+			device->CreateShaderResourceView(texture->GetResource(),
+				&TextureCreator::GetShaderResourceViewDescFor32DSVArray(texture->GetResource(), texture->GetArraySize()), cpu_handle);
+			texture->SetResourceIndex(m_num_of_render_array_texture_data++ - START_INDEX_RENDER_ARRAY_TEXTURE);
+			cpu_handle.Offset(1, D3DUtil::s_cbvsrvuav_descirptor_increment_size);
+		}
+
+		m_ready_shadow_array_textures.clear();
 	}
 
 	void RenderResourceManager::UpdateRenderTextTextureResource(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
