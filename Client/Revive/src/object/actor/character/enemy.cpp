@@ -4,6 +4,8 @@
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
 #include <client/physics/collision/collisioner/collisioner.h>
+#include <client/object/component/util/simple_movement_component.h>
+#include <client/object/component/util/character_movement_component.h>
 #include "object/actor/character/enemy.h"
 #include "revive_server/message/message_event_info.h"
 namespace revive
@@ -11,6 +13,7 @@ namespace revive
 	Enemy::Enemy(const std::string& mesh_path, const std::string& name)
 		:Actor(eMobilityState::kMovable,name)
 	{
+		m_simple_movement_component = CreateSPtr<SimpleMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_blocking_sphere = CreateSPtr<SphereComponent>(32.f, "Blocking Sphere");
 		m_blocking_box = CreateSPtr<BoxComponent>(Vec3{ 32.f,32.f,32.f }, "Blocking Box");
@@ -27,6 +30,9 @@ namespace revive
 		m_skeletal_mesh_component->SetAnimation("run");
 		m_skeletal_mesh_component->SetName(m_name + " Mesh");
 
+		m_simple_movement_component->SetMaxSpeed(145.0f);
+		//m_character_movement_component->UseOrientRotationToMovement(true);
+		ret &= AttachComponent(m_simple_movement_component);
 		//ret &= AttachComponent(m_agro_sphere);
 		//m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
 		
@@ -48,6 +54,7 @@ namespace revive
 
 	void Enemy::Shutdown()
 	{
+		m_simple_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
 		m_blocking_sphere = nullptr;
 		m_blocking_box = nullptr;
@@ -57,6 +64,17 @@ namespace revive
 
 	void Enemy::Update(float delta_time)
 	{
+		m_time += delta_time;
+		m_simple_movement_component->AddInputVector(m_velocity);
+		if (m_time >= 0.5f)
+		{
+			m_time -= 0.5f;
+
+			m_inter_velocity = m_previous_pos - GetPosition();
+		}
+
+		SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
+
 		if (m_disappear_time >= 1.0f)
 			SetActorState(eActorState::kDead);
 		if (m_is_disappearing)
@@ -86,7 +104,9 @@ namespace revive
 			//SetPosition(msg->GetObjPosition());
 			
 			//진짜 다음좌표 보내는것
-			SetPosition(msg->GetObjPosition());
+			m_previous_pos = m_next_pos;
+			m_velocity = msg->GetObjPosition() - m_previous_pos;
+			m_next_pos = msg->GetObjPosition();
 			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
 			//LOG_INFO(a);
