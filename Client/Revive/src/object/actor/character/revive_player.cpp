@@ -7,6 +7,7 @@
 #include <client/object/component/render/box_component.h>
 #include <client/object/component/util/render_camera_component.h>
 #include <client/object/component/util/character_movement_component.h>
+#include <client/object/component/util/simple_movement_component.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
@@ -24,7 +25,7 @@ namespace revive
 	DefaultPlayer::DefaultPlayer(const std::string& name)
 		:Pawn(name)
 	{
-		//m_movement_component = CreateSPtr<CharacterMovementComponent>();
+		m_character_movement_component = CreateSPtr<CharacterMovementComponent>();
 		m_skeletal_mesh_component = CreateSPtr<SkeletalMeshComponent>();
 		m_hit_box = CreateSPtr<BoxComponent>();
 		m_player_fsm = CreateSPtr<PlayerFSM>();
@@ -49,9 +50,9 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
 
-		//ret &= AttachComponent(m_movement_component);
-		//m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)
-		//m_movement_component->UseOrientRotationToMovement(true);
+		ret &= AttachComponent(m_character_movement_component);
+		m_character_movement_component->SetMaxSpeed(100.f);
+		m_character_movement_component->UseOrientRotationToMovement(true);
 
 		std::array<std::string, 2> weapon_names = { "left", "right" };
 		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
@@ -83,6 +84,7 @@ namespace revive
 
 	void DefaultPlayer::Shutdown()
 	{
+		m_character_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
 		m_hit_box = nullptr;
 		m_player_fsm->Shutdown();
@@ -94,12 +96,23 @@ namespace revive
 	void DefaultPlayer::Update(float delta_time)
 	{
 		m_player_fsm->Update();
+
+		m_time += delta_time;
+		m_character_movement_component->AddInputVector(m_velocity);
+		if (m_time >= 0.5f)
+		{
+			m_time -= 0.5f;
+
+			m_inter_velocity = m_previous_pos - GetPosition();
+		}
+		
+		SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
 		if (m_speed > 0)
 		{
-			m_speed -= 8000 * delta_time;
-			//LOG_INFO(m_speed);
+			m_speed -= 4000 * delta_time;
+
 		}
-		m_speed = std::clamp(m_speed, 0.0f, 1200.f);
+		m_speed = std::clamp(m_speed, 0.f, 300.f);
 	}
 
 	void DefaultPlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -109,9 +122,12 @@ namespace revive
 			case HashCode("move object"): 
 			{
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
-				if (msg->GetObjPosition() != GetPosition()) m_speed += 64.f;
-				SetPosition(msg->GetObjPosition());
 				SetRotation(msg->GetObjRotation());
+
+				m_previous_pos = m_next_pos;
+				m_velocity = msg->GetObjPosition() - m_previous_pos;
+				m_next_pos = msg->GetObjPosition();
+				m_speed += m_velocity.Length();
 				break;
 			}
 			case HashCode("player attack"):
@@ -262,7 +278,8 @@ namespace revive
 
 	void RevivePlayer::Update(float delta_time)
 	{
-		DefaultPlayer::Update(delta_time);
+		//DefaultPlayer::Update(delta_time);
+		m_player_fsm->Update();
 	}
 
 	void RevivePlayer::Shutdown()

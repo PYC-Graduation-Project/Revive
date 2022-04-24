@@ -35,15 +35,21 @@ namespace revive
 		int m_hp = 10;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
 		int m_network_id = 9999;
+		float m_time = 0.0f;
 		float m_speed = 0.f;
 
 		bool m_is_attacking = false;
 		bool m_is_hitting = false;
 		bool m_is_dying = false;
 
+		Vec3 m_velocity;
+		Vec3 m_inter_velocity;
+		Vec3 m_next_pos;
+		Vec3 m_previous_pos;
+
 		std::string m_mesh_path;
 		SPtr<PlayerFSM> m_player_fsm;
-		//SPtr<CharacterMovementComponent> m_movement_component;
+		SPtr<CharacterMovementComponent> m_character_movement_component;
 		SPtr<SkeletalMeshComponent> m_skeletal_mesh_component;
 		SPtr<BoxComponent> m_hit_box;
 		std::array<SPtr<Pistol>, 2> m_weapon;

@@ -44,8 +44,8 @@ namespace revive
 				Input::SetHideCursor(false);
 				Input::SetInputMode(eInputMode::kUIOnly);
 				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
-				return true;
 			}
+				return true;
 		});
 
 		Input::SetInputMode(eInputMode::kGameOnly);
