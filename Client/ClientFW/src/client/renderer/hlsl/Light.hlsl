@@ -18,6 +18,14 @@ struct DirectionalLight
     float3 direction;
 };
 
+struct DirectionalLightShadowInfo
+{
+    uint shadow_texture_data_index;
+    uint num_of_directional_light;
+    uint render_camera_index;
+    uint num_of_render_camera;
+};
+
 struct PointLight
 {
     float3 light_color;
@@ -34,6 +42,7 @@ struct SpotLight
     float inner_angle;
     float outer_angle;
 };
+
 
 float3 FresnelSchlick(float cos_theta, float3 f0)
 {
@@ -74,7 +83,7 @@ float GeometrySmith(float3 normal, float3 to_camera, float3 to_light, float roug
     return ggx1 * ggx2;
 }
 
-float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight light)
+float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight light, DirectionalLightShadowInfo shadow_info)
 {
     float3 to_camera = normalize(g_camera_pos - position);
     
@@ -101,7 +110,12 @@ float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight 
     float denominator = 4.0f * max(ndotv, 0.0f) * max(ndotl, 0.0f);
     float3 specular = numerator / max(denominator, 0.001f);
     
-    float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl;
+    float3 shadow_factor = 1.0f;
+    uint shadow_texture_index = shadow_info.shadow_texture_data_index + shadow_info.render_camera_index;
+    
+    shadow_factor = CalcCascadeShadow(position, g_shadow_texture_data[shadow_texture_index], g_cascade_shadow_texture_data[shadow_texture_index]);
+    
+    float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * shadow_factor;
     
     return lo;
 }

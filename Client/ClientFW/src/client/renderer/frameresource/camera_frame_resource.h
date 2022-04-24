@@ -12,9 +12,10 @@ namespace client_fw
 		Mat4 inverse_view_matrix;
 		Vec4 perspective_values;
 		Vec3 camera_position;
-		UINT final_texture_index;
+		UINT final_texture_index = 0;
 		XMUINT4 gbuffer_texture_indices;
-		UINT num_of_directional_light;
+		UINT num_of_directional_light = 0;
+		UINT render_camera_index = 0;
 	};
 
 	struct RSShadowCameraData

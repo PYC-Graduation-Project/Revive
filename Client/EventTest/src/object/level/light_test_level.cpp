@@ -141,7 +141,7 @@ namespace event_test
 		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
 		SpawnActor(d_light);
 
-		/*auto p_light = CreateSPtr<PointLight>();
+		auto p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
 		SpawnActor(p_light);
 
@@ -220,7 +220,7 @@ namespace event_test
 		s_light->SetAttenuationRadius(3000.0f);
 		s_light->SetRotation(0.0f, math::ToRadian(135.0f), 0.0f);
 		s_light->SetConeOuterAngle(45.0f);
-		SpawnActor(s_light);*/
+		SpawnActor(s_light);
 
 		auto tree = CreateSPtr<MaterialBillboardActor>(eMobilityState::kStatic,
 			"../Contents/basic_tree_01.mtl", "Basic_Tree_01", Vec2(200.0f, 400.0f), true);

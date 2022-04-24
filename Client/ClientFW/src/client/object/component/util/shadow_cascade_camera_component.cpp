@@ -8,6 +8,7 @@ namespace client_fw
 	ShadowCascadeCameraComponent::ShadowCascadeCameraComponent(const std::string& name)
 		: CameraComponent(eCameraUsage::kShadowCascade, name)
 	{
+		m_camera_state = eCameraState::kActive;
 	}
 
 	bool ShadowCascadeCameraComponent::Initialize()

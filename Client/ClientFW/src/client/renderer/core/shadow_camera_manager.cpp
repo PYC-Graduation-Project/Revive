@@ -168,20 +168,23 @@ namespace client_fw
 
 		for (const auto& camera : m_shadow_cascade_cameras)
 		{
-			const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
-
-			if (shadow_cascade_texture->GetResource() != nullptr)
+			if (camera->GetRenderCamera().lock()->GetCameraState() == eCameraState::kActive)
 			{
-				for (UINT i = 0; i < 3; ++i)
-				{
-					cameras_data.emplace_back(RSShadowCameraData{
-						mat4::Transpose(camera->GetWorldToCascadeMatrix()[i])
-						});
-				}
+				const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
 
-				// Cascade Shadow뿐만 아니라 다른 Shadow도 최적화가 필요하지만 일단 기능 구현에 목적을 두겠다.
-				MeshVisualizer::UpdateVisibliityFromShadowSphere(camera->GetCascadeBoundingSphere().GetCenter(), camera->GetCascadeBoundingSphere().GetRadius());
-				update_shader_function_for_shadow_cascade_camera(device);
+				if (shadow_cascade_texture->GetResource() != nullptr)
+				{
+					for (UINT i = 0; i < 3; ++i)
+					{
+						cameras_data.emplace_back(RSShadowCameraData{
+							mat4::Transpose(camera->GetWorldToCascadeMatrix()[i])
+							});
+					}
+
+					// Cascade Shadow뿐만 아니라 다른 Shadow도 최적화가 필요하지만 일단 기능 구현에 목적을 두겠다.
+					MeshVisualizer::UpdateVisibliityFromShadowSphere(camera->GetCascadeBoundingSphere().GetCenter(), camera->GetCascadeBoundingSphere().GetRadius());
+					update_shader_function_for_shadow_cascade_camera(device);
+				}
 			}
 		}
 
@@ -258,29 +261,30 @@ namespace client_fw
 
 		for (const auto& camera : m_shadow_cascade_cameras)
 		{
-			const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
-
-			if (shadow_cascade_texture->GetResource() != nullptr)
+			if (camera->GetRenderCamera().lock()->GetCameraState() == eCameraState::kActive)
 			{
-				const auto& size = shadow_cascade_texture->GetTextureSize();
+				const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
 
-				std::array<D3D12_VIEWPORT, s_max_cascade_level> views;
-				views.fill({ 0.f, 0.f, static_cast<float>(size.x), static_cast<float>(size.y), 0.0f, 1.0f });
-				std::array<D3D12_RECT, s_max_cascade_level> scissors;
-				scissors.fill({ 0, 0, static_cast<LONG>(size.x), static_cast<LONG>(size.y) });
+				if (shadow_cascade_texture->GetResource() != nullptr)
+				{
+					const auto& size = shadow_cascade_texture->GetTextureSize();
 
-				command_list->RSSetViewports(s_max_cascade_level, views.data());
-				command_list->RSSetScissorRects(s_max_cascade_level, scissors.data());
+					std::array<D3D12_VIEWPORT, s_max_cascade_level> views;
+					views.fill({ 0.f, 0.f, static_cast<float>(size.x), static_cast<float>(size.y), 0.0f, 1.0f });
+					std::array<D3D12_RECT, s_max_cascade_level> scissors;
+					scissors.fill({ 0, 0, static_cast<LONG>(size.x), static_cast<LONG>(size.y) });
 
-				command_list->SetGraphicsRootShaderResourceView(8, gpu_address);
+					command_list->RSSetViewports(s_max_cascade_level, views.data());
+					command_list->RSSetScissorRects(s_max_cascade_level, scissors.data());
 
-				shadow_cascade_texture->PreDraw(command_list);
-				shadow_cascade_function(command_list);
-				shadow_cascade_texture->PostDraw(command_list);
+					command_list->SetGraphicsRootShaderResourceView(8, gpu_address);
 
-				//camera->SetPaused();
+					shadow_cascade_texture->PreDraw(command_list);
+					shadow_cascade_function(command_list);
+					shadow_cascade_texture->PostDraw(command_list);
 
-				gpu_address += gpu_offset * s_max_cascade_level;
+					gpu_address += gpu_offset * s_max_cascade_level;
+				}
 			}
 		}
 

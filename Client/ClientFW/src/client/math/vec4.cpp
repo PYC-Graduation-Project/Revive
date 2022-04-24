@@ -45,6 +45,30 @@ namespace client_fw
 		return *this;
 	}
 
+	float Vec4::operator[](size_t index) const
+	{
+		switch (index)
+		{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+		case 3: return w;
+		default: LOG_WARN("Out of range : {0}", index);  return x;
+		}
+	}
+
+	float& Vec4::operator[](size_t index)
+	{
+		switch (index)
+		{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+		case 3: return w;
+		default: LOG_WARN("Out of range : {0}", index);  return x;
+		}
+	}
+
 	std::string Vec4::ToString() const
 	{
 		std::stringstream ret;

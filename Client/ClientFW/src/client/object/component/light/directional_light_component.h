@@ -24,7 +24,7 @@ namespace client_fw
 		std::vector<CascadeShadowForRenderCamera> m_cascade_shadows_camera;
 
 	public:
-		const std::vector<CascadeShadowForRenderCamera>& GetCascadeShadowsCamera() const { return m_cascade_shadows_camera; }
+		const std::vector<CascadeShadowForRenderCamera>& GetCascadeShadowsCameras() const { return m_cascade_shadows_camera; }
 		void RegisterCascadeAndRenderCamera(const WPtr<RenderCameraComponent>& render_camera_comp,
 			const SPtr<ShadowCascadeCameraComponent>& cascade_camera_comp);
 		void UnregisterRenderCamera(const WPtr<RenderCameraComponent>& render_camera_comp);

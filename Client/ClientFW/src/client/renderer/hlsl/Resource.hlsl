@@ -45,6 +45,13 @@ struct ShadowTextureData
     uint shadow_texture_index;
 };
 
+struct CascadeShadowTextureData
+{
+    float4 cascade_offset_x;
+    float4 cascade_offset_y;
+    float4 cascade_scale;
+};
+
 struct SkeletalData
 {
     matrix bone_transform;
@@ -55,7 +62,8 @@ StructuredBuffer<MaterialData> g_material_data : register(t1, space0);
 StructuredBuffer<LightData> g_light_data : register(t2, space0);
 StructuredBuffer<ShadowCameraData> g_shadow_camera_data : register(t3, space0);
 StructuredBuffer<ShadowTextureData> g_shadow_texture_data : register(t4, space0);
-StructuredBuffer<SkeletalData> g_bone_transform_data : register(t5, space0);
+StructuredBuffer<CascadeShadowTextureData> g_cascade_shadow_texture_data : register(t5, space0);
+StructuredBuffer<SkeletalData> g_bone_transform_data : register(t6, space0);
 Texture2D g_texture_data[] : register(t0, space1);
 TextureCube g_texture_cube_data[] : register(t0, space2);
 Texture2DArray g_texture_array_data[] : register(t0, space3);
@@ -79,6 +87,7 @@ cbuffer cbRenderCameraData : register(b1, space0)
     uint g_final_texture_index;
     uint4 g_gbuffer_texture_indices;
     uint g_num_of_directional_light;
+    uint g_render_camera_index;
 }
 
 #endif // __RESOURCE_HLSL__

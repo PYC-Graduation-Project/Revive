@@ -7,6 +7,8 @@ namespace client_fw
 	class PointLightComponent;
 	class SpotLightComponent;
 
+	constexpr static UINT s_max_directional_light = 4;
+
 	// Light의 정보를 GPU에서 사용하기 위해 Light를 관리하는 클래스
 	class LightManager final
 	{
@@ -53,6 +55,7 @@ namespace client_fw
 		static LightManager* s_light_manager;
 		UINT m_num_of_light = 0;
 		UINT m_num_of_shadow_texture = 0;
+		UINT m_num_of_cascade_shadow_texture = 0;
 
 		std::vector<SPtr<DirectionalLightComponent>> m_ready_directional_lights;
 		std::vector<SPtr<DirectionalLightComponent>> m_directional_lights;

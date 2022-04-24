@@ -98,10 +98,8 @@ namespace client_fw
 		const auto& directional_lights = light_manager.GetDirectionalLights();
 		if (directional_lights.empty() == false)
 		{
-			for (const auto& directional_light : ready_directional_lights)
+			for (const auto& directional_light : directional_lights)
 			{
-				for (const auto& camera : m_ready_render_cameras)
-					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
 				for (const auto& camera : m_wait_resource_render_cameras)
 					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
 			}
@@ -149,6 +147,7 @@ namespace client_fw
 						render_texture->GetGBufferResourceIndex(0), render_texture->GetGBufferResourceIndex(1),
 						render_texture->GetGBufferResourceIndex(2), render_texture->GetDSVResourceIndex());
 					camera_data.num_of_directional_light = num_of_directional_light;
+					camera_data.render_camera_index = index;
 					camera_resource_data->CopyData(index, camera_data);
 
 					if (camera == m_main_camera)

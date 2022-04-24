@@ -17,6 +17,9 @@ namespace client_fw
 		Vec4& operator/=(const Vec4& rhs);
 		Vec4& operator/=(float scalar);
 
+		float operator[](size_t index) const;
+		float& operator[](size_t index);
+
 		std::string ToString() const;
 	};
 
