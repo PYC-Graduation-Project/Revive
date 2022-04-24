@@ -39,6 +39,7 @@ namespace client_fw
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(const ComPtr<ID3D12Resource>& texture_resource);
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescForDSV(const ComPtr<ID3D12Resource>& dsv_resource);
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescFor32DSV(const ComPtr<ID3D12Resource>& dsv_resource);
+		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescFor32DSVArray(const ComPtr<ID3D12Resource>& dsv_resource, UINT array_size);
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescFor32DSVCube(const ComPtr<ID3D12Resource>& dsv_resource);
 		static D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDescForCube(const ComPtr<ID3D12Resource>& cube_map_resource);
 	};

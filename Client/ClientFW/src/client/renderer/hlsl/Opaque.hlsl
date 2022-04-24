@@ -165,7 +165,7 @@ VS_SHADOW_OUT VSOpaqueMeshForShadow(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint ins
     InstanceData i_data = g_instance_data[instance_id];
     
     float4 position = mul(float4(input.position, 1.0f), i_data.world);
-    output.sv_position = mul(position, g_view_projection);
+    output.sv_position = mul(position, g_shadow_camera_data[0].g_view_projection);
     
     return output;
 }
@@ -194,7 +194,39 @@ void GSOpaqueMeshForShadowCube(triangle float4 input[3] : SV_POSITION, inout Tri
         [unroll]
         for (int i = 0; i < 3; ++i)
         {
-            output.sv_position = mul(input[i], g_cube_view_projection[face]);
+            output.sv_position = mul(input[i], g_shadow_camera_data[face].g_view_projection);
+            out_stream.Append(output);
+        }
+
+        out_stream.RestartStrip();
+    }
+}
+
+//
+// Opaque Mesh For Cascade Shadow
+//
+
+float4 VSOpaqueMeshForShadowCascade(VS_OPAQUE_MESH_FOR_SHADOW_IN input, uint instance_id : SV_InstanceID) : SV_POSITION
+{
+    InstanceData i_data = g_instance_data[instance_id];
+    
+    return mul(float4(input.position, 1.0f), i_data.world);
+}
+
+[maxvertexcount(9)]
+void GSOpaqueMeshForShadowCascade(triangle float4 input[3] : SV_POSITION, inout TriangleStream<GS_SHADOW_CASCADE_OUT> out_stream)
+{
+    GS_SHADOW_CASCADE_OUT output;
+    
+    [unroll]
+    for (int face = 0; face < 3; ++face)
+    {
+        output.render_target_index = face;
+        
+        [unroll]
+        for (int i = 0; i < 3; ++i)
+        {
+            output.sv_position = mul(input[i], g_shadow_camera_data[face].g_view_projection);
             out_stream.Append(output);
         }
 

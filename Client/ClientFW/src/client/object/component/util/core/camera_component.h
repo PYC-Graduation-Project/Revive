@@ -16,7 +16,7 @@ namespace client_fw
 
 	enum class eCameraUsage
 	{
-		kBasic, kShadow, kShadowCube,
+		kBasic, kShadow, kShadowCube, kShadowCascade
 	};
 
 	//카메라가 그리는 크기 (RenderTexture의 Size와도 같다.)
@@ -56,6 +56,7 @@ namespace client_fw
 		Viewport m_viewport;
 		bool m_is_updated_viewport = true;
 		Vec3 m_camera_position;
+		Vec3 m_camera_forward;
 		Mat4 m_view_matrix;
 		Mat4 m_inverse_view_matrix;
 		Mat4 m_projection_matrix;
@@ -71,17 +72,23 @@ namespace client_fw
 		eCameraState GetCameraState() const { return m_camera_state; }
 		void SetActive() { m_camera_state = eCameraState::kActive; }
 		void SetPaused() { m_camera_state = eCameraState::kPaused; }
+		eProjectionMode GetProjectionMode() const { return m_projection_mode; }
 		void SetProjectionMode(eProjectionMode mode) { m_projection_mode = mode; }
 		eCameraUsage GetCameraUsage() const { return m_camera_usage; }
 		const Viewport& GetViewport() const { return m_viewport; }
 		void SetViewport(const Viewport& viewport) { m_viewport = viewport; m_is_updated_viewport = true; }
 		const Vec3& GetCameraPosition() const { return m_camera_position; }
+		const Vec3& GetCameraForward() const { return m_camera_forward; }
 		const Mat4& GetViewMatrix() const { return m_view_matrix; }
 		const Mat4& GetInverseViewMatrix() const { return m_inverse_view_matrix; }
 		const Mat4& GetProjectionMatrix() const { return m_projection_matrix; }
 		const Mat4& GetViewProjectionMatrix() const { return m_view_projection_matrix; }
 		Mat4 GetPerspectiveMatrix() const;
 		Mat4 GetOrthoMatrix() const;
+		float GetAspectRatio() const { return m_aspect_ratio; }
+		float GetFieldOfView() const { return m_field_of_view; }
+		float GetNearZ() const { return m_near_z; }
+		float GetFarZ() const { return m_far_z; }
 		void SetAspectRatio(float aspect_ratio); 
 		void SetFieldOfView(float fov);
 		void SetNearZ(float near_z);
