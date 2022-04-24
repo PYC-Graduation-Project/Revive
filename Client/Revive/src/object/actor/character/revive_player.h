@@ -41,6 +41,7 @@ namespace revive
 		bool m_is_attacking = false;
 		bool m_is_hitting = false;
 		bool m_is_dying = false;
+		bool m_is_fire = false;
 
 		Vec3 m_velocity;
 		Vec3 m_inter_velocity;

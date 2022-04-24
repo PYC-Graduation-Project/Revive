@@ -13,6 +13,7 @@ namespace revive
 		ReviveGameMode();
 		virtual ~ReviveGameMode() = default;
 
+		virtual bool Initialize(const SPtr<Level>& level) override;
 	};
 
 }

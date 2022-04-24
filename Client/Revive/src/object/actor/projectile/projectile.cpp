@@ -66,6 +66,11 @@ namespace revive
 		m_sphere_component->SetCollisionInfo(is_collision, false, move(collision_type), move(collisionable_types), genrate_collision_event);
 	}
 
+	void Projectile::SetCollisionInfo(bool is_collision, bool is_blocking, bool genrate_collision_event)
+	{
+		m_sphere_component->SetCollisionInfo(is_collision, is_blocking, genrate_collision_event);
+	}
+
 	void Projectile::SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)
 	{
 		m_sphere_component->OnCollisionResponse(function);

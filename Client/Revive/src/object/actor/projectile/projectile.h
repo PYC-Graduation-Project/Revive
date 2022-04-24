@@ -47,6 +47,7 @@ namespace revive
 		void SetIsCollision(const bool value) { m_is_collision = value; }
 		void SetVelocity(const Vec3& velocity);
 		void SetCollisionInfo(bool is_collision, std::string&& collision_type, std::set<std::string>&& collisionable_types, bool genrate_collision_event);
+		void SetCollisionInfo(bool is_collision, bool is_blocking, bool genrate_collision_event);
 		void SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp,
 			const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function);
 		void SetBlockingSphereRadius(float radius);

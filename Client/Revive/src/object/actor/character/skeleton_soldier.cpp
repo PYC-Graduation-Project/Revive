@@ -58,38 +58,34 @@ namespace revive
 			stone->SetOnCollisionResponse([stone](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				if (stone->GetIsCollision())
+				//이게 피격
+				stone->SetCollisionInfo(false, false, false);
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+				if (player != nullptr)
 				{
-					//이게 피격
-					stone->SetIsCollision(false);
-					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-					const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-					if (player != nullptr)
+					int player_hp = player->GetHP();
+					if (player_hp > 0)
 					{
-						int player_hp = player->GetHP();
-						if (player_hp > 0)
-						{
-							//플레이어 피격했다고 서버에 알리기
-							player->Hit(0);
-						}
+						//플레이어 피격했다고 서버에 알리기
+						player->Hit(0);
 					}
-					else
-					{
-						const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
-						if (base != nullptr)
-						{
-							int base_hp = base->GetHP();
-							if (base_hp > 0)
-							{
-								//기지 피격했다고 서버에 알리기
-								base->SetHP(base_hp);
-							}
-						}
-					}
-					LOG_INFO("충돌 부위 :" + other_component->GetName());
-					stone->SetActorState(eActorState::kDead);
-
 				}
+				else
+				{
+					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+					if (base != nullptr)
+					{
+						int base_hp = base->GetHP();
+						if (base_hp > 0)
+						{
+							//기지 피격했다고 서버에 알리기
+							base->SetHP(base_hp);
+						}
+					}
+				}
+				LOG_INFO("충돌 부위 :" + other_component->GetName());
+				stone->SetActorState(eActorState::kDead);
 			});
 			SpawnActor(stone);
 		}

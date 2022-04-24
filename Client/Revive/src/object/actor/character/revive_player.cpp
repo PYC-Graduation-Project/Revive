@@ -45,8 +45,22 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(0.01f);
 
-		m_skeletal_mesh_component->AddNotify("Attack End", "attack", 18,
-			[this]() { m_is_attacking = false; /*LOG_INFO(m_is_attacking);*/ });
+		//공격2 전환 및 종료
+		m_skeletal_mesh_component->AddNotify("First Attack", "attack_left", 17,
+			[this]() {
+			SetAnimation("attack_right",false); 
+			SetAnimationSpeed(1.0f);
+			m_is_fire = false;
+			 });
+		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_right", 17,
+			[this]() {m_is_attacking = false; m_is_fire = false; LOG_INFO(m_is_attacking); });
+
+		//총알 발사(스폰) 타이밍
+		m_skeletal_mesh_component->AddNotify("First Fire", "attack_left", 9,
+			[this]() {	Attack(); LOG_INFO(m_is_attacking); });
+		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_right", 10,
+			[this]() {  Attack(); LOG_INFO(m_is_attacking); });
+
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
 
@@ -192,23 +206,23 @@ namespace revive
 
 	void DefaultPlayer::Attack()
 	{
-		//카메라가 보는 방향으로 총을 쏴야한다(회전)
-		Vec3 direction = GetForward();
-		direction.y = 0;
-		SetRotation(FindLookAtRotation(direction,vec3::ZERO));
-
-		//총알 스폰
-		const auto& bullet = CreateSPtr<Bullet>();
-		bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
-		bullet->SetBlockingSphereRadius(10.f);
-		bullet->SetVelocity(GetForward());
-		bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-		bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-			const SPtr<SceneComponent>& other_component)
+		if (m_is_fire == false)
 		{
-			if (bullet->GetIsCollision())
+			//카메라가 보는 방향으로 총을 쏴야한다(회전)
+			Vec3 direction = GetForward();
+			direction.y = 0;
+			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
+
+			//총알 스폰
+			const auto& bullet = CreateSPtr<Bullet>();
+			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
+			bullet->SetBlockingSphereRadius(10.f);
+			bullet->SetVelocity(GetForward());
+			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
+			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+				const SPtr<SceneComponent>& other_component)
 			{
-				bullet->SetIsCollision(false);
+				bullet->SetCollisionInfo(false, false, false);
 				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
@@ -220,9 +234,11 @@ namespace revive
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
 					bullet->SetActorState(eActorState::kDead);
 				}
-			}
-		});
-		SpawnActor(bullet);
+			});
+			SpawnActor(bullet);
+			m_is_fire = true;
+		}
+		
 	}
 
 	void DefaultPlayer::Hit(int damage)
@@ -330,42 +346,37 @@ namespace revive
 
 	void RevivePlayer::Attack()
 	{
-		Vec3 direction = m_controller.lock()->GetForward();
-		direction.y = 0;
-		SetRotation(FindLookAtRotation(direction, vec3::ZERO));
-		//RotateFromDirection(direction);
-		//총알 스폰
-		const auto& bullet = CreateSPtr<Bullet>();
-		bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
-		bullet->SetBlockingSphereRadius(10.f);
-		bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
-		client_fw::PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), GetPosition() + Vec3{ 0.0f,50.0f,0.0f },m_controller.lock()->GetForward()));
-		bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-		bullet->SetOnCollisionResponse([this,bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-			const SPtr<SceneComponent>& other_component)
+		if (m_is_fire == false)
 		{
-			if (bullet->GetIsCollision())
+			Vec3 direction = m_controller.lock()->GetForward();
+			direction.y = 0;
+			FindLookAtRotation(direction, vec3::ZERO);
+
+			//총알 스폰
+			const auto& bullet = CreateSPtr<Bullet>();
+			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
+			bullet->SetBlockingSphereRadius(10.f);
+			bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
+			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
+			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+				const SPtr<SceneComponent>& other_component)
 			{
-				bullet->SetIsCollision(false); LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				bullet->SetCollisionInfo(false, false, false);
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
 				{
 					int enemy_hp = enemy->GetHP();
 					if (enemy_hp > 0)
-
-					{
-
 						enemy->Hit(0);
 
-
-					}
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
 					bullet->SetActorState(eActorState::kDead);
 				}
-			}
-
-		});
-		SpawnActor(bullet);
+			});
+			SpawnActor(bullet);
+			m_is_fire = true;
+		}
 	}
 
 	void RevivePlayer::Hit(int damage)

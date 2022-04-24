@@ -4,11 +4,12 @@
 #include <client/object/actor/core/actor.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
-#include "object/level/game_play_level.h"
 #include <client/object/level/gamemode/game_mode_base.h>
-#include "object/gamemode/revive_game_mode.h"
 #include <client/event/packetevent/packet_helper.h>
 #include <client/event/messageevent/message_helper.h>
+#include <client/object/actor/sky_cube.h>
+#include "object/level/game_play_level.h"
+#include "object/gamemode/revive_game_mode.h"
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
 
@@ -34,6 +35,9 @@ namespace revive
 			SpawnActor(actor);
 		}
 		
+		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
+		SpawnActor(sky_cube);
+
 		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
 

@@ -72,8 +72,9 @@ namespace revive
 		//LOG_INFO("Attack State");
 		const auto& player = m_player.lock();
 		player->SetMeshPosition(Vec3{ 0,0,0 });
-		player->SetAnimation("attack", false);
-		player->Attack();
+		player->SetAnimation("attack_left", false);
+		player->SetAnimationSpeed(0.6f);
+		//player->Attack();
 	}
 
 	SPtr<PlayerState> AttackState::ChageState()
