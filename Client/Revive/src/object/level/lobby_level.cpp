@@ -38,9 +38,14 @@ namespace revive
 		});
 		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
 			[this]()->bool {
-
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
-			return true;
+			if (m_is_succeed_login)
+			{
+				LOG_INFO("¸ÅÄª ´ë±âÁß...");
+				Input::SetHideCursor(false);
+				Input::SetInputMode(eInputMode::kUIOnly);
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				return true;
+			}
 		});
 
 		Input::SetInputMode(eInputMode::kGameOnly);
@@ -65,6 +70,12 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<MatchingMessageOKEventInfo>(message);
 			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
+			break;
+		}
+		case HashCode("sign in"):
+		{
+			auto msg = std::static_pointer_cast<SignInMessageOkEventInfo>(message);
+			m_is_succeed_login = true;
 			break;
 		}
 		}
