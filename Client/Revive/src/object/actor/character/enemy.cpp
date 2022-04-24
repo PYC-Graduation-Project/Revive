@@ -158,9 +158,8 @@ namespace revive
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
-		Vec3 rotate_player = mesh_rotate + Vec3{ 0.f,math::ToDegrees(angle),0.f };
 
-		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));
+		return quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f);
 	}
 
 	void Enemy::Attack()

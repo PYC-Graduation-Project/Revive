@@ -30,7 +30,7 @@ namespace revive
 				{
 					int player_hp = player->GetHP();
 					if (player_hp > 0) //서버에 플레이어 체력 전송
-						player->Hit(2);
+						player->Hit(0);
 				}
 				else
 				{
@@ -39,7 +39,7 @@ namespace revive
 					{
 						int base_hp = base->GetHP();
 						if (base_hp > 0) //서버에 기지 체력 전송
-							base->SetHP(base_hp - 2);
+							base->SetHP(base_hp);
 					}
 				}
 				LOG_INFO("충돌 부위 :" + other_component->GetName());

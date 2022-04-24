@@ -48,7 +48,7 @@ namespace revive
 		SPtr<BoxComponent> m_hit_box;
 		std::array<SPtr<Pistol>, 2> m_weapon;
 
-		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
+		virtual Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
 
 		SPtr<DefaultPlayer> SharedFromThis() { return std::static_pointer_cast<DefaultPlayer>(shared_from_this()); }
 
@@ -67,7 +67,7 @@ namespace revive
 		void SetNetworkID(int val) { m_network_id = val; };
 		void DecrementHitCount() { m_hit_count--; }
 
-		void Attack();
+		virtual void Attack();
 		virtual void Hit(int damage = 1);
 	};
 
@@ -112,11 +112,12 @@ namespace revive
 		const int GetHitCount() const { return m_hit_count; }
 		const int GetHP() const { return m_hp; }
 
-		void Attack();
-		void Hit(int damage);
+		virtual void Attack() override;
+		virtual void Hit(int damage) override;
 
 		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
 
+		//void RotateFromDirection(const Vec3& direction);
 		//Controller에서 호출
 		//void MinPitch(); //최소 Pitch 제한을 걸기 위한 함수
 		void FixYPosition();

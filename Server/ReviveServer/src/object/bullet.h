@@ -36,7 +36,7 @@ private:
 
 	Vector3 m_forward;
 	BoxCollision m_hit_collision;
-	atomic_bool m_in_use = false;
+	std::atomic_bool m_in_use = false;
 	float m_speed;
 	int m_room_id;
 };
