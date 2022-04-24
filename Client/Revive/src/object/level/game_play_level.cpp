@@ -6,9 +6,12 @@
 #include <client/util/octree/octree.h>
 #include <client/object/level/gamemode/game_mode_base.h>
 #include <client/event/packetevent/packet_helper.h>
+#include <client/object/level/core/level_manager.h>
+#include <client/object/level/core/level_loader.h>
 #include <client/event/messageevent/message_helper.h>
 #include <client/object/actor/sky_cube.h>
 #include "object/level/game_play_level.h"
+#include "object/level/game_end_level.h"
 #include "object/gamemode/revive_game_mode.h"
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
@@ -34,7 +37,15 @@ namespace revive
 		{
 			SpawnActor(actor);
 		}
+
 		
+		RegisterPressedEvent("Game End", { { eKey::k0 } },
+			[this]()->bool {
+			//플레이어 사망 및 기지 파괴될 시 아래코드 사용
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kLose), nullptr);
+			return true;
+		});
+
 		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
 		SpawnActor(sky_cube);
 
