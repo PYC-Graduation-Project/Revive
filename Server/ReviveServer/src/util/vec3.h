@@ -69,4 +69,17 @@ public:
 		Vector3 nor{ x / scale, y / scale, z / scale };
 		return nor;
 	}
+	float Dist(const Vector3& other)
+	{
+		float temp_x = (x - other.x) * (x - other.x);
+		float temp_y = (y - other.y) * (y - other.y);
+		float temp_z = (z - other.z) * (z - other.z);
+		return sqrt(temp_x + temp_y + temp_z);
+	}
+	float Dist2d(const Vector3& other)
+	{
+		float temp_x = (x - other.x) * (x - other.x);
+		float temp_z = (z - other.z) * (z - other.z);
+		return sqrt(temp_x +  temp_z);
+	}
 };

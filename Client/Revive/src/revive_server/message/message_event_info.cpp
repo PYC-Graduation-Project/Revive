@@ -38,8 +38,8 @@ namespace revive
 		: MessageEventInfo(event_id), m_pos(pos),m_rot(rot)
 	{
 	}
-	SendAttackEventInfo::SendAttackEventInfo(UINT event_id)
-		: MessageEventInfo(event_id)
+	SendAttackEventInfo::SendAttackEventInfo(UINT event_id, const Vec3& start_pos, const Vec3& forward_vec)
+		: MessageEventInfo(event_id),m_start_pos(start_pos),m_forward_vec(forward_vec)
 	{
 	}
 	RecvAttackEventInfo::RecvAttackEventInfo(UINT event_id)
@@ -48,6 +48,10 @@ namespace revive
 	}
 	MatchingMessageOKEventInfo::MatchingMessageOKEventInfo(UINT event_id)
 		:MessageEventInfo(event_id)
+	{
+	}
+	ObjectHitMessageOKEventInfo::ObjectHitMessageOKEventInfo(UINT event_id, int victim_id)
+		: MessageEventInfo(event_id),m_victim_id(victim_id)
 	{
 	}
 }

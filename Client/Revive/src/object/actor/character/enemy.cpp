@@ -155,6 +155,7 @@ namespace revive
 	{
 		m_skeletal_mesh_component->SetAnimation("hit", false);
 		m_hp -= damage;
+		
 		LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
 	}
 }

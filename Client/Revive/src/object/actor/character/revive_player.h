@@ -34,7 +34,7 @@ namespace revive
 	protected:
 		int m_hp = 10;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
-
+		int m_network_id = 9999;
 		float m_speed = 0.f;
 
 		bool m_is_attacking = false;
@@ -59,12 +59,12 @@ namespace revive
 		const bool GetIsAttacking() const { return m_is_attacking; }
 		const bool GetIsHitting() const { return m_is_hitting; }
 		const bool GetIsDying() const { return m_is_dying; }
-
+		const int GetNetworkID()const { return m_network_id; }
 		void SetIsDying(bool value) { m_is_dying = value; }
 		void SetAnimation(const std::string& animation_name, bool looping);
 		void SetMeshPosition(const Vec3& pos);
 		void SetAnimationSpeed(float speed);
-
+		void SetNetworkID(int val) { m_network_id = val; };
 		void DecrementHitCount() { m_hit_count--; }
 
 		void Attack();

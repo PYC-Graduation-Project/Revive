@@ -22,10 +22,12 @@ namespace revive
 		virtual void Shutdown() override;
 		virtual void Update(float delta_time) override;
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
+		const int GetNetworkID()const { return m_network_id; }
+		void SetNetworkID(int val) { m_network_id = val; };
 	protected:
 		int m_hp;
 		float m_disappear_time = 0.0f;
-
+		int m_network_id = 9999;
 		bool m_is_disappearing = false;
 		bool m_is_dead = false;
 		bool m_is_attacking = false;

@@ -102,7 +102,13 @@ namespace revive
     class SendAttackEventInfo final : public MessageEventInfo
     {
     public:
-        SendAttackEventInfo(UINT event_id);
+        SendAttackEventInfo(UINT event_id,const Vec3&start_pos, const Vec3&forward_vec);
+    private:
+        Vec3 m_start_pos;
+        Vec3 m_forward_vec;
+    public:
+        const Vec3& GetStartPosition()const { return m_start_pos; }
+        const Vec3& GetForward()const { return m_forward_vec; }
     };
     class RecvAttackEventInfo final : public MessageEventInfo
     {
@@ -115,6 +121,15 @@ namespace revive
     public:
         MatchingMessageOKEventInfo(UINT event_id);
    
+    };
+    class ObjectHitMessageOKEventInfo final :public MessageEventInfo
+    {
+    public:
+        ObjectHitMessageOKEventInfo(UINT event_id,int victim_id);
+    private:
+        int m_victim_id;
+    public:
+        const int GetVictimID() { return m_victim_id; }
     };
 }
 

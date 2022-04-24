@@ -81,6 +81,7 @@ namespace revive
 				auto player = CreateSPtr<DefaultPlayer>("other player");
 				SpawnActor(player);
 				player->SetPosition(obj->GetPosition());
+				player->SetNetworkID(obj->GetID());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				break;
 			}
@@ -89,6 +90,7 @@ namespace revive
 				auto police = CreateSPtr<SkeletonSoldier>();
 				SpawnActor(police);
 				police->SetPosition(obj->GetPosition());
+				police->SetNetworkID(obj->GetID());
 				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
 
 				break;
@@ -97,6 +99,7 @@ namespace revive
 				auto police = CreateSPtr<SkeletonKing>();
 				SpawnActor(police);
 				police->SetPosition(obj->GetPosition());
+				police->SetNetworkID(obj->GetID());
 				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
 				break;
 			}

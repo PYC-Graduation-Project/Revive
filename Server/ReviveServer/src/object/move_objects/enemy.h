@@ -30,8 +30,10 @@ public:
     Vector3& GetLookVec()  { return m_look; }
     Vector3& GetPrevPos() { return m_prev_pos; }
     BoxCollision& GetCollision() { return m_collision; }
+    BoxCollision& GetHitCollision() { return m_hit_collision; }
     void SetCollision(const BoxCollision& val) { m_collision = val; }
-  
+    void SetHitCollision(const BoxCollision& val) { m_hit_collision = val; }
+
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
     void SetTargetId(const int val) { target_id = val; }
@@ -50,6 +52,7 @@ private:
     std::vector<Vector3>m_load;
     std::chrono::system_clock::time_point	m_attack_time;
     BoxCollision m_collision;
+    BoxCollision m_hit_collision;
     Vector3 m_prev_pos{ 0.0f,0.0f,0.0f };
     lua_State* m_L;
     Vector3 m_look;

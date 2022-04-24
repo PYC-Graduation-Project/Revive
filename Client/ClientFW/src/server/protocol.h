@@ -101,6 +101,8 @@ struct cs_packet_move {
 struct cs_packet_attack {
 	unsigned char size;
 	char	type;
+	float x, y, z;
+	float f_x, f_y, f_z;
 };
 
 struct cs_packet_chat {

@@ -1,4 +1,5 @@
 #include<map>
+
 #include "pch.h"
 #include "packet_manager.h"
 #include"database/db.h"
@@ -10,7 +11,7 @@
 #include"lua/functions/lua_functions.h"
 #include"util/Astar.h"
 #include"util/collision/collisioner.h"
-
+#include"object/bullet.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
 using namespace std;
@@ -617,15 +618,35 @@ void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
 
 void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 {
+	cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(p);
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
+	Vector3 position{ packet->x,packet->y,packet->z };
+	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
 	for (int pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		if (pl == c_id)continue;
 		SendAttackPacket(pl,c_id);
 	}
-	//player°¡ ÃÑÀ»½úÀ»¶§
+	//int new_id = room->GetNewBullet();
+	//if (new_id == -1)return;
+	//Bullet* bullet = room->GetBullet(new_id);
+	//bullet->Init(position, forward);
+	//Vector3 last_pos = position + (forward * 2000);
+	//using dist =pair<float, int>;
+	//vector<dist>obj_dist;
+	//obj_dist.reserve(100);
+	//Enemy* enemy = nullptr;
+	//float bullet_range = bullet->GetPos().Dist2d(last_pos);
+	//for (int e_id : room->GetObjList())
+	//{
+	//	if (MoveObjManager::GetInst()->IsPlayer(e_id))continue;
+	//	enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+	//	if (enemy->GetIsActive() == false)continue;
+	//	if()
+	//}
+	////player°¡ ÃÑÀ»½úÀ»¶§
 	
 }
 

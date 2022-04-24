@@ -18,7 +18,7 @@ const int  SORDIER_PER_USER = 9;//사람하나당 최대 해골 병사
 const int  KING_PER_USER = 6;//사람하나당 최대 해골킹
 constexpr int  MAX_NPC = MAX_USER * NPC_PER_USER; //최대 npc 개수
 
-const float FramePerSecond = 0.03f;
+const float FramePerSecond = 0.05f;
 const float SPEED_PER_SECOND = 225.0f;
 const float MAX_SPEED = SPEED_PER_SECOND * FramePerSecond; //추후 수정, 플레이어 이동 속도 //225 cm/s
 const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
@@ -101,6 +101,8 @@ struct cs_packet_move {
 struct cs_packet_attack {
 	unsigned char size;
 	char	type;
+	float x, y, z;
+	float f_x, f_y, f_z;
 };
 
 struct cs_packet_chat {
@@ -215,6 +217,6 @@ struct sc_packet_attack {
 	char type;
 	int	obj_id;
 	//float x, y, z;
-	
+
 };
 #pragma pack(pop)

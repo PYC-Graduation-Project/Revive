@@ -3,7 +3,10 @@
 #include<mutex>
 #include<atomic>
 #include<chrono>
+#include<array>
+#include"object/bullet.h"
 class Object;
+const int MAX_BULLET=100;
 class Room
 {
 public:
@@ -26,18 +29,21 @@ public:
 	void SetState(bool val) { is_ingame = val; }
 	void SetRoundTime(int seconds);
 	void SetRound(int val) { curr_round = val; }
+	Bullet* GetBullet(int id) { return m_bullet_pool[id]; }
+	int GetNewBullet();
 	std::vector<int>& GetObjList()
 	{
 		return m_obj_list;
 	}
+	std::mutex m_bullet_lock;
 private:
 	int room_id;
 	int max_user;
 	std::atomic_bool is_ingame = false;
 	int max_npc;
 	int curr_round;
-	std::mutex m_obj_lock;
 	std::vector<int>m_obj_list;
+	std::array<Bullet*, MAX_BULLET>m_bullet_pool;
 	std::chrono::system_clock::time_point	m_round_time;
 	Object* m_base;//방초기화할때 생성
 };
