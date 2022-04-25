@@ -229,7 +229,7 @@ namespace revive
 				{
 					int enemy_hp = enemy->GetHP();
 					if (enemy_hp > 0)
-						enemy->Hit(0);
+						//enemy->Hit(0);
 
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
 					bullet->SetActorState(eActorState::kDead);
@@ -357,6 +357,7 @@ namespace revive
 			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), bullet->GetPosition(), m_controller.lock()->GetForward()));
 			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
@@ -368,7 +369,7 @@ namespace revive
 				{
 					int enemy_hp = enemy->GetHP();
 					if (enemy_hp > 0)
-						enemy->Hit(0);
+						//enemy->Hit(0);
 
 					LOG_INFO("충돌 부위 :" + other_component->GetName());
 					bullet->SetActorState(eActorState::kDead);

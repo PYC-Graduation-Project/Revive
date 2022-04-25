@@ -64,7 +64,7 @@ int API_move(lua_State* L)
 {
 	int target_id = (int)lua_tointeger(L, -1);
 	int npc_id = (int)lua_tointeger(L, -2);
-	cout << "루아 npc_id" << target_id << endl;
+	//cout << "루아 npc_id" << target_id << endl;
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
 	en->SetTargetId(target_id);

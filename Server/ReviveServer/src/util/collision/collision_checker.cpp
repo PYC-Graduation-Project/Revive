@@ -28,3 +28,52 @@ bool CollisionChecker::CheckInRange( BoxCollision& range_obj, SphereCollison& mo
 {
     return false;
 }
+
+bool CollisionChecker::lineIntersection(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& x)
+{
+    float det = (b - a).cross(d - c); 
+    //두선이 평행인 경우 
+    if (fabs(det) < EPSILON) return false; 
+    x = a + (b - a) * ((c - a).cross(d - c) / det);
+    return true;
+}
+
+float CollisionChecker::ccw(Vector2 a, Vector2 b)
+{
+    return a.cross(b);
+}
+
+float CollisionChecker::ccw(Vector2 p, Vector2 a, Vector2 b)
+{
+    return ccw(a - p, b - p);
+}
+
+bool CollisionChecker::paralleSegments(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& p)
+{
+    if (b < a) std::swap(a, b); if (d < c) std::swap(c, d); 
+    //한 직선위에 없거나 두 선분이 겹치지 않는 경우를 우선 걸러낸다. 본문의 1번 관계인 경우이다. 
+    if(ccw(a, b, c) != 0 || b < c || d < a) 
+        return false; 
+    //두 선분이 확실히 겹친다면 교차점 하나를 찾는다. 
+    a<c ? p = c: p = a; 
+    
+    return true;
+
+
+}
+
+bool CollisionChecker::inBoundingRectangle(Vector2 p, Vector2 a, Vector2 b)
+{
+    if (b < a) std::swap(a, b); 
+    return p == a || p == b || (a < p&& p < b);
+}
+
+bool CollisionChecker::segmentIntersection(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& p)
+{
+    if (!lineIntersection(a, b, c, d, p)) 
+        return paralleSegments(a, b, c, d, p); 
+    //p가 두 선분에 포함되어 있는 경우에만 참을 반환한다. 
+    return inBoundingRectangle(p, a, b) && inBoundingRectangle(p, c, d);
+
+
+}

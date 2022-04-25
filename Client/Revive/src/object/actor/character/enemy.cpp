@@ -140,6 +140,13 @@ namespace revive
 			Attack();
 			break;
 		}
+		case HashCode("status change"):
+		{
+			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
+			LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+			SetHP(msg->GetObjHp());
+			break;
+		}
 		default:
 			break;
 		}

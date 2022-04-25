@@ -1,5 +1,6 @@
 #include<map>
-
+#include<set>
+#include<bitset>
 #include "pch.h"
 #include "packet_manager.h"
 #include"database/db.h"
@@ -11,6 +12,7 @@
 #include"lua/functions/lua_functions.h"
 #include"util/Astar.h"
 #include"util/collision/collisioner.h"
+#include"util/collision/collision_checker.h"
 #include"object/bullet.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
@@ -275,7 +277,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
 				cout << endl;
 			}
-			cout << "콜리전은 OK" << endl;
+			//cout << "콜리전은 OK" << endl;
 		}
 		
 	}
@@ -669,31 +671,102 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
 	Vector3 position{ packet->x,packet->y,packet->z };
 	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
+	cout << position << endl;
+	cout << forward << endl;
 	for (int pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		if (pl == c_id)continue;
 		SendAttackPacket(pl,c_id);
 	}
-	//int new_id = room->GetNewBullet();
-	//if (new_id == -1)return;
-	//Bullet* bullet = room->GetBullet(new_id);
-	//bullet->Init(position, forward);
-	//Vector3 last_pos = position + (forward * 2000);
-	//using dist =pair<float, int>;
-	//vector<dist>obj_dist;
-	//obj_dist.reserve(100);
-	//Enemy* enemy = nullptr;
-	//float bullet_range = bullet->GetPos().Dist2d(last_pos);
-	//for (int e_id : room->GetObjList())
-	//{
-	//	if (MoveObjManager::GetInst()->IsPlayer(e_id))continue;
-	//	enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
-	//	if (enemy->GetIsActive() == false)continue;
-	//	if()
-	//}
-	////player가 총을쐈을때
 	
+	Vector3 last_pos = position + (forward * ATTACK_RANGE);
+	Vector3 shoot_vec = forward * ATTACK_RANGE;
+	Vector2 comp_vec(shoot_vec.x, shoot_vec.z);
+	Enemy* enemy = NULL;
+	map<float, int>result_enemy;
+	//unordered_map<int, float>obj_dist;
+	map<float,int>result_map;
+	//vector<MapObj>map_vec;
+	//map_vec.reserve(100);
+	Vector2 ret_point = Vector2(0.0f, 0.0f);
+	bool bret = false;
+	BoxCollision en_col;
+	float map_dist = 999999.f;
+	for (int e_id : room->GetObjList())
+	{
+		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))continue;
+		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
+		if (position.Dist2d(enemy->GetPos()) > ATTACK_RANGE)continue;
+		//if (comp_vec * Vector2(enemy->GetPosX() - position.x,
+		//	enemy->GetPosZ() - position.z) < 0)continue;
+		
+		map_dist = 999999.f;
+		bret = false;
+		
+		en_col = enemy->GetCollision();
+		BoxCollision2D box_col{ en_col.GetMinPos(),en_col.GetMaxPos() };
+		bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
+			box_col.p[0], box_col.p[3], ret_point);
+		if (bret) {
+			result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
+			map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
+				box_col.p[i], box_col.p[i + 1], ret_point);
+			if (bret && map_dist > ret_point.Dist2d(Vector2(position.x, position.z)))
+			{
+				result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
+				map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
+			}
+		}
+	}
+	ret_point = Vector2(0.0f, 0.0f);
+	map_dist = 999999.f;
+	for (MapObj map_obj : m_map_manager->GetMapObjVec())
+	{
+		if (false == map_obj.GetIsBlocked())continue;
+		map_dist = 999999.f;
+		BoxCollision2D box_col{ map_obj.GetMinPos(),map_obj.GetMaxPos() };
+		bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
+			box_col.p[0], box_col.p[3], ret_point);
+		if (bret) {
+			result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = map_obj.GetID();
+			map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
+		}
+		for (int i = 0; i < 3; ++i)
+		{
+			bret=CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
+				box_col.p[i], box_col.p[i + 1], ret_point);
+			if (bret && map_dist > ret_point.Dist2d(Vector2(position.x, position.z)))
+			{
+				result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = map_obj.GetID();
+				map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
+			}
+		}
+
+	}
+	float enemy_min= 99999.f;
+	float map_min = 99999.f;
+	float final_result = 0;
+	if (result_enemy.begin() != result_enemy.end()) enemy_min = result_enemy.begin()->first;
+	if(result_map.begin() != result_map.end())  map_min = result_map.begin()->first;
+	//if (enemy_min == map_min)return;
+	int hit_id = -99;
+	if (map_min > enemy_min)hit_id = result_enemy[enemy_min];
+	else cout << "맵 오브젝트 충돌" << endl;
+	if (hit_id == -99)return;
+	enemy = MoveObjManager::GetInst()->GetEnemy(hit_id);
+	enemy->SetHP(enemy->GetHP() - player->GetDamge());
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		
+		SendStatusChange(pl, c_id,enemy->GetHP());
+	}
+	cout << hit_id << endl;
 }
 
 void PacketManager::ProcessMove(int c_id,unsigned char* p)

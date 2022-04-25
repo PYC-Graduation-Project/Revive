@@ -1,5 +1,6 @@
 #pragma once
 #include"util/vec3.h"
+#include"util/vec2.h"
 #include"util/collision/collisioner.h"
 class CollisionChecker
 {
@@ -13,5 +14,19 @@ public:
 	
 	static bool CheckCollisions(SphereCollison& a, BoxCollision& b );
 	static bool CheckInRange(BoxCollision& range_obj, SphereCollison& move_obj);
+	
+	static bool lineIntersection(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& x);
+	static float ccw(Vector2 a, Vector2 b);
+	static float ccw(Vector2 p, Vector2 a, Vector2 b);
+	static bool paralleSegments(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& p);
+	static bool inBoundingRectangle(Vector2 p, Vector2 a, Vector2 b);
+	static bool segmentIntersection(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Vector2& p);
+
+	
+
+		
+	
+
+		
 };
 
