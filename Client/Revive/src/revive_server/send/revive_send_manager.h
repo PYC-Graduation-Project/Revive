@@ -15,6 +15,6 @@ public:
     void SendMovePacket    (const SOCKET&s_socket,client_fw::Vec3& pos, client_fw::Quaternion& rot);
     void SendAttackPacket(const SOCKET& s_socket,const client_fw::Vec3& position, const client_fw::Vec3& forward);
     void SendHitPacket(const SOCKET& s_socket,int obj_id,int attacker_id);
-   
+    void SendGameStartPacket(const SOCKET& s_socket);
 };
 

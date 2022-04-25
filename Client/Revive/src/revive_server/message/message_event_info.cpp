@@ -71,4 +71,9 @@ namespace revive
 	{
 	}
 
+	GameStartEventInfo::GameStartEventInfo(UINT event_id)
+		: MessageEventInfo(event_id)
+	{
+	}
+
 }

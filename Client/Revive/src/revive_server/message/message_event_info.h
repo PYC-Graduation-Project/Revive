@@ -159,6 +159,12 @@ namespace revive
        
         const float GetObjHp() { return m_obj_hp; }
     };
+
+    class GameStartEventInfo final : public MessageEventInfo
+    {
+    public:
+        GameStartEventInfo(UINT event_id);
+    };
 }
 
 

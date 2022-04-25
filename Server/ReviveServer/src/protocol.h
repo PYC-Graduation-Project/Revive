@@ -42,6 +42,7 @@ const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
 const char CS_PACKET_HIT = 7;
+const char CS_PACKET_GAME_START = 8;
 
 
 const char SC_PACKET_SIGN_IN_OK = 1;

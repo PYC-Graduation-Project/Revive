@@ -73,6 +73,9 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	case CS_PACKET_HIT: {
 		ProcessHit(c_id, p);
 		break;
+	case CS_PACKET_GAME_START: {
+		ProcessGameStart(c_id, p);
+		break;
 	}
 	}
 }
@@ -918,6 +921,11 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	}
 	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
 
+}
+
+void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
+{
+	cs_packet_game_start* packet = reinterpret_cast<cs_packet_game_start*>(p);
 }
 
 

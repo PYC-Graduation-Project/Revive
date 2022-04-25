@@ -42,6 +42,7 @@ const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
 const char CS_PACKET_HIT = 7;
+const char CS_PACKET_GAME_START = 8;
 
 
 const char SC_PACKET_SIGN_IN_OK = 1;
@@ -128,6 +129,10 @@ struct cs_packet_hit {
 	int attacker_id;
 };
 
+struct cs_packet_game_start {
+	unsigned char size;
+	char	type;
+};
 
 struct sc_packet_sign_in_ok {
 	unsigned char size;
