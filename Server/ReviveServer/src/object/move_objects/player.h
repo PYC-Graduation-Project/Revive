@@ -27,7 +27,7 @@ private:
     SOCKET  m_socket;
     int		m_last_move_time;
     STATE m_state;
-    
+    std::atomic_bool m_is_ready = false;
     char m_password[MAX_PASSWORD_SIZE + 1];
     short m_mach_user_size = 0;
 public:
@@ -41,7 +41,8 @@ public:
     SOCKET& GetSock() { return m_socket; }
     void Init(SOCKET&);
     void ResetPlayer();
-
+    void SetIsReady(bool val) { m_is_ready = val; }
+    bool GetIsReady() { return m_is_ready; }
     char* GetPassword() { return m_password; }
     short GetMatchUserSize() { return m_mach_user_size; }
     void SetMatchUserSize(short val) { m_mach_user_size = val; }

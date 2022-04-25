@@ -73,6 +73,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	case CS_PACKET_HIT: {
 		ProcessHit(c_id, p);
 		break;
+	}
 	case CS_PACKET_GAME_START: {
 		ProcessGameStart(c_id, p);
 		break;
@@ -893,7 +894,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		for (auto obj_id : match_list)
 			room->EnterRoom(obj_id);
 		
-		StartGame(room->GetRoomID());
+		//StartGame(room->GetRoomID());
 	}
 	
 	//어차피 다른플레이어가 매칭을 누르지 않으면 기다리는건 롤도 마찬가지
@@ -926,6 +927,12 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 {
 	cs_packet_game_start* packet = reinterpret_cast<cs_packet_game_start*>(p);
+	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	player->SetIsReady(true);
+	Room* room = m_room_manager->GetRoom(player->GetRoomID());
+	for (auto pl : room->GetObjList())
+		if (false == MoveObjManager::GetInst()->GetPlayer(pl)->GetIsReady())return;
+	StartGame(room->GetRoomID());
 }
 
 

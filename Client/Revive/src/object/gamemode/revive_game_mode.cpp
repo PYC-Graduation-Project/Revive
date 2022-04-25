@@ -15,8 +15,8 @@ namespace revive
 	bool ReviveGameMode::Initialize(const SPtr<Level>& level)
 	{
 		m_player_controller->Possess(m_default_pawn);
-		level->SpawnActor(m_default_pawn);
-		level->SpawnActor(m_player_controller);
+		//level->SpawnActor(m_default_pawn);
+		//level->SpawnActor(m_player_controller);
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
 	}

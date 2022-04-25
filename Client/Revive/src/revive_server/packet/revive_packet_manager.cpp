@@ -103,6 +103,8 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
 	NetworkObj* obj = NULL;
 	Network::matching_end = true;
+	NW_OBJ_TYPE nw_type;
+	packet->id == m_game_info.GetNetworkID() ? nw_type = NW_OBJ_TYPE::OT_MY_PLAYER : nw_type =(NW_OBJ_TYPE)packet->object_type;
 		auto res=m_obj_map.try_emplace(packet->id, CreateSPtr<NetworkMoveObj>(
 			packet->id,
 			packet->maxhp,
@@ -110,7 +112,7 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 			packet->x,
 			packet->y,
 			packet->z,
-			(NW_OBJ_TYPE)packet->object_type,
+			nw_type,
 			packet->damage
 		));
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));
@@ -172,6 +174,7 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 	auto obj = m_obj_map.find(packet->id);
 	if (obj != m_obj_map.end())
 	{
+		LOG_INFO(packet->hp);
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}

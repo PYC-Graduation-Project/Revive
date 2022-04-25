@@ -10,6 +10,7 @@
 #include <client/object/level/core/level_loader.h>
 #include <client/event/messageevent/message_helper.h>
 #include <client/object/actor/sky_cube.h>
+#include "object/actor/character/revive_controller.h"
 #include "object/level/game_play_level.h"
 #include "object/level/game_end_level.h"
 #include "object/gamemode/revive_game_mode.h"
@@ -51,7 +52,7 @@ namespace revive
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
-
+		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 		return true;
 	}
 	void GamePlayLevel::Shutdown()
@@ -92,7 +93,17 @@ namespace revive
 			case NW_OBJ_TYPE::OT_BASE: {
 				break;
 			}
+			case NW_OBJ_TYPE::OT_MY_PLAYER: {
+				LOG_INFO("나 소환");
+				SpawnActor(GetGameMode()->GetDefaultPawn());
+				//GetGameMode()->GetDefaultPawn()->SetPosition(msg->GetNetworkObj()->GetPosition());
+				
+				SpawnActor(GetGameMode()->GetPlayerController());
+				break;
+			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
+				LOG_INFO("느그 소환");
+
 				auto player = CreateSPtr<DefaultPlayer>("other player");
 				SpawnActor(player);
 				player->SetPosition(obj->GetPosition());

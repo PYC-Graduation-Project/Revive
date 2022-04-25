@@ -134,6 +134,9 @@ struct cs_packet_game_start {
 	char	type;
 };
 
+
+
+
 struct sc_packet_sign_in_ok {
 	unsigned char size;
 	char type;

@@ -79,7 +79,7 @@ private:
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
 	void ProcessHit(int c_id, unsigned char* p);
-
+	void ProcessGameStart(int c_id, unsigned char* p);
 	void StartGame(int room_id);
 };
 

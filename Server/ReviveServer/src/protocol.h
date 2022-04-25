@@ -129,6 +129,13 @@ struct cs_packet_hit {
 	int attacker_id;
 };
 
+struct cs_packet_game_start {
+	unsigned char size;
+	char	type;
+};
+
+
+
 
 struct sc_packet_sign_in_ok {
 	unsigned char size;
@@ -212,7 +219,7 @@ struct sc_packet_status_change {
 	unsigned char size;
 	char type;
 	int id;
-	float	hp;
+	float	hp, maxhp;
 };
 struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	unsigned char size;

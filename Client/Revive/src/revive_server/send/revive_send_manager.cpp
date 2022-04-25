@@ -31,7 +31,7 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 		break;
 	}
 	case HashCode("game start"): {
-		auto msg = std::static_pointer_cast<revive::ObjectHitMessageEventInfo>(message);
+		auto msg = std::static_pointer_cast<revive::GameStartEventInfo>(message);
 		SendGameStartPacket(s_socket);
 		break;
 	}
@@ -124,7 +124,7 @@ void ReviveSendManager::SendHitPacket(const SOCKET& s_socket,int obj_id,int atta
 
 void ReviveSendManager::SendGameStartPacket(const SOCKET& s_socket)
 {
-	cs_packet_attack packet;
+	cs_packet_game_start packet;
 	packet.size = sizeof(packet);
 	packet.type = CS_PACKET_GAME_START;
 	SendPacket(s_socket, sizeof(packet), &packet);

@@ -4,6 +4,7 @@
 enum class NW_OBJ_TYPE
 {
     OT_NONE,
+    OT_MY_PLAYER,
     OT_BASE=3,
     OT_PLAYER,
     OT_NPC_SKULL,
