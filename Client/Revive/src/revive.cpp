@@ -40,9 +40,12 @@ namespace revive
 					[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
 				
 				RegisterPressedEvent("open lobby level", { {eKey::k1} },
-					[this]()->bool {OpenLevel(CreateSPtr<LobbyLevel>());  return true; });
-				RegisterPressedEvent("open game play level", { {eKey::k2} },
-					[this]()->bool { OpenLevel(CreateSPtr<GamePlayLevel>()); return true; });
+					[this]()->bool {
+					OpenLevel( CreateSPtr<GamePlayLevel>() );
+					return true; 
+				});
+			/*	RegisterPressedEvent("open game play level", { {eKey::k2} },
+					[this]()->bool { OpenLevel(CreateSPtr<GamePlayLevel>()); return true; });*/
 			}
 
 			return result;

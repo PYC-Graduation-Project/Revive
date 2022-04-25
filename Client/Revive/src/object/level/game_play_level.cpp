@@ -13,6 +13,7 @@
 #include "object/actor/character/revive_controller.h"
 #include "object/level/game_play_level.h"
 #include "object/level/game_end_level.h"
+#include "object/actor/character/revive_controller.h"
 #include "object/gamemode/revive_game_mode.h"
 #include"revive_server/message/message_event_info.h"
 #include"server/network_move_object.h"
@@ -23,22 +24,55 @@
 #include "object/actor/character/revive_player.h"
 
 
+std::string g_id;
+std::string g_pw;
+
 namespace revive
 {
-
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
+		LOG_INFO("게임플레이레벨 생성");
 	}
+
 	bool GamePlayLevel::Initialize()
 	{
+		std::cin >> g_id;
+		std::cin >> g_pw;
+		std::cout << "id:" << g_id << "pw:" << g_pw << std::endl;
+		//회원 가입 5, 로그인 6, 매칭 7
+		RegisterPressedEvent("send sign up", { { eKey::k5 } },
+			[this]()->bool {
+
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
+			return true;
+		});
+		RegisterPressedEvent("send sign in", { { eKey::k6 } },
+			[this]()->bool {
+
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
+			return true;
+		});
+		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
+			[this]()->bool {
+
+				LOG_INFO("매칭 대기중...");
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+			return true;
+		});
+		RegisterPressedEvent("game start", { { eKey::k8 } },
+			[this]()->bool {
+
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
+			return true;
+		});
+		LOG_INFO("게임플레이레벨 초기화");
 
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
 			SpawnActor(actor);
 		}
-
 		
 		RegisterPressedEvent("Game End", { { eKey::k0 } },
 			[this]()->bool {
@@ -52,11 +86,12 @@ namespace revive
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		Input::SetHideCursor(true);
-		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 		return true;
 	}
 	void GamePlayLevel::Shutdown()
 	{
+		LOG_INFO("게임 플레이레벨 셧다운");
+
 		Input::SetHideCursor(false);
 		Input::SetClipCursor(false);
 		Input::SetInputMode(eInputMode::kUIOnly);
@@ -67,7 +102,6 @@ namespace revive
 	}
 	void GamePlayLevel::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
-
 		switch (message->GetEventID())
 		{
 		case HashCode("testspawn"):
@@ -81,7 +115,6 @@ namespace revive
 		}
 		case HashCode("spawn object"):
 		{
-
 			auto msg = std::static_pointer_cast<ObjectInfoMessageEventInfo>(message);
 
 			auto obj = msg->GetNetworkObj();
@@ -95,10 +128,8 @@ namespace revive
 			}
 			case NW_OBJ_TYPE::OT_MY_PLAYER: {
 				LOG_INFO("나 소환");
-				SpawnActor(GetGameMode()->GetDefaultPawn());
-				//GetGameMode()->GetDefaultPawn()->SetPosition(msg->GetNetworkObj()->GetPosition());
+				GetGameMode()->GetDefaultPawn()->SetPosition(msg->GetNetworkObj()->GetPosition());
 				
-				SpawnActor(GetGameMode()->GetPlayerController());
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
@@ -109,9 +140,10 @@ namespace revive
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
+				
 				break;
 			}
-			
+
 			case NW_OBJ_TYPE::OT_NPC_SKULL: {
 				auto police = CreateSPtr<SkeletonSoldier>();
 				SpawnActor(police);
@@ -130,28 +162,43 @@ namespace revive
 				break;
 			}
 			}
-
 			break;
 		}
-
+		case HashCode("match"):
+		{
+			auto msg = std::static_pointer_cast<MatchingMessageOKEventInfo>(message);
+			break;
+		}
+		case HashCode("sign in"):
+		{
+			auto msg = std::static_pointer_cast<SignInMessageOkEventInfo>(message);
+			m_is_succeed_login = true;
+			break;
+		}
 		default:
 			break;
 		}
 	}
+
 	UPtr<GameMode> GamePlayLevel::CreateGameMode() const
 	{
 		return CreateUPtr<ReviveGameMode>();
 	}
+	
 	std::vector<SPtr<VisualOctree>> GamePlayLevel::CreateVisualOctrees() const
 	{
+		LOG_INFO("CreateVisualOctrees");
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500.0f,0,2500.0f))); //Castle
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500,0,7500.0f))); //Bridge + Spawn Area
 		return visual_octrees;
 	}
+
 	std::vector<SPtr<CollisionOctree>> GamePlayLevel::CreateCollisionOctrees() const
 	{
+		LOG_INFO("CreateCollisionOctrees");
+
 		std::vector<SPtr<CollisionOctree>> collision_octrees;
 		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f),0));
 		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(3600.0f, Vec3(2400.0f, 0, 6600.0f),0));

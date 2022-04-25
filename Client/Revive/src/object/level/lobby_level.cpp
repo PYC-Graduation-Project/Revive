@@ -8,32 +8,35 @@
 #include "object/level/game_play_level.h"
 #include "object/level/lobby_level.h"
 
-std::string g_id;
-std::string g_pw;
+//std::string g_id;
+//std::string g_pw;
 
 namespace revive
 {
 	LobbyLevel::LobbyLevel()
 		:Level("lobby level")
 	{
+		LOG_INFO("로비레벨 생성");
 	}
 	bool LobbyLevel::Initialize()
 	{
-		std::cin >> g_id;
-		std::cin >> g_pw;
-		std::cout << "id:" << g_id << "pw:" << g_pw << std::endl;
+		LOG_INFO("로비레벨 초기화");
+
+		std::cin >> m_id;
+		std::cin >> m_pw;
+		std::cout << "id:" << m_id << "pw:" << m_pw << std::endl;
 
 		//회원 가입 5, 로그인 6, 매칭 7
 		RegisterPressedEvent("send sign up", { { eKey::k5 } },
 			[this]()->bool {
 			
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), m_id.data(), m_pw.data()));
 			return true;
 		});
 		RegisterPressedEvent("send sign in", { { eKey::k6 } },
 			[this]()->bool {
 
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
+		PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), m_id.data(), m_pw.data()));
 			return true;
 		});
 		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
@@ -41,23 +44,22 @@ namespace revive
 			if (m_is_succeed_login)
 			{
 				LOG_INFO("매칭 대기중...");
-				Input::SetHideCursor(false);
-				Input::SetInputMode(eInputMode::kUIOnly);
 				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
 			}
 				return true;
 		});
-
-		Input::SetInputMode(eInputMode::kGameOnly);
-		Input::SetHideCursor(false);
+		/*Input::SetInputMode(eInputMode::kGameOnly);
+		Input::SetHideCursor(false);*/
 
 		return true;
 	}
 	void LobbyLevel::Shutdown()
 	{
-		Input::SetHideCursor(false);
+		LOG_INFO("로비 레벨 셨다운");
+
+		/*Input::SetHideCursor(false);
 		Input::SetClipCursor(false);
-		Input::SetInputMode(eInputMode::kUIOnly);
+		Input::SetInputMode(eInputMode::kUIOnly);*/
 	}
 	void LobbyLevel::Update(float delta_time)
 	{
@@ -78,6 +80,9 @@ namespace revive
 			m_is_succeed_login = true;
 			break;
 		}
+		default:
+			break;
 		}
 	}
+
 }

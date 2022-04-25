@@ -11,13 +11,14 @@ namespace revive
 		LobbyLevel();
 		virtual ~LobbyLevel() = default;
 
-
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;
 
 		virtual void Update(float delta_time) override;
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 	private:
+		std::string m_id;
+		std::string m_pw;
 		bool m_is_succeed_login = false;
 	};
 }

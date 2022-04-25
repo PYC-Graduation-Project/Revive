@@ -26,5 +26,7 @@ namespace revive
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 
+	private:
+		bool m_is_succeed_login = false;
 	};
 }
