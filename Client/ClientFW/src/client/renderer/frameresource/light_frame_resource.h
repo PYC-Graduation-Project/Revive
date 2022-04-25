@@ -12,6 +12,7 @@ namespace client_fw
 		float cone_inner_angle = 0.0f;
 		Vec3 light_position;
 		float cone_outer_angle = 0.0f;
+		INT use_shadow = 0;
 		UINT shadow_texture_data_index = 0;
 	};
 

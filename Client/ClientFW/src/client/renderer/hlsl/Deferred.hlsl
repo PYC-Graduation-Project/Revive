@@ -125,10 +125,13 @@ float4 PSRenderTextureWithDirectionalLight(VS_RENDER_TEXTURE_OUTPUT input) : SV_
         [unroll(4)]
         for (uint i = 0; i < g_num_of_directional_light; ++i)
         {
+            LightData light_data = g_light_data[i];
+            
             DirectionalLight light;
-            light.light_color = g_light_data[i].light_color;
-            light.direction = g_light_data[i].light_direction;
-            shadow_info.shadow_texture_data_index = g_light_data[i].shadow_texture_data_index;
+            light.light_color = light_data.light_color;
+            light.direction = light_data.light_direction;
+            light.use_shadow = light_data.use_shadow > 0;
+            shadow_info.shadow_texture_data_index = light_data.shadow_texture_data_index;
             
             color += CalcDiretionalLight(g_buffer_data.position, material, light, shadow_info);
         }
@@ -255,6 +258,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.light_color = light_data.light_color;
         light.position = light_data.light_position;
         light.attenuation_radius = light_data.attenuation_radius;
+        light.use_shadow = light_data.use_shadow > 0;
         
         color += CalcPointLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         
@@ -334,6 +338,7 @@ DS_LOCAL_LIGHT_OUTPUT DSSpotLight(HS_LOCAL_LIGHT_CONSTANT_DATA_OUTPUT input, flo
     output.sv_position = mul(mul(float4(position, 1.0f), instance_data.world), g_view_projection);
     output.cs_position = output.sv_position.xyw;
     output.light_index = light_index;
+
     
     return output;
 }
@@ -360,6 +365,7 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.attenuation_radius = light_data.attenuation_radius;
         light.inner_angle = light_data.cone_inner_angle;
         light.outer_angle = light_data.cone_outer_angle;
+        light.use_shadow = light_data.use_shadow > 0;
                         
         color += CalcSpotLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         

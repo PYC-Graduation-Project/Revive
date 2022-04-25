@@ -16,6 +16,7 @@ struct DirectionalLight
 {
     float3 light_color;
     float3 direction;
+    bool use_shadow;
 };
 
 struct DirectionalLightShadowInfo
@@ -31,6 +32,7 @@ struct PointLight
     float3 light_color;
     float3 position;
     float attenuation_radius;
+    bool use_shadow;
 };
 
 struct SpotLight
@@ -41,6 +43,7 @@ struct SpotLight
     float attenuation_radius;
     float inner_angle;
     float outer_angle;
+    bool use_shadow;
 };
 
 
@@ -111,10 +114,12 @@ float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight 
     float3 specular = numerator / max(denominator, 0.001f);
     
     float3 shadow_factor = 1.0f;
-    uint shadow_texture_index = shadow_info.shadow_texture_data_index + shadow_info.render_camera_index;
-    
-    shadow_factor = CalcCascadeShadow(position, g_shadow_texture_data[shadow_texture_index], g_cascade_shadow_texture_data[shadow_texture_index]);
-    
+    if(light.use_shadow == true)
+    {
+        uint shadow_texture_index = shadow_info.shadow_texture_data_index + shadow_info.render_camera_index;
+        shadow_factor = CalcCascadeShadow(position, g_shadow_texture_data[shadow_texture_index], g_cascade_shadow_texture_data[shadow_texture_index]);
+    }
+
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * shadow_factor;
     
     return lo;
@@ -158,7 +163,10 @@ float3 CalcPointLight(float3 position, Material material, PointLight light, uint
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl;
     
     float3 shadow_factor = 1.0f;
-    shadow_factor = CalcShadowCubeFactor(position - light.position, g_shadow_texture_data[shadow_texture_data_index]);
+    if (light.use_shadow == true)
+    {
+        shadow_factor = CalcShadowCubeFactor(position - light.position, g_shadow_texture_data[shadow_texture_data_index]);
+    }
     
     return lo * shadow_factor;
 }
@@ -214,7 +222,10 @@ float3 CalcSpotLight(float3 position, Material material, SpotLight light, uint s
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * spot_factor;
     
     float3 shadow_factor = 1.0f;
-    shadow_factor = CalcShadowFactor(position, g_shadow_texture_data[shadow_texture_data_index]);
+    if (light.use_shadow == true)
+    {
+        shadow_factor = CalcShadowFactor(position, g_shadow_texture_data[shadow_texture_data_index]);
+    }
     
     return lo * shadow_factor;
 }

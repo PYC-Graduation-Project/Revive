@@ -87,21 +87,30 @@ namespace client_fw
 		{
 			for (const auto& directional_light : ready_directional_lights)
 			{
-				for (const auto& camera : m_ready_render_cameras)
-					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
-				for (const auto& camera : m_wait_resource_render_cameras)
-					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
-				for (const auto& camera : m_render_cameras)
-					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				if (directional_light->IsUseShadow())
+				{
+					for (const auto& camera : m_ready_render_cameras)
+						directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+					for (const auto& camera : m_wait_resource_render_cameras)
+						directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+					for (const auto& camera : m_render_cameras)
+						directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				}
 			}
 		}
-		const auto& directional_lights = light_manager.GetDirectionalLights();
-		if (directional_lights.empty() == false)
+
+		for (const auto& camera : m_wait_resource_render_cameras)
 		{
-			for (const auto& directional_light : directional_lights)
+			const auto& directional_lights = light_manager.GetDirectionalLights();
+			if (directional_lights.empty() == false)
 			{
-				for (const auto& camera : m_wait_resource_render_cameras)
-					directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+				for (const auto& directional_light : directional_lights)
+				{
+					if (directional_light->IsUseShadow())
+					{
+						directional_light->RegisterCascadeAndRenderCamera(camera, CreateSPtr<ShadowCascadeCameraComponent>());
+					}
+				}
 			}
 		}
 	}

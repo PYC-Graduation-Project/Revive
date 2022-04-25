@@ -16,7 +16,8 @@ namespace client_fw
 	{
 		bool ret = LocalLightComponent::Initialize();
 
-		ret &= m_owner.lock()->AttachComponent(m_shadow_cube_camera);
+		if(m_is_use_shadow)
+			ret &= m_owner.lock()->AttachComponent(m_shadow_cube_camera);
 
 		return ret;
 	}
