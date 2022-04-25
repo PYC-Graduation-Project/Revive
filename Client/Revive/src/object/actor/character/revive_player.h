@@ -36,6 +36,7 @@ namespace revive
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
 		int m_network_id = 9999;
 		float m_time = 0.0f;
+		float m_stop_time = 0.0f;
 		float m_speed = 0.f;
 
 		bool m_is_attacking = false;
@@ -44,6 +45,7 @@ namespace revive
 		bool m_is_fire = false;
 
 		Vec3 m_velocity;
+		Vec3 m_previous_velocity = vec3::ZERO;
 		Vec3 m_inter_velocity;
 		Vec3 m_next_pos;
 		Vec3 m_previous_pos;
@@ -56,6 +58,7 @@ namespace revive
 		std::array<SPtr<Pistol>, 2> m_weapon;
 
 		virtual Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
+		void PlayerInterpolation(float delta_time);
 
 		SPtr<DefaultPlayer> SharedFromThis() { return std::static_pointer_cast<DefaultPlayer>(shared_from_this()); }
 

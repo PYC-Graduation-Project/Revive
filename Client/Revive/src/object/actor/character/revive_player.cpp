@@ -88,7 +88,7 @@ namespace revive
 		m_hit_box->SetExtents(Vec3{ 40.f,80.f,40.f });
 		m_hit_box->SetLocalPosition(Vec3{ 0.0f,80.f,0.f });
 		m_hit_box->SetName("hit box");
-		m_hit_box->SetCollisionInfo(true, false, "player hit", { "enemy agro","stone","axe"}, false);
+		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe"}, false);
 		ret &= AttachComponent(m_hit_box);
 
 		SetScale(0.5f);
@@ -111,22 +111,41 @@ namespace revive
 	{
 		m_player_fsm->Update();
 
+		PlayerInterpolation(delta_time);
+
+		if (m_speed > 0)
+		{
+			m_speed -= 4000 * delta_time;
+		}
+		m_speed = std::clamp(m_speed, 0.f, 300.f);
+	}
+
+	void DefaultPlayer::PlayerInterpolation(float delta_time)
+	{
 		m_time += delta_time;
+
+		if (m_previous_velocity == m_velocity)
+			m_stop_time += delta_time;
+		else
+			m_stop_time = 0.f;
+
+		if (m_stop_time >= 0.1f)
+		{
+			m_stop_time -= 0.1f;
+			m_velocity = vec3::ZERO;
+			m_previous_velocity = vec3::ZERO;
+		}
 		m_character_movement_component->AddInputVector(m_velocity);
+
 		if (m_time >= 0.5f)
 		{
 			m_time -= 0.5f;
 
 			m_inter_velocity = m_previous_pos - GetPosition();
 		}
-		
-		SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
-		if (m_speed > 0)
-		{
-			m_speed -= 4000 * delta_time;
 
-		}
-		m_speed = std::clamp(m_speed, 0.f, 300.f);
+		if (m_velocity != vec3::ZERO)
+			SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
 	}
 
 	void DefaultPlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -139,6 +158,7 @@ namespace revive
 				SetRotation(msg->GetObjRotation());
 
 				m_previous_pos = m_next_pos;
+				m_previous_velocity = m_velocity;
 				m_velocity = msg->GetObjPosition() - m_previous_pos;
 				m_next_pos = msg->GetObjPosition();
 				m_speed += m_velocity.Length();
@@ -266,7 +286,7 @@ namespace revive
 
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "base","wall","enemy agro","enemy attack"}, true);
+		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "base","wall"}, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
