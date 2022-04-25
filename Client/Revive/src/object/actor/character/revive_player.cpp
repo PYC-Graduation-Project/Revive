@@ -327,7 +327,7 @@ namespace revive
 					ret = m_is_attacking = true;
 				//공격추가
 					
-					LOG_INFO("공격 패킷 보냄");
+				
 				}
 			return ret;
 		});
@@ -350,15 +350,16 @@ namespace revive
 		{
 			Vec3 direction = m_controller.lock()->GetForward();
 			direction.y = 0;
-			FindLookAtRotation(direction, vec3::ZERO);
+			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
 
 			//총알 스폰
 			const auto& bullet = CreateSPtr<Bullet>();
 			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
 			bullet->SetBlockingSphereRadius(10.f);
-			bullet->SetVelocity(m_controller.lock()->GetForward());//컨트롤러의 방향으로 총알을 발사한다.
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), bullet->GetPosition(), m_controller.lock()->GetForward()));
-			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
+			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), bullet->GetPosition(), direction));
+			LOG_INFO("공격 패킷 보냄");	
+			bullet->SetCollisionInfo(false, "bullet", { "enemy hit" }, true);
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
@@ -375,7 +376,7 @@ namespace revive
 					bullet->SetActorState(eActorState::kDead);
 				}
 			});
-			SpawnActor(bullet);
+			//SpawnActor(bullet);
 			m_is_fire = true;
 		}
 	}

@@ -681,8 +681,9 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	}
 	
 	Vector3 last_pos = position + (forward * ATTACK_RANGE);
+	cout << "라스트 포즈:" <<last_pos <<endl;
 	Vector3 shoot_vec = forward * ATTACK_RANGE;
-	Vector2 comp_vec(shoot_vec.x, shoot_vec.z);
+	Vector2 comp_vec(last_pos.x, last_pos.z);
 	Enemy* enemy = NULL;
 	map<float, int>result_enemy;
 	//unordered_map<int, float>obj_dist;
@@ -697,7 +698,8 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	{
 		if (true == MoveObjManager::GetInst()->IsPlayer(e_id))continue;
 		enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
-		if (position.Dist2d(enemy->GetPos()) > ATTACK_RANGE)continue;
+		if (false == enemy->GetIsActive())continue;
+		//if (position.Dist2d(enemy->GetPos()) > ATTACK_RANGE)continue;
 		//if (comp_vec * Vector2(enemy->GetPosX() - position.x,
 		//	enemy->GetPosZ() - position.z) < 0)continue;
 		
@@ -709,7 +711,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 		bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
 			box_col.p[0], box_col.p[3], ret_point);
 		if (bret) {
-			result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
+			result_enemy[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
 			map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
 		}
 		for (int i = 0; i < 3; ++i)
@@ -718,7 +720,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 				box_col.p[i], box_col.p[i + 1], ret_point);
 			if (bret && map_dist > ret_point.Dist2d(Vector2(position.x, position.z)))
 			{
-				result_map[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
+				result_enemy[ret_point.Dist2d(Vector2(position.x, position.z))] = enemy->GetID();
 				map_dist = ret_point.Dist2d(Vector2(position.x, position.z));
 			}
 		}
@@ -754,6 +756,8 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	if (result_enemy.begin() != result_enemy.end()) enemy_min = result_enemy.begin()->first;
 	if(result_map.begin() != result_map.end())  map_min = result_map.begin()->first;
 	//if (enemy_min == map_min)return;
+	cout << "적 최소:"<<enemy_min<<"맵 사이즈"<<result_enemy.size() << endl;
+	cout << "맵 최소:" << map_min << endl;
 	int hit_id = -99;
 	if (map_min > enemy_min)hit_id = result_enemy[enemy_min];
 	else cout << "맵 오브젝트 충돌" << endl;

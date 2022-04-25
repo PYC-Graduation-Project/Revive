@@ -22,7 +22,7 @@ extern "C" {
 #pragma comment (lib, "lib/lua54.lib")
 
 const int BUFSIZE = 256;
-const float ATTACK_RANGE = 2000.0f;
+const float ATTACK_RANGE = 5000.0f;
 
 
 class EXP_OVER

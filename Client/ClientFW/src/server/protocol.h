@@ -41,7 +41,6 @@ const char CS_PACKET_MOVE = 3;
 const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
-const char CS_PACKET_TEST = 7;
 const char CS_PACKET_HIT = 7;
 
 
