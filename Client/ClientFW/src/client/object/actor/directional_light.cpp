@@ -29,4 +29,9 @@ namespace client_fw
 	{
 		m_light_component->SetLightColor(color);
 	}
+
+	void DirectionalLight::SetShadowTextureSize(INT extent)
+	{
+		m_light_component->SetShadowTextureSize(extent);
+	}
 }

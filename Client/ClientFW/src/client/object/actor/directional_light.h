@@ -21,6 +21,10 @@ namespace client_fw
 	public:
 		const Vec3& GetLightColor() const;
 		void SetLightColor(const Vec3& color);
+
+	public:
+		//Directional Light는 ~8192까지가 제한, 그 이상은 자동으로 clamp합니다.
+		void SetShadowTextureSize(INT extent);
 	};
 }
 
