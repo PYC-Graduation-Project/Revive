@@ -24,6 +24,7 @@ public:
 	void BlockTileMap();
 	bool CheckCollision(BoxCollision& obj_collision);
 	bool CheckInRange(BoxCollision& collision);
+	bool CheckInRange(const Vector3& pos);
 	const std::vector<MapObj>& GetMapObjVec() const
 	{
 		return m_map_objects;

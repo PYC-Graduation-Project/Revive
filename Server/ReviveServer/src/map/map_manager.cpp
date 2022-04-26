@@ -238,3 +238,28 @@ bool MapManager::CheckInRange(BoxCollision& collision)
 	
 	return check_set.all();
 }
+
+bool MapManager::CheckInRange(const Vector3& pos)
+{
+	for (auto& map_obj : m_map_objects)
+	{
+		if (OBJ_TYPE::OT_ACTIViTY_AREA != map_obj.GetType())continue;
+		if (CollisionChecker::CheckInRange(pos.x, pos.z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			return true;
+		}
+		if (CollisionChecker::CheckInRange(pos.x, pos.z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			return true;
+		}
+		if (CollisionChecker::CheckInRange(pos.x, pos.z, 
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			return true;
+		}
+		if (CollisionChecker::CheckInRange(pos.x, pos.z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			return true;
+		}
+	}
+	return false;
+}

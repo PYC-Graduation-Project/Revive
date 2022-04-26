@@ -348,6 +348,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
+			player = MoveObjManager::GetInst()->GetPlayer(pl);
+			if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
 			auto fail_obj=distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
 			
 			//여기서 기지와 플레이어 거리 비교후
