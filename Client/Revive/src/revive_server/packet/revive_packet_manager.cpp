@@ -181,6 +181,7 @@ void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 {
 	sc_packet_status_change*packet = reinterpret_cast<sc_packet_status_change*>(p);
+
 	auto obj = m_obj_map.find(packet->id);
 	if (obj != m_obj_map.end())
 	{

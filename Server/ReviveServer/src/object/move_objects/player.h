@@ -14,7 +14,7 @@ public:
         m_room_id = -1;
         m_damage = PLAYER_DAMAGE;
         ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
-        m_hp = 100.0f;//추후 밸런스 조정
+        m_hp = 20.0f;//추후 밸런스 조정
         m_maxhp = m_hp;
     }
    virtual ~Player()=default;

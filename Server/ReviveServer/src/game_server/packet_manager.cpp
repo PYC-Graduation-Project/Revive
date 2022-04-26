@@ -941,6 +941,7 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 			player->state_lock.lock();
 			player->SetState(STATE::ST_INGAME);
 			player->SetRoomID(r_id);
+			player->SetIsActive(true);
 			player->state_lock.unlock();
 			//room->EnterRoom(id);//방에 아이디 넘겨주기
 			//cout << id << endl;
@@ -985,7 +986,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
 	victim->SetHP(victim->GetHP() - attacker->GetDamge());
-	
+	hp = victim->GetHP();
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();
 	for (int obj_id : room->GetObjList())
@@ -994,7 +995,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 		//if (victim->GetID() == obj_id||attacker->GetID()==obj_id)continue;
 		SendStatusChange(obj_id, victim->GetID(), victim->GetHP());
 	}
-	hp = victim->GetHP();
+	
 	if (hp <= 0.0f)
 	{
 		victim->SetIsActive(false);
