@@ -208,6 +208,7 @@ namespace revive
 	const float DefaultPlayer::GetVelocity() const
 	{
 		return m_speed;
+		//return m_character_movement_component->GetVelocity().Length();
 	}
 
 	void DefaultPlayer::SetAnimation(const std::string& animation_name, bool looping)
@@ -239,30 +240,30 @@ namespace revive
 			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(GetForward());
-			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-				const SPtr<SceneComponent>& other_component)
-			{
-				bullet->SetCollisionInfo(false, false, false);
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-				if (enemy != nullptr)
-				{
-					int enemy_hp = enemy->GetHP();
-					if (enemy_hp > 0)
-						//enemy->Hit(0);
-
-						LOG_INFO("충돌 부위 :" + other_component->GetName());
-					bullet->SetActorState(eActorState::kDead);
-				}
-			});
+			// 다른 플레이어는 충돌처리가 필요가없다.
+			//bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
+			//bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+			//	const SPtr<SceneComponent>& other_component)
+			//{
+			//	bullet->SetCollisionInfo(false, false, false);
+			//	LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+			//	//const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+			//	//if (enemy != nullptr)
+			//	//{
+			//	//		int enemy_hp = enemy->GetHP();
+			//	//		if (enemy_hp > 0)
+			//	//			//enemy->Hit(0,m_network_id);
+			//	//}
+			//	LOG_INFO("충돌 부위 :" + other_component->GetName());
+			//	bullet->SetActorState(eActorState::kDead);
+			//});
 			SpawnActor(bullet);
 			m_is_fire = true;
 		}
 		
 	}
 
-	void DefaultPlayer::Hit(int damage)
+	void DefaultPlayer::Hit(int damage, int nw_id)
 	{
 		++m_hit_count;
 		m_is_hitting = true;
@@ -379,7 +380,7 @@ namespace revive
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
 			LOG_INFO("공격 패킷 보냄");	
 			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+			bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
 				bullet->SetCollisionInfo(false, false, false);
@@ -388,27 +389,29 @@ namespace revive
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
 				{
-					int enemy_hp = enemy->GetHP();
-					if (enemy_hp > 0)
-						//enemy->Hit(0);
+						int enemy_hp = enemy->GetHP();
+						if (enemy_hp > 0)
+							enemy->Hit(0,m_network_id);
 
-						LOG_INFO("충돌 부위 :" + other_component->GetName());
-					bullet->SetActorState(eActorState::kDead);
+							LOG_INFO("충돌 부위 :" + other_component->GetName());
+						bullet->SetActorState(eActorState::kDead);
+			
+
 				}
-
 			});
 			SpawnActor(bullet);
 			m_is_fire = true;
 		}
 	}
 
-	void RevivePlayer::Hit(int damage)
+	void RevivePlayer::Hit(int damage, int nw_id)
 	{
 		++m_hit_count;
 		m_is_hitting = true;
 		if (m_is_cheating == false)m_hp -= damage;
 		else --m_hit_count;
-		//PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
+		LOG_INFO(nw_id);
+		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 	}
 
 	//void RevivePlayer::MinPitch()

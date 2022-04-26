@@ -128,8 +128,10 @@ namespace revive
 			}
 			case NW_OBJ_TYPE::OT_MY_PLAYER: {
 				LOG_INFO("³ª ¼ÒÈ¯");
-				GetGameMode()->GetDefaultPawn()->SetPosition(msg->GetNetworkObj()->GetPosition());
-				
+				auto player = std::dynamic_pointer_cast<RevivePlayer>(GetGameMode()->GetDefaultPawn());
+				player->SetPosition(obj->GetPosition());
+				player->SetNetworkID(obj->GetID());
+
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {

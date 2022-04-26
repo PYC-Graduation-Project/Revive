@@ -107,6 +107,7 @@ namespace revive
 			m_previous_pos = m_next_pos;
 			m_velocity = msg->GetObjPosition() - m_previous_pos;
 			m_next_pos = msg->GetObjPosition();
+			/*SetPosition(msg->GetObjPosition());*/
 			//std::cout << msg->GetObjPosition() << std::endl;
 			//Vec3 a{ msg->GetObjPosition() };
 			//LOG_INFO(a);
@@ -178,7 +179,7 @@ namespace revive
 		m_is_attacking = true;
 	}
 
-	void Enemy::Hit(int nw_id,int damage)
+	void Enemy::Hit(int damage, int nw_id)
 	{
 		m_skeletal_mesh_component->SetAnimation("hit", false);
 		//m_hp -= damage;

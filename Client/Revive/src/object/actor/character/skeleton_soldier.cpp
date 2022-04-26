@@ -67,8 +67,8 @@ namespace revive
 					int player_hp = player->GetHP();
 					if (player_hp > 0)
 					{
-						//플레이어 피격했다고 서버에 알리기
-						player->Hit(0);
+							//플레이어 피격했다고 서버에 알리기
+							player->Hit(0,player->GetNetworkID());		
 					}
 				}
 				else

@@ -67,6 +67,6 @@ namespace revive
 		const int GetHP() const { return m_hp; }
 		void SetHP(const int hp) { m_hp = hp; }
 
-		void Hit(int nw_id=9999,int damage = 1);
+		void Hit(int damage = 1, int nw_id = 9999);
 	};
 }
