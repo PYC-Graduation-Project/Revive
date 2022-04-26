@@ -13,6 +13,8 @@
 #include "object/level/light_test_level.h"
 
 
+//#define USE_NETWORK_TEST
+
 using namespace client_fw;
 
 namespace event_test
@@ -27,8 +29,10 @@ namespace event_test
 		bool Initialize() override
 		{
 			bool result = Application::Initialize();
+#ifdef USE_NETWORK_TEST
 			Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
 			Network::GetInst()->CreateWorker();
+#endif
 			RegisterPressedEvent("Input Mode Game Only", std::vector{ EventKeyInfo{eKey::k1, {eAdditionalKey::kControl}} },
 				[]()->bool { Input::SetInputMode(eInputMode::kGameOnly); return true;  });
 			RegisterPressedEvent("Input Mode Game And UI", std::vector{ EventKeyInfo{eKey::k2, {eAdditionalKey::kControl}} },
@@ -61,8 +65,10 @@ namespace event_test
 
 		void Shutdown() override
 		{
+#ifdef USE_NETWORK_TEST
 			Network::GetInst()->DestroyWorker();
 			Network::DestroyInst();
+#endif
 			Application::Shutdown();
 			
 		}

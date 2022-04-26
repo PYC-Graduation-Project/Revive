@@ -35,9 +35,19 @@ namespace client_fw
 		void SetLightManagerRegisteredIndex(UINT index) { m_light_manager_registered_index = index; }
 
 	protected:
+		bool m_is_use_shadow = true;
+		bool m_shadow_visibility = true;
 		INT m_shadow_texture_size = 1024;
 
 	public:
+		// Use Shadow는 Rumtime에 변경이 아닌 초기화 과정에서 아예 Shadow를 사용하지 않는 경우만 사용
+		bool IsUseShadow() const { return m_is_use_shadow; }
+		void DisableShadow() { m_is_use_shadow = false; }
+
+		// Runtime 변경 가능
+		bool GetShadowVisibility() const { return m_shadow_visibility; }
+		void SetShadowVisibility(bool visible) { m_shadow_visibility = visible; }
+
 		// 초기화 과정이 아닌 Runtime에 호출을 하면 작동하지 않는다.
 		INT GetShadowTextureSize() const { return m_shadow_texture_size; }
 		void SetShadowTextureSize(INT extent) { m_shadow_texture_size = extent; }

@@ -28,10 +28,13 @@ namespace client_fw
 			{
 				auto CheckCollision([](const std::string& type, const SPtr<SceneComponent>& comp,
 					const SPtr<SceneComponent>& other_comp) {
-						const auto& other_col_types = other_comp->GetCollisioner()->GetCollisionInfo().collisionable_types;
-						if (other_col_types.find(type) != other_col_types.cend() &&
+
+						const auto& col_info = comp->GetCollisioner()->GetCollisionInfo();
+						const auto& other_col_info = other_comp->GetCollisioner()->GetCollisionInfo();
+
+						if (col_info.is_collision == true && other_col_info.is_collision == true &&
+							other_col_info.collisionable_types.find(type) != other_col_info.collisionable_types.cend() &&
 							comp->GetOwner().lock() != other_comp->GetOwner().lock() &&
-							comp->GetCollisioner() != nullptr && other_comp->GetCollisioner() != nullptr &&
 							comp->IsCollidedComponent(other_comp) == false &&
 							other_comp->IsCollidedComponent(comp) == false)
 						{
