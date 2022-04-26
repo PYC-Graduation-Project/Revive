@@ -88,7 +88,6 @@ namespace revive
 				stone->SetActorState(eActorState::kDead);
 				
 			});
-			LOG_INFO("≈ı√¥ ¥ÎªÛ pos {0}", m_target_position);
 			SpawnActor(stone);
 		}
 	}
