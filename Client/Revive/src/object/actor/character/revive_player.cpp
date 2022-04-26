@@ -405,7 +405,7 @@ namespace revive
 					}
 				}
 			});
-			//SpawnActor(bullet);
+			SpawnActor(bullet);
 			m_is_fire = true;
 		}
 	}

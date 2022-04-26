@@ -69,7 +69,7 @@ private:
 	
 	std::thread db_thread;
 
-
+	bool CheckPlayerBullet(int c_id, const Vector3& position, const Vector3& forward);
 	
 
 	//나중에 개발

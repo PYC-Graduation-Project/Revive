@@ -21,7 +21,8 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
-	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessStatusChange(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -143,6 +144,11 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);
 
+	}
+	else if (packet->target_id == -1)
+	{
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
+		Vec3(2550.0f,300.0f,3000.0f)), packet->obj_id);
 	}
 	else
 		LOG_INFO("없는 객체 공격");

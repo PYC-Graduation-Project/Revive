@@ -254,13 +254,13 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		enemy->DoMove(base_pos);
 		//enemy->DoMove(Vector3(base_pos.x, base_pos.y, base_pos.z + 400.0f));
 		
-		enemy->GetCollision().UpdateCollision(enemy->GetPos());
+		//enemy->GetCollision().UpdateCollision(enemy->GetPos());
 		
 	}
 	else
 	{
 		enemy->DoMove(MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos());
-		enemy->GetCollision().UpdateCollision(enemy->GetPos());
+		//enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	}
 	
 	if (false == m_map_manager->CheckInRange(enemy->GetCollision()))
@@ -430,7 +430,7 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 			SendNPCAttackPacket(pl, enemy_id, target_id);
 	}
 	auto& attack_time = enemy->GetAttackTime();
-	attack_time = chrono::system_clock::now() + 500ms;
+	attack_time = chrono::system_clock::now() + 1000ms;
 	lua_State* L = enemy->GetLua();
 	enemy->lua_lock.lock();
 	lua_getglobal(L, "state_machine");
@@ -601,7 +601,7 @@ void PacketManager::SendStatusChange(int c_id, int obj_id, float hp)
 	packet.type = SC_PACKET_STATUS_CHANGE;
 	packet.id = obj_id;
 	packet.hp = hp;
-	MoveObjManager::GetInst()->GetPlayer(obj_id)->DoSend(sizeof(packet), &packet);
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
 
@@ -645,53 +645,18 @@ void PacketManager::Disconnect(int c_id)
 
 
 
-void PacketManager::ProcessSignIn(int c_id,unsigned char* p)
+bool PacketManager::CheckPlayerBullet(int c_id, const Vector3& position, const Vector3& forward)
 {
-	cs_packet_sign_in*packet= reinterpret_cast<cs_packet_sign_in*>(p);
-	db_task dt;
-	dt.dt = DB_TASK_TYPE::SIGN_IN;
-	dt.obj_id = c_id;
-	strcpy_s(dt.user_id, packet->name);
-	strcpy_s(dt.user_password, packet->password);
-	m_db_queue.push(move(dt));
-
-}
-
-void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
-{
-	cs_packet_sign_up* packet = reinterpret_cast<cs_packet_sign_up*>(p);
-	db_task dt;
-	dt.dt = DB_TASK_TYPE::SIGN_UP;
-	dt.obj_id = c_id;
-	strcpy_s(dt.user_id, packet->name);
-	strcpy_s(dt.user_password, packet->password);
-	m_db_queue.push(move(dt));
-}
-
-void PacketManager::ProcessAttack(int c_id,unsigned char* p)
-{
-	cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(p);
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
-	Vector3 position{ packet->x,packet->y,packet->z };
-	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
-	cout << position << endl;
-	cout << forward << endl;
-	for (int pl : room->GetObjList())
-	{
-		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		if (pl == c_id)continue;
-		SendAttackPacket(pl,c_id);
-	}
-	
 	Vector3 last_pos = position + (forward * ATTACK_RANGE);
-	cout << "라스트 포즈:" <<last_pos <<endl;
+	cout << "라스트 포즈:" << last_pos << endl;
 	Vector3 shoot_vec = forward * ATTACK_RANGE;
 	Vector2 comp_vec(last_pos.x, last_pos.z);
 	Enemy* enemy = NULL;
 	map<float, int>result_enemy;
 	//unordered_map<int, float>obj_dist;
-	map<float,int>result_map;
+	map<float, int>result_map;
 	//vector<MapObj>map_vec;
 	//map_vec.reserve(100);
 	Vector2 ret_point = Vector2(0.0f, 0.0f);
@@ -706,10 +671,10 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 		//if (position.Dist2d(enemy->GetPos()) > ATTACK_RANGE)continue;
 		//if (comp_vec * Vector2(enemy->GetPosX() - position.x,
 		//	enemy->GetPosZ() - position.z) < 0)continue;
-		
+
 		map_dist = 999999.f;
 		bret = false;
-		
+
 		en_col = enemy->GetCollision();
 		BoxCollision2D box_col{ en_col.GetMinPos(),en_col.GetMaxPos() };
 		bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
@@ -744,7 +709,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 		}
 		for (int i = 0; i < 3; ++i)
 		{
-			bret=CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
+			bret = CollisionChecker::segmentIntersection(Vector2(position.x, position.z), comp_vec,
 				box_col.p[i], box_col.p[i + 1], ret_point);
 			if (bret && map_dist > ret_point.Dist2d(Vector2(position.x, position.z)))
 			{
@@ -754,27 +719,70 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 		}
 
 	}
-	float enemy_min= 99999.f;
+	float enemy_min = 99999.f;
 	float map_min = 99999.f;
 	float final_result = 0;
 	if (result_enemy.begin() != result_enemy.end()) enemy_min = result_enemy.begin()->first;
-	if(result_map.begin() != result_map.end())  map_min = result_map.begin()->first;
+	if (result_map.begin() != result_map.end())  map_min = result_map.begin()->first;
 	//if (enemy_min == map_min)return;
-	cout << "적 최소:"<<enemy_min<<"맵 사이즈"<<result_enemy.size() << endl;
+	cout << "적 최소:" << enemy_min << "맵 사이즈" << result_enemy.size() << endl;
 	cout << "맵 최소:" << map_min << endl;
 	int hit_id = -99;
 	if (map_min > enemy_min)hit_id = result_enemy[enemy_min];
 	else cout << "맵 오브젝트 충돌" << endl;
-	if (hit_id == -99)return;
+	if (hit_id == -99)return false;
 	enemy = MoveObjManager::GetInst()->GetEnemy(hit_id);
 	enemy->SetHP(enemy->GetHP() - player->GetDamge());
 	for (int pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		
-		SendStatusChange(pl, c_id,enemy->GetHP());
+
+		SendStatusChange(pl, hit_id, enemy->GetHP());
 	}
 	cout << hit_id << endl;
+	return true;
+}
+
+void PacketManager::ProcessSignIn(int c_id,unsigned char* p)
+{
+	cs_packet_sign_in*packet= reinterpret_cast<cs_packet_sign_in*>(p);
+	db_task dt;
+	dt.dt = DB_TASK_TYPE::SIGN_IN;
+	dt.obj_id = c_id;
+	strcpy_s(dt.user_id, packet->name);
+	strcpy_s(dt.user_password, packet->password);
+	m_db_queue.push(move(dt));
+
+}
+
+void PacketManager::ProcessSignUp(int c_id, unsigned char* p)
+{
+	cs_packet_sign_up* packet = reinterpret_cast<cs_packet_sign_up*>(p);
+	db_task dt;
+	dt.dt = DB_TASK_TYPE::SIGN_UP;
+	dt.obj_id = c_id;
+	strcpy_s(dt.user_id, packet->name);
+	strcpy_s(dt.user_password, packet->password);
+	m_db_queue.push(move(dt));
+}
+
+void PacketManager::ProcessAttack(int c_id,unsigned char* p)
+{
+	cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(p);
+	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	Room* room = m_room_manager->GetRoom(player->GetRoomID());
+	Vector3 position{ packet->x,packet->y,packet->z };
+	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
+	//cout << position << endl;
+	//cout << forward << endl;
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		if (pl == c_id)continue;
+		SendAttackPacket(pl,c_id);
+	}
+	
+	
 }
 
 void PacketManager::ProcessMove(int c_id,unsigned char* p)
@@ -931,8 +939,12 @@ void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 	player->SetIsReady(true);
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
 	for (auto pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		if (false == MoveObjManager::GetInst()->GetPlayer(pl)->GetIsReady())return;
-	StartGame(room->GetRoomID());
+	
+	}
+		StartGame(room->GetRoomID());
 }
 
 

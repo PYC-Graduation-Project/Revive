@@ -54,7 +54,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	if ((int)packet_type > 14)
 	{
 		
-		LOG_INFO("처음보는 패킷타입:{0}", (int)packet_type);
+		//LOG_INFO("처음보는 패킷타입:{0}", (int)packet_type);
 	}
 	auto iter = m_recv_func_map.find(packet_type);
 	if (iter != m_recv_func_map.end())

@@ -23,7 +23,7 @@ extern "C" {
 
 const int BUFSIZE = 256;
 const float ATTACK_RANGE = 5000.0f;
-
+const float GROUND_HEIGHT = 350.0f;
 
 class EXP_OVER
 {
