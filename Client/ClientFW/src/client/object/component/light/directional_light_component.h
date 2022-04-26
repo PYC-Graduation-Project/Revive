@@ -3,6 +3,8 @@
 
 namespace client_fw
 {
+	constexpr static INT s_directional_light_max_texture_size = 8192;
+
 	class RenderCameraComponent;
 	class ShadowCascadeCameraComponent;
 
@@ -28,6 +30,9 @@ namespace client_fw
 		void RegisterCascadeAndRenderCamera(const WPtr<RenderCameraComponent>& render_camera_comp,
 			const SPtr<ShadowCascadeCameraComponent>& cascade_camera_comp);
 		void UnregisterRenderCamera(const WPtr<RenderCameraComponent>& render_camera_comp);
+
+	private:
+		virtual void UpdateShadowTextureSize() override;
 
 	};
 }
