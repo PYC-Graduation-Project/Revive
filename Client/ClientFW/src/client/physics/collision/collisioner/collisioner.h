@@ -33,6 +33,7 @@ namespace client_fw
 
 		const CollisionInfo& GetCollisionInfo() const { return m_collision_info; }
 		void SetCollisionInfo(CollisionInfo&& info) { m_collision_info = std::move(info); }
+		void SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collision_event);
 		void SetCollisionInfo(bool is_collision, bool is_blocking, std::string&& collision_type,
 			std::set<std::string>&& collisionable_types, bool generate_collision_event);
 

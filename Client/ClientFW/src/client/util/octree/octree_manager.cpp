@@ -6,6 +6,7 @@
 #include "client/physics/core/bounding_mesh.h"
 #include "client/physics/collision/collisioner/collisioner.h"
 #include "client/physics/collision/collision_util.h"
+#include "client/physics/collision/collision_checker.h"
 
 namespace client_fw
 {
@@ -117,16 +118,29 @@ namespace client_fw
 	CollisionOctreeManager::CollisionOctreeManager()
 	{
 		s_instance = this;
+		m_collision_checker = CreateUPtr<CollisionChecker>();
+	}
+
+	CollisionOctreeManager::~CollisionOctreeManager()
+	{
 	}
 
 	void CollisionOctreeManager::Update()
 	{
+		m_checking_collision = true;
+
+		m_collision_checker->CheckCollisions();
+
+		m_checking_collision = false;
+
 		if (m_checking_collision == false)
 		{
 			for (const auto& scene_comp : m_ready_unregistered_scene_comp)
 				UnregisterSceneComponent(scene_comp);
 			for (const auto& scene_comp : m_ready_registered_scene_comp)
 				RegisterSceneComponent(scene_comp);
+			m_ready_registered_scene_comp.clear();
+			m_ready_unregistered_scene_comp.clear();
 		}
 	}
 

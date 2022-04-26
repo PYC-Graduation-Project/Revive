@@ -26,7 +26,7 @@ namespace event_test
 
 		auto mesh = CreateSPtr<StaticMeshComponent>();
 		ret &= mesh->SetMesh("../Contents/penguin.obj");
-		//mesh->SetCollisionInfo(true, false, true);
+		mesh->SetCollisionInfo(true, false, "player", { "sphere" }, true);
 		mesh->SetLocalScale(10.0f);
 		mesh->SetLocalRotation(quat::CreateQuaternionFromAxis(vec3::AXIS_Y, math::ToRadian(180.0f)));
 		ret &= AttachComponent(mesh);

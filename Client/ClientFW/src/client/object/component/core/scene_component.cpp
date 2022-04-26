@@ -172,11 +172,7 @@ namespace client_fw
 	{
 		if (m_collisioner != nullptr)
 		{
-			CollisionInfo info = m_collisioner->GetCollisionInfo();
-			info.is_collision = is_collision;
-			info.is_blocking = is_blocking;
-			info.generate_collision_event = generate_collsion_event;
-			m_collisioner->SetCollisionInfo(std::move(info));
+			m_collisioner->SetCollisionInfo(is_collision, is_blocking, generate_collsion_event);
 
 			if (is_collision)
 				RegisterToCollisionOctree();

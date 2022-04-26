@@ -3,6 +3,7 @@
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include "collision_test_actor.h"
 
 namespace event_test
@@ -15,7 +16,7 @@ namespace event_test
 	bool CollisionTestActor::Initialize()
 	{
 		bool ret = StaticMeshActor::Initialize();
-		m_static_mesh_component->SetCollisionInfo(true, false, true);
+		m_static_mesh_component->SetCollisionInfo(true, false, "sphere", { "player" }, true);
 
 		auto sphere = CreateSPtr<SphereComponent>(100.0f);
 		//auto sphere = CreateSPtr<BoxComponent>(Vec3(100.0f, 100.0f, 100.0f));
@@ -24,9 +25,13 @@ namespace event_test
 
 		RegisterPressedEvent("enable collision", { EventKeyInfo{eKey::kO} },
 			[this]()->bool {
-				m_static_mesh_component->SetCollisionInfo(true, false, true);
-				return true;
-			});
+				if (m_static_mesh_component->GetCollisioner()->GetCollisionInfo().is_collision == false)
+				{
+					m_static_mesh_component->SetCollisionInfo(true, false, true);
+					return true;
+				}
+				return false;
+			}, false);
 
 		m_static_mesh_component->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
