@@ -84,9 +84,9 @@ namespace revive
 		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
 		SpawnActor(sky_cube);
 
-		auto king = CreateSPtr<SkeletonSoldier>();
+		/*auto king = CreateSPtr<SkeletonSoldier>();
 		SpawnActor(king);
-		king->SetPosition(Vec3{ 2400.f,300.f,1200.f });
+		king->SetPosition(Vec3{ 2400.f,300.f,1200.f });*/
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;

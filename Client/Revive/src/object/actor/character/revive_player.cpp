@@ -243,23 +243,18 @@ namespace revive
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				//bullet->SetCollisionInfo(false, false, false);
-				if (bullet->GetIsCollision())
+				bullet->SetCollisionInfo(false, false, false);
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+				if (enemy != nullptr)
 				{
-					bullet->SetIsCollision(false);
-					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-					const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-					if (enemy != nullptr)
-					{
-						int enemy_hp = enemy->GetHP();
-						if (enemy_hp > 0)
-							//enemy->Hit(0);
+					int enemy_hp = enemy->GetHP();
+					if (enemy_hp > 0)
+						//enemy->Hit(0);
 
-							LOG_INFO("面倒 何困 :" + other_component->GetName());
-						bullet->SetActorState(eActorState::kDead);
-					}
+						LOG_INFO("面倒 何困 :" + other_component->GetName());
+					bullet->SetActorState(eActorState::kDead);
 				}
-				
 			});
 			SpawnActor(bullet);
 			m_is_fire = true;
@@ -387,22 +382,20 @@ namespace revive
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				//bullet->SetCollisionInfo(false, false, false);
-				if (bullet->GetIsCollision())
-				{
-					bullet->SetIsCollision(false);
-					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-					const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-					if (enemy != nullptr)
-					{
-						int enemy_hp = enemy->GetHP();
-						if (enemy_hp > 0)
-							//enemy->Hit(0);
+				bullet->SetCollisionInfo(false, false, false);
 
-							LOG_INFO("面倒 何困 :" + other_component->GetName());
-						bullet->SetActorState(eActorState::kDead);
-					}
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+				if (enemy != nullptr)
+				{
+					int enemy_hp = enemy->GetHP();
+					if (enemy_hp > 0)
+						//enemy->Hit(0);
+
+						LOG_INFO("面倒 何困 :" + other_component->GetName());
+					bullet->SetActorState(eActorState::kDead);
 				}
+
 			});
 			SpawnActor(bullet);
 			m_is_fire = true;

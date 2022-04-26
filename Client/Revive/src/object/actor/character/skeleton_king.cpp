@@ -133,18 +133,8 @@ namespace revive
 	{
 		if (m_is_attacking == false)
 		{
-			//콜리전 꺼져있는지 한번 확인해볼까
-			/*auto info = m_weapon->GetCollisionInfo();
-			if (info.is_collision == false)
-			{
-				m_weapon->SetCollisionInfo(true, false, true);
-				LOG_INFO("콜리전 킴");
-
-			}*/
-			if (m_weapon->GetIsCollision() == false)
-				m_weapon->SetIsCollision(true);
+			m_weapon->SetCollisionInfo(true, false, true);
 			Enemy::Attack();
-			//m_weapon_collision_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, true);//공격 시 켜준다.
 		}
 
 	}
