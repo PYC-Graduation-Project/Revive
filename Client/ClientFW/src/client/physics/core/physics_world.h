@@ -2,8 +2,6 @@
 
 namespace client_fw
 {
-	class CollisionChecker;
-
 	class PhysicsWorld
 	{
 	public:
@@ -16,9 +14,6 @@ namespace client_fw
 		bool Initialize();
 		void Shutdown();
 		void Update(float delta_time);
-		
-	private:
-		UPtr<CollisionChecker> m_collision_checker;
 	};
 }
 

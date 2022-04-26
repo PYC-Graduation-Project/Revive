@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "client/physics/core/physics_world.h"
-#include "client/physics/collision/collision_checker.h"
 
 namespace client_fw
 {
@@ -23,6 +22,5 @@ namespace client_fw
 
 	void PhysicsWorld::Update(float delta_time)
 	{
-		m_collision_checker->CheckCollisions();
 	}
 }
