@@ -69,7 +69,7 @@ int API_move(lua_State* L)
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
 	en->SetTargetId(target_id);
-	timer_event t=PacketManager::SetTimerEvent(en->GetID(), en->GetID(), en->GetRoomID(),EVENT_TYPE::EVENT_NPC_MOVE,30);
+	timer_event t=PacketManager::SetTimerEvent(en->GetID(), en->GetID(), en->GetRoomID(),EVENT_TYPE::EVENT_NPC_MOVE,50);
 	PacketManager::g_timer_queue.push(move(t));
 	return 0;
 }

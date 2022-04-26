@@ -414,7 +414,7 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
 	float base_hp;
-	if (enemy->GetTargetId() == -1)
+	if (target_id == -1)
 	{
 		room->m_base_hp_lock.lock();
 		base_hp =room->GetBaseHp()- enemy->GetDamge();
@@ -849,8 +849,8 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
 			continue;
-		if (c_id == other_pl)
-			continue;
+		//if (c_id == other_pl)
+		//	continue;
 		SendMovePacket(other_pl, c_id);
 	}
 	
@@ -948,7 +948,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	for (int obj_id : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
-		if (victim->GetID() == obj_id||attacker->GetID()==obj_id)continue;
+		//if (victim->GetID() == obj_id||attacker->GetID()==obj_id)continue;
 		SendStatusChange(obj_id, victim->GetID(), victim->GetHP());
 	}
 	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
@@ -1020,10 +1020,12 @@ void PacketManager::StartGame(int room_id)
 		pl = MoveObjManager::GetInst()->GetPlayer(c_id);
 		cout << "SendObj 이름:" << pl->GetName() << endl;
 		SendObjInfo(c_id, c_id);//자기자신
-		for (int i=0; i<room->GetMaxUser(); ++i)
+		for (auto other_id : room->GetObjList())
 		{
-			if (c_id == room->GetObjList().at(i))continue;
-			SendObjInfo(c_id, room->GetObjList().at(i));
+			if (false == MoveObjManager::GetInst()->IsPlayer(other_id))
+				continue;
+			if (c_id == other_id)continue;
+			SendObjInfo(c_id, other_id);
 			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 		SendBaseStatus(c_id, room->GetRoomID());

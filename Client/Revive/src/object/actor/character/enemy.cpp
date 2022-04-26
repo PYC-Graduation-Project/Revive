@@ -137,6 +137,7 @@ namespace revive
 			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
 			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
 			m_target_position = msg->GetTargetPosition();
+			LOG_INFO("Å¸°Ù À§Ä¡ {0}", m_target_position);
 			Attack();
 			break;
 		}
