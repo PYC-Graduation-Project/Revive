@@ -75,6 +75,7 @@ namespace revive
 		void SetMeshPosition(const Vec3& pos);
 		void SetAnimationSpeed(float speed);
 		void SetNetworkID(int val) { m_network_id = val; };
+		void SetHP(float hp) { m_hp = hp; }
 		void DecrementHitCount() { m_hit_count--; }
 
 		virtual void Attack();

@@ -174,6 +174,14 @@ namespace revive
 			case HashCode("dead"):
 			{
 				m_is_dying = true;
+				break;
+			}
+			case HashCode("status change"):
+			{
+				auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
+				LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+				SetHP(msg->GetObjHp());
+				break;
 			}
 		}
 	}
@@ -334,6 +342,14 @@ namespace revive
 		case HashCode("dead"):
 		{
 			m_is_dying = true;
+			break;
+		}
+		case HashCode("status change"):
+		{
+			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
+			LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+			SetHP(msg->GetObjHp());
+			break;
 		}
 		}
 	}

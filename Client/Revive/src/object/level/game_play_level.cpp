@@ -131,6 +131,8 @@ namespace revive
 				auto player = std::dynamic_pointer_cast<RevivePlayer>(GetGameMode()->GetDefaultPawn());
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
+				player->SetHP(obj->GetHp());
+				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 
 				break;
 			}
@@ -141,6 +143,7 @@ namespace revive
 				SpawnActor(player);
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
+				player->SetHP(obj->GetHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				
 				break;
@@ -151,6 +154,7 @@ namespace revive
 				SpawnActor(police);
 				police->SetPosition(obj->GetPosition());
 				police->SetNetworkID(obj->GetID());
+				police->SetHP(obj->GetHp());
 				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
 
 				break;
@@ -160,6 +164,7 @@ namespace revive
 				SpawnActor(police);
 				police->SetPosition(obj->GetPosition());
 				police->SetNetworkID(obj->GetID());
+				police->SetHP(obj->GetHp());
 				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
 				break;
 			}

@@ -1,6 +1,7 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
 #include <client/object/component/render/box_component.h>
+#include "revive_server/message/message_event_info.h"
 #include "object/actor/gameplaymechanics/base.h"
 
 namespace revive
@@ -36,5 +37,18 @@ namespace revive
 	{
 		if (m_hp <= 0)
 			SetActorState(eActorState::kDead);
+	}
+	void Base::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
+	{
+		switch (message->GetEventID())
+		{
+		case HashCode("base hp change"):
+		{
+			auto msg = std::static_pointer_cast<BaseHpChangeEventInfo>(message);
+			m_hp = msg->GetBaseHp();
+			break;
+		}
+
+		}
 	}
 }
