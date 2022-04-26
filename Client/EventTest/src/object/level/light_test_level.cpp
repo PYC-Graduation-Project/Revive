@@ -134,6 +134,22 @@ namespace event_test
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3(-500.0f, 0.0f, 500.0f));
 
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, 250.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, 000.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, -250.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, -500.0f));
+
 		auto d_light = CreateSPtr<DirectionalLight>();
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
 		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
