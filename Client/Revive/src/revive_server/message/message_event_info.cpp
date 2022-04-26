@@ -76,4 +76,9 @@ namespace revive
 	{
 	}
 
+	ObjectDeadEventInfo::ObjectDeadEventInfo(UINT event_id)
+		: MessageEventInfo(event_id)
+	{
+	}
+
 }

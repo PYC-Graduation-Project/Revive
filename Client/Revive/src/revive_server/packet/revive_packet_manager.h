@@ -24,6 +24,9 @@ public:
     void ProcessAttack(int c_id, unsigned char* p);
     void ProcessBaseStatus(int c_id, unsigned char* p);
     void ProcessStatusChange(int c_id, unsigned char* p);
+    void ProcessGameWin(int c_id, unsigned char* p);
+    void ProcessGameDefeat(int c_id, unsigned char* p);
+    void ProcessDead(int c_id, unsigned char* p);
 private:
     std::unordered_map<int, client_fw::SPtr<NetworkMoveObj>>m_obj_map;
     GameInfo m_game_info;

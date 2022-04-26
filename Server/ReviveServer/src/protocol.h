@@ -62,7 +62,7 @@ const char SC_PACKET_ATTACK = 14;
 const char SC_PACKET_BASE_STATUS = 15;
 const char SC_PACKET_WIN = 16;
 const char SC_PACKET_DEFEAT = 17;
-
+const char SC_PACKET_DEAD = 18;
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;

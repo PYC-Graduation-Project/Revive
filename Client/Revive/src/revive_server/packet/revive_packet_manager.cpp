@@ -23,6 +23,9 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessStatusChange(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_WIN, [this](int c_id, unsigned char* p) {ProcessGameWin(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_DEFEAT, [this](int c_id, unsigned char* p) {ProcessGameDefeat(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_DEAD, [this](int c_id, unsigned char* p) {ProcessDead(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -185,4 +188,21 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}
+}
+
+void RevivePacketManager::ProcessGameWin(int c_id, unsigned char* p)
+{
+	sc_packet_win* packet = reinterpret_cast<sc_packet_win*>(p);
+}
+
+void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
+{
+	sc_packet_defeat* packet = reinterpret_cast<sc_packet_defeat*>(p);
+	
+}
+
+void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
+{
+	sc_packet_dead* packet = reinterpret_cast<sc_packet_dead*>(p);
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::ObjectDeadEventInfo>(HashCode("dead")), packet->obj_id);
 }

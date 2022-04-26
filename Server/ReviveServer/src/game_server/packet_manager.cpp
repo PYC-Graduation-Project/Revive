@@ -402,7 +402,14 @@ void PacketManager::CountTime(int room_id)
 			enemy = MoveObjManager::GetInst()->GetEnemy(obj_id);
 			if (enemy->GetIsActive() == true)live_count++;
 		}
-		if (live_count == 0);//여기서 게임 승리 보내기
+		if (live_count == 0)
+		{
+			for (auto p_id : room->GetObjList())
+			{
+				if (false == MoveObjManager::GetInst()->IsPlayer(p_id))continue;
+				SendGameWin(p_id);
+			}
+		}
 	}
 	g_timer_queue.push(SetTimerEvent(room_id, room_id,
 		EVENT_TYPE::EVENT_TIME, 1000));
@@ -431,6 +438,14 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 		}
 		else
 			SendNPCAttackPacket(pl, enemy_id, target_id);
+	}
+	if (base_hp <= 0.0f)
+	{
+		for (int pl : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+			SendGameDefeat(pl);
+		}
 	}
 	auto& attack_time = enemy->GetAttackTime();
 	attack_time = chrono::system_clock::now() + 1s;
@@ -624,6 +639,35 @@ void PacketManager::SendStatusChange(int c_id, int obj_id, float hp)
 	packet.type = SC_PACKET_STATUS_CHANGE;
 	packet.id = obj_id;
 	packet.hp = hp;
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+void PacketManager::SendGameWin(int c_id)
+{
+	sc_packet_win packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_WIN;
+
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+
+void PacketManager::SendGameDefeat(int c_id)
+{
+
+	sc_packet_defeat packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_DEFEAT;
+
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+void PacketManager::SendDead(int c_id, int obj_id)
+{
+	sc_packet_dead packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_DEAD;
+	packet.obj_id = obj_id;
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
@@ -941,8 +985,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
 	victim->SetHP(victim->GetHP() - attacker->GetDamge());
-	hp = victim->GetHP();
-	if (hp <= 0.0f)victim->SetIsActive(false);
+	
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();
 	for (int obj_id : room->GetObjList())
@@ -951,7 +994,24 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 		//if (victim->GetID() == obj_id||attacker->GetID()==obj_id)continue;
 		SendStatusChange(obj_id, victim->GetID(), victim->GetHP());
 	}
-	//if (true == MoveObjManager::GetInst()->IsPlayer(packet->victim_id));
+	hp = victim->GetHP();
+	if (hp <= 0.0f)
+	{
+		victim->SetIsActive(false);
+		for (int obj_id : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
+			SendDead(obj_id, victim->GetID());
+		}
+		if (victim->GetType() == OBJ_TYPE::OT_PLAYER)
+		{
+			for (int obj_id : room->GetObjList())
+			{
+				if (false == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
+				SendGameDefeat(obj_id);
+			}
+		}
+	}
 
 }
 

@@ -42,7 +42,13 @@ public:
 	void SendAttackPacket(int c_id, int attacker);
 	void SendBaseStatus(int c_id ,int room_id);
 	void SendStatusChange(int c_id, int obj_id, float hp);
-	
+	void SendGameWin(int c_id);
+	void SendGameDefeat(int c_id);
+	void SendDead(int c_id,int obj_id);
+
+
+
+
 	void End();
 	void Disconnect(int c_id);
 
