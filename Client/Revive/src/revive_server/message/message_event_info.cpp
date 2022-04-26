@@ -81,4 +81,14 @@ namespace revive
 	{
 	}
 
+	GameWinEventInfo::GameWinEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
+
+	GameDefeatEventInfo::GameDefeatEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
+	
 }

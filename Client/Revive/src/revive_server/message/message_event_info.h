@@ -165,12 +165,22 @@ namespace revive
     public:
         GameStartEventInfo(UINT event_id);
     };
+
     class ObjectDeadEventInfo final : public MessageEventInfo
     {
     public:
         ObjectDeadEventInfo(UINT event_id);
     };
+
+    class GameWinEventInfo final : public MessageEventInfo
+    {
+    public:
+        GameWinEventInfo(UINT event_id);
+    };
+
+    class GameDefeatEventInfo final : public MessageEventInfo
+    {
+    public:
+        GameDefeatEventInfo(UINT event_id);
+    };
 }
-
-
-

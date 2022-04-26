@@ -171,6 +171,10 @@ namespace revive
 				m_is_attacking = true;
 				break;
 			}
+			case HashCode("dead"):
+			{
+				m_is_dying = true;
+			}
 		}
 	}
 
@@ -321,6 +325,17 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
+	}
+
+	void RevivePlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
+	{
+		switch (message->GetEventID())
+		{
+		case HashCode("dead"):
+		{
+			m_is_dying = true;
+		}
+		}
 	}
 
 	void RevivePlayer::Shutdown()

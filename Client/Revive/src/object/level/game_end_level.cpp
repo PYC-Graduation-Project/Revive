@@ -16,7 +16,7 @@ namespace revive
 		case eGameResult::kWin:
 			LOG_INFO("게임 승리");
 			break;
-		case eGameResult::kLose:
+		case eGameResult::kDefeat:
 			LOG_INFO("게임 패배");
 			break;
 		}

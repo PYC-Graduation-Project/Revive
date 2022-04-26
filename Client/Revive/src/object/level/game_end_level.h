@@ -8,7 +8,7 @@ namespace revive
 	enum class eGameResult
 	{
 		kWin,
-		kLose
+		kDefeat
 	};
 
 	class GameEndLevel final : public Level

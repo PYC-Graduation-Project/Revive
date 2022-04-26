@@ -77,7 +77,7 @@ namespace revive
 		RegisterPressedEvent("Game End", { { eKey::k0 } },
 			[this]()->bool {
 			//플레이어 사망 및 기지 파괴될 시 아래코드 사용
-			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kLose), nullptr);
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kDefeat), nullptr);
 			return true;
 		});
 
@@ -175,6 +175,18 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<SignInMessageOkEventInfo>(message);
 			m_is_succeed_login = true;
+			break;
+		}
+		case HashCode("win"):
+		{
+			auto msg = std::static_pointer_cast<GameWinEventInfo>(message);
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kWin), nullptr);
+			break;
+		}
+		case HashCode("defeat"):
+		{
+			auto msg = std::static_pointer_cast<GameDefeatEventInfo>(message);
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kDefeat), nullptr);
 			break;
 		}
 		default:
