@@ -348,8 +348,8 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
 		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 		{
-			player = MoveObjManager::GetInst()->GetPlayer(pl);
-			if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
+			//player = MoveObjManager::GetInst()->GetPlayer(pl);
+			//if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
 			auto fail_obj=distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
 			
 			//여기서 기지와 플레이어 거리 비교후
@@ -424,7 +424,7 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	for (int pl : room->GetObjList())
 	{
 		if (false==MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		if (enemy->GetTargetId() == -1)
+		if (target_id == -1)
 		{
 			SendNPCAttackPacket(pl, enemy_id, target_id);
 			SendBaseStatus(pl, room_id);
@@ -433,11 +433,31 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 			SendNPCAttackPacket(pl, enemy_id, target_id);
 	}
 	auto& attack_time = enemy->GetAttackTime();
-	attack_time = chrono::system_clock::now() + 1000ms;
+	attack_time = chrono::system_clock::now() + 1s;
 	lua_State* L = enemy->GetLua();
+	map<float, int>distance_map;
+	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
+	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
+	distance_map.try_emplace(base_dist, -1);
+	Player* player = NULL;
+	for (auto pl : room->GetObjList())
+	{
+
+
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
+		{
+			auto fail_obj = distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
+
+			//여기서 기지와 플레이어 거리 비교후
+			//플레이어가 더 가까우면 target_id 플레이어로
+			//아니면 기지 그대로
+		}
+	}
+	auto nealist = distance_map.begin();
 	enemy->lua_lock.lock();
 	lua_getglobal(L, "state_machine");
-	lua_pushnumber(L, target_id);
+	lua_pushnumber(L, nealist->second);
 	int err = lua_pcall(L, 1, 0, 0);
 	if (err)
 		MoveObjManager::LuaErrorDisplay(L, err);

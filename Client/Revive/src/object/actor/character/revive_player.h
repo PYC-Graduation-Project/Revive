@@ -78,7 +78,9 @@ namespace revive
 		void DecrementHitCount() { m_hit_count--; }
 
 		virtual void Attack();
+
 		virtual void Hit(int damage = 1, int nw_id = 9999);
+
 	};
 
 	class RevivePlayer : public DefaultPlayer
@@ -124,6 +126,7 @@ namespace revive
 
 
 		virtual void Attack() override;
+
 		virtual void Hit(int damage, int nw_id = 9999) override;
 
 

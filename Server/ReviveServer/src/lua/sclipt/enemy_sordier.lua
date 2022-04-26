@@ -2,7 +2,7 @@
 skull_sordier={
 	m_id= 99999,
 	m_fov=900,
-	m_atk_range=1700,
+	m_atk_range=1000,
 	m_position={x=0,y=0,z=0},
 	m_maxhp=0,
 	m_hp=0,
@@ -69,7 +69,7 @@ end
 
 --state 1:idle, 2:move, 3: attack, 4:hit, 5:dead 
 --table써서 switch문 만들기
-function initializEnemy(id, x, y, z, hp, damege)
+function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z)
 	skull_sordier.m_id = id;
 	skull_sordier.m_position.x = x;
 	skull_sordier.m_position.y = y;
@@ -77,6 +77,9 @@ function initializEnemy(id, x, y, z, hp, damege)
 	skull_sordier.m_maxhp=hp;
 	skull_sordier.m_hp=hp;
 	skull_sordier.m_damege = damege;
+	base_pos.x=b_x;
+	base_pos.y=b_y;
+	base_pos.z=b_z;
 	
 end
 

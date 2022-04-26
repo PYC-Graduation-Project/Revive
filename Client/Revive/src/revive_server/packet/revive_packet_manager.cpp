@@ -145,10 +145,10 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 			target->second->GetPosition()), packet->obj_id);
 
 	}
-	else if (packet->target_id == -1)
+	else if (target == m_obj_map.end()&&packet->target_id == -1)
 	{
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-		Vec3(2550.0f,300.0f,3000.0f)), packet->obj_id);
+		Vec3(2400.0f,300.0f,2850.0f)), packet->obj_id);
 	}
 	else
 		LOG_INFO("없는 객체 공격");
@@ -171,6 +171,7 @@ void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
 	if (m_game_info.GetRoomID() == -1)
 		m_game_info.SetRoomID(packet->room_id);
 	m_game_info.SetBaseHp(packet->hp);
+	LOG_INFO("BaseHP:{0}", packet->hp);
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp));
 }
 
@@ -180,7 +181,7 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 	auto obj = m_obj_map.find(packet->id);
 	if (obj != m_obj_map.end())
 	{
-		LOG_INFO(packet->hp);
+		LOG_INFO("{0}가 맞았다 hp:{1}",packet->id,packet->hp);
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}

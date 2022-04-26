@@ -19,7 +19,7 @@ namespace revive
 	{
 		bool ret = true;
 
-		m_projectile_movement_component->SetInitialSpeed(1000.0f);
+		m_projectile_movement_component->SetInitialSpeed(1500.0f);
 		m_projectile_movement_component->SetProjectileGravityScale(0.0f);
 		ret &= AttachComponent(m_projectile_movement_component);
 		
