@@ -21,8 +21,8 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
-	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
-	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessStatusChange(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {

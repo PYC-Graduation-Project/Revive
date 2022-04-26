@@ -337,6 +337,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	
 	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
 	distance_map.try_emplace(base_dist, -1);
+	Player* player = NULL;
 	for (auto pl:room->GetObjList())
 	{
 
