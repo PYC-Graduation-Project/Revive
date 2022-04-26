@@ -166,6 +166,7 @@ namespace revive
 			}
 			case HashCode("player attack"):
 			{
+				LOG_INFO("공격 패킷 받음");
 				auto msg = std::static_pointer_cast<RecvAttackEventInfo>(message);
 				m_is_attacking = true;
 				break;
@@ -350,9 +351,8 @@ namespace revive
 			if(m_is_dying == false)
 				if (m_is_attacking == false) {
 					ret = m_is_attacking = true;
+					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"),Vec3(0.f,0.f,0.f), Vec3(0.f, 0.f, 0.f)));
 				//공격추가
-					
-				
 				}
 			return ret;
 		});
@@ -382,7 +382,6 @@ namespace revive
 			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), bullet->GetPosition(), direction));
 			LOG_INFO("공격 패킷 보냄");	
 			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
