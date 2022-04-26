@@ -10,6 +10,7 @@ namespace client_fw
 		: LightComponent(eLightType::kDirectional, "directional light component",
 			Render::ConvertShaderType(eShaderType::kDeferred))
 	{
+		m_shadow_texture_size = 2048;
 	}
 
 	bool DirectionalLightComponent::Initialize()
@@ -31,6 +32,7 @@ namespace client_fw
 		if (iter == m_cascade_shadows_camera.end())
 		{
 			cascade_camera_comp->SetRenderCamera(render_camera_comp);
+			cascade_camera_comp->SetViewport(Viewport{ 0, 0, m_shadow_texture_size, m_shadow_texture_size });
 			m_owner.lock()->AttachComponent(cascade_camera_comp);
 			m_cascade_shadows_camera.emplace_back(std::move(cascade_shadow));
 		}
@@ -44,5 +46,10 @@ namespace client_fw
 
 		if (iter != m_cascade_shadows_camera.end())
 			m_cascade_shadows_camera.erase(iter);
+	}
+
+	void DirectionalLightComponent::UpdateShadowTextureSize()
+	{
+		INT extent = std::clamp(m_shadow_texture_size, 0, s_directional_light_max_texture_size);
 	}
 }
