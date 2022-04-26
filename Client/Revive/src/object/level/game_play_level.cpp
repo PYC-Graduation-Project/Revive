@@ -62,7 +62,7 @@ namespace revive
 		});
 		RegisterPressedEvent("game start", { { eKey::k8 } },
 			[this]()->bool {
-
+			LOG_INFO("게임 시작!");
 			PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 			return true;
 		});
@@ -84,16 +84,16 @@ namespace revive
 		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
 		SpawnActor(sky_cube);
 
+		auto king = CreateSPtr<SkeletonSoldier>();
+		SpawnActor(king);
+		king->SetPosition(Vec3{ 2400.f,300.f,1200.f });
+
 		Input::SetInputMode(eInputMode::kGameOnly);
-		Input::SetHideCursor(true);
 		return true;
 	}
 	void GamePlayLevel::Shutdown()
 	{
 		LOG_INFO("게임 플레이레벨 셧다운");
-
-		Input::SetHideCursor(false);
-		Input::SetClipCursor(false);
 		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 	void GamePlayLevel::Update(float delta_time)

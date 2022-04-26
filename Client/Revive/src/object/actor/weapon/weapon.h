@@ -6,6 +6,7 @@ namespace client_fw
 	class StaticMeshComponent;
 	class SkeletalMeshComponent;
 	class BoxComponent;
+	struct CollisionInfo;
 }
 
 namespace revive
@@ -43,7 +44,10 @@ namespace revive
 		void SetRotationOffset(const Vec3& rotation_offset) { m_rotation_offset = rotation_offset; }
 		void SetAttachedActor(const SPtr<Actor> actor, const SPtr<SkeletalMeshComponent> skeletal_mesh_component);
 		void SetSocketName(const std::string& socket_name) { m_socket_name = socket_name; }
+		const bool GetIsCollision() const { return m_is_collision; }
 		void SetIsCollision(const bool value) { m_is_collision = value; }
+		void SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collision_event);
+		const CollisionInfo& GetCollisionInfo() const;
 		//void SetSocket(const Mat4& socket_matrix, const Mat4& actor_matrix);
 	};
 }

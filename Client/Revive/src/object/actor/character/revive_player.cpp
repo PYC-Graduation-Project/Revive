@@ -88,7 +88,7 @@ namespace revive
 		m_hit_box->SetExtents(Vec3{ 40.f,80.f,40.f });
 		m_hit_box->SetLocalPosition(Vec3{ 0.0f,80.f,0.f });
 		m_hit_box->SetName("hit box");
-		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe"}, false);
+		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe", "enemy agro"}, false);
 		ret &= AttachComponent(m_hit_box);
 
 		SetScale(0.5f);
@@ -242,18 +242,23 @@ namespace revive
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				bullet->SetCollisionInfo(false, false, false);
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-				if (enemy != nullptr)
+				//bullet->SetCollisionInfo(false, false, false);
+				if (bullet->GetIsCollision())
 				{
-					int enemy_hp = enemy->GetHP();
-					if (enemy_hp > 0)
-						//enemy->Hit(0);
+					bullet->SetIsCollision(false);
+					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+					const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+					if (enemy != nullptr)
+					{
+						int enemy_hp = enemy->GetHP();
+						if (enemy_hp > 0)
+							//enemy->Hit(0);
 
-					LOG_INFO("충돌 부위 :" + other_component->GetName());
-					bullet->SetActorState(eActorState::kDead);
+							LOG_INFO("충돌 부위 :" + other_component->GetName());
+						bullet->SetActorState(eActorState::kDead);
+					}
 				}
+				
 			});
 			SpawnActor(bullet);
 			m_is_fire = true;
@@ -379,21 +384,25 @@ namespace revive
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
 			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), bullet->GetPosition(), direction));
 			LOG_INFO("공격 패킷 보냄");	
-			bullet->SetCollisionInfo(false, "bullet", { "enemy hit" }, true);
+			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
 			bullet->SetOnCollisionResponse([bullet](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
-				bullet->SetCollisionInfo(false, false, false);
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-				if (enemy != nullptr)
+				//bullet->SetCollisionInfo(false, false, false);
+				if (bullet->GetIsCollision())
 				{
-					int enemy_hp = enemy->GetHP();
-					if (enemy_hp > 0)
-						//enemy->Hit(0);
+					bullet->SetIsCollision(false);
+					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+					const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+					if (enemy != nullptr)
+					{
+						int enemy_hp = enemy->GetHP();
+						if (enemy_hp > 0)
+							//enemy->Hit(0);
 
-					LOG_INFO("충돌 부위 :" + other_component->GetName());
-					bullet->SetActorState(eActorState::kDead);
+							LOG_INFO("충돌 부위 :" + other_component->GetName());
+						bullet->SetActorState(eActorState::kDead);
+					}
 				}
 			});
 			//SpawnActor(bullet);

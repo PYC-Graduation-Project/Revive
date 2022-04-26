@@ -1,6 +1,7 @@
 #include <include/client_core.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
 #include "object/actor/weapon/weapon.h"
@@ -21,6 +22,7 @@ namespace revive
 		ret &= AttachComponent(m_static_mesh_component);
 		//ret &= AttachComponent(m_box_component);
 		return ret;
+
 	}
 
 
@@ -51,6 +53,16 @@ namespace revive
 	{
 		m_attached_actor = actor;
 		m_attached_skeletal_mesh_component = skeletal_mesh_component;
+	}
+
+	void Weapon::SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collision_event)
+	{
+		m_box_component->SetCollisionInfo(is_collision, is_blocking, generate_collision_event);
+	}
+
+	const CollisionInfo& Weapon::GetCollisionInfo() const
+	{
+		return m_box_component->GetCollisioner()->GetCollisionInfo();
 	}
 
 	void Weapon::Shutdown()

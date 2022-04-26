@@ -35,7 +35,7 @@ namespace revive
 		//m_character_movement_component->UseOrientRotationToMovement(true);
 		ret &= AttachComponent(m_simple_movement_component);
 		//ret &= AttachComponent(m_agro_sphere);
-		//m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
+		m_agro_sphere->SetCollisionInfo(true, false, "enemy agro",{"player hit","base"}, true);
 		
 
 		//ret &= AttachComponent(m_attack_sphere);
@@ -85,7 +85,6 @@ namespace revive
 			m_skeletal_mesh_component->SetAnimation("death", false);
 			m_is_dead = true;
 		}
-		
 	}
 
 	void Enemy::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)

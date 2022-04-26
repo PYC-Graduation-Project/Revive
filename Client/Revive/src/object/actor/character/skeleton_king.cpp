@@ -3,6 +3,7 @@
 #include <client/object/component/render/sphere_component.h>
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include "object/actor/weapon/axe.h"
 #include "object/actor/gameplaymechanics/base.h"
 #include "object/actor/character/revive_player.h"
@@ -50,6 +51,8 @@ namespace revive
 	void SkeletonKing::Update(float delta_time)
 	{
 		Enemy::Update(delta_time);
+
+
 	}
 
 	void SkeletonKing::Shutdown()
@@ -70,7 +73,7 @@ namespace revive
 			LOG_INFO(GetName() + ": Sphere component {0} Enemy Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 		});
 
-		ret &= AttachComponent(m_blocking_sphere);
+		//ret &= AttachComponent(m_blocking_sphere);
 
 		//멀티에서만 사용
 		m_blocking_box->SetExtents(Vec3{50.f,200.f,50.f});
@@ -80,23 +83,7 @@ namespace revive
 			const SPtr<SceneComponent>& other_component) {
 			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
 		});
-		ret &= AttachComponent(m_blocking_box);
-
-		//무기 콜리전 설정 무기 Actor에서 해줄것
-		//m_weapon_collision_box->SetExtents(Vec3{}); //무기 박스 콜리전 크기
-		//m_weapon_collision_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-		//	const SPtr<SceneComponent>& other_component)
-		//{
-		//	const auto& player = std::dynamic_pointer_cast<RevivePlayer>(other_actor);
-		//	if (player != nullptr) // 안해주면 가끔 터진다.
-		//	{
-		//		int player_hp = player->GetHP();
-		//		if (player_hp > 0)
-		//			player->Hit();
-		//		LOG_INFO("충돌 부위 :" + other_component->GetName());
-		//		component->SetCollisionInfo(false, false, "Player Hit", { "Player Hit" }, false); //충돌 처리후 꺼준다.
-		//	}
-		//});
+		//ret &= AttachComponent(m_blocking_box);
 
 		//공격 범위 구체
 		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -146,8 +133,17 @@ namespace revive
 	{
 		if (m_is_attacking == false)
 		{
+			//콜리전 꺼져있는지 한번 확인해볼까
+			/*auto info = m_weapon->GetCollisionInfo();
+			if (info.is_collision == false)
+			{
+				m_weapon->SetCollisionInfo(true, false, true);
+				LOG_INFO("콜리전 킴");
+
+			}*/
+			if (m_weapon->GetIsCollision() == false)
+				m_weapon->SetIsCollision(true);
 			Enemy::Attack();
-			m_weapon->SetIsCollision(true);
 			//m_weapon_collision_box->SetCollisionInfo(true, false, "Player Hit", { "Player Hit" }, true);//공격 시 켜준다.
 		}
 

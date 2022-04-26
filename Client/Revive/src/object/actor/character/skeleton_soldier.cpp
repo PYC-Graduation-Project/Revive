@@ -59,33 +59,38 @@ namespace revive
 				const SPtr<SceneComponent>& other_component)
 			{
 				//이게 피격
-				stone->SetCollisionInfo(false, false, false);
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-				if (player != nullptr)
+				//stone->SetCollisionInfo(false, false, false);
+				if (stone->GetIsCollision())
 				{
-					int player_hp = player->GetHP();
-					if (player_hp > 0)
+					stone->SetIsCollision(false);
+					LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+					const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+					if (player != nullptr)
 					{
-						//플레이어 피격했다고 서버에 알리기
-						player->Hit(0);
-					}
-				}
-				else
-				{
-					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
-					if (base != nullptr)
-					{
-						int base_hp = base->GetHP();
-						if (base_hp > 0)
+						int player_hp = player->GetHP();
+						if (player_hp > 0)
 						{
-							//기지 피격했다고 서버에 알리기
-							base->SetHP(base_hp);
+							//플레이어 피격했다고 서버에 알리기
+							player->Hit(0);
 						}
 					}
+					else
+					{
+						const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+						if (base != nullptr)
+						{
+							int base_hp = base->GetHP();
+							if (base_hp > 0)
+							{
+								//기지 피격했다고 서버에 알리기
+								base->SetHP(base_hp);
+							}
+						}
+					}
+					LOG_INFO("충돌 부위 :" + other_component->GetName());
+					stone->SetActorState(eActorState::kDead);
 				}
-				LOG_INFO("충돌 부위 :" + other_component->GetName());
-				stone->SetActorState(eActorState::kDead);
+				
 			});
 			SpawnActor(stone);
 		}
@@ -112,7 +117,7 @@ namespace revive
 			FixYPosition();
 			LOG_INFO(GetName() + ": sphere component {0} Enemy Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 		});
-		ret &= AttachComponent(m_blocking_sphere);
+		//ret &= AttachComponent(m_blocking_sphere);
 
 		//멀티에서만 사용
 		m_blocking_box->SetExtents(Vec3{25.f,90.f,45.f});
@@ -122,7 +127,7 @@ namespace revive
 			const SPtr<SceneComponent>& other_component) {
 			//LOG_INFO(GetName() + ": Box component {0} Enemy Position {1} Extents {2}", m_blocking_box->GetWorldPosition(), this->GetPosition(), m_blocking_box->GetExtents());
 		});
-		ret &= AttachComponent(m_blocking_box);
+		//ret &= AttachComponent(m_blocking_box);
 
 		//공격 범위 구체
 		m_agro_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -132,9 +137,9 @@ namespace revive
 			if (distance < 1700.f)
 			{
 				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-				m_target_position = other_actor->GetPosition();
 				if (player != nullptr)
 				{
+					m_target_position = other_actor->GetPosition() + Vec3{0.f,100.f,0.f};
 					if (player->GetIsDying() == false) Attack();
 				}
 				else
@@ -142,6 +147,8 @@ namespace revive
 					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
 					if (base != nullptr)
 					{
+						m_target_position = other_actor->GetPosition() + Vec3{ 0.f,200.f,0.f };
+
 						int base_hp = base->GetHP();
 						if (base_hp > 0)
 							Attack();

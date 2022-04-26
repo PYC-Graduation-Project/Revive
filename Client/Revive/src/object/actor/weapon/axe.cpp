@@ -1,5 +1,6 @@
 #include <include/client_core.h>
 #include <client/object/component/render/box_component.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include "object/actor/weapon/axe.h"
 #include "object/actor/gameplaymechanics/base.h"
 #include "object/actor/character/revive_player.h"
@@ -18,29 +19,39 @@ namespace revive
 		ret &= AttachComponent(m_box_component);
 		m_box_component->SetExtents(Vec3{ 130.f,10.f,130.f });
 		m_box_component->SetLocalPosition(Vec3{ 0.f,0.f,-90.f });
-		m_box_component->SetCollisionInfo(true, false, "axe", { "player hit" }, true);
+		m_box_component->SetCollisionInfo(true, false, "axe", { "player hit","base"}, true);
 		m_box_component->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
-			m_box_component->SetCollisionInfo(false, false, false);
-			LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-			const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-			if (player != nullptr)
+			/*auto info = m_box_component->GetCollisioner()->GetCollisionInfo();
+			if (info.is_collision)
 			{
-				int player_hp = player->GetHP();
-				if (player_hp > 0) //서버에 플레이어 체력 전송
-					player->Hit(0);
-			}
-			else
+				m_box_component->SetCollisionInfo(false, false, false);
+				LOG_INFO("콜리전 끔");
+			}*/
+			if (m_is_collision)
 			{
-				const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
-				if (base != nullptr)
+				m_is_collision = false;
+				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
+				if (player != nullptr)
 				{
-					int base_hp = base->GetHP();
-					if (base_hp > 0) //서버에 기지 체력 전송
-						base->SetHP(base_hp);
+					int player_hp = player->GetHP();
+					if (player_hp > 0) //서버에 플레이어 체력 전송
+						player->Hit(0);
 				}
+				else
+				{
+					const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
+					if (base != nullptr)
+					{
+						int base_hp = base->GetHP();
+						if (base_hp > 0) //서버에 기지 체력 전송
+							base->SetHP(base_hp);
+					}
+				}
+				LOG_INFO("충돌 부위 :" + other_component->GetName());
 			}
-			LOG_INFO("충돌 부위 :" + other_component->GetName());
+			
 		});
 		return ret;
 	}
