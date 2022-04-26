@@ -185,7 +185,7 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 	auto obj = m_obj_map.find(packet->id);
 	if (obj != m_obj_map.end())
 	{
-		LOG_INFO("{0}가 맞았다 hp:{1}",packet->id,packet->hp);
+		LOG_INFO("{0}가 맞았다 hp:{1}",obj->second->GetName(),packet->hp);
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}
@@ -194,12 +194,15 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessGameWin(int c_id, unsigned char* p)
 {
 	sc_packet_win* packet = reinterpret_cast<sc_packet_win*>(p);
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("win")));
+
 }
 
 void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
 {
 	sc_packet_defeat* packet = reinterpret_cast<sc_packet_defeat*>(p);
-	
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("defeat")));
+
 }
 
 void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
