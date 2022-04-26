@@ -201,6 +201,7 @@ void RevivePacketManager::ProcessGameWin(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
 {
 	sc_packet_defeat* packet = reinterpret_cast<sc_packet_defeat*>(p);
+	m_stop_recv = true;
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("defeat")));
 
 }

@@ -7,7 +7,7 @@ using namespace std;
 
 PacketManager::PacketManager():m_id(0),m_prev_size(0)
 {
-
+	m_stop_recv = false;
 }
 
 PacketManager::~PacketManager()
@@ -57,7 +57,7 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 		//LOG_INFO("처음보는 패킷타입:{0}", (int)packet_type);
 	}
 	auto iter = m_recv_func_map.find(packet_type);
-	if (iter != m_recv_func_map.end())
+	if (iter != m_recv_func_map.end()&&false==m_stop_recv)
 	{
 		//(this->*(iter->second))(c_id, p);
 		(iter->second)(c_id, p);

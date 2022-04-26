@@ -383,7 +383,7 @@ void PacketManager::CountTime(int room_id)
 	}
 	if (end_time >= room->GetRoundTime())
 	{
-		room->SetRoundTime(10000);
+		room->SetRoundTime(30000);
 		if (room->GetRound() < 3)
 		{
 			room->SetRound(room->GetRound() + 1);
@@ -1091,7 +1091,7 @@ void PacketManager::StartGame(int room_id)
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
 	}
-	room->SetRoundTime(10000);
+	room->SetRoundTime(30000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?

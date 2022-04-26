@@ -26,7 +26,7 @@ public:
 
 	
 protected:
-	
+	bool m_stop_recv;
 	int m_id;
 	int m_prev_size;
 	EXP_OVER recv_over;
