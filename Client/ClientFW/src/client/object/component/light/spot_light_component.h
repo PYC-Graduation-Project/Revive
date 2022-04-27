@@ -4,6 +4,8 @@
 
 namespace client_fw
 {
+    constexpr static INT s_spot_light_max_texture_size = 2048;
+
     class SpotLightComponent : public LocalLightComponent
     {
     public:

@@ -6,6 +6,7 @@
 #include "client/physics/core/bounding_mesh.h"
 #include "client/physics/collision/collisioner/collisioner.h"
 #include "client/physics/collision/collision_util.h"
+#include "client/physics/collision/collision_checker.h"
 
 namespace client_fw
 {
@@ -13,6 +14,12 @@ namespace client_fw
 	{
 		m_visual_octree_manager = CreateUPtr<VisualOctreeManager>();
 		m_collision_octree_manager = CreateUPtr<CollisionOctreeManager>();
+	}
+
+	void OctreeManager::Update()
+	{
+		if (m_collision_octree_manager != nullptr)
+			m_collision_octree_manager->Update();
 	}
 
 	void OctreeManager::RegisterVisualOctrees(std::vector<SPtr<VisualOctree>>&& octrees)
@@ -111,6 +118,30 @@ namespace client_fw
 	CollisionOctreeManager::CollisionOctreeManager()
 	{
 		s_instance = this;
+		m_collision_checker = CreateUPtr<CollisionChecker>();
+	}
+
+	CollisionOctreeManager::~CollisionOctreeManager()
+	{
+	}
+
+	void CollisionOctreeManager::Update()
+	{
+		m_checking_collision = true;
+
+		m_collision_checker->CheckCollisions();
+
+		m_checking_collision = false;
+
+		if (m_checking_collision == false)
+		{
+			for (const auto& scene_comp : m_ready_unregistered_scene_comp)
+				UnregisterSceneComponent(scene_comp);
+			for (const auto& scene_comp : m_ready_registered_scene_comp)
+				RegisterSceneComponent(scene_comp);
+			m_ready_registered_scene_comp.clear();
+			m_ready_unregistered_scene_comp.clear();
+		}
 	}
 
 	void CollisionOctreeManager::RegisterOctrees(std::vector<SPtr<CollisionOctree>>&& octrees)
@@ -134,15 +165,22 @@ namespace client_fw
 		m_is_active = false;
 	}
 
-	void CollisionOctreeManager::RegisterSceneComponent(const SPtr<SceneComponent>& mesh)
+	void CollisionOctreeManager::RegisterSceneComponent(const SPtr<SceneComponent>& scene_comp)
 	{
 		if (m_is_active)
 		{
-			for (const auto& octree : m_collision_octrees)
+			if (m_checking_collision == false)
 			{
-				const auto& root_node = octree->GetRootNode();
-				if (mesh->GetOrientedBox()->Intersects(root_node->bounding_box))
-					octree->RegisterSceneComponent(mesh, root_node);
+				for (const auto& octree : m_collision_octrees)
+				{
+					const auto& root_node = octree->GetRootNode();
+					if (scene_comp->GetOrientedBox()->Intersects(root_node->bounding_box))
+						octree->RegisterSceneComponent(scene_comp, root_node);
+				}
+			}
+			else
+			{
+				m_ready_registered_scene_comp.push_back(scene_comp);
 			}
 		}
 	}
@@ -151,23 +189,30 @@ namespace client_fw
 	{
 		if (m_is_active)
 		{
-			auto UnregisterSceneComp([&scene_comp](std::vector<SPtr<SceneComponent>>& scene_comps) {
-				auto iter = std::find(scene_comps.begin(), scene_comps.end(), scene_comp);
-				if (iter != scene_comps.end())
-				{
-					std::iter_swap(iter, scene_comps.end() - 1);
-					scene_comps.pop_back();
-				}
-				});
-
-			for (const auto& tree_node : scene_comp->GetCollisionTreeNodes())
+			if (m_checking_collision == false)
 			{
-				if (scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
-					UnregisterSceneComp(tree_node.lock()->movable_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
-				else
-					UnregisterSceneComp(tree_node.lock()->static_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
+				auto UnregisterSceneComp([&scene_comp](std::vector<SPtr<SceneComponent>>& scene_comps) {
+					auto iter = std::find(scene_comps.begin(), scene_comps.end(), scene_comp);
+					if (iter != scene_comps.end())
+					{
+						std::iter_swap(iter, scene_comps.end() - 1);
+						scene_comps.pop_back();
+					}
+					});
+
+				for (const auto& tree_node : scene_comp->GetCollisionTreeNodes())
+				{
+					if (scene_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
+						UnregisterSceneComp(tree_node.lock()->movable_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
+					else
+						UnregisterSceneComp(tree_node.lock()->static_scene_components.at(scene_comp->GetCollisioner()->GetCollisionInfo().collision_type));
+				}
+				scene_comp->ResetCollisionTreeNode();
 			}
-			scene_comp->ResetCollisionTreeNode();
+			else
+			{
+				m_ready_unregistered_scene_comp.push_back(scene_comp);
+			}
 		}
 	}
 

@@ -17,6 +17,8 @@ namespace client_fw
 		OctreeManager(const OctreeManager&) = delete;
 		OctreeManager& operator=(const OctreeManager&) = delete;
 
+		void Update();
+
 		void RegisterVisualOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
 		void RegisterCollisionOctrees(std::vector<SPtr<CollisionOctree>>&& octrees);
 		void UnregisterOctrees();
@@ -53,14 +55,18 @@ namespace client_fw
 		const std::vector<SPtr<RenderComponent>> GetMovableRenderComps() const { return m_movable_render_comps; }
 	};
 
+	class CollisionChecker;
+
 	class CollisionOctreeManager
 	{
 	public:
 		CollisionOctreeManager();
-		~CollisionOctreeManager() = default;
+		~CollisionOctreeManager();
 
 		CollisionOctreeManager(const CollisionOctreeManager&) = delete;
 		CollisionOctreeManager& operator=(const CollisionOctreeManager&) = delete;
+
+		void Update();
 
 		void RegisterOctrees(std::vector<SPtr<CollisionOctree>>&& octrees);
 		void UnregisterOctrees();
@@ -72,11 +78,17 @@ namespace client_fw
 	private:
 		static CollisionOctreeManager* s_instance;
 		bool m_is_active = false;
+		bool m_checking_collision = false;
 		std::vector<SPtr<CollisionOctree>> m_collision_octrees;
+		UPtr<CollisionChecker> m_collision_checker;
+
+		std::vector<SPtr<SceneComponent>> m_ready_registered_scene_comp;
+		std::vector<SPtr<SceneComponent>> m_ready_unregistered_scene_comp;
 
 	public:
 		static CollisionOctreeManager& GetOctreeManager() { return *s_instance; }
 		const std::vector<SPtr<CollisionOctree>> GetCollisionOctrees() const { return m_collision_octrees; }
+		void CheckCollsion(bool check) { m_checking_collision = check; }
 	};
 }
 

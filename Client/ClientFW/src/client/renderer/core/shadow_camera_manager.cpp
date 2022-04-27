@@ -104,7 +104,9 @@ namespace client_fw
 		{
 			for (const auto& camera : m_ready_shadow_cascade_cameras)
 			{
-				camera->SetShadowArrayTexture(CreateSPtr<ShadowArrayTexture>(IVec2(2048, 2048), s_max_cascade_level));
+				IVec2 size = IVec2(camera->GetViewport().width, camera->GetViewport().height);
+
+				camera->SetShadowArrayTexture(CreateSPtr<ShadowArrayTexture>(size, s_max_cascade_level));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetShadowArrayTexture());
 
 				m_wait_resource_shadow_cascade_cameras.push_back(camera);
@@ -168,7 +170,8 @@ namespace client_fw
 
 		for (const auto& camera : m_shadow_cascade_cameras)
 		{
-			if (camera->GetRenderCamera().lock()->GetCameraState() == eCameraState::kActive)
+			if (camera->GetCameraState() == eCameraState::kActive && 
+				camera->GetRenderCamera().lock()->GetCameraState() == eCameraState::kActive)
 			{
 				const auto& shadow_cascade_texture = camera->GetShadowArrayTexture();
 

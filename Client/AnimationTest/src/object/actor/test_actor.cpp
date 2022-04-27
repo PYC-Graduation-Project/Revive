@@ -18,7 +18,7 @@ namespace anim_test
 		ret &= m_skeletal_mesh_component->SetMesh(m_mesh_path);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 
-		ret &= AttachComponent(m_static_mesh_component);
+		if (m_is_eqquiped)ret &= AttachComponent(m_static_mesh_component);
 		SetAnimation(m_animation_name);
 
 		return ret;

@@ -25,9 +25,9 @@ namespace client_fw
 		float m_max_cascade_far_z = 10000.0f;
 		float m_cascade_far_z = 10000.0f;
 		std::array<float, s_max_cascade_level> m_cascade_level_ratio = { 0.2f, 0.5f, 1.0f };
-		std::array<float, s_max_cascade_level> m_cascade_x_offset;
-		std::array<float, s_max_cascade_level> m_cascade_y_offset;
-		std::array<float, s_max_cascade_level> m_cascade_scale;
+		std::array<float, s_max_cascade_level> m_cascade_x_offset = { 0.0f, 0.0f, 0.0f };
+		std::array<float, s_max_cascade_level> m_cascade_y_offset = { 0.0f, 0.0f, 0.0f };
+		std::array<float, s_max_cascade_level> m_cascade_scale = { 1.0f, 1.0f, 1.0f };
 		std::array<Mat4, s_max_cascade_level> m_world_to_cascade_matrix;
 		BSphere m_cascade_bounding_sphere;
 

@@ -1,9 +1,7 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
 #include <client/object/actor/static_mesh_actor.h>
-#include <client/object/actor/directional_light.h>
-#include <client/object/actor/point_light.h>
-#include <client/object/actor/spot_light.h>
+#include <client/object/actor/light.h>
 #include <client/object/actor/sky_cube.h>
 #include <client/object/actor/sky_sphere.h>
 #include <client/util/octree/octree.h>
@@ -136,10 +134,27 @@ namespace event_test
 		SpawnActor(sphere);
 		sphere->SetPosition(Vec3(-500.0f, 0.0f, 500.0f));
 
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, 250.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, 000.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, -250.0f));
+
+		sphere = CreateSPtr<CollisionTestActor>();
+		SpawnActor(sphere);
+		sphere->SetPosition(Vec3(-500.0f, 0.0f, -500.0f));
+
 		auto d_light = CreateSPtr<DirectionalLight>();
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
 		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
 		SpawnActor(d_light);
+		d_light->DisableShadow();
 
 		auto p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
@@ -161,6 +176,7 @@ namespace event_test
 		p_light->SetAttenuationRadius(1500.0f);
 		p_light->SetShadowTextureSize(2000);
 		SpawnActor(p_light);
+		p_light->SetShadowVisibility(false);
 
 		p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 400000.0f, 0.0f));
@@ -180,6 +196,7 @@ namespace event_test
 		s_light->SetAttenuationRadius(2000.0f);
 		s_light->SetConeOuterAngle(22.0f);
 		SpawnActor(s_light);
+		s_light->SetShadowVisibility(false);
 
 		s_light = CreateSPtr<SpotLight>();
 		s_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));

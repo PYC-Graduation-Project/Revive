@@ -28,12 +28,12 @@ namespace anim_test
 		violet_idle->SetPosition(Vec3{ 10.0f, -35.0f, 1100.0f });
 		violet_idle->SetScale(50.f);
 		violet_idle->SetRotation(80.0f, 0.0f, 0.0f);*/
-		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Contents/Revive/skeleton_soldier.rev","idle");
+		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Revive/Contents/violet.rev","attack_right");
 		SpawnActor(skel_run);
 		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		skel_run->SetScale(1.f);
+		skel_run->SetScale(0.5f);
 		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
-		skel_run->SetWeapon("../Contents/Cube.obj","mount0");
+		//skel_run->SetWeapon("../Contents/Cube.obj","mount0");
 		//skel_run->SetWeaponOffset(Vec3{50.f,-10.f,0.f});
 		
 

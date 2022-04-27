@@ -30,6 +30,7 @@ struct LightData
     float cone_inner_angle;
     float3 light_position;
     float cone_outer_angle;
+    int use_shadow;
     uint shadow_texture_data_index;
 };
 
