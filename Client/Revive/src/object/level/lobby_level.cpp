@@ -44,7 +44,7 @@ namespace revive
 			if (m_is_succeed_login)
 			{
 				LOG_INFO("매칭 대기중...");
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 3));
 			}
 				return true;
 		});
