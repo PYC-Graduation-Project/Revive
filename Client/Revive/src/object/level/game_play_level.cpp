@@ -10,6 +10,8 @@
 #include <client/object/level/core/level_loader.h>
 #include <client/event/messageevent/message_helper.h>
 #include <client/object/actor/sky_cube.h>
+#include <client/object/actor/light.h>
+
 #include "object/actor/character/revive_controller.h"
 #include "object/level/game_play_level.h"
 #include "object/level/game_end_level.h"
@@ -57,7 +59,7 @@ namespace revive
 			[this]()->bool {
 
 				LOG_INFO("매칭 대기중...");
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 2));
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 3));
 			return true;
 		});
 		RegisterPressedEvent("game start", { { eKey::k8 } },
@@ -83,6 +85,12 @@ namespace revive
 
 		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
 		SpawnActor(sky_cube);
+
+		auto d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
+		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
+		SpawnActor(d_light);
+		//d_light->DisableShadow();
 
 		/*auto king = CreateSPtr<SkeletonSoldier>();
 		SpawnActor(king);
@@ -206,7 +214,6 @@ namespace revive
 	
 	std::vector<SPtr<VisualOctree>> GamePlayLevel::CreateVisualOctrees() const
 	{
-		LOG_INFO("CreateVisualOctrees");
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500.0f,0,2500.0f))); //Castle
@@ -216,7 +223,6 @@ namespace revive
 
 	std::vector<SPtr<CollisionOctree>> GamePlayLevel::CreateCollisionOctrees() const
 	{
-		LOG_INFO("CreateCollisionOctrees");
 
 		std::vector<SPtr<CollisionOctree>> collision_octrees;
 		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f),0));

@@ -420,12 +420,12 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	//초당두발
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
-	float base_hp;
+	float base_hp = 9999;
 	if (target_id == -1)
 	{
 		room->m_base_hp_lock.lock();
-		base_hp =room->GetBaseHp()- enemy->GetDamge();
-		room->SetBaseHp(base_hp);
+		base_hp = room->GetBaseHp()- enemy->GetDamge();
+		//room->SetBaseHp(base_hp);
 		room->m_base_hp_lock.unlock();
 	}
 	for (int pl : room->GetObjList())
@@ -985,7 +985,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	float hp;
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
-	victim->SetHP(victim->GetHP() - attacker->GetDamge());
+	//victim->SetHP(victim->GetHP() - attacker->GetDamge());
 	hp = victim->GetHP();
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();

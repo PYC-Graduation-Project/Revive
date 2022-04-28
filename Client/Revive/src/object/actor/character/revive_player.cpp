@@ -53,13 +53,13 @@ namespace revive
 			m_is_fire = false;
 			 });
 		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_right", 17,
-			[this]() {m_is_attacking = false; m_is_fire = false; LOG_INFO(m_is_attacking); });
+			[this]() {m_is_attacking = false; m_is_fire = false; /*LOG_INFO(m_is_attacking);*/ });
 
 		//총알 발사(스폰) 타이밍
 		m_skeletal_mesh_component->AddNotify("First Fire", "attack_left", 9,
-			[this]() {	Attack(); LOG_INFO(m_is_attacking); });
+			[this]() {	Attack(); /*LOG_INFO(m_is_attacking);*/ });
 		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_right", 10,
-			[this]() {  Attack(); LOG_INFO(m_is_attacking); });
+			[this]() {  Attack(); /*LOG_INFO(m_is_attacking);*/ });
 
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
 			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
@@ -112,12 +112,14 @@ namespace revive
 		m_player_fsm->Update();
 
 		PlayerInterpolation(delta_time);
-
+		
 		if (m_speed > 0)
 		{
 			m_speed -= 4000 * delta_time;
 		}
 		m_speed = std::clamp(m_speed, 0.f, 300.f);
+		LOG_INFO(" {0}  {1}", m_network_id, GetPosition());
+
 	}
 
 	void DefaultPlayer::PlayerInterpolation(float delta_time)
@@ -146,6 +148,7 @@ namespace revive
 
 		if (m_velocity != vec3::ZERO)
 			SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
+
 	}
 
 	void DefaultPlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -156,7 +159,6 @@ namespace revive
 			{
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 				SetRotation(msg->GetObjRotation());
-
 				m_previous_pos = m_next_pos;
 				m_previous_velocity = m_velocity;
 				m_velocity = msg->GetObjPosition() - m_previous_pos;
@@ -166,7 +168,7 @@ namespace revive
 			}
 			case HashCode("player attack"):
 			{
-				LOG_INFO("공격 패킷 받음");
+				//LOG_INFO("공격 패킷 받음");
 				auto msg = std::static_pointer_cast<RecvAttackEventInfo>(message);
 				m_is_attacking = true;
 				break;
@@ -179,7 +181,7 @@ namespace revive
 			case HashCode("status change"):
 			{
 				auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
-				LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+				//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 				SetHP(msg->GetObjHp());
 				break;
 			}
@@ -347,7 +349,7 @@ namespace revive
 		case HashCode("status change"):
 		{
 			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
-			LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
 			break;
 		}
@@ -421,7 +423,7 @@ namespace revive
 			{
 				bullet->SetCollisionInfo(false, false, false);
 
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				//LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
 				{
@@ -431,7 +433,7 @@ namespace revive
 							enemy->Hit(0,m_network_id);
 
 
-							LOG_INFO("충돌 부위 :" + other_component->GetName());
+							//LOG_INFO("충돌 부위 :" + other_component->GetName());
 						bullet->SetActorState(eActorState::kDead);
 			
 
@@ -451,7 +453,7 @@ namespace revive
 		if (m_is_cheating == false)m_hp -= damage;
 		else --m_hit_count;
 
-		LOG_INFO(nw_id);
+		//LOG_INFO(nw_id);
 
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 	}

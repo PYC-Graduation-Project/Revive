@@ -143,7 +143,7 @@ namespace revive
 		case HashCode("status change"):
 		{
 			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
-			LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
+			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
 			m_skeletal_mesh_component->SetAnimation("hit", false);
 
@@ -184,6 +184,6 @@ namespace revive
 		m_skeletal_mesh_component->SetAnimation("hit", false);
 		//m_hp -= damage;
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
-		LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
+		//LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
 	}
 }

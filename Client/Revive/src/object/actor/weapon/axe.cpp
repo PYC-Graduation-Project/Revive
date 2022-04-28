@@ -24,7 +24,7 @@ namespace revive
 			const SPtr<SceneComponent>& other_component) {
 
 			m_box_component->SetCollisionInfo(false, false, false);
-			LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+			//LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 			const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 			if (player != nullptr)
 			{
@@ -42,7 +42,7 @@ namespace revive
 						base->SetHP(base_hp);
 				}
 			}
-			LOG_INFO("面倒 何困 :" + other_component->GetName());
+			//LOG_INFO("面倒 何困 :" + other_component->GetName());
 		});
 		return ret;
 	}

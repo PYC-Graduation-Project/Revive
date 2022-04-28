@@ -6,8 +6,9 @@ namespace revive
 {
 	void IdleState::Enter()
 	{
-		//LOG_INFO("Idle State");
 		const auto& player = m_player.lock();
+		
+		//LOG_INFO(player->GetName() + "Idle State");
 		player->SetAnimation("idle", true);
 		player->SetMeshPosition(Vec3{ 0,40,0 });
 	}
@@ -33,8 +34,8 @@ namespace revive
 
 	void MoveState::Enter()
 	{
-		//LOG_INFO("Move State");
 		const auto& player = m_player.lock();
+		//LOG_INFO(player->GetName() + "Move State");
 		player->SetAnimation("run", true);
 	}
 
@@ -69,8 +70,8 @@ namespace revive
 
 	void AttackState::Enter()
 	{
-		//LOG_INFO("Attack State");
 		const auto& player = m_player.lock();
+		//LOG_INFO(player->GetName() + "Attack State");
 		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimation("attack_left", false);
 		player->SetAnimationSpeed(0.6f);

@@ -67,7 +67,6 @@ namespace client_fw
 		{
 			m_animation_controller->SetAnimationName(animation_name);
 			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
-			if (looping == false) m_animation_controller->Initialize();
 			SetLooping(looping);
 		}
 	}

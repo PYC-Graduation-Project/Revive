@@ -32,7 +32,7 @@ namespace client_fw
 		void SetAnimation(const SPtr<Skeleton>& skeleton);
 		void AnimToPlay(float delta_time, bool m_looping);
 
-		void SetAnimationName(const std::string& animation_name) { m_animation_name = animation_name; }
+		void SetAnimationName(const std::string& animation_name); 
 		const std::string GetAnimationName() { return m_animation_name; }
 
 		void SetBoneData(const SPtr<BoneData>& bone_data, const SPtr<Skeleton>& skeleton);
@@ -46,6 +46,9 @@ namespace client_fw
 	private:
 		std::string m_mesh_path;
 		std::string m_animation_name;
+		std::string m_ready_animation_name;
+
+		bool m_is_update_animation = false;
 
 		float m_start_time;
 		float m_end_time;
@@ -58,6 +61,7 @@ namespace client_fw
 
 		UINT m_instance_index;
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
+		SPtr<AnimationSequence> m_ready_anim_seq = nullptr;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
 		std::vector<Mat4> m_bone_transform_data;

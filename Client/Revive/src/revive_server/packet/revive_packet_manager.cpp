@@ -174,7 +174,7 @@ void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
 	if (m_game_info.GetRoomID() == -1)
 		m_game_info.SetRoomID(packet->room_id);
 	m_game_info.SetBaseHp(packet->hp);
-	LOG_INFO("BaseHP:{0}", packet->hp);
+	//LOG_INFO("BaseHP:{0}", packet->hp);
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp));
 }
 
@@ -185,7 +185,7 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 	auto obj = m_obj_map.find(packet->id);
 	if (obj != m_obj_map.end())
 	{
-		LOG_INFO("{0}가 맞았다 hp:{1}",obj->second->GetName(),packet->hp);
+		//LOG_INFO("{0}가 맞았다 hp:{1}",obj->second->GetName(),packet->hp);
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}

@@ -16,7 +16,6 @@ namespace revive
 		SPtr<PlayerState> state = m_curr_state->ChageState();
 		if (state != nullptr)
 		{
-			//LOG_INFO("Change State");
 			m_curr_state->Exit();
 			m_curr_state = state;
 			m_curr_state->Initialize(m_player);

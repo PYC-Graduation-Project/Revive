@@ -60,7 +60,7 @@ namespace revive
 			{
 				//이게 피격
 				stone->SetCollisionInfo(false, false, false);
-				LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
+				//LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
 				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 				if (player != nullptr)
 				{
@@ -84,7 +84,7 @@ namespace revive
 						}
 					}
 				}
-				LOG_INFO("충돌 부위 :" + other_component->GetName());
+				//LOG_INFO("충돌 부위 :" + other_component->GetName());
 				stone->SetActorState(eActorState::kDead);
 				
 			});
@@ -111,7 +111,7 @@ namespace revive
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
-			LOG_INFO(GetName() + ": sphere component {0} Enemy Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
+			//LOG_INFO(GetName() + ": sphere component {0} Enemy Position {1} Extents {2}", m_blocking_sphere->GetWorldPosition(), this->GetPosition(), m_blocking_sphere->GetExtents());
 		});
 		//ret &= AttachComponent(m_blocking_sphere);
 
