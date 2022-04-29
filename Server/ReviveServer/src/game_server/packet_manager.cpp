@@ -242,7 +242,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	Room* room = m_room_manager->GetRoom(room_id);
 	
 	Enemy*  enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
-	
+	if (false == enemy->GetIsActive())return;
 	//cout << "enemy_id" << enemy->GetID() << endl;
 	//방향벡터,이동계산 해주기
 	//충돌체크,A*적용하기
@@ -383,7 +383,7 @@ void PacketManager::CountTime(int room_id)
 	}
 	if (end_time >= room->GetRoundTime())
 	{
-		room->SetRoundTime(30000);
+		room->SetRoundTime(10000);
 		if (room->GetRound() < 3)
 		{
 			room->SetRound(room->GetRound() + 1);
@@ -420,7 +420,8 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	//초당두발
 	Room* room = m_room_manager->GetRoom(room_id);
 	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
-	float base_hp;
+	float base_hp=99999.f;
+	if (false == enemy->GetIsActive())return;
 	if (target_id == -1)
 	{
 		room->m_base_hp_lock.lock();
@@ -837,6 +838,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 {
 	cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(p);
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	if (player->GetRoomID() == -1)return;
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
 	Vector3 position{ packet->x,packet->y,packet->z };
 	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
@@ -1091,7 +1093,7 @@ void PacketManager::StartGame(int room_id)
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
 	}
-	room->SetRoundTime(30000);
+	room->SetRoundTime(10000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?
