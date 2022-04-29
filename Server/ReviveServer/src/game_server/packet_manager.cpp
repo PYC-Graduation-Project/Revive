@@ -224,7 +224,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendObjInfo(pl, en);
 		}
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*15));
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
 	}
 		
 		
@@ -278,10 +278,25 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			if (enemy->GetTargetId() != -1) {
 				bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(),
 					MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos(), enemy->GetCollision());
-				astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
-				cout << endl;
+				//astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
+				//cout << endl;
 			}
 			//cout << "콜리전은 OK" << endl;
+		}
+		else
+		{
+			Enemy* other_enemy = NULL;
+			for (auto& npc_id : room->GetObjList())
+			{
+				if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))return;
+				other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
+				if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
+				{
+					enemy->SetToPrevPos();
+					g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+					return;
+				}
+			}
 		}
 		
 	}
@@ -494,10 +509,7 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.x =p->GetPosX();
 	packet.y =p->GetPosY();
 	packet.z =p->GetPosZ();
-	packet.r_x = p->GetRotation().x;
-	packet.r_y = p->GetRotation().y;
-	packet.r_z = p->GetRotation().z;
-	packet.r_w = p->GetRotation().w;
+	
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	cl->DoSend(sizeof(packet), &packet);
 }
@@ -859,7 +871,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
-	Vector4 rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
+
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
@@ -887,7 +899,6 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}*/
 
 	cl->SetPos(pos);
-	cl->SetRotaion(rot);
 	//std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	//std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 	//	<< packet->r_z<< ", w : " << packet->r_w << endl;

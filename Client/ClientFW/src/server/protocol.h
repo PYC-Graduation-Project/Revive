@@ -97,7 +97,7 @@ struct cs_packet_move {
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
-	float r_x, r_y, r_z, r_w;
+
 
 };
 
@@ -168,7 +168,6 @@ struct sc_packet_move {
 	char type;
 	int		id;
 	float x, y, z;
-	float r_x, r_y, r_z, r_w;
 };
 struct sc_packet_test {
 	unsigned char size;
