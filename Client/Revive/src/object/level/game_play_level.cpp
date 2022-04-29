@@ -215,8 +215,12 @@ namespace revive
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500.0f,0,2500.0f))); //Castle
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(5000.0f,Vec3(2500,0,7500.0f))); //Bridge + Spawn Area
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f,Vec3(2400.0f,0,2400.0f))); //Castle
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(15600.0f,Vec3(2400.0f,0,12600.0f))); //Bridge + Spawn Area
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f))); //Left Ground
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f))); //Right Ground
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f))); //Left Ground2
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f))); //Right Ground2
 		return visual_octrees;
 	}
 
