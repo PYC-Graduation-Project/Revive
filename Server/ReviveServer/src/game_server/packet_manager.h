@@ -24,6 +24,7 @@ public:
 
 	void UpdateObjMove();
 	void SpawnEnemy(int room_id);
+	void SpawnEnemyByTime(int enemy_id,int room_id);
 	void DoEnemyMove(int room_id, int enemy_id);
 	void CountTime(int room_id);
 	void DoEnemyAttack(int enemy_id, int target_id, int room_id);

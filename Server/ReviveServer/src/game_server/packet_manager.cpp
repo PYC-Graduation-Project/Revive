@@ -216,15 +216,18 @@ void PacketManager::SpawnEnemy(int room_id)
 		enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	}
 	
-	
+	int i = 0;
 	for (auto &en : enemy_list)
 	{
-		for (auto pl : room->GetObjList())
-		{
-			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-			SendObjInfo(pl, en);
-		}
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
+
+		//for (auto pl : room->GetObjList())
+		//{
+		//	if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		//	SendObjInfo(pl, en);
+			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(1000*i)+500 ));
+			++i;
+		//}
+		//g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
 	}
 		
 		
@@ -234,6 +237,17 @@ void PacketManager::SpawnEnemy(int room_id)
 	
 	//cout << "round" << curr_round << "Wave Start" << endl;
 	//여기서 한번더 타이머 이벤트 넣어주기
+}
+
+void PacketManager::SpawnEnemyByTime(int enemy_id, int room_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	for (auto pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		SendObjInfo(pl, enemy_id);
+	}	
+	g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30));
 }
 
 
@@ -288,7 +302,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			Enemy* other_enemy = NULL;
 			for (auto& npc_id : room->GetObjList())
 			{
-				if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))return;
+				if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))continue;
 				other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
 				if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
 				{
@@ -398,7 +412,7 @@ void PacketManager::CountTime(int room_id)
 	}
 	if (end_time >= room->GetRoundTime())
 	{
-		room->SetRoundTime(10000);
+		room->SetRoundTime(30000);
 		if (room->GetRound() < 3)
 		{
 			room->SetRound(room->GetRound() + 1);
@@ -1106,7 +1120,7 @@ void PacketManager::StartGame(int room_id)
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
 	}
-	room->SetRoundTime(10000);
+	room->SetRoundTime(30000);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?
@@ -1237,6 +1251,14 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	{
 		ex_over->_comp_op = COMP_OP::OP_NPC_SPAWN;
 		ex_over->target_id = ev.target_id;
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+		break;
+	}
+	case EVENT_TYPE::EVENT_NPC_TIMER_SPAWN:
+	{
+		ex_over->_comp_op = COMP_OP::OP_NPC_TIMER_SPAWN;
+		ex_over->target_id = ev.target_id;
+		ex_over->room_id = ev.room_id;
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
