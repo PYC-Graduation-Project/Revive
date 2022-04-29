@@ -157,7 +157,10 @@ namespace revive
 			case HashCode("move object"): 
 			{
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
-				SetRotation(msg->GetObjRotation());
+
+				//SetRotation(msg->GetObjRotation());
+
+
 				m_previous_pos = m_next_pos;
 				m_velocity = msg->GetObjPosition() - m_previous_pos;
 				m_next_pos = msg->GetObjPosition();

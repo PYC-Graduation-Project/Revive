@@ -39,8 +39,8 @@ namespace revive
 		MessageEventInfo(event_id),m_user_num(user_num)
 	{
 	}
-	MoveObjectMessageEventInfo::MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos, const Quaternion& rot)
-		: MessageEventInfo(event_id), m_pos(pos),m_rot(rot)
+	MoveObjectMessageEventInfo::MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos)
+		: MessageEventInfo(event_id), m_pos(pos)
 	{
 	}
 	SendAttackEventInfo::SendAttackEventInfo(UINT event_id, const Vec3& start_pos, const Vec3& forward_vec)

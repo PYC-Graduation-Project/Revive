@@ -33,18 +33,18 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	auto mover = m_obj_map.find(packet->id);
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
-	Quaternion recv_rot{ packet->r_x,packet->r_y,packet->r_z,packet->r_w };
+	
 	if (mover != m_obj_map.end())
 	{
 		mover->second->SetPosition(move(recv_pos));
-		mover->second->SetRotation(move(recv_rot));
+
 	}
 	else
 	{
 		LOG_INFO("No Object");
 	}
 	
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos),packet->id);
 }
 
 void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)
