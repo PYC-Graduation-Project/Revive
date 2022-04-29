@@ -55,6 +55,9 @@ namespace client_fw
 			m_local_matrix *= mat4::CreateTranslation(m_local_position);
 			m_update_local_matrix = false;
 
+			m_shadow_camera->SetLocalPosition(m_local_position);
+			m_shadow_camera->SetLocalRotation(m_local_rotation);
+
 			UpdateWorldMatrix();
 		}
 	}

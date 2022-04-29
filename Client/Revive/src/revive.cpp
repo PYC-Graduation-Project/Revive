@@ -31,8 +31,8 @@ namespace revive
 			if (result)
 			{
 				LOG_INFO("Welcome to Revive Application");
-				Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
-				Network::GetInst()->CreateWorker();
+				/*Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
+				Network::GetInst()->CreateWorker();*/
 
 				RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
 					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });

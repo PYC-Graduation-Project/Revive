@@ -172,9 +172,9 @@ namespace client_fw
 			light_data.light_color = light->GetLightColor();
 			light_data.light_position = light->GetWorldPosition();
 			light_data.attenuation_radius = light->GetAttenuationRadius();
-			light->SetLightManagerRegisteredIndex(light_index++);
 			light_data.use_shadow = light->IsUseShadow() && light->GetShadowVisibility();
-			light_data.shadow_texture_data_index = shadow_index++;
+			light_data.shadow_texture_data_index = shadow_index;
+			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));
 
 			const auto& shadow_cube_camera = light->GetShadowCubeCamera();
@@ -190,6 +190,7 @@ namespace client_fw
 				shadow_texture_data.inverse_texture_size = Vec2(projection._33, projection._43);
 
 				shadow_textures_data.emplace_back(std::move(shadow_texture_data));
+				++shadow_index;
 			}
 		}
 
@@ -203,7 +204,7 @@ namespace client_fw
 			light_data.cone_inner_angle = light->GetConeInnerAngle();
 			light_data.cone_outer_angle = light->GetConeOuterAngle();
 			light_data.use_shadow = light->IsUseShadow() && light->GetShadowVisibility();
-			light_data.shadow_texture_data_index = shadow_index++;
+			light_data.shadow_texture_data_index = shadow_index;
 			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));
 
@@ -223,6 +224,7 @@ namespace client_fw
 				);
 
 				shadow_textures_data.emplace_back(std::move(shadow_texture_data));
+				++shadow_index;
 			}
 		}
 

@@ -50,7 +50,7 @@ float CalcShadowFactor(float3 position, ShadowTextureData shadow_data)
 }
 
 float CalcShadowCubeFactor(float3 to_pixel, ShadowTextureData shadow_data)
-{
+{    
     float3 abs_to_pixel = abs(to_pixel);
     
     float z = max(abs_to_pixel.x, max(abs_to_pixel.y, abs_to_pixel.z));

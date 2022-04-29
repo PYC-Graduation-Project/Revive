@@ -54,6 +54,8 @@ namespace client_fw
 			m_local_matrix = mat4::CreateTranslation(m_local_position);
 			m_update_local_matrix = false;
 
+			m_shadow_cube_camera->SetLocalPosition(m_local_position);
+
 			UpdateWorldMatrix();
 		}
 	}
