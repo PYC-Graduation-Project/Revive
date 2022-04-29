@@ -54,6 +54,9 @@ void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 		delete exp_over;
 		break;
 	}
+	case COMP_OP::OP_NPC_TIMER_SPAWN: {
+		m_PacketManager->SpawnEnemyByTime(c_id, exp_over->room_id);
+	}
 	}
 }
 
