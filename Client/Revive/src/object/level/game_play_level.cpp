@@ -149,7 +149,7 @@ namespace revive
 
 				auto player = CreateSPtr<DefaultPlayer>("other player");
 				SpawnActor(player);
-				player->SetPosition(obj->GetPosition());
+				player->SetNetworkPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
 				player->SetHP(obj->GetHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());

@@ -67,6 +67,8 @@ namespace revive
 		ret &= AttachComponent(m_character_movement_component);
 		m_character_movement_component->SetMaxSpeed(100.f);
 		m_character_movement_component->UseOrientRotationToMovement(true);
+		//m_character_movement_component->SetAcceleration(10.f);
+		//m_character_movement_component->SetDeceleration(20.f);
 
 		std::array<std::string, 2> weapon_names = { "left", "right" };
 		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
@@ -118,7 +120,8 @@ namespace revive
 			m_speed -= 4000 * delta_time;
 		}
 		m_speed = std::clamp(m_speed, 0.f, 300.f);
-		LOG_INFO(" {0}  {1}", m_network_id, GetPosition());
+		//LOG_INFO(" {0}  {1}", m_network_id, GetPosition());
+		m_previous_velocity = m_velocity;
 
 	}
 
@@ -126,10 +129,8 @@ namespace revive
 	{
 		m_time += delta_time;
 
-		if (m_previous_velocity == m_velocity)
+		if (floor(m_previous_velocity.Length() - m_velocity.Length()) == 0)
 			m_stop_time += delta_time;
-		else
-			m_stop_time = 0.f;
 
 		if (m_stop_time >= 0.1f)
 		{
@@ -145,10 +146,8 @@ namespace revive
 
 			m_inter_velocity = m_previous_pos - GetPosition();
 		}
-
 		if (m_velocity != vec3::ZERO)
 			SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
-
 	}
 
 	void DefaultPlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -160,10 +159,10 @@ namespace revive
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 				SetRotation(msg->GetObjRotation());
 				m_previous_pos = m_next_pos;
-				m_previous_velocity = m_velocity;
 				m_velocity = msg->GetObjPosition() - m_previous_pos;
 				m_next_pos = msg->GetObjPosition();
 				m_speed += m_velocity.Length();
+				m_stop_time = 0.f;
 				break;
 			}
 			case HashCode("player attack"):
@@ -221,8 +220,7 @@ namespace revive
 
 	const float DefaultPlayer::GetVelocity() const
 	{
-		return m_speed;
-		//return m_character_movement_component->GetVelocity().Length();
+		return m_character_movement_component->GetVelocity().Length();
 	}
 
 	void DefaultPlayer::SetAnimation(const std::string& animation_name, bool looping)
@@ -238,6 +236,13 @@ namespace revive
 	void DefaultPlayer::SetAnimationSpeed(float speed)
 	{
 		m_skeletal_mesh_component->SetAnimationSpeed(speed);
+	}
+
+	void DefaultPlayer::SetNetworkPosition(const Vec3& pos)
+	{
+		m_previous_pos = pos;
+		m_next_pos = pos;
+		SetPosition(pos);
 	}
 
 	void DefaultPlayer::Attack()
