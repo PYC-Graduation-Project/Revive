@@ -68,5 +68,7 @@ namespace revive
 		void SetHP(const int hp) { m_hp = hp; }
 
 		void Hit(int damage = 1, int nw_id = 9999);
+
+		void SetNetworkPosition(const Vec3& pos);
 	};
 }

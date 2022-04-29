@@ -186,4 +186,10 @@ namespace revive
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 		//LOG_INFO(m_name + " HP : {0}, 입은 피해 : {1}", m_hp, damage);
 	}
+	void Enemy::SetNetworkPosition(const Vec3& pos)
+	{
+		m_previous_pos = pos;
+		m_next_pos = pos;
+		SetPosition(pos);
+	}
 }

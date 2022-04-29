@@ -158,22 +158,21 @@ namespace revive
 			}
 
 			case NW_OBJ_TYPE::OT_NPC_SKULL: {
-				auto police = CreateSPtr<SkeletonSoldier>();
-				SpawnActor(police);
-				police->SetPosition(obj->GetPosition());
-				police->SetNetworkID(obj->GetID());
-				police->SetHP(obj->GetHp());
-				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
-
+				auto skull = CreateSPtr<SkeletonSoldier>();
+				SpawnActor(skull);
+				skull->SetNetworkPosition(obj->GetPosition());
+				skull->SetNetworkID(obj->GetID());
+				skull->SetHP(obj->GetHp());
+				PacketHelper::ConnectActorToServer(skull, msg->GetNetworkObj()->GetID());
 				break;
 			}
 			case NW_OBJ_TYPE::OT_NPC_SKULLKING: {
-				auto police = CreateSPtr<SkeletonKing>();
-				SpawnActor(police);
-				police->SetPosition(obj->GetPosition());
-				police->SetNetworkID(obj->GetID());
-				police->SetHP(obj->GetHp());
-				PacketHelper::ConnectActorToServer(police, msg->GetNetworkObj()->GetID());
+				auto king = CreateSPtr<SkeletonKing>();
+				SpawnActor(king);
+				king->SetNetworkPosition(obj->GetPosition());
+				king->SetNetworkID(obj->GetID());
+				king->SetHP(obj->GetHp());
+				PacketHelper::ConnectActorToServer(king, msg->GetNetworkObj()->GetID());
 				break;
 			}
 			}
