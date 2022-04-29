@@ -224,7 +224,7 @@ void PacketManager::SpawnEnemy(int room_id)
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendObjInfo(pl, en);
 		}
-		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en));
+		g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*15));
 	}
 		
 		
