@@ -290,7 +290,7 @@ namespace client_fw
 		command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
 			m_texture_resource.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		command_list->ClearDepthStencilView(m_dsv_cpu_handle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 		command_list->OMSetRenderTargets(0, nullptr, false, &m_dsv_cpu_handle);
 	}
 

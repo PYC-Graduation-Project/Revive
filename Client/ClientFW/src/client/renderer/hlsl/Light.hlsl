@@ -33,6 +33,7 @@ struct PointLight
     float3 position;
     float attenuation_radius;
     bool use_shadow;
+    bool is_static_light;
 };
 
 struct SpotLight
@@ -44,6 +45,7 @@ struct SpotLight
     float inner_angle;
     float outer_angle;
     bool use_shadow;
+    bool is_static_light;
 };
 
 
@@ -167,7 +169,7 @@ float3 CalcPointLight(float3 position, Material material, PointLight light, uint
     float shadow_factor = 1.0f;
     if (light.use_shadow == true)
     {
-        shadow_factor = CalcShadowCubeFactor(position - light.position, g_shadow_texture_data[shadow_texture_data_index]);
+        shadow_factor = CalcShadowCubeFactor(position - light.position, light.is_static_light, g_shadow_texture_data[shadow_texture_data_index]);
     }
     
     return lo * shadow_factor;
@@ -226,7 +228,7 @@ float3 CalcSpotLight(float3 position, Material material, SpotLight light, uint s
     float shadow_factor = 1.0f;
     if (light.use_shadow == true)
     {
-        shadow_factor = CalcShadowFactor(position, g_shadow_texture_data[shadow_texture_data_index]);
+        shadow_factor = CalcShadowFactor(position, light.is_static_light, g_shadow_texture_data[shadow_texture_data_index]);
     }
     
     return lo * shadow_factor;

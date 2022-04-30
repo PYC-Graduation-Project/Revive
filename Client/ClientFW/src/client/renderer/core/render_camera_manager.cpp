@@ -165,7 +165,7 @@ namespace client_fw
 						camera_resource_data->CopyData(static_cast<UINT>(m_render_cameras.size()), camera_data);
 					}
 
-					MeshVisualizer::UpdateVisibilityFromRenderCamera(camera);
+					MeshVisualizer::UpdateVisibilityFromMovableRenderCamera(camera);
 					update_shader_function_for_render_camera(device);
 				}
 			}

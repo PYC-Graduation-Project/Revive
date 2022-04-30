@@ -173,6 +173,7 @@ namespace client_fw
 			light_data.light_position = light->GetWorldPosition();
 			light_data.attenuation_radius = light->GetAttenuationRadius();
 			light_data.use_shadow = light->IsUseShadow() && light->GetShadowVisibility();
+			light_data.is_static_light = (light->GetOwner().lock()->GetMobilityState() != eMobilityState::kMovable);
 			light_data.shadow_texture_data_index = shadow_index;
 			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));
@@ -204,6 +205,7 @@ namespace client_fw
 			light_data.cone_inner_angle = light->GetConeInnerAngle();
 			light_data.cone_outer_angle = light->GetConeOuterAngle();
 			light_data.use_shadow = light->IsUseShadow() && light->GetShadowVisibility();
+			light_data.is_static_light = (light->GetOwner().lock()->GetMobilityState() != eMobilityState::kMovable);
 			light_data.shadow_texture_data_index = shadow_index;
 			light->SetLightManagerRegisteredIndex(light_index++);
 			lights_data.emplace_back(std::move(light_data));

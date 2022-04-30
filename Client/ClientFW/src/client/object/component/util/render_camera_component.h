@@ -16,12 +16,16 @@ namespace client_fw
 	protected:
 		WPtr<Actor> m_owner_controller;
 		bool m_use_controller_rotation = false;
+		Vec3 m_camera_right;
+		Vec3 m_camera_up;
 
 	public:
 		void SetMainCamera();
 		void SetOwnerController(const WPtr<Actor>& owner);
 		bool IsUseControllerRotation() const { return m_use_controller_rotation; }
 		void UseControllerRotation(bool use) { m_use_controller_rotation = use; }
+		const Vec3& GetCameraRight() const { return m_camera_right; }
+		const Vec3& GetCameraUp() const { return m_camera_up; }
 
 	private:
 		SPtr<RenderTexture> m_render_texture;
