@@ -80,11 +80,6 @@ namespace revive
 			SetActorState(eActorState::kDead);
 		if (m_is_disappearing)
 			m_disappear_time += delta_time; 
-		if (m_hp <= 0 && m_is_dead == false)
-		{
-			m_skeletal_mesh_component->SetAnimation("death", false);
-			m_is_dead = true;
-		}
 	}
 
 	void Enemy::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -147,6 +142,12 @@ namespace revive
 			SetHP(msg->GetObjHp());
 			m_skeletal_mesh_component->SetAnimation("hit", false);
 
+			break;
+		}
+		case HashCode("dead"):
+		{
+			PacketHelper::DisconnectActorFromServer(m_network_id);
+			m_skeletal_mesh_component->SetAnimation("death", false);
 			break;
 		}
 		default:

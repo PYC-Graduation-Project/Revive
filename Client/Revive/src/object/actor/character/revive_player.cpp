@@ -73,7 +73,7 @@ namespace revive
 		std::array<std::string, 2> weapon_names = { "left", "right" };
 		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
 		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{-80.f,20.f,0.f} };
-		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{90.f,90.f,-55.f} };
+		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{-40.f,190.f,0.f} };
 
 		for (int i = 0; i < 2; ++i)
 		{
@@ -177,6 +177,7 @@ namespace revive
 			}
 			case HashCode("dead"):
 			{
+				PacketHelper::DisconnectActorFromServer(m_network_id);
 				m_is_dying = true;
 				break;
 			}
@@ -351,6 +352,7 @@ namespace revive
 		{
 		case HashCode("dead"):
 		{
+			PacketHelper::DisconnectActorFromServer(m_network_id);
 			m_is_dying = true;
 			break;
 		}
