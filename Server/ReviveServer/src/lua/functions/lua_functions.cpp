@@ -49,7 +49,7 @@ int API_attack(lua_State* L)
 	int npc_id = (int)lua_tointeger(L, -2);
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
-	en->SetTargetId(target_id);
+	//en->SetTargetId(target_id);
 	auto attack_t = chrono::system_clock::now();
 	timer_event t;
 	chrono::milliseconds mil = chrono::duration_cast<chrono::milliseconds>(en->GetAttackTime() - attack_t);
