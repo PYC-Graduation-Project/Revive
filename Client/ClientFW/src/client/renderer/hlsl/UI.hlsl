@@ -25,6 +25,10 @@ VS_RENDER_TEXTURE_OUTPUT VSRenderTexture(uint vertex_id : SV_VertexID)
 
 float4 PSRenderMainUI(VS_RENDER_TEXTURE_OUTPUT input) : SV_TARGET
 {
+    //float3 normal = g_texture_data[g_gbuffer_texture_indices[1]].Sample(g_sampler_point_wrap, input.uv).xyz;
+    //normal = normalize(normal * 2.0f - 1.0f);
+    //return float4(abs(normal), 1.0f);
+    
     //юс╫ц
     return g_texture_data[g_final_texture_index].Sample(g_sampler_point_wrap, input.uv);
 }

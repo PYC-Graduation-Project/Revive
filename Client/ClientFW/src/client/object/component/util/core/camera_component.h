@@ -4,6 +4,8 @@
 
 namespace client_fw
 {
+	class RenderComponent;
+
 	enum class eProjectionMode
 	{
 		kPerspective, kOrthographic
@@ -63,7 +65,7 @@ namespace client_fw
 		Mat4 m_view_projection_matrix;
 		float m_aspect_ratio = 1.777778f;
 		float m_field_of_view = 60.0f;
-		float m_near_z = 100.f;
+		float m_near_z = 25.f;
 		float m_far_z = 100000.f;
 		BFrustum m_bf_projection;
 		BFrustum m_bounding_frustum;
@@ -94,6 +96,14 @@ namespace client_fw
 		void SetNearZ(float near_z);
 		void SetFarZ(float far_z);
 		const BFrustum& GetBoudingFrustum() const { return m_bounding_frustum; }
+
+	protected:
+		std::vector<WPtr<RenderComponent>> m_destructible_render_comps;
+
+	public:
+		//사용자 호출 X
+		void RegisterDestructibleRenderComponent(const WPtr<RenderComponent>& render_comp) { m_destructible_render_comps.push_back(render_comp); }
+		void UpdateDestructibleRenderComponentVisibility(const std::function<bool(const SPtr<RenderComponent>)>& trigger_function);
 
 	protected:
 		SPtr<CameraComponent> SharedFromThis();

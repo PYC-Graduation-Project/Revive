@@ -25,7 +25,7 @@ namespace client_fw
 		float GetRoughness() const { return m_roughness; }
 		void SetRoughness(float roughness) { m_roughness = roughness; }
 		float GetMetallic() const { return m_metallic; }
-		float SetMetallic(float metallic) { m_metallic = metallic; }
+		void SetMetallic(float metallic) { m_metallic = metallic; }
 
 	private:
 		SPtr<Texture> m_diffuse_texture;

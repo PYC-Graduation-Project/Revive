@@ -18,7 +18,8 @@ namespace client_fw
 			m_camera_position = GetWorldPosition();
 			m_camera_forward = GetWorldForward();
 			target = m_camera_position + m_camera_forward;
-			up = GetWorldUp();
+			m_camera_up = GetWorldUp();
+			m_camera_right = GetWorldRight();
 		}
 		else
 		{
@@ -30,10 +31,11 @@ namespace client_fw
 			m_camera_position = vec3::TransformCoord(m_local_position, world_matrix);
 			m_camera_forward = m_owner_controller.lock()->GetForward();
 			target = m_camera_position + m_camera_forward;
-			up = m_owner_controller.lock()->GetUp();
+			m_camera_up = m_owner_controller.lock()->GetUp();
+			m_camera_right = m_owner_controller.lock()->GetRight();
 		}
 
-		m_view_matrix = mat4::LookAt(m_camera_position, target, up);
+		m_view_matrix = mat4::LookAt(m_camera_position, target, m_camera_up);
 
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 	}

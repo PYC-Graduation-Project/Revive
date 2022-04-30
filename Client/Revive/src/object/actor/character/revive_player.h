@@ -11,6 +11,7 @@ namespace client_fw
 	class RenderCameraComponent;
 	class SimpleMovementComponent;
 	class CharacterMovementComponent;
+	class SpotLightComponent;
 }
 
 namespace revive
@@ -82,6 +83,9 @@ namespace revive
 		virtual void Attack();
 
 		virtual void Hit(int damage = 1, int nw_id = 9999);
+
+	protected:
+		SPtr<SpotLightComponent> m_spot_light_component;
 
 	};
 

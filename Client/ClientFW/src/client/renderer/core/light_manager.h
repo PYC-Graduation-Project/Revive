@@ -35,7 +35,8 @@ namespace client_fw
 		{
 			lights.push_back(std::static_pointer_cast<T>(light_comp));
 			++m_num_of_light;
-			++m_num_of_shadow_texture;
+			if(light_comp->IsUseShadow())
+				++m_num_of_shadow_texture;
 		}
 
 		template <class T>
@@ -47,7 +48,8 @@ namespace client_fw
 				std::iter_swap(iter, lights.end() - 1);
 				lights.pop_back();
 				--m_num_of_light;
-				--m_num_of_shadow_texture;
+				if(light_comp->IsUseShadow())
+					--m_num_of_shadow_texture;
 			}
 		}
 			

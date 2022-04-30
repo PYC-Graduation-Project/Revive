@@ -33,6 +33,7 @@ struct PointLight
     float3 position;
     float attenuation_radius;
     bool use_shadow;
+    bool is_static_light;
 };
 
 struct SpotLight
@@ -44,6 +45,7 @@ struct SpotLight
     float inner_angle;
     float outer_angle;
     bool use_shadow;
+    bool is_static_light;
 };
 
 
@@ -113,7 +115,7 @@ float3 CalcDiretionalLight(float3 position, Material material, DirectionalLight 
     float denominator = 4.0f * max(ndotv, 0.0f) * max(ndotl, 0.0f);
     float3 specular = numerator / max(denominator, 0.001f);
     
-    float3 shadow_factor = 1.0f;
+    float shadow_factor = 1.0f;
     if(light.use_shadow == true)
     {
         uint shadow_texture_index = shadow_info.shadow_texture_data_index + shadow_info.render_camera_index;
@@ -159,13 +161,15 @@ float3 CalcPointLight(float3 position, Material material, PointLight light, uint
     float3 numerator = ndf * g * f;
     float denominator = 4.0f * max(ndotv, 0.0f) * max(ndotl, 0.0f);
     float3 specular = numerator / max(denominator, 0.001f);
-       
-    float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl;
     
-    float3 shadow_factor = 1.0f;
+    float point_factor = 1.0f - saturate(distance / light.attenuation_radius);
+    
+    float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * point_factor;
+    
+    float shadow_factor = 1.0f;
     if (light.use_shadow == true)
     {
-        shadow_factor = CalcShadowCubeFactor(position - light.position, g_shadow_texture_data[shadow_texture_data_index]);
+        shadow_factor = CalcShadowCubeFactor(position - light.position, light.is_static_light, g_shadow_texture_data[shadow_texture_data_index]);
     }
     
     return lo * shadow_factor;
@@ -221,10 +225,10 @@ float3 CalcSpotLight(float3 position, Material material, SpotLight light, uint s
         
     float3 lo = (k_diffuse * material.base_color / PI + specular) * radiance * ndotl * spot_factor;
     
-    float3 shadow_factor = 1.0f;
+    float shadow_factor = 1.0f;
     if (light.use_shadow == true)
     {
-        shadow_factor = CalcShadowFactor(position, g_shadow_texture_data[shadow_texture_data_index]);
+        shadow_factor = CalcShadowFactor(position, light.is_static_light, g_shadow_texture_data[shadow_texture_data_index]);
     }
     
     return lo * shadow_factor;

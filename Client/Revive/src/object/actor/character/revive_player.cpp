@@ -12,6 +12,10 @@
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
 #include<client/event/packetevent/packet_helper.h>
+
+#include <client/object/component/light/spot_light_component.h>
+
+
 #include "object/actor/weapon/pistol.h"
 #include "object/actor/character/enemy.h"
 #include "object/actor/character/revive_player.h"
@@ -36,6 +40,8 @@ namespace revive
 			SpawnActor(weapon);
 			weapon->SetScale(0.2f);
 		}
+
+		m_spot_light_component = CreateSPtr<SpotLightComponent>();
 	}
 
 	bool DefaultPlayer::Initialize()
@@ -94,6 +100,14 @@ namespace revive
 		ret &= AttachComponent(m_hit_box);
 
 		SetScale(0.5f);
+
+		m_spot_light_component->SetLightColor(Vec3(100000.0f, 100000.0f, 100000.0f));
+		m_spot_light_component->SetAttenuationRadius(2048.0f);
+		m_spot_light_component->SetShadowTextureSize(2048);
+		m_spot_light_component->SetConeOuterAngle(30.0f);
+		m_spot_light_component->SetLocalPosition(Vec3(0.0f, 150.0f, 60.0f));
+		ret &= AttachComponent(m_spot_light_component);
+		
 
 		return ret;
 	}

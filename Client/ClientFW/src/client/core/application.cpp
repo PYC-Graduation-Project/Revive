@@ -35,7 +35,7 @@ namespace client_fw
 	{
 		s_instance = this;
 
-		m_window = CreateSPtr<Window>(1366, 768);
+		m_window = CreateSPtr<Window>(1600, 900);
 		m_timer = CreateUPtr<Timer>();
 		m_event_system = CreateUPtr<EventSystem>(m_window);
 		m_level_manager = CreateUPtr<LevelManager>();
@@ -240,7 +240,7 @@ namespace client_fw
 #ifdef __USE_CPU_TIME__
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 #else
-		ShowWindow(GetConsoleWindow(), SW_HIDE);
+		//ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif
 #endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);

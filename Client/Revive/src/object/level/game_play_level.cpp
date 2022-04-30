@@ -25,6 +25,11 @@
 #include "object/actor/character/skeleton_soldier.h"
 #include "object/actor/character/revive_player.h"
 
+#include "object/actor/visual/torch.h"
+#include "object/actor/visual/scope_light.h"
+#include "object/actor/visual/light_tree.h"
+#include "object/actor/healer.h"
+
 
 std::string g_id;
 std::string g_pw;
@@ -83,31 +88,114 @@ namespace revive
 			return true;
 		});
 
-		auto sky_cube = CreateSPtr<SkyCube>("Contents/grasscube1024.dds");
-		SpawnActor(sky_cube);
-
-		auto d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
-		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
-		SpawnActor(d_light);
-		//d_light->DisableShadow();
-
-		/*auto king = CreateSPtr<SkeletonSoldier>();
-		SpawnActor(king);
-		king->SetPosition(Vec3{ 2400.f,300.f,1200.f });*/
+		GenerateVisualActors();
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
 	}
+
+	void GamePlayLevel::GenerateVisualActors()
+	{
+		auto sky_cube = CreateSPtr<SkyCube>("Contents/night_sky_cube.dds");
+		SpawnActor(sky_cube);
+
+		auto d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(0.2f, 0.2f, 0.2f));
+		d_light->SetRotation(math::ToRadian(20.0f), math::ToRadian(15.0f), 0.0f);
+		SpawnActor(d_light);
+		d_light->SetShadowTextureSize(8192);
+		//d_light->DisableShadow();
+
+		for (int i = 0; i < 8; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(180.0f), 0.0f);
+			torch->SetPosition(Vec3(900.0f, 700.0f, 1000.0f + i * 400.0f));
+		}
+
+		for (int i = 0; i < 8; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetPosition(Vec3(3900.0f, 700.0f, 1000.0f + i * 400.0f));
+		}
+
+		for (int i = 0; i < 7; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
+			torch->SetPosition(Vec3(1200.0f + i * 400.0f, 700.0f, 600.0f));
+		}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(-90.0f), 0.0f);
+			torch->SetPosition(Vec3(1200.0f + i * 2400.0f, 800.0f, 4525.0f));
+		}
+
+		for (int i = 0; i < 4; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(-90.0f), 0.0f);
+			torch->SetPosition(Vec3(1600.0f + (i / 2) * 400.0f + (i % 2) * 1200.0f, 700.0f, 4225.0f));
+		}
+
+		for (int i = 0; i < 4; ++i)
+		{
+			auto torch = CreateSPtr<Torch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
+			torch->SetPosition(Vec3(850.0f + (i / 2) * 800.0f + (i % 2) * 2300.0f, 700.0f, 4800.0f));
+		}		
+
+		for (int i = 0; i < 24; ++i)
+		{
+			auto torch = CreateSPtr<FenceTorch>();
+			SpawnActor(torch);
+			//torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
+			torch->SetPosition(Vec3(2120.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
+		}
+
+		for (int i = 0; i < 24; ++i)
+		{
+			auto torch = CreateSPtr<FenceTorch>();
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(180.0f), 0.0f);
+			torch->SetPosition(Vec3(2680.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
+		}
+
+		for (int i = 0; i < 4; ++i)
+		{
+			auto light_tree = CreateSPtr<LightTree>();
+			if(i < 2)
+				light_tree->SetRotation(0.0f, math::ToRadian(135.0f + i * 90.0f), 0.0f);
+			else
+				light_tree->SetRotation(0.0f, math::ToRadian(135.0f - (i - 1) * 90.0f), 0.0f);
+
+			light_tree->SetPosition(Vec3(2050.0f + (i / 2) * 700.0f, 300.0f, 1000.0f + (i % 2) * 700.0f));
+			SpawnActor(light_tree);
+		}
+
+		auto healer = CreateSPtr<Healer>();
+		healer->SetPosition(Vec3(2400.0f, 300.0f, 1350.0f));
+		SpawnActor(healer);
+	}
+
 	void GamePlayLevel::Shutdown()
 	{
 		LOG_INFO("게임 플레이레벨 셧다운");
 		Input::SetInputMode(eInputMode::kUIOnly);
 	}
+
 	void GamePlayLevel::Update(float delta_time)
 	{
-		
 	}
+
 	void GamePlayLevel::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
 		switch (message->GetEventID())

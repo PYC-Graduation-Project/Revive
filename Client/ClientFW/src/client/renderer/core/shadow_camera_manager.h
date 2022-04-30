@@ -58,10 +58,12 @@ namespace client_fw
 		std::vector<SPtr<ShadowCameraComponent>> m_ready_shadow_cameras;
 		std::vector<SPtr<ShadowCameraComponent>> m_wait_resource_shadow_cameras;
 		std::vector<SPtr<ShadowCameraComponent>> m_shadow_cameras;
+		std::vector<SPtr<ShadowCameraComponent>> m_need_write_static_depth_shadow_cameras;
 
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_ready_shadow_cube_cameras;
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_wait_resource_shadow_cube_cameras;
 		std::vector<SPtr<ShadowCubeCameraComponent>> m_shadow_cube_cameras;
+		std::vector<SPtr<ShadowCubeCameraComponent>> m_need_write_static_depth_shadow_cube_cameras;
 
 		std::vector<SPtr<ShadowCascadeCameraComponent>> m_ready_shadow_cascade_cameras;
 		std::vector<SPtr<ShadowCascadeCameraComponent>> m_wait_resource_shadow_cascade_cameras;

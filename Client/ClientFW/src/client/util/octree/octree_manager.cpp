@@ -16,6 +16,12 @@ namespace client_fw
 		m_collision_octree_manager = CreateUPtr<CollisionOctreeManager>();
 	}
 
+	void OctreeManager::PrepareUpdate()
+	{
+		if (m_visual_octree_manager != nullptr)
+			m_visual_octree_manager->PrepareUpdate();
+	}
+	
 	void OctreeManager::Update()
 	{
 		if (m_collision_octree_manager != nullptr)
@@ -45,6 +51,11 @@ namespace client_fw
 		s_instance = this;
 	}
 
+	void VisualOctreeManager::PrepareUpdate()
+	{
+		m_registered_destructible_render_comps.clear();
+	}
+
 	void VisualOctreeManager::RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees)
 	{
 		UnregisterOctrees();
@@ -63,6 +74,7 @@ namespace client_fw
 		for (const auto& octree : m_visual_octrees)
 			octree->Shutdown();
 		m_visual_octrees.clear();
+		m_registered_destructible_render_comps.clear();
 		m_movable_render_comps.clear();
 		m_is_active = false;
 	}
@@ -77,6 +89,9 @@ namespace client_fw
 			}
 			else
 			{
+				if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kDestructible)
+					m_registered_destructible_render_comps.push_back(render_comp);
+
 				for (const auto& octree : m_visual_octrees)
 				{
 					const auto& root_node = octree->GetRootNode();

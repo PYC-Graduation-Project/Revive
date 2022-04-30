@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "client/object/component/util/core/camera_component.h"
+#include "client/object/component/core/render_component.h"
 #include "client/object/actor/core/actor.h"
 #include "client/renderer/core/render.h"
 #include "client/physics/core/bounding_mesh.h"
@@ -135,9 +136,34 @@ namespace client_fw
 		m_is_updated_viewport = true;
 	}
 
+	void CameraComponent::UpdateDestructibleRenderComponentVisibility(const std::function<bool(const SPtr<RenderComponent>)>& trigger_function)
+	{
+		int count = 0;
+
+		for (auto iter = m_destructible_render_comps.rbegin(); iter != m_destructible_render_comps.rend(); ++iter)
+		{
+			if (iter->expired() == false)
+			{
+				const auto& render_comp = iter->lock();
+				if (trigger_function(render_comp))
+				{
+					render_comp->SetVisiblity(true);
+					render_comp->UpdateLevelOfDetail(GetCameraPosition());
+				}
+			}
+			else
+			{
+				std::iter_swap(iter, m_destructible_render_comps.rbegin() + count);
+				++count;
+			}
+		}
+
+		while (count--)
+			m_destructible_render_comps.pop_back();
+	}
+
 	SPtr<CameraComponent> CameraComponent::SharedFromThis()
 	{
 		return std::static_pointer_cast<CameraComponent>(shared_from_this());
 	}
-
 }

@@ -67,6 +67,7 @@ namespace client_fw
 
 		if (m_cur_level != nullptr)
 		{
+			m_octree_manager->PrepareUpdate();
 			m_cur_level->UpdateLevel(delta_time);
 			m_octree_manager->Update();
 		}
