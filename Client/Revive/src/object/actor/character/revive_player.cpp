@@ -90,7 +90,7 @@ namespace revive
 		m_hit_box->SetExtents(Vec3{ 40.f,80.f,40.f });
 		m_hit_box->SetLocalPosition(Vec3{ 0.0f,80.f,0.f });
 		m_hit_box->SetName("hit box");
-		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe", "enemy agro"}, false);
+		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe", "enemy agro", "area"}, false);
 		ret &= AttachComponent(m_hit_box);
 
 		SetScale(0.5f);
@@ -177,6 +177,7 @@ namespace revive
 			}
 			case HashCode("dead"):
 			{
+				PacketHelper::DisconnectActorFromServer(m_network_id);
 				m_is_dying = true;
 				break;
 			}
@@ -351,6 +352,7 @@ namespace revive
 		{
 		case HashCode("dead"):
 		{
+			PacketHelper::DisconnectActorFromServer(m_network_id);
 			m_is_dying = true;
 			break;
 		}
