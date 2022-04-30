@@ -15,7 +15,7 @@ public:
         m_id = i;
         target_id = -1;
         m_attack_time = std::chrono::system_clock::now();
-        
+        m_check_time= std::chrono::system_clock::now();
     };
     ~Enemy() 
     {
@@ -39,6 +39,7 @@ public:
     void SetTargetId(const int val) { target_id = val; }
     void SetMoveTime(int val); 
     std::chrono::system_clock::time_point& GetAttackTime() { return m_attack_time; }
+    std::chrono::system_clock::time_point& GetCheckTime() { return m_check_time; }
     void DoMove(const Vector3& target_pos);
     void DoPrevMove(const Vector3& target_pos);
     void SetToPrevPos() { 
@@ -51,6 +52,7 @@ public:
 private:
     std::vector<Vector3>m_load;
     std::chrono::system_clock::time_point	m_attack_time;
+    std::chrono::system_clock::time_point	m_check_time;
     BoxCollision m_collision;
     BoxCollision m_hit_collision;
     Vector3 m_prev_pos{ 0.0f,0.0f,0.0f };

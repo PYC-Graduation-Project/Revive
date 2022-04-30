@@ -16,6 +16,7 @@
 #include"object/bullet.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 //#include"map_loader.h"
+const int ROUND_TIME = 10000;
 using namespace std;
 PacketManager::PacketManager()
 {
@@ -197,24 +198,24 @@ void PacketManager::SpawnEnemy(int room_id)
 	mt19937 gen(rd());
 	uniform_int_distribution<int> random_point(0, 1);
 	spawn_area.reserve(10);
-	for (auto a : m_map_manager->GetMapObjVec())
-	{
-		if (OBJ_TYPE::OT_SPAWN_AREA != a.GetType())continue;
-		spawn_area.push_back(a);
-	}
+	//for (auto a : m_map_manager->GetMapObjVec())
+	//{
+	//	if (OBJ_TYPE::OT_SPAWN_AREA != a.GetType())continue;
+	//	spawn_area.push_back(a);
+	//}
 	
-	for (auto& en : enemy_list)
-	{
-		int spawn_idx = random_point(gen);
-		uniform_int_distribution<int> random_pos_x(static_cast<int>(spawn_area[spawn_idx].GetPosX() - spawn_area[spawn_idx].GetExtent().x),
-			static_cast<int>(spawn_area[spawn_idx].GetPosX() + spawn_area[spawn_idx].GetExtent().x));
-
-		uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
-			static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
-		enemy = MoveObjManager::GetInst()->GetEnemy(en);
-		enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
-		enemy->GetCollision().UpdateCollision(enemy->GetPos());
-	}
+	//for (auto& en : enemy_list)
+	//{
+	//	int spawn_idx = random_point(gen);
+	//	uniform_int_distribution<int> random_pos_x(static_cast<int>(spawn_area[spawn_idx].GetPosX() - spawn_area[spawn_idx].GetExtent().x),
+	//		static_cast<int>(spawn_area[spawn_idx].GetPosX() + spawn_area[spawn_idx].GetExtent().x));
+	//
+	//	uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
+	//		static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
+	//	enemy = MoveObjManager::GetInst()->GetEnemy(en);
+	//	enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
+	//	enemy->GetCollision().UpdateCollision(enemy->GetPos());
+	//}
 	
 	int i = 0;
 	for (auto &en : enemy_list)
@@ -224,7 +225,7 @@ void PacketManager::SpawnEnemy(int room_id)
 		//{
 		//	if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		//	SendObjInfo(pl, en);
-			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(1000*i)+500 ));
+			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(2000*i)+500 ));
 			++i;
 		//}
 		//g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
@@ -242,6 +243,27 @@ void PacketManager::SpawnEnemy(int room_id)
 void PacketManager::SpawnEnemyByTime(int enemy_id, int room_id)
 {
 	Room* room = m_room_manager->GetRoom(room_id);
+	Enemy* enemy = NULL;
+	vector<MapObj>spawn_area;
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> random_point(0, 1);
+	spawn_area.reserve(10);
+
+	for (auto a : m_map_manager->GetMapObjVec())
+	{
+		if (OBJ_TYPE::OT_SPAWN_AREA != a.GetType())continue;
+		spawn_area.push_back(a);
+	}
+	int spawn_idx = random_point(gen);
+	uniform_int_distribution<int> random_pos_x(static_cast<int>(spawn_area[spawn_idx].GetPosX() - spawn_area[spawn_idx].GetExtent().x),
+		static_cast<int>(spawn_area[spawn_idx].GetPosX() + spawn_area[spawn_idx].GetExtent().x));
+	
+	uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
+		static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
+	enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
+	enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	for (auto pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
@@ -303,11 +325,16 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			for (auto& npc_id : room->GetObjList())
 			{
 				if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))continue;
+				if (false == enemy->GetIsActive())continue;
+				if (enemy_id == npc_id)continue;
 				other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
 				if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
 				{
+					
 					enemy->SetToPrevPos();
+					
 					g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+					cout << "return 직전" << endl;
 					return;
 				}
 			}
@@ -362,39 +389,13 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//다음 위치 보내주기
 	
 	
-	map<float, int>distance_map;
-	
-	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
-	distance_map.try_emplace(base_dist, -1);
-	Player* player = NULL;
-	for (auto pl:room->GetObjList())
-	{
 
-		
+	for (auto pl : room->GetObjList())
+	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		
 		SendMovePacket(pl, enemy_id);
-		//SendTestPacket(pl, enemy_id,move_vec.x, move_vec.y, move_vec.z);
-		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
-		{
-			//player = MoveObjManager::GetInst()->GetPlayer(pl);
-			//if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
-			auto fail_obj=distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
-			
-			//여기서 기지와 플레이어 거리 비교후
-			//플레이어가 더 가까우면 target_id 플레이어로
-			//아니면 기지 그대로
-		}
 	}
-	auto nealist = distance_map.begin();
-	lua_State* L = enemy->GetLua();
-	enemy->lua_lock.lock();
-	lua_getglobal(L, "state_machine");
-	lua_pushnumber(L, nealist->second);
-	int err=lua_pcall(L, 1, 0, 0);
-	if (err)
-		MoveObjManager::LuaErrorDisplay(L, err);
-	enemy->lua_lock.unlock();
+	CallStateMachine(enemy_id, room_id, base_pos);
 	//g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
 }
 
@@ -412,7 +413,7 @@ void PacketManager::CountTime(int room_id)
 	}
 	if (end_time >= room->GetRoundTime())
 	{
-		room->SetRoundTime(30000);
+		room->SetRoundTime(ROUND_TIME);
 		if (room->GetRound() < 3)
 		{
 			room->SetRound(room->GetRound() + 1);
@@ -479,34 +480,8 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	}
 	auto& attack_time = enemy->GetAttackTime();
 	attack_time = chrono::system_clock::now() + 1s;
-	lua_State* L = enemy->GetLua();
-	map<float, int>distance_map;
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
-	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
-	distance_map.try_emplace(base_dist, -1);
-	Player* player = NULL;
-	for (auto pl : room->GetObjList())
-	{
-
-
-		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
-		{
-			auto fail_obj = distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
-
-			//여기서 기지와 플레이어 거리 비교후
-			//플레이어가 더 가까우면 target_id 플레이어로
-			//아니면 기지 그대로
-		}
-	}
-	auto nealist = distance_map.begin();
-	enemy->lua_lock.lock();
-	lua_getglobal(L, "state_machine");
-	lua_pushnumber(L, nealist->second);
-	int err = lua_pcall(L, 1, 0, 0);
-	if (err)
-		MoveObjManager::LuaErrorDisplay(L, err);
-	enemy->lua_lock.unlock();
+	CallStateMachine(enemy_id, room_id, base_pos);
 }
 
 
@@ -837,6 +812,51 @@ bool PacketManager::CheckPlayerBullet(int c_id, const Vector3& position, const V
 	return true;
 }
 
+void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& base_pos)
+{
+	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	Room* room = m_room_manager->GetRoom(room_id);
+	map<float, int>distance_map;
+
+	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
+	distance_map.try_emplace(base_dist, -1);
+	Player* player = NULL;
+	auto check_end_time = std::chrono::system_clock::now();
+	auto& check_time = enemy->GetCheckTime();
+	int target_id = -1;
+	if (check_time <= check_end_time) {
+		for (auto pl : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+
+			if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
+			{
+				//player = MoveObjManager::GetInst()->GetPlayer(pl);
+				//if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
+				auto fail_obj = distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
+
+				//여기서 기지와 플레이어 거리 비교후
+				//플레이어가 더 가까우면 target_id 플레이어로
+				//아니면 기지 그대로
+			}
+		}
+		auto nealist = distance_map.begin();
+		target_id = nealist->second;
+		check_time = check_end_time + 3s;
+	}
+	else
+		target_id = enemy->GetTargetId();
+
+	lua_State* L = enemy->GetLua();
+	enemy->lua_lock.lock();
+	lua_getglobal(L, "state_machine");
+	lua_pushnumber(L, target_id);
+	int err = lua_pcall(L, 1, 0, 0);
+	if (err)
+		MoveObjManager::LuaErrorDisplay(L, err);
+	enemy->lua_lock.unlock();
+}
+
 void PacketManager::ProcessSignIn(int c_id,unsigned char* p)
 {
 	cs_packet_sign_in*packet= reinterpret_cast<cs_packet_sign_in*>(p);
@@ -1118,7 +1138,7 @@ void PacketManager::StartGame(int room_id)
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
 	}
-	room->SetRoundTime(30000);
+	room->SetRoundTime(ROUND_TIME);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?

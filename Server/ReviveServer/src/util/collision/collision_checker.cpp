@@ -4,7 +4,7 @@
 bool CollisionChecker::CheckCollisions(BoxCollision& a, BoxCollision& b)
 {
     return (a.GetMinPos().x <= b.GetMaxPos().x && a.GetMaxPos().x >= b.GetMinPos().x) &&
-        (a.GetMinPos().y <= b.GetMaxPos().y && a.GetMaxPos().y >= b.GetMinPos().y) &&
+        //(a.GetMinPos().y <= b.GetMaxPos().y && a.GetMaxPos().y >= b.GetMinPos().y) &&
         (a.GetMinPos().z <= b.GetMaxPos().z && a.GetMaxPos().z >= b.GetMinPos().z);
 }
 

@@ -248,18 +248,7 @@ bool MapManager::CheckInRange(const Vector3& pos)
 			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
 			return true;
 		}
-		if (CollisionChecker::CheckInRange(pos.x, pos.z,
-			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
-			return true;
-		}
-		if (CollisionChecker::CheckInRange(pos.x, pos.z, 
-			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
-			return true;
-		}
-		if (CollisionChecker::CheckInRange(pos.x, pos.z,
-			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
-			return true;
-		}
+		
 	}
 	return false;
 }
