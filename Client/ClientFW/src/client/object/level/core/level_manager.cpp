@@ -5,6 +5,11 @@
 #include "client/object/actor/core/actor.h"
 #include "client/util/octree/octree_manager.h"
 
+#include <stdio.h>
+#include <time.h>
+//#define __USE_LEVEL_CPU_TIME__
+//#define __USE_COLLISION_CPU_TIME__
+
 namespace client_fw
 {
 	LevelManager* LevelManager::s_instance = nullptr;
@@ -67,9 +72,28 @@ namespace client_fw
 
 		if (m_cur_level != nullptr)
 		{
+#ifdef __USE_LEVEL_CPU_TIME__
+			clock_t l_start, l_end;
+			l_start = clock();
+#endif
 			m_octree_manager->PrepareUpdate();
 			m_cur_level->UpdateLevel(delta_time);
+
+#ifdef __USE_LEVEL_CPU_TIME__
+			l_end = clock();
+			LOG_TRACE("Level Cpu Time : {0}", float(l_end - l_start));
+#endif
+	
+
+#ifdef __USE_COLLISION_CPU_TIME__
+			clock_t c_start, c_end;
+			c_start = clock();
+#endif
 			m_octree_manager->Update();
+#ifdef __USE_COLLISION_CPU_TIME__
+			c_end = clock();
+			LOG_TRACE("Collision Cpu Time : {0}", float(c_end - c_start));
+#endif
 		}
 	}
 

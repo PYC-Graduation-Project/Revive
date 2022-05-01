@@ -224,7 +224,6 @@ namespace client_fw
 				else
 					MeshVisualizer::UpdateVisibilityFromStaticShadowSphere(camera, camera->GetWorldPosition(), camera->GetFarZ());
 
-				MeshVisualizer::UpdateVisibilityFromStaticShadowSphere(camera, camera->GetWorldPosition(), camera->GetFarZ());
 				update_shader_function_for_shadow_cube_camera(device);
 			}
 		}

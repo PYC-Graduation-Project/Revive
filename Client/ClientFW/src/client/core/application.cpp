@@ -16,8 +16,8 @@
 #include "client/asset/texture/texture_loader.h"
 #include "client/asset/animation/animation_loader.h"
 
-//#define __USE_CPU_TIME__
-#ifdef __USE_CPU_TIME__
+//#define __USE_RENDER_CPU_TIME__
+#ifdef __USE_RENDER_CPU_TIME__
 #include <stdio.h>
 #include <time.h>
 #endif
@@ -118,16 +118,18 @@ namespace client_fw
 			{
 				ExecuteEvents();
 				m_timer->Update();
-#ifdef __USE_CPU_TIME__
-				clock_t start, end;
-				start = clock();
-#endif
+
 				Update(m_timer->GetDeltaTime());
 				SendEventToServer();
+
+#ifdef __USE_RENDER_CPU_TIME__
+				clock_t r_start, r_end;
+				r_start = clock();
+#endif
 				Render();
-#ifdef __USE_CPU_TIME__
-				end = clock();
-				std::cout << float(end - start) << '\n';
+#ifdef __USE_RENDER_CPU_TIME__
+				r_end = clock();
+				LOG_INFO("Render Cpu Time : {0}", float(r_end - r_start));
 #endif
 			}
 		}

@@ -15,17 +15,19 @@ namespace revive
 
 	bool Torch::Initialize()
 	{
-		SetScale(2.0f);
+		SetScale(1.8f);
 
 		bool ret = StaticMeshActor::Initialize();
 
-		m_spot_light_component->SetLightColor(Vec3(255.0f, 32.0f, 0.0f) * 50.0f);
+		m_spot_light_component->SetLightColor(Vec3(255.0f, 64.f, 96.f) * m_light_intensity);
 		m_spot_light_component->SetLocalPosition(Vec3(-25.0f, 30.0f, 0.0f));
 		m_spot_light_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
 		m_spot_light_component->SetAttenuationRadius(500.0f);
 		m_spot_light_component->SetConeOuterAngle(70.f);
 		m_spot_light_component->DisableShadow();
 		ret &= AttachComponent(m_spot_light_component);
+
+		UseUpdate();
 
 		return ret;
 	}
@@ -36,10 +38,26 @@ namespace revive
 
 	void Torch::Update(float delta_time)
 	{
+		m_light_intensity += m_light_change_speed * delta_time;
+
+		if (m_light_intensity > s_max_light_intensity)
+		{
+			m_light_change_speed *= -1.0f;
+			m_light_intensity = s_max_light_intensity;
+		}
+
+		if (m_light_intensity < 0.0f)
+		{
+			m_light_change_speed *= -1.0f;
+			m_light_intensity = 0.0f;
+		}
+
+		m_spot_light_component->SetLightColor(Vec3(255.0f, 64.f, 96.f) * m_light_intensity);
 	}
 
-	FenceTorch::FenceTorch()
+	FenceTorch::FenceTorch(bool use_shadow)
 		: StaticMeshActor(eMobilityState::kStatic, "Contents/Visual/fence_torch.obj")
+		, m_use_shadow(use_shadow)
 	{
 		m_point_light_component = CreateSPtr<PointLightComponent>();
 	}
@@ -50,11 +68,16 @@ namespace revive
 
 		bool ret = StaticMeshActor::Initialize();
 
-		m_point_light_component->SetLightColor(Vec3(255.0f, 32.0f, 0.0f) * 50.0f);
+		m_point_light_component->SetLightColor(Vec3(255.0f, 32.f, 0.f) * 50.0f);
 		m_point_light_component->SetLocalPosition(Vec3(-80.0f, 120.0f, 0.0f));
 		m_point_light_component->SetAttenuationRadius(300.0f);
-		m_point_light_component->SetShadowTextureSize(512.0f);
-		//m_point_light_component->DisableShadow();
+		m_point_light_component->SetShadowTextureSize(400);
+#ifdef _DEBUG
+		m_point_light_component->DisableShadow();
+#else
+		if (m_use_shadow == false)
+			m_point_light_component->DisableShadow();
+#endif
 		ret &= AttachComponent(m_point_light_component);
 
 		return ret;

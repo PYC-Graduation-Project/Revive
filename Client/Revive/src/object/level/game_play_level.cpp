@@ -90,6 +90,13 @@ namespace revive
 
 		GenerateVisualActors();
 
+		for (int i = 0; i < 50; ++i)
+		{
+			auto skel = CreateSPtr<SkeletonKing>();
+			skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
+			SpawnActor(skel);
+		}
+
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
 	}
@@ -100,33 +107,33 @@ namespace revive
 		SpawnActor(sky_cube);
 
 		auto d_light = CreateSPtr<DirectionalLight>();
-		d_light->SetLightColor(Vec3(0.2f, 0.2f, 0.2f));
+		d_light->SetLightColor(Vec3(0.4f, 0.4f, 0.4f));
 		d_light->SetRotation(math::ToRadian(20.0f), math::ToRadian(15.0f), 0.0f);
 		SpawnActor(d_light);
 		d_light->SetShadowTextureSize(8192);
 		//d_light->DisableShadow();
 
-		for (int i = 0; i < 8; ++i)
+		for (int i = 0; i < 11; ++i)
 		{
 			auto torch = CreateSPtr<Torch>();
 			SpawnActor(torch);
 			torch->SetRotation(0.0f, math::ToRadian(180.0f), 0.0f);
-			torch->SetPosition(Vec3(900.0f, 700.0f, 1000.0f + i * 400.0f));
+			torch->SetPosition(Vec3(880.0f, 750.0f + (i % 2) * 50.0f, 900.0f + i * 300.0f));
 		}
 
-		for (int i = 0; i < 8; ++i)
+		for (int i = 0; i < 11; ++i)
 		{
 			auto torch = CreateSPtr<Torch>();
 			SpawnActor(torch);
-			torch->SetPosition(Vec3(3900.0f, 700.0f, 1000.0f + i * 400.0f));
+			torch->SetPosition(Vec3(3920.0f, 750.0f + (i % 2) * 50.0f, 900.0f + i * 300.0f));
 		}
 
-		for (int i = 0; i < 7; ++i)
+		for (int i = 0; i < 9; ++i)
 		{
 			auto torch = CreateSPtr<Torch>();
 			SpawnActor(torch);
 			torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
-			torch->SetPosition(Vec3(1200.0f + i * 400.0f, 700.0f, 600.0f));
+			torch->SetPosition(Vec3(1200.0f + i * 300.0f, 750.0f + (i % 2) * 50.0f, 580.0f));
 		}
 
 		for (int i = 0; i < 2; ++i)
@@ -145,28 +152,38 @@ namespace revive
 			torch->SetPosition(Vec3(1600.0f + (i / 2) * 400.0f + (i % 2) * 1200.0f, 700.0f, 4225.0f));
 		}
 
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < 6; ++i)
 		{
 			auto torch = CreateSPtr<Torch>();
 			SpawnActor(torch);
 			torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
-			torch->SetPosition(Vec3(850.0f + (i / 2) * 800.0f + (i % 2) * 2300.0f, 700.0f, 4800.0f));
+			torch->SetPosition(Vec3(900.0f + (i % 3) * 550.0f + (i / 3) * 1900.0f, 700.0f, 4800.0f));
 		}		
 
-		for (int i = 0; i < 24; ++i)
+		for (int i = 0; i < 36; ++i)
 		{
 			auto torch = CreateSPtr<FenceTorch>();
 			SpawnActor(torch);
 			//torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
-			torch->SetPosition(Vec3(2120.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
+			torch->SetPosition(Vec3(2120.0f, 370.0f, 4870.0f + 290.0f * (i / 3) + 82.5f * (i % 3)));
+			//torch->SetPosition(Vec3(2120.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
 		}
 
-		for (int i = 0; i < 24; ++i)
+		for (int i = 0; i < 36; ++i)
 		{
 			auto torch = CreateSPtr<FenceTorch>();
 			SpawnActor(torch);
 			torch->SetRotation(0.0f, math::ToRadian(180.0f), 0.0f);
-			torch->SetPosition(Vec3(2680.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
+			torch->SetPosition(Vec3(2680.0f, 370.0f, 4870.0f + 290.0f * (i / 3) + 82.5f * (i % 3)));
+			//torch->SetPosition(Vec3(2680.0f, 370.0f, 4870.0f + 290.0f * (i / 2) + 165.0f * (i % 2)));
+		}
+
+		for (int i = 0; i < 10; ++i)
+		{
+			auto torch = CreateSPtr<FenceTorch>(false);
+			SpawnActor(torch);
+			torch->SetRotation(0.0f, math::ToRadian(90.0f), 0.0f);
+			torch->SetPosition(Vec3(1000.0f + i * 300.0f, 1025.0f, 4800.0f));
 		}
 
 		for (int i = 0; i < 4; ++i)
@@ -303,12 +320,12 @@ namespace revive
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f,Vec3(2400.0f,0,2400.0f))); //Castle
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(15600.0f,Vec3(2400.0f,0,12600.0f))); //Bridge + Spawn Area
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f))); //Left Ground
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f))); //Right Ground
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f))); //Left Ground2
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f))); //Right Ground2
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f), 2)); //Castle
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4000.0f, Vec3(2400.0f, 0, 6600.0f), 2)); //Bridge + Spawn Area
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f))); //Left Ground
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f))); //Right Ground
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f))); //Left Ground2
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f))); //Right Ground2
 		return visual_octrees;
 	}
 

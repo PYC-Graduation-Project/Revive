@@ -44,19 +44,19 @@ namespace client_fw
 
 	void MeshVisualizer::UpdateVisibilityFromMovableRenderCamera(const SPtr<CameraComponent>& camera)
 	{
-		UpdateVisibility(camera->GetBoudingFrustum(), camera->GetCameraPosition(), trigger_function);
+		UpdateVisibilityForRender(camera->GetBoudingFrustum(), camera->GetCameraPosition(), trigger_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromMovableShadowCamera(const SPtr<CameraComponent>& camera)
 	{
-		UpdateVisibility(camera->GetBoudingFrustum(), camera->GetCameraPosition(), shadow_trigger_function);
+		UpdateVisibilityForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(), shadow_trigger_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromMovableShadowSphere(const SPtr<CameraComponent>& camera, const Vec3& eye, float radius)
 	{
 		BSphere bounding_sphere = BSphere(eye, radius);
 
-		UpdateVisibility(bounding_sphere, eye, shadow_trigger_function);
+		UpdateVisibilityForShadow(bounding_sphere, eye, shadow_trigger_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromStaticShadowCamera(const SPtr<CameraComponent>& camera, bool update_static_render_comp)
@@ -70,8 +70,8 @@ namespace client_fw
 		else
 		{
 			AddRegisteredDestructibleToCamera(camera, camera->GetBoudingFrustum(), add_destructible_shadow_trigger_function);
-			camera->UpdateDestructibleRenderComponentVisibility(shadow_trigger_function);
-			UpdateVisibilityForMovable(camera->GetBoudingFrustum(), camera->GetCameraPosition(), shadow_trigger_function);
+			camera->UpdateDestructibleRenderComponentVisibility(trigger_function);
+			UpdateVisibilityMovableForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(), trigger_function);
 		}
 	}
 
@@ -89,8 +89,8 @@ namespace client_fw
 		else
 		{
 			AddRegisteredDestructibleToCamera(camera, bounding_sphere, add_destructible_shadow_trigger_function);
-			camera->UpdateDestructibleRenderComponentVisibility(shadow_trigger_function);
-			UpdateVisibilityForMovable(bounding_sphere, eye, shadow_trigger_function);
+			camera->UpdateDestructibleRenderComponentVisibility(trigger_function);
+			UpdateVisibilityMovableForShadow(bounding_sphere, eye, trigger_function);
 		}
 	}
 }
