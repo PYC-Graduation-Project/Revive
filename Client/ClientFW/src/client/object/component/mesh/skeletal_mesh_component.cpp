@@ -79,23 +79,17 @@ namespace client_fw
 
 	const Mat4 SkeletalMeshComponent::GetSocketWorldMatrix(const std::string& socket_name)
 	{
-		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
-		Mat4 mesh_matrix = mat4::CreateScale(GetScale());
-		mesh_matrix *= mat4::CreateRotationFromQuaternion(GetLocalRotation());
-		mesh_matrix *= mat4::CreateTranslation(GetLocalPosition());
-		//socket_matrix *= m_owner.lock()->GetWorldMatrix();
-		return socket_matrix * mesh_matrix * m_owner.lock()->GetWorldMatrix();
+		return socket_matrix * GetWorldMatrix();
 	}
 
 	const Quaternion SkeletalMeshComponent::GetSocketWorldRotation(const std::string& socket_name)
 	{
-		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
 		Quaternion socket_rotation;
 		XMStoreFloat4(&socket_rotation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_matrix)));
 
-		return socket_rotation * GetLocalRotation() * m_owner.lock()->GetRotation();
+		return socket_rotation * GetWorldRotation();
 	}
 
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()
