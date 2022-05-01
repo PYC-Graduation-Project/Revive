@@ -36,6 +36,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//cout << recv_pos << endl;
 	if (mover != m_obj_map.end())
 	{
+		if (mover->second->GetIsActive() == false)return;
 		auto end_t = std::chrono::system_clock::now();
 		mover->second->SetPosition(move(recv_pos));
 		if (mover->second->m_move_time <= end_t) {
@@ -150,6 +151,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	sc_packet_npc_attack*packet= reinterpret_cast<sc_packet_npc_attack*>(p);
 	auto target = m_obj_map.find(packet->target_id);
 	if (target != m_obj_map.end()) {
+		if (target->second->GetIsActive() == false)return;
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);
 
@@ -168,7 +170,10 @@ void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
 	sc_packet_attack* packet = reinterpret_cast<sc_packet_attack*>(p);
 	auto attacker = m_obj_map.find(packet->obj_id);
 	if (attacker != m_obj_map.end())
+	{
+		if (attacker->second->GetIsActive() == false)return;
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
+	}
 	else
 		LOG_INFO("None");
 
@@ -192,6 +197,7 @@ void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
 	if (obj != m_obj_map.end())
 	{
 		//LOG_INFO("{0}가 맞았다 hp:{1}",obj->second->GetName(),packet->hp);
+		if (obj->second->GetIsActive() == false)return;
 		obj->second->SetHP(packet->hp);
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
 	}
@@ -215,5 +221,11 @@ void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
 void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
 {
 	sc_packet_dead* packet = reinterpret_cast<sc_packet_dead*>(p);
+	auto obj = m_obj_map.find(packet->obj_id);
+	if (obj != m_obj_map.end())
+	{
+		obj->second->SetIsActive(false);
+	}
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::ObjectDeadEventInfo>(HashCode("dead")), packet->obj_id);
+	
 }

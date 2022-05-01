@@ -48,6 +48,7 @@ public:
     }
     
     std::atomic_bool in_use;
+    std::atomic_bool in_game=false;
     std::mutex lua_lock;
 private:
     std::vector<Vector3>m_load;

@@ -166,18 +166,18 @@ void PacketManager::SpawnEnemy(int room_id)
 			continue;
 		Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(e_id);
 		
-		if (true == enemy->GetIsActive())
+		if (true == enemy->in_game)
 			continue;
 		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
 		{
-			
+			enemy->in_game = true;
 			enemy->SetIsActive(true);
 			
 			enemy_list.insert(e_id);
 			
 		}
 		else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
-			
+			enemy->in_game = true;
 			enemy->SetIsActive(true);
 			enemy_list.insert(e_id);
 		}
@@ -1034,7 +1034,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	float hp;
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
-	//victim->SetHP(victim->GetHP() - attacker->GetDamge());
+	victim->SetHP(victim->GetHP() - attacker->GetDamge());
 	hp = victim->GetHP();
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();

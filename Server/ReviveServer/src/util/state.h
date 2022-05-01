@@ -33,7 +33,12 @@ enum class STATE
 	ST_ACCEPT, 
 	ST_INGAME 
 };
-
+enum class ENEMY_STATE
+{
+	ST_FREE,
+	ST_INGAME,
+	ST_DEAD
+};
 enum class OBJ_TYPE
 {
 	OT_MAPOBJ,

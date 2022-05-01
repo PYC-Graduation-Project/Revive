@@ -48,9 +48,12 @@ public:
     const NW_OBJ_TYPE GetType()const { return m_type; }
     const float GetDamage()const { return m_damage; }
     void SetDamage(float val) { m_damage = val; }
+    bool GetIsActive() { return m_is_active; }
+    void SetIsActive(bool val) { m_is_active = val; }
 private:
     float m_hp, m_max_hp;
     NW_OBJ_TYPE m_type;
+    bool m_is_active = true;
     float m_damage;
     //client_fw::Quaternion m_rotation;
 };
