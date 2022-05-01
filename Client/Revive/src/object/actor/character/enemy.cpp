@@ -78,6 +78,7 @@ namespace revive
 
 	void Enemy::Update(float delta_time)
 	{
+
 		m_time += delta_time;
 		m_simple_movement_component->AddInputVector(m_velocity);
 		if (m_time >= 0.5f)
@@ -97,9 +98,9 @@ namespace revive
 
 	void Enemy::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
+			
 		switch (message->GetEventID())
 		{
-		
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 			//옆으로걷기 -> 회전넣기 충돌 시 회전하면 클라가 터짐
@@ -149,6 +150,7 @@ namespace revive
 
 			if (m_attack_packet_state_function != nullptr)
 				m_attack_packet_state_function(GetNetworkID());
+
 			break;
 		}
 		case HashCode("status change"):
@@ -157,6 +159,7 @@ namespace revive
 			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
 			m_skeletal_mesh_component->SetAnimation("hit", false);
+			m_is_attacking = false;
 
 			break;
 		}
@@ -164,6 +167,7 @@ namespace revive
 		{
 			PacketHelper::DisconnectActorFromServer(m_network_id);
 			m_skeletal_mesh_component->SetAnimation("death", false);
+			m_is_attacking = false;
 			break;
 		}
 		default:
@@ -196,7 +200,7 @@ namespace revive
 		m_is_attacking = true;
 	}
 
-	void Enemy::Hit(int damage, int nw_id)
+	void Enemy::Hit(int damage, int nw_id) 
 	{
 		m_skeletal_mesh_component->SetAnimation("hit", false);
 		//m_hp -= damage;
