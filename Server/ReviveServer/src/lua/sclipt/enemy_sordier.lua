@@ -33,8 +33,6 @@ enemy_state["move"]=function (target_id)
 	now_z=API_get_z(skull_sordier.m_id);
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_fov then
 		skull_sordier.m_target_id=t_id;
-	else
-		m_target_id=base_id;
 	end
 
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then

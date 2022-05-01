@@ -826,7 +826,7 @@ void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& b
 	Player* player = NULL;
 	auto check_end_time = std::chrono::system_clock::now();
 	auto& check_time = enemy->GetCheckTime();
-	int target_id = -1;
+	int target_id =enemy->GetTargetId();
 	if (check_time <= check_end_time) {
 		for (auto pl : room->GetObjList())
 		{
@@ -845,10 +845,9 @@ void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& b
 		}
 		auto nealist = distance_map.begin();
 		target_id = nealist->second;
-		check_time = check_end_time + 3s;
+		check_time = check_end_time + 1s;
 	}
-	else
-		target_id = enemy->GetTargetId();
+
 
 	lua_State* L = enemy->GetLua();
 	enemy->lua_lock.lock();

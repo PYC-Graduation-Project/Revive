@@ -129,7 +129,10 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 {
 	sc_packet_time* packet = reinterpret_cast<sc_packet_time*>(p);
 	//float d_ms = std::chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() - packet->send_time;
-	LOG_INFO(packet->time);
+	auto end_t = chrono::system_clock::now().time_since_epoch();
+	int t = end_t.count() - packet->send_time;
+	//cout << "네트워크 딜레이" << std::chrono::duration_cast<std::chrono::milliseconds>(end_t.count() - packet->send_time) << endl;
+	LOG_INFO("네트워크 딜레이:{0}",t);
 	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
 }
 
@@ -157,7 +160,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 		Vec3(2400.0f,300.0f,2850.0f)), packet->obj_id);
 	}
 	else
-		LOG_INFO("없는 객체 공격");
+		LOG_INFO("없는 객체 공격{0}",packet->obj_id);
 }
 
 void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
