@@ -75,7 +75,8 @@ namespace client_fw
 			octree->Shutdown();
 		m_visual_octrees.clear();
 		m_registered_destructible_render_comps.clear();
-		m_movable_render_comps.clear();
+		m_movable_render_comps_for_render.clear();
+		m_movable_render_comps_for_shadow.clear();
 		m_is_active = false;
 	}
 
@@ -85,7 +86,9 @@ namespace client_fw
 		{
 			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				m_movable_render_comps.push_back(render_comp);
+				m_movable_render_comps_for_render.push_back(render_comp);
+				if (render_comp->GetRenderType() == eRenderType::kMesh)
+					m_movable_render_comps_for_shadow.push_back(render_comp);
 			}
 			else
 			{
@@ -117,7 +120,9 @@ namespace client_fw
 
 			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				UnregisterRenderComp(m_movable_render_comps);
+				UnregisterRenderComp(m_movable_render_comps_for_render);
+				if (render_comp->GetRenderType() == eRenderType::kMesh)
+					UnregisterRenderComp(m_movable_render_comps_for_shadow);
 			}
 			else
 			{

@@ -50,13 +50,15 @@ namespace client_fw
 		static VisualOctreeManager* s_instance;
 		bool m_is_active = false;
 		std::vector<SPtr<VisualOctree>> m_visual_octrees;
-		std::vector<SPtr<RenderComponent>> m_movable_render_comps;
+		std::vector<SPtr<RenderComponent>> m_movable_render_comps_for_render;
+		std::vector<SPtr<RenderComponent>> m_movable_render_comps_for_shadow;
 		std::vector<SPtr<RenderComponent>> m_registered_destructible_render_comps;
 
 	public:
 		static VisualOctreeManager& GetOctreeManager() { return *s_instance; }
 		const std::vector<SPtr<VisualOctree>>& GetVisualOctrees() const { return m_visual_octrees; }
-		const std::vector<SPtr<RenderComponent>>& GetMovableRenderComps() const { return m_movable_render_comps; }
+		const std::vector<SPtr<RenderComponent>>& GetMovableRenderCompsForRender() const { return m_movable_render_comps_for_render; }
+		const std::vector<SPtr<RenderComponent>>& GetMovableRenderCompsForShadow() const { return m_movable_render_comps_for_shadow; }
 		const std::vector<SPtr<RenderComponent>>& GetRegisteredDestructibleRenderComps() const { return m_registered_destructible_render_comps; }
 	};
 

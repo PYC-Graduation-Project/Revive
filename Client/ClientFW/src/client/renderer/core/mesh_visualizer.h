@@ -186,10 +186,10 @@ namespace client_fw
 		}
 
 		template <class Type>
-		static void UpdateVisibilityForMovable(const Bounding<Type>& bounding, const Vec3& eye,
+		static void UpdateVisibilityMovableForRender(const Bounding<Type>& bounding, const Vec3& eye,
 			const std::function<bool(const SPtr<RenderComponent>)>& trigger_function)
 		{
-			const auto& movable_render_comps = VisualOctreeManager::GetOctreeManager().GetMovableRenderComps();
+			const auto& movable_render_comps = VisualOctreeManager::GetOctreeManager().GetMovableRenderCompsForRender();
 
 			for (const auto& render_comp : movable_render_comps)
 			{
@@ -203,11 +203,36 @@ namespace client_fw
 		}
 
 		template <class Type>
-		static void UpdateVisibility(const Bounding<Type>& bounding, const Vec3& eye,
+		static void UpdateVisibilityMovableForShadow(const Bounding<Type>& bounding, const Vec3& eye,
+			const std::function<bool(const SPtr<RenderComponent>)>& trigger_function)
+		{
+			const auto& movable_render_comps = VisualOctreeManager::GetOctreeManager().GetMovableRenderCompsForShadow();
+
+			for (const auto& render_comp : movable_render_comps)
+			{
+				if (trigger_function(render_comp) &&
+					bounding.Intersects(*render_comp->GetOrientedBox()))
+				{
+					render_comp->SetVisiblity(true);
+					render_comp->UpdateLevelOfDetail(eye);
+				}
+			}
+		}
+
+		template <class Type>
+		static void UpdateVisibilityForRender(const Bounding<Type>& bounding, const Vec3& eye,
 			const std::function<bool(const SPtr<RenderComponent>)>& trigger_function)
 		{
 			UpdateVisibilityForStatic(bounding, eye, trigger_function);
-			UpdateVisibilityForMovable(bounding, eye, trigger_function);
+			UpdateVisibilityMovableForRender(bounding, eye, trigger_function);
+		}
+
+		template <class Type>
+		static void UpdateVisibilityForShadow(const Bounding<Type>& bounding, const Vec3& eye,
+			const std::function<bool(const SPtr<RenderComponent>)>& trigger_function)
+		{
+			UpdateVisibilityForStatic(bounding, eye, trigger_function);
+			UpdateVisibilityMovableForShadow(bounding, eye, trigger_function);
 		}
 
 	public:

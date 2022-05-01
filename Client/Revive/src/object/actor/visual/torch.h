@@ -23,12 +23,16 @@ namespace revive
 
 	private:
 		SPtr<SpotLightComponent> m_spot_light_component;
+		float m_light_intensity = 50.0f;
+		float m_light_change_speed = 25.0f;
+
+		constexpr static float s_max_light_intensity = 50.0f;
 	};
 
 	class FenceTorch final : public StaticMeshActor
 	{
 	public:
-		FenceTorch();
+		FenceTorch(bool use_shadow = true);
 		virtual ~FenceTorch() = default;
 
 		virtual bool Initialize() override;
@@ -36,6 +40,7 @@ namespace revive
 		virtual void Update(float delta_time) override;
 
 	private:
+		bool m_use_shadow;
 		SPtr<PointLightComponent> m_point_light_component;
 	};
 }
