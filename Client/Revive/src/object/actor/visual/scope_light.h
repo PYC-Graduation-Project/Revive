@@ -4,6 +4,7 @@
 namespace client_fw
 {
 	class SpotLightComponent;
+	class PointLightComponent;
 }
 
 namespace revive
@@ -22,6 +23,7 @@ namespace revive
 
 	private:
 		SPtr<SpotLightComponent> m_spot_light_component;
+		SPtr<PointLightComponent> m_point_light_component;
 	};
 }
 

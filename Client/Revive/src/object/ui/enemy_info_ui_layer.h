@@ -4,6 +4,7 @@
 namespace client_fw
 {
     class TextUI;
+    class ProgressBarUI;
 }
 
 namespace revive
@@ -23,9 +24,12 @@ namespace revive
 
     private:
         SPtr<TextUI> m_text;
+        SPtr<ProgressBarUI> m_hp_bar;
         WPtr<Enemy> m_enemy;
 
     public:
+        void SetHPPercent(float percent);
+
         void SetEnemy(const WPtr<Enemy>& owner) { m_enemy = owner; }
     };
 }

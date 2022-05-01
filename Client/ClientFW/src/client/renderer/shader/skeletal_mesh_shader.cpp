@@ -132,8 +132,12 @@ namespace client_fw
 		{
 		case eRenderLevelType::kShadow:
 		case eRenderLevelType::kShadowCube:
+			desc.DepthBias = 5000;
+			desc.DepthBiasClamp = 0.0f;
+			desc.SlopeScaledDepthBias = 10.0f;
+			break;
 		case eRenderLevelType::kShadowCascade:
-			desc.DepthBias = 10000;
+			desc.DepthBias = 2500;
 			desc.DepthBiasClamp = 0.0f;
 			desc.SlopeScaledDepthBias = 1.0f;
 			break;

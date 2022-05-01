@@ -23,10 +23,10 @@ namespace revive
 
 	private:
 		SPtr<SpotLightComponent> m_spot_light_component;
-		float m_light_intensity = 50.0f;
-		float m_light_change_speed = 25.0f;
+		float m_light_intensity = 500.0f;
+		float m_light_change_speed = 250.0f;
 
-		constexpr static float s_max_light_intensity = 50.0f;
+		constexpr static float s_max_light_intensity = 500.0f;
 	};
 
 	class FenceTorch final : public StaticMeshActor

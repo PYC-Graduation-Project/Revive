@@ -20,11 +20,14 @@ namespace revive
 		bool ret = StaticMeshActor::Initialize();
 
 		m_spot_light_component->SetLightColor(Vec3(255.0f, 64.f, 96.f) * m_light_intensity);
-		m_spot_light_component->SetLocalPosition(Vec3(-25.0f, 30.0f, 0.0f));
+		m_spot_light_component->SetLocalPosition(Vec3(-29.0f, 30.0f, 0.0f));
 		m_spot_light_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
-		m_spot_light_component->SetAttenuationRadius(500.0f);
-		m_spot_light_component->SetConeOuterAngle(70.f);
+		m_spot_light_component->SetAttenuationRadius(350.0f);
+		m_spot_light_component->SetShadowTextureSize(256);
+		m_spot_light_component->SetConeOuterAngle(60.f);
+#ifdef _DEBUG
 		m_spot_light_component->DisableShadow();
+#endif
 		ret &= AttachComponent(m_spot_light_component);
 
 		UseUpdate();
