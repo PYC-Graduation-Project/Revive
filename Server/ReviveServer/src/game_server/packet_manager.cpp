@@ -338,6 +338,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 			//		return;
 			//	}
 			//}
+
 		}
 		
 	}
