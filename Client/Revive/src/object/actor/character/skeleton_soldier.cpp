@@ -44,9 +44,7 @@ namespace revive
 			, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " Test");
 		
-		ret &= AttachComponent(m_widget_component);
-		m_widget_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
-		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
+		m_widget_component->SetLocalPosition(Vec3(0.0f, 150.0f, 0.0f));
 
 		return ret;
 	}

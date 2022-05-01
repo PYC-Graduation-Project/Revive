@@ -90,12 +90,12 @@ namespace revive
 
 		GenerateVisualActors();
 
-		for (int i = 0; i < 50; ++i)
-		{
-			auto skel = CreateSPtr<SkeletonKing>();
-			skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
-			SpawnActor(skel);
-		}
+		//for (int i = 0; i < 50; ++i)
+		//{
+		//	auto skel = CreateSPtr<SkeletonKing>();
+		//	skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
+		//	SpawnActor(skel);
+		//}
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
