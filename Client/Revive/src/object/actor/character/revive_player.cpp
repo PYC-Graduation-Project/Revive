@@ -73,8 +73,6 @@ namespace revive
 		ret &= AttachComponent(m_character_movement_component);
 		m_character_movement_component->SetMaxSpeed(100.f);
 		m_character_movement_component->UseOrientRotationToMovement(true);
-		//m_character_movement_component->SetAcceleration(10.f);
-		//m_character_movement_component->SetDeceleration(20.f);
 
 		std::array<std::string, 2> weapon_names = { "left", "right" };
 		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
@@ -126,6 +124,9 @@ namespace revive
 	void DefaultPlayer::Update(float delta_time)
 	{
 		m_player_fsm->Update();
+
+		/*if(m_is_attacking)
+			SetRotation(FindLookAtRotation(m_attack_direction, vec3::ZERO));*/
 
 		PlayerInterpolation(delta_time);
 		
@@ -230,7 +231,12 @@ namespace revive
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
-		return quat::CreateQuaternionFromRollPitchYaw(0.f, angle, 0.f);
+		Quaternion rot = quat::CreateQuaternionFromRollPitchYaw(0.f, angle, 0.f);
+		
+		if (isnan(rot.x) || isnan(rot.y) || isnan(rot.z) || isnan(rot.w))
+			return GetRotation();
+		
+		return rot;
 		/*Vec3 rotate_player = Vec3{ 0.f,math::ToDegrees(angle),0.f };
 		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));*/
 
@@ -270,6 +276,7 @@ namespace revive
 			//카메라가 보는 방향으로 총을 쏴야한다(회전)
 			Vec3 direction = GetForward();
 			direction.y = 0;
+			m_attack_direction = direction;
 			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
 
 			//총알 스폰
@@ -358,6 +365,13 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
+		if (m_is_attacking)
+		{
+			Vec3 direction = m_controller.lock()->GetForward();
+			direction.y = 0;
+			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
+		}
+
 	}
 
 	void RevivePlayer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -407,6 +421,8 @@ namespace revive
 			if(m_is_dying == false)
 				if (m_is_attacking == false) {
 					ret = m_is_attacking = true;
+					
+					//m_attack_direction = direction;
 					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"),Vec3(0.f,0.f,0.f), Vec3(0.f, 0.f, 0.f)));
 				//공격추가
 				}
@@ -431,7 +447,6 @@ namespace revive
 		{
 			Vec3 direction = m_controller.lock()->GetForward();
 			direction.y = 0;
-			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
 
 			//총알 스폰
 			const auto& bullet = CreateSPtr<Bullet>();
@@ -440,7 +455,6 @@ namespace revive
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
 			LOG_INFO("공격 패킷 보냄");	
 			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-
 			bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 
 				const SPtr<SceneComponent>& other_component)
@@ -456,11 +470,8 @@ namespace revive
 
 							enemy->Hit(0,m_network_id);
 
-
 							//LOG_INFO("충돌 부위 :" + other_component->GetName());
 						bullet->SetActorState(eActorState::kDead);
-			
-
 				}
 			});
 			SpawnActor(bullet);

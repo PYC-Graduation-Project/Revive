@@ -50,6 +50,7 @@ namespace revive
 		Vec3 m_inter_velocity;
 		Vec3 m_next_pos;
 		Vec3 m_previous_pos;
+		Vec3 m_attack_direction;
 
 		std::string m_mesh_path;
 		SPtr<PlayerFSM> m_player_fsm;
