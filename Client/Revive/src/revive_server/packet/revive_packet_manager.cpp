@@ -30,21 +30,24 @@ void RevivePacketManager::Init()
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
 	sc_packet_move* packet = reinterpret_cast<sc_packet_move*>(p);
-	//cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
+	//cout<<<< "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	auto mover = m_obj_map.find(packet->id);
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
-	
+	//cout << recv_pos << endl;
 	if (mover != m_obj_map.end())
 	{
+		auto end_t = std::chrono::system_clock::now();
 		mover->second->SetPosition(move(recv_pos));
-
+		if (mover->second->m_move_time <= end_t) {
+			PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos), packet->id);
+			mover->second->m_move_time = end_t + 50ms;
+		}
 	}
 	else
 	{
 		LOG_INFO("No Object");
 	}
 	
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos),packet->id);
 }
 
 void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)

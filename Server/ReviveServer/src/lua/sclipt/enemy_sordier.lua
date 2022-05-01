@@ -2,7 +2,7 @@
 skull_sordier={
 	m_id= 99999,
 	m_fov=900,
-	m_atk_range=1000,
+	m_atk_range=850,
 	m_position={x=0,y=0,z=0},
 	m_maxhp=0,
 	m_hp=0,
@@ -33,6 +33,8 @@ enemy_state["move"]=function (target_id)
 	now_z=API_get_z(skull_sordier.m_id);
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_fov then
 		skull_sordier.m_target_id=t_id;
+	else
+		m_target_id=base_id;
 	end
 
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then

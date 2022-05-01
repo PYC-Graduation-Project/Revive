@@ -321,23 +321,23 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		}
 		else
 		{
-			Enemy* other_enemy = NULL;
-			for (auto& npc_id : room->GetObjList())
-			{
-				if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))continue;
-				if (false == enemy->GetIsActive())continue;
-				if (enemy_id == npc_id)continue;
-				other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
-				if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
-				{
-					
-					enemy->SetToPrevPos();
-					
-					g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
-					cout << "return 직전" << endl;
-					return;
-				}
-			}
+			//Enemy* other_enemy = NULL;
+			//for (auto& npc_id : room->GetObjList())
+			//{
+			//	if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))continue;
+			//	if (false == enemy->GetIsActive())continue;
+			//	if (enemy_id == npc_id)continue;
+			//	other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
+			//	if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
+			//	{
+			//		
+			//		enemy->SetToPrevPos();
+			//		
+			//		g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
+			//		cout << "return 직전" << endl;
+			//		return;
+			//	}
+			//}
 		}
 		
 	}
@@ -833,8 +833,8 @@ void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& b
 
 			if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 			{
-				//player = MoveObjManager::GetInst()->GetPlayer(pl);
-				//if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
+				player = MoveObjManager::GetInst()->GetPlayer(pl);
+				if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
 				auto fail_obj = distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
 
 				//여기서 기지와 플레이어 거리 비교후

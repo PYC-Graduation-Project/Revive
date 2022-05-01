@@ -14,39 +14,47 @@ Position 150 -300 150
 Rotation 0 0 0 1 
 Scale 30 
 
-ActorName Ground 5 0  2400 200 2400 
-FilePath Contents/cliff_block_rock_4.obj
-Position 0 0 0 
-Rotation 4.371139E-08 0 0 1 
-Scale 100 
-FilePath Contents/cliff_block_rock_5.obj
-Position 2100 0 -2550 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
-FilePath Contents/cliff_block_rock_5.obj
-Position -2100 0 -2550 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
-FilePath Contents/cliff_block_rock_5.obj
-Position -2100 0 2550 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
-FilePath Contents/cliff_block_rock_5.obj
-Position 2100 0 2550 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
+ActorName Ground 3 0  2400 200 2400 
+FilePath Contents/cliff_stone_02.obj
+Position 2100 -1100 2550 
+Rotation 0 0 0 1 
+Scale 10000 
+FilePath Contents/cliff_stone_01.obj
+Position 0 -1100 0 
+Rotation 0 0 0 1 
+Scale 12000 
+FilePath Contents/cliff_stone_02.obj
+Position -2100 -1100 2550 
+Rotation 0 0 0 1 
+Scale 10000 
 
 ActorName Ground 1 0  2400 200 6600 
-FilePath Contents/cliff_block_rock_2.obj
-Position 0 0 0 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
+FilePath Contents/cliff_stone_03.obj
+Position 0 -1100 0 
+Rotation 0 0 0 1 
+Scale 10000 
 
-ActorName Ground 1 0  2400 200 9600 
-FilePath Contents/cliff_block_rock_3.obj
-Position 0 0 0 
-Rotation 2.185569E-08 0 0 1 
-Scale 100 
+ActorName Ground 5 0  2400 200 9600 
+FilePath Contents/cliff_block_rock.obj
+Position 0 -1100 4800 
+Rotation 0 0.7071068 0 -0.7071068 
+Scale 500 
+FilePath Contents/cliff_block_rock.obj
+Position -14400 -1100 2400 
+Rotation 0 0 0 1 
+Scale 500 
+FilePath Contents/cliff_block_rock.obj
+Position 14400 -1100 2400 
+Rotation 0 0 0 1 
+Scale 500 
+FilePath Contents/cliff_block_rock.obj
+Position 14400 -1100 -14400 
+Rotation 0 0 0 1 
+Scale 500 
+FilePath Contents/cliff_block_rock.obj
+Position -14400 -1100 -14400 
+Rotation 0 0 0 1 
+Scale 500 
 
 ActorName Wall 5 0  0 0 -300 
 FilePath Contents/towerTopRoof.obj
@@ -62,39 +70,39 @@ Position 4197 1050 0
 Rotation 0 1 0 -4.371139E-08 
 Scale 60 
 FilePath Contents/wallCornerHalfTower.obj
-Position 3894 300 900 
+Position 3900 300 900 
 Rotation 0 0 0 1 
 Scale 60 
 FilePath Contents/wallCornerHalfTower.obj
-Position 909.9999 300 900 
+Position 900 300 900 
 Rotation 0 0.7071068 0 0.7071068 
 Scale 60.00002 
 
 ActorName Wall 5 0  2400 550 300 
 FilePath Contents/wallHalf.obj
-Position 1503 -250 -300 
+Position 1500 -250 -300 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 FilePath Contents/wallHalf.obj
-Position 903.0002 -250 -300 
+Position 900 -250 -300 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 FilePath Contents/wallHalf.obj
-Position 303.0002 -250 -300 
+Position 300 -250 -300 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 FilePath Contents/wallHalf.obj
-Position -296.9998 -250 -300 
+Position -300 -250 -300 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 FilePath Contents/wallHalf.obj
-Position -896.9998 -250 -300 
+Position -900 -250 -300 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 
 ActorName Wall 7 0  4200 550 2550 
 FilePath Contents/wallCornerHalfTower.obj
-Position -306.0001 -250 1650 
+Position -300 -250 1650 
 Rotation 0 0.7071068 0 -0.7071068 
 Scale 60.00003 
 FilePath Contents/wallHalf.obj
@@ -162,13 +170,13 @@ Position 545.0001 -305.0345 -109.0321
 Rotation 0 -0.7071067 0 -0.7071068 
 Scale 60.00004 
 FilePath Contents/wallDoor.obj
-Position 43.99986 -250 153 
+Position 50 -250 150 
 Rotation 0 -0.7071067 0 -0.7071068 
 Scale 60.00005 
 
 ActorName Wall 2 0  1049.999 300 4350 
 FilePath Contents/wallDoor.obj
-Position -149.9994 0 450.005 
+Position -150 0 450 
 Rotation 0 -0.7071067 0 -0.7071068 
 Scale 60.00002 
 FilePath Contents/metalGate.obj
@@ -178,7 +186,7 @@ Scale 60.00002
 
 ActorName Wall 1 0  3000 550 4500 
 FilePath Contents/wallHalf.obj
-Position -306.0001 -250 302.9999 
+Position -300 -250 300 
 Rotation 0 0.7071068 0 0.7071068 
 Scale 60.00002 
 
@@ -208,110 +216,110 @@ BoxCollision Wall Center 550 0 2000 Extents 350 250 300
 BoxCollision Wall Center -550 0 2000 Extents 350 250 300 
 
 ActorName Fence 12 0  2125 282.5 6600 
-FilePath Contents/fence_planksDouble_2.obj
+FilePath Contents/fence.obj
 Position 0 64.99998 -1650 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -1350 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -1050 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -750 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -450 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -150 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 150 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 450 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 750 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1050 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1350 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1650 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -1357.9 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -1068 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -777 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -488 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -198 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 100 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 392 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 689 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 983 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 1277 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 1568 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
 
 ActorName Fence 12 0  2675 282.5 6600 
-FilePath Contents/fence_planksDouble_2.obj
+FilePath Contents/fence.obj
+Position 0 64.99998 -1357.9 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
 Position 0 64.99998 -1650 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -1350 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -1050 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -750 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -450 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 -150 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 150 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 450 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 750 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1050 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1350 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
-FilePath Contents/fence_planksDouble_2.obj
-Position 0 64.99998 1650 
-Rotation 1.013279E-06 0.7071068 1.013279E-06 -0.7071068 
-Scale 80 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -1068 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -777 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -488 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 -198 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 100 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 392 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 689 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 983 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 1277 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
+FilePath Contents/fence.obj
+Position 0 64.99998 1568 
+Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068 
+Scale 5 
 
 ActorName Fence 0 2  2400 282.5 6600 
 BoxCollision Fence Center -250 50 -100 Extents 50 50 1900 
 BoxCollision Fence Center 250 50 -100 Extents 50 50 1900 
 
-ActorName Bridge 1 0  2400 298.9998 6975 
+ActorName Bridge 1 0  2400 300 6975 
 FilePath Contents/bridge_2.obj
 Position 0 0 0 
 Rotation 4.214684E-08 -0.7071067 4.214685E-08 -0.7071068 
@@ -327,6 +335,9 @@ BoxCollision ActivityArea Center 0 150 0 Extents 600 150 1200
 ActorName ActivityArea 0 1  2400 300 6600 
 BoxCollision ActivityArea Center 0 150 0 Extents 225 150 1800 
 
-ActorName ActivityArea 0 1  2400 300 3750 
-BoxCollision ActivityArea Center 0 150 0 Extents 187.5 150 1050 
+ActorName ActivityArea 0 1  2400 300 4475 
+BoxCollision ActivityArea Center 0 150 0 Extents 187.5 150 325 
+
+ActorName ActivityArea 0 1  2400 300 3400 
+BoxCollision ActivityArea Center 0 150 0 Extents 900 150 750 
 
