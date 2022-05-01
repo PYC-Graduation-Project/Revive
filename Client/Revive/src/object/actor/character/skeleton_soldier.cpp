@@ -7,6 +7,10 @@
 #include "object/actor/character/skeleton_soldier.h"
 #include "object/actor/gameplaymechanics/base.h"
 #include "object/actor/projectile/stone.h"
+
+#include <client/object/component/render/widget_component.h>
+#include "object/ui/enemy_info_ui_layer.h"
+
 namespace revive
 {
 	SkeletonSoldier::SkeletonSoldier(const std::string& name)
@@ -40,6 +44,10 @@ namespace revive
 			, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " Test");
 		
+		ret &= AttachComponent(m_widget_component);
+		m_widget_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
+		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
+
 		return ret;
 	}
 

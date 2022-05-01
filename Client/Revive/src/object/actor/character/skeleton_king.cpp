@@ -8,6 +8,12 @@
 #include "object/actor/gameplaymechanics/base.h"
 #include "object/actor/character/revive_player.h"
 #include "object/actor/character/skeleton_king.h"
+
+
+#include <client/object/component/render/widget_component.h>
+#include "object/ui/enemy_info_ui_layer.h"
+
+
 namespace revive
 {
 	SkeletonKing::SkeletonKing(const std::string& name)
@@ -44,6 +50,10 @@ namespace revive
 		m_hp = 20;
 		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
+
+		ret &= AttachComponent(m_widget_component);
+		m_widget_component->SetLocalPosition(Vec3(0.0f, 450.0f, 0.0f));
+		m_widget_component->SetSize(Vec2(200.0f, 60.0f));
 
 		return ret;
 	}

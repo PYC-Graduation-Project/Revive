@@ -8,11 +8,14 @@ namespace client_fw
 	class SkeletalMeshComponent;
 	class SphereComponent;
 	class BoxComponent;
+	class WidgetComponent;
 }
 
 namespace revive
 {
 	using namespace client_fw;
+
+	class EnemyInfoUILayer;
 
 	class Enemy : public Actor
 	{
@@ -70,5 +73,14 @@ namespace revive
 		void Hit(int damage = 1, int nw_id = 9999);
 
 		void SetNetworkPosition(const Vec3& pos);
+
+
+	protected:
+		SPtr<WidgetComponent> m_widget_component;
+		SPtr<EnemyInfoUILayer> m_ui_layer;
+		std::function<void(int id)> m_attack_packet_state_function;
+
+	public:
+		void OnAttackPacketStateFunction(std::function<void(int id)> function) { m_attack_packet_state_function = function; }
 	};
 }

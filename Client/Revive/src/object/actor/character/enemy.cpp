@@ -9,6 +9,10 @@
 #include<client/event/packetevent/packet_helper.h>
 #include "object/actor/character/enemy.h"
 #include "revive_server/message/message_event_info.h"
+
+#include <client/object/component/render/widget_component.h>
+#include "object/ui/enemy_info_ui_layer.h"
+
 namespace revive
 {
 	Enemy::Enemy(const std::string& mesh_path, const std::string& name)
@@ -21,6 +25,9 @@ namespace revive
 		m_agro_sphere = CreateSPtr<SphereComponent>(1800.f, "agro sphere");
 		m_hit_box = CreateSPtr<BoxComponent>(Vec3{ 32.f,32.f,32.f }, "hit box");
 		m_mesh_path = mesh_path;
+
+		m_ui_layer = CreateSPtr<EnemyInfoUILayer>();
+		m_widget_component = CreateSPtr<WidgetComponent>(m_ui_layer);
 	}
 
 	bool Enemy::Initialize()
@@ -50,11 +57,17 @@ namespace revive
 			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ axis * 100.0f,0.0f,0.0f  }); return true; }, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " move right");
 		RegisterReceiveMessage(HashCode("move object"));
+
+		m_ui_layer->SetEnemy(std::static_pointer_cast<Enemy>(shared_from_this()));
+
 		return ret;
 	}
 
 	void Enemy::Shutdown()
 	{
+		m_widget_component = nullptr;
+		m_ui_layer = nullptr;
+
 		m_simple_movement_component = nullptr;
 		m_skeletal_mesh_component = nullptr;
 		m_blocking_sphere = nullptr;
@@ -133,6 +146,9 @@ namespace revive
 			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
 			m_target_position = msg->GetTargetPosition();
 			Attack();
+
+			if (m_attack_packet_state_function != nullptr)
+				m_attack_packet_state_function(GetNetworkID());
 			break;
 		}
 		case HashCode("status change"):
