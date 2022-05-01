@@ -125,9 +125,6 @@ namespace revive
 	{
 		m_player_fsm->Update();
 
-		/*if(m_is_attacking)
-			SetRotation(FindLookAtRotation(m_attack_direction, vec3::ZERO));*/
-
 		PlayerInterpolation(delta_time);
 		
 		if (m_speed > 0)
@@ -137,6 +134,9 @@ namespace revive
 		m_speed = std::clamp(m_speed, 0.f, 300.f);
 		//LOG_INFO(" {0}  {1}", m_network_id, GetPosition());
 		m_previous_velocity = m_velocity;
+
+		if (m_is_attacking)
+			SetRotation(FindLookAtRotation(GetForward(), vec3::ZERO));
 
 	}
 
@@ -208,24 +208,6 @@ namespace revive
 
 	Quaternion DefaultPlayer::FindLookAtRotation(const Vec3& start, const Vec3& target)
 	{
-		//Vec3 old_player_forward = GetForward();
-
-		//if (vec3::Dot(old_player_forward, dest_direction) == -1)//현재보는 방향과 반대방향으로 회전 시 너무느리지않게 회전시키려면 필요한 부분
-		//	old_player_forward += Vec3{ 0.02f,0.0f,-0.02f };
-
-		//float rotate_speed = 70.0f * 0.016f; //회전속도 delta_time을곱해야하나 없으니까 0.016곱함
-
-		//Vec3 curr_player_forward = /*old_player_forward +*/ dest_direction;//* rotate_speed;
-		//curr_player_forward = vec3::Normalize(curr_player_forward);
-
-		//float angle = vec3::BetweenAngle(curr_player_forward, vec3::AXIS_Z); //0~PI만 반환함 (radian)
-
-		//if (vec3::Cross(curr_player_forward, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
-		//	angle = -angle;
-
-		//auto player_rot = quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f); //angle만큼 Y축 회전
-		//SetRotation(player_rot);
-
 		Vec3 direction = start - target;
 		direction.Normalize();
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
@@ -276,7 +258,6 @@ namespace revive
 			//카메라가 보는 방향으로 총을 쏴야한다(회전)
 			Vec3 direction = GetForward();
 			direction.y = 0;
-			m_attack_direction = direction;
 			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
 
 			//총알 스폰
@@ -310,7 +291,7 @@ namespace revive
 	}
 
 
-	void DefaultPlayer::Hit(int damage, int nw_id)
+	void DefaultPlayer::Hit(float damage, int nw_id)
 	{
 		++m_hit_count;
 		m_is_hitting = true;
@@ -353,11 +334,10 @@ namespace revive
 		
 		SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 		
-
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);
 		SetUseControllerRoll(false);
-
+	
 		return ret;
 	}  
 
@@ -365,6 +345,7 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
+
 		if (m_is_attacking)
 		{
 			Vec3 direction = m_controller.lock()->GetForward();
@@ -421,8 +402,6 @@ namespace revive
 			if(m_is_dying == false)
 				if (m_is_attacking == false) {
 					ret = m_is_attacking = true;
-					
-					//m_attack_direction = direction;
 					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"),Vec3(0.f,0.f,0.f), Vec3(0.f, 0.f, 0.f)));
 				//공격추가
 				}
@@ -465,7 +444,7 @@ namespace revive
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
 				{
-						int enemy_hp = enemy->GetHP();
+						float enemy_hp = enemy->GetHP();
 						if (enemy_hp > 0)
 
 							enemy->Hit(0,m_network_id);
@@ -480,7 +459,7 @@ namespace revive
 	}
 
 
-	void RevivePlayer::Hit(int damage, int nw_id)
+	void RevivePlayer::Hit(float damage, int nw_id)
 
 	{
 		++m_hit_count;

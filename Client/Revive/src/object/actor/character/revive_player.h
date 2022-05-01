@@ -33,7 +33,8 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	protected:
-		int m_hp = 10;
+		float m_hp = 1;
+		float m_max_hp = 1;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
 		int m_network_id = 9999;
 		float m_time = 0.0f;
@@ -50,7 +51,7 @@ namespace revive
 		Vec3 m_inter_velocity;
 		Vec3 m_next_pos;
 		Vec3 m_previous_pos;
-		Vec3 m_attack_direction;
+		//Vec3 m_attack_direction;
 
 		std::string m_mesh_path;
 		SPtr<PlayerFSM> m_player_fsm;
@@ -67,7 +68,8 @@ namespace revive
 	public:
 		virtual const float GetVelocity() const;
 		const int GetHitCount() const { return m_hit_count; }
-		const int GetHP() const { return m_hp; }
+		const float GetHP() const { return m_hp; }
+		const float GetMaxHP() const { return m_max_hp; }
 		const bool GetIsAttacking() const { return m_is_attacking; }
 		const bool GetIsHitting() const { return m_is_hitting; }
 		const bool GetIsDying() const { return m_is_dying; }
@@ -78,12 +80,13 @@ namespace revive
 		void SetAnimationSpeed(float speed);
 		void SetNetworkID(int val) { m_network_id = val; };
 		void SetHP(float hp) { m_hp = hp; }
+		void SetMaxHP(float max_hp) { m_max_hp = max_hp; }
 		void SetNetworkPosition(const Vec3& pos);
 		void DecrementHitCount() { m_hit_count--; }
 
 		virtual void Attack();
 
-		virtual void Hit(int damage = 1, int nw_id = 9999);
+		virtual void Hit(float damage = 1, int nw_id = 9999);
 
 	protected:
 		SPtr<SpotLightComponent> m_spot_light_component;
@@ -131,12 +134,11 @@ namespace revive
 		//void SetIsHitting(bool value) { m_is_hitting = value; }
 		const float GetVelocity() const;
 		const int GetHitCount() const { return m_hit_count; }
-		const int GetHP() const { return m_hp; }
 
 
 		virtual void Attack() override;
 
-		virtual void Hit(int damage, int nw_id = 9999) override;
+		virtual void Hit(float damage, int nw_id = 9999) override;
 
 
 		void DecrementHP() { m_hp--; LOG_INFO("my HP : {0}", m_hp); }
