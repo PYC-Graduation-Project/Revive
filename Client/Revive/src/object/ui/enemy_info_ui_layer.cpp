@@ -1,5 +1,6 @@
 #include <include/client_core.h>
 #include <client/object/ui/text_ui.h>
+#include <client/object/ui/progress_bar_ui.h>
 
 #include "enemy_info_ui_layer.h"
 #include "object/actor/character/enemy.h"
@@ -9,11 +10,12 @@ namespace revive
 	EnemyInfoUILayer::EnemyInfoUILayer()
 		: UserInterfaceLayer("enemy info ui layer")
 	{
+		m_text = CreateSPtr<TextUI>("Test Text", Vec2(200.0f, 60.f), L"ID : 0\n 회전 속도 : 180");
+		m_hp_bar = CreateSPtr<ProgressBarUI>("Test Progress Bar");
 	}
 
 	bool EnemyInfoUILayer::Initialize()
 	{
-		m_text = CreateSPtr<TextUI>("Test Text", Vec2(200.0f, 60.f), L"ID : 0\n 회전 속도 : 180");
 		RegisterUserInterface(m_text);
 		m_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 		m_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
@@ -40,10 +42,21 @@ namespace revive
 				});
 		}
 
+		RegisterUserInterface(m_hp_bar);
+		m_hp_bar->SetBackgroundTexture("../Contents/hp_background.dds");
+		m_hp_bar->SetFillTexture("../Contents/hp_bar.dds");
+		m_hp_bar->SetSize(Vec2(256.f, 32.f));
+		m_hp_bar->SetPercent(1.0f);
+
 		return true;
 	}
 
 	void EnemyInfoUILayer::Update(float delta_time)
 	{
+	}
+
+	void EnemyInfoUILayer::SetHPPercent(float percent)
+	{
+		m_hp_bar->SetPercent(percent);
 	}
 }

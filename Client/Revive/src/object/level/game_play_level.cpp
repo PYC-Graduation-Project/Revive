@@ -90,12 +90,12 @@ namespace revive
 
 		GenerateVisualActors();
 
-	/*	for (int i = 0; i < 50; ++i)
+		for (int i = 0; i < 50; ++i)
 		{
 			auto skel = CreateSPtr<SkeletonKing>();
 			skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
 			SpawnActor(skel);
-		}*/
+		}
 
 		Input::SetInputMode(eInputMode::kGameOnly);
 		return true;
@@ -189,13 +189,21 @@ namespace revive
 		for (int i = 0; i < 4; ++i)
 		{
 			auto light_tree = CreateSPtr<LightTree>();
-			if(i < 2)
+			if (i < 2)
 				light_tree->SetRotation(0.0f, math::ToRadian(135.0f + i * 90.0f), 0.0f);
 			else
 				light_tree->SetRotation(0.0f, math::ToRadian(135.0f - (i - 1) * 90.0f), 0.0f);
 
 			light_tree->SetPosition(Vec3(2050.0f + (i / 2) * 700.0f, 300.0f, 1000.0f + (i % 2) * 700.0f));
 			SpawnActor(light_tree);
+		}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			auto scope = CreateSPtr<ScopeLight>();
+			scope->SetPosition(Vec3(1700.0f + i * 1400.0f, 1000.0f, 4300.0f));
+			scope->SetRotation(0.0f, math::ToRadian(-30.0f + i * 60.0f), 0.0f);
+			SpawnActor(scope);
 		}
 
 		auto healer = CreateSPtr<Healer>();
@@ -268,6 +276,7 @@ namespace revive
 				skull->SetNetworkPosition(obj->GetPosition());
 				skull->SetNetworkID(obj->GetID());
 				skull->SetHP(obj->GetHp());
+				skull->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(skull, msg->GetNetworkObj()->GetID());
 				break;
 			}
@@ -277,6 +286,7 @@ namespace revive
 				king->SetNetworkPosition(obj->GetPosition());
 				king->SetNetworkID(obj->GetID());
 				king->SetHP(obj->GetHp());
+				king->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(king, msg->GetNetworkObj()->GetID());
 				break;
 			}

@@ -30,7 +30,9 @@ namespace revive
 		const int GetNetworkID()const { return m_network_id; }
 		void SetNetworkID(int val) { m_network_id = val; };
 	protected:
-		int m_hp;
+		int m_hp = 1;
+		int m_max_hp = 1;
+
 		float m_disappear_time = 0.0f;
 
 		int m_network_id = 9999;
@@ -69,6 +71,8 @@ namespace revive
 	public:
 		const int GetHP() const { return m_hp; }
 		void SetHP(const int hp) { m_hp = hp; }
+		int GetMaxHP() const { return m_max_hp; }
+		void SetMaxHP(int hp) { m_max_hp = hp; }
 
 		void Hit(int damage = 1, int nw_id = 9999);
 

@@ -103,9 +103,19 @@ namespace client_fw
 
 	SPtr<Actor> PacketEventManager::DisconnectActorFromServer(UINT id)
 	{
-		SPtr<Actor> actor = m_connected_actor_map[id];
-		actor->ConnectServer(false);
-		m_connected_actor_map[id] = nullptr;
-		return actor;
+		if (m_connected_actor_map.find(id) != m_connected_actor_map.cend()
+			&& m_connected_actor_map[id] != nullptr)
+		{
+			SPtr<Actor> actor = m_connected_actor_map[id];
+			actor->ConnectServer(false);
+			m_connected_actor_map[id] = nullptr;
+			return actor;
+		}
+		else
+		{
+			LOG_WARN("ID : {0} is already disconnected", id);
+			return nullptr;
+		}
+	
 	}
 }

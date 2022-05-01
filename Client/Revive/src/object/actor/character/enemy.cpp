@@ -158,6 +158,7 @@ namespace revive
 			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
 			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
+			m_ui_layer->SetHPPercent(GetHP() / GetMaxHP());
 			m_skeletal_mesh_component->SetAnimation("hit", false);
 			m_is_attacking = false;
 
