@@ -321,6 +321,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 		}
 		else
 		{
+
 			Enemy* other_enemy = NULL;
 			for (auto& npc_id : room->GetObjList())
 			{
@@ -337,6 +338,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 					cout << "return Á÷Àü" << endl;
 					return;
 				}
+
 			}
 		}
 		
