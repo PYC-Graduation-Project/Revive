@@ -43,7 +43,7 @@ namespace revive
 			[this](float axis)->bool {
 				IVec2 relative_pos = Input::GetRelativeMousePosition();
 				AddYawInput(axis * relative_pos.x);
-				MinPItch();
+				//MinPItch();
 				return true;
 			});
 
