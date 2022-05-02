@@ -1,5 +1,7 @@
 #pragma once
 #include "client/object/ui/text_ui.h"
+#include <locale>
+#include <codecvt>
 
 namespace client_fw
 {
@@ -16,6 +18,8 @@ namespace client_fw
 
 	private:
 		SPtr<UITexture> m_background_texture;
+
+		bool m_is_modifiable = false;
 
 		std::function<void()> m_changed_function;
 		std::function<void()> m_committed_function;

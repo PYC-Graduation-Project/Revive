@@ -14,12 +14,10 @@
 
 #include "object/actor/character/revive_controller.h"
 #include "object/level/game_play_level.h"
-#include "object/level/game_end_level.h"
 #include "object/actor/character/revive_controller.h"
 #include "object/gamemode/revive_game_mode.h"
-#include"revive_server/message/message_event_info.h"
-#include"server/network_move_object.h"
-
+#include "revive_server/message/message_event_info.h"
+#include "server/network_move_object.h"
 
 #include "object/actor/character/skeleton_King.h"
 #include "object/actor/character/skeleton_soldier.h"
@@ -29,6 +27,7 @@
 #include "object/actor/visual/scope_light.h"
 #include "object/actor/visual/light_tree.h"
 #include "object/actor/healer.h"
+#include "object/ui/game_end_ui_layer.h"
 
 
 std::string g_id;
@@ -39,58 +38,20 @@ namespace revive
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
-		LOG_INFO("게임플레이레벨 생성");
 	}
 
 	bool GamePlayLevel::Initialize()
 	{
-		std::cin >> g_id;
-		std::cin >> g_pw;
-		std::cout << "id:" << g_id << "pw:" << g_pw << std::endl;
-		//회원 가입 5, 로그인 6, 매칭 7
-		RegisterPressedEvent("send sign up", { { eKey::k5 } },
-			[this]()->bool {
-
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), g_id.data(), g_pw.data()));
-			return true;
-		});
-		RegisterPressedEvent("send sign in", { { eKey::k6 } },
-			[this]()->bool {
-
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), g_id.data(), g_pw.data()));
-			return true;
-		});
-		RegisterPressedEvent("send sign matching", { { eKey::k7 } },
-			[this]()->bool {
-
-				LOG_INFO("매칭 대기중...");
-				PacketHelper::RegisterPacketEventToServer(CreateSPtr<MatchingMessageEventInfo>(HashCode("send sign matching"), 3));
-			return true;
-		});
-		RegisterPressedEvent("game start", { { eKey::k8 } },
-			[this]()->bool {
-			LOG_INFO("게임 시작!");
-			PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
-			return true;
-		});
-		LOG_INFO("게임플레이레벨 초기화");
-
 		m_actors = m_map_loader.LoadMap("Contents/map.txt",eMapLoadType::kClient);
 		for (auto& actor : m_actors)
 		{
 			SpawnActor(actor);
 		}
 		
-		RegisterPressedEvent("Game End", { { eKey::k0 } },
-			[this]()->bool {
-			//플레이어 사망 및 기지 파괴될 시 아래코드 사용
-			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kDefeat), nullptr);
-			return true;
-		});
 
 		GenerateVisualActors();
 
-		//for (int i = 0; i < 50; ++i)
+		//for (int i = 0; i < 1; ++i)
 		//{
 		//	auto skel = CreateSPtr<SkeletonKing>();
 		//	skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
@@ -98,6 +59,9 @@ namespace revive
 		//}
 
 		Input::SetInputMode(eInputMode::kGameOnly);
+
+		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
+
 		return true;
 	}
 
@@ -213,7 +177,6 @@ namespace revive
 
 	void GamePlayLevel::Shutdown()
 	{
-		LOG_INFO("게임 플레이레벨 셧다운");
 		Input::SetInputMode(eInputMode::kUIOnly);
 	}
 
@@ -293,60 +256,18 @@ namespace revive
 			}
 			break;
 		}
-		case HashCode("match"):
-		{
-			auto msg = std::static_pointer_cast<MatchingMessageOKEventInfo>(message);
-			break;
-		}
-		case HashCode("sign in"):
-		{
-			auto msg = std::static_pointer_cast<SignInMessageOkEventInfo>(message);
-			m_is_succeed_login = true;
-			break;
-		}
 		case HashCode("win"):
 		{
-			auto msg = std::static_pointer_cast<GameWinEventInfo>(message);
-			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kWin), nullptr);
+			auto game_end_layer = CreateSPtr<GameEndUILayer>(eGameResult::kWin);
+			RegisterUILayer(game_end_layer);
+			Input::SetInputMode(eInputMode::kUIOnly);
 			break;
 		}
 		case HashCode("defeat"):
 		{
-			auto msg = std::static_pointer_cast<GameDefeatEventInfo>(message);
-			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kDefeat), nullptr);
-			break;
-		}
-		case HashCode("login fail"):
-		{
-			auto msg = std::static_pointer_cast<LoginFailMessageEventInfo>(message);
-			auto reason = msg->GetLoginFailType();
-			
-			switch (reason)
-			{
-			case eLoginFailType::kExistID:
-				LOG_INFO("해당 아이디 존재");
-				break;
-
-			case eLoginFailType::kAlreadyLogin:
-				LOG_INFO("이미 접속중");
-				break;
-			case eLoginFailType::kDBError:
-				LOG_INFO("DBError");
-				break;
-
-			case eLoginFailType::kUserFull:
-				LOG_INFO("사용자 Full");
-				break;
-
-			case eLoginFailType::kInvalidPW:
-				LOG_INFO("비번틀림");
-				break;
-
-			case eLoginFailType::kInvalidID:
-				LOG_INFO("아이디없음");
-				break;
-			}
-
+			auto game_end_layer = CreateSPtr<GameEndUILayer>(eGameResult::kDefeat);
+			RegisterUILayer(game_end_layer);
+			Input::SetInputMode(eInputMode::kUIOnly);
 			break;
 		}
 			

@@ -3,20 +3,21 @@
 #include <client/core/entry_point.h>
 
 #include <client/asset/mesh/mesh_loader.h>
+
 #include "object/level/game_play_level.h"
 #include "object/level/lobby_level.h"
-#include"server/network.h"
-#include"revive_server/send/revive_send_manager.h"
-#include"revive_server/packet/revive_packet_manager.h"
-using namespace client_fw;
 
-
-#include"server/send_manager.h"
-#include"server/packet_manager.h"
+#include "server/network.h"
+#include "revive_server/send/revive_send_manager.h"
+#include "revive_server/packet/revive_packet_manager.h"
+#include "server/send_manager.h"
+#include "server/packet_manager.h"
 
 namespace revive
 {
-	class Revive : public client_fw::Application
+	using namespace client_fw;
+
+	class Revive : public Application
 	{
 	public:
 		Revive() : Application(L"Revive")
@@ -30,22 +31,13 @@ namespace revive
 			
 			if (result)
 			{
-				LOG_INFO("Welcome to Revive Application");
 				Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
 				Network::GetInst()->CreateWorker();
 
-				RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
-					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
-				RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
-					[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
-				
-				RegisterPressedEvent("open lobby level", { {eKey::k1} },
-					[this]()->bool {
-					OpenLevel( CreateSPtr<GamePlayLevel>() );
-					return true; 
-				});
+				OpenLevel(CreateSPtr<LobbyLevel>());
+
 			/*	RegisterPressedEvent("open game play level", { {eKey::k2} },
-					[this]()->bool { OpenLevel(CreateSPtr<GamePlayLevel>()); return true; });*/
+					[this]()->bool {  return true; });*/
 			}
 
 			return result;
@@ -60,7 +52,6 @@ namespace revive
 		{
 			Application::Shutdown();
 			//Network::DestroyInst();
-			LOG_INFO("Good Bye");
 		}
 
 		virtual ~Revive()

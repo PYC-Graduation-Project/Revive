@@ -50,6 +50,17 @@ namespace client_fw
 		m_text_texture->SetSize(size);
 	}
 
+	std::string TextUI::GetText() const
+	{
+		return utf8_encode(m_text_info->GetText());
+	}
+
+	void TextUI::SetText(const std::string& text)
+	{
+		m_text_info->SetText(utf8_decode(text));
+		m_is_need_update = true;
+	}
+
 	void TextUI::SetText(const std::wstring& text)
 	{
 		m_text_info->SetText(text);

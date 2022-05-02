@@ -15,11 +15,30 @@ namespace client_fw
 	{
 	}
 
+	void UserInterface::SetPosition(const Vec2& position)
+	{
+		m_position = position;
+		m_pivot_position = m_position - m_pivot * m_size;
+	}
+
+	void UserInterface::SetSize(const Vec2& size)
+	{
+		m_size = size;
+		SetPosition(GetPosition());
+	}
+
+	void UserInterface::SetPivot(const Vec2& pivot)
+	{
+		m_pivot.x = std::clamp(pivot.x, 0.0f, 1.0f);
+		m_pivot.y = std::clamp(pivot.y, 0.0f, 1.0f);
+		SetPosition(GetPosition());
+	}
+
 	bool UserInterface::IsHovered() const
 	{
 		Vec2 pos = Vec2(static_cast<float>(Input::GetMousePosition().x),
 			static_cast<float>(Input::GetMousePosition().y));
-		return (pos >= m_position && pos <= m_position + m_size);
+		return (pos >= m_pivot_position && pos <= m_pivot_position + m_size);
 	}
 
 	void UserInterface::SetVisibleTexture(const SPtr<UITexture>& texture, UINT index)

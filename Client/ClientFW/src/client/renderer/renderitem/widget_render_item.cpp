@@ -120,7 +120,7 @@ namespace client_fw
 								LOG_WARN("Could not find ui texture : {0}", ui->GetName());
 							else
 							{
-								Vec3 new_position = position + right * lt.x + up * lt.y;
+								Vec3 new_position = position + right * lt.x - up * lt.y;
 
 								INT resource_index = -1;
 

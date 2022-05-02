@@ -20,7 +20,7 @@ namespace revive
 		m_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 		m_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		m_text->SetFontSize(20);
-		m_text->SetPosition(Vec2(0.0f, 50.0f));
+		m_text->SetPosition(Vec2(0.0f, 40.0f));
 		
 		const auto& owner = m_enemy.lock();
 		if (owner != nullptr)
@@ -46,7 +46,7 @@ namespace revive
 		RegisterUserInterface(m_hp_bar);
 		m_hp_bar->SetBackgroundTexture("../Contents/hp_background.dds");
 		m_hp_bar->SetFillTexture("../Contents/hp_bar.dds");
-		m_hp_bar->SetSize(Vec2(256.f, 32.f));
+		m_hp_bar->SetSize(Vec2(200.f, 32.f));
 		m_hp_bar->SetPosition(Vec2(0.0, 0.0f));
 		m_hp_bar->SetPercent(1.0f);
 
