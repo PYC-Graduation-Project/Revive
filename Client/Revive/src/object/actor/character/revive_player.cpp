@@ -55,11 +55,10 @@ namespace revive
 		m_skeletal_mesh_component->AddNotify("First Attack", "attack_left", 17,
 			[this]() {
 			SetAnimation("attack_right",false); 
-			SetAnimationSpeed(1.0f);
 			m_is_fire = false;
 			 });
 		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_right", 17,
-			[this]() {m_is_attacking = false; m_is_fire = false; /*LOG_INFO(m_is_attacking);*/ });
+			[this]() {m_is_attacking = false; m_is_fire = false;  });
 
 		//총알 발사(스폰) 타이밍
 		m_skeletal_mesh_component->AddNotify("First Fire", "attack_left", 9,
@@ -227,6 +226,11 @@ namespace revive
 	const float DefaultPlayer::GetVelocity() const
 	{
 		return m_character_movement_component->GetVelocity().Length();
+	}
+
+	void DefaultPlayer::GetAnimationSpeed() const
+	{
+		m_skeletal_mesh_component->GetAnimationSpeed();
 	}
 
 	void DefaultPlayer::SetAnimation(const std::string& animation_name, bool looping)

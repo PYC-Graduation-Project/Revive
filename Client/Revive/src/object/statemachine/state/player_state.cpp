@@ -74,7 +74,7 @@ namespace revive
 		//LOG_INFO(player->GetName() + "Attack State");
 		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimation("attack_left", false);
-		player->SetAnimationSpeed(1.875f);
+		player->SetAnimationSpeed(1.1f);
 		//player->Attack();
 	}
 

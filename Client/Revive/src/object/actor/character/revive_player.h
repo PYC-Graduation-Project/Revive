@@ -73,6 +73,7 @@ namespace revive
 		const bool GetIsAttacking() const { return m_is_attacking; }
 		const bool GetIsHitting() const { return m_is_hitting; }
 		const bool GetIsDying() const { return m_is_dying; }
+		void GetAnimationSpeed() const;
 		const int GetNetworkID()const { return m_network_id; }
 		void SetIsDying(bool value) { m_is_dying = value; }
 		void SetAnimation(const std::string& animation_name, bool looping);
@@ -105,7 +106,6 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	private:
-
 		bool m_is_cheating = false;
 
 		void AddMovementInput(const Vec3& direction, float scale) override;
