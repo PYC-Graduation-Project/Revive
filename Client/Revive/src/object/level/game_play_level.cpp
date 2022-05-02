@@ -316,6 +316,40 @@ namespace revive
 			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GameEndLevel>(eGameResult::kDefeat), nullptr);
 			break;
 		}
+		case HashCode("login fail"):
+		{
+			auto msg = std::static_pointer_cast<LoginFailMessageEventInfo>(message);
+			auto reason = msg->GetLoginFailType();
+			
+			switch (reason)
+			{
+			case eLoginFailType::kExistID:
+				LOG_INFO("해당 아이디 존재");
+				break;
+
+			case eLoginFailType::kAlreadyLogin:
+				LOG_INFO("이미 접속중");
+				break;
+			case eLoginFailType::kDBError:
+				LOG_INFO("DBError");
+				break;
+
+			case eLoginFailType::kUserFull:
+				LOG_INFO("사용자 Full");
+				break;
+
+			case eLoginFailType::kInvalidPW:
+				LOG_INFO("비번틀림");
+				break;
+
+			case eLoginFailType::kInvalidID:
+				LOG_INFO("아이디없음");
+				break;
+			}
+
+			break;
+		}
+			
 		default:
 			break;
 		}

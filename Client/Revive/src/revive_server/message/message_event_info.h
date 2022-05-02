@@ -3,6 +3,7 @@
 #include"server/protocol.h"
 #include<mutex>
 enum class NW_OBJ_TYPE;
+enum class eLoginFailType;
 class NetworkMoveObj;
 namespace revive
 {
@@ -40,6 +41,16 @@ namespace revive
     {
     public:
         SignInMessageOkEventInfo(UINT event_id);
+    };
+
+    class LoginFailMessageEventInfo final :public MessageEventInfo
+    {
+    public:
+        LoginFailMessageEventInfo(UINT event_id, eLoginFailType login_fail_type);
+    private:
+        eLoginFailType m_login_fail_type;
+    public:
+        eLoginFailType GetLoginFailType() { return m_login_fail_type; }
     };
 
     class SignUpMessageEventInfo final :public MessageEventInfo

@@ -10,6 +10,20 @@ enum class NW_OBJ_TYPE
     OT_NPC_SKULL,
     OT_NPC_SKULLKING
 };
+
+//DBError : DB에러
+//UserFull : 사용자 가득참
+//AlreadyLogin : 현재 접속중인 계정
+//InvalidPW : 비번이 틀림
+//InvalidID :  없는 아이디
+//ExistID : 이미 있는 아이디
+enum class eLoginFailType
+{
+    kDBError,kUserFull,
+    kAlreadyLogin,kInvalidPW,
+    kInvalidID,kExistID,
+};
+
 class NetworkMoveObj :
     public NetworkObj
 {
