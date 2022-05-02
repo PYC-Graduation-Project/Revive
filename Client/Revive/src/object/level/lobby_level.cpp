@@ -26,7 +26,12 @@ namespace revive
 		m_lobby_ui_layer = CreateSPtr<LobbyUILayer>();
 		RegisterUILayer(m_lobby_ui_layer);
 
-		Input::SetInputMode(eInputMode::kUIOnly);
+		Input::SetInputMode(eInputMode::kUIAndGame);
+
+//#ifdef _DEBUG
+		RegisterPressedEvent("develop mode", { {eKey::kJ, {	eAdditionalKey::kControl, eAdditionalKey::kShift }} },
+			[this]()->bool { m_lobby_ui_layer->EnableDevelopMode(); return true; });
+//#endif
 
 		return true;
 	}

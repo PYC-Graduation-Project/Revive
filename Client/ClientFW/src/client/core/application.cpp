@@ -228,7 +228,7 @@ namespace client_fw
 		int posX = (GetSystemMetrics(SM_CXSCREEN) == m_window->width) ? 0 : (GetSystemMetrics(SM_CXSCREEN) - m_window->width) / 2;
 		int posY = (GetSystemMetrics(SM_CYSCREEN) == m_window->height) ? 0 : (GetSystemMetrics(SM_CYSCREEN) - m_window->height) / 2;
 
-		DWORD dw_style = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
+		DWORD dw_style = WS_OVERLAPPED | WS_MINIMIZEBOX | /*WS_SYSMENU |*/ WS_BORDER;
 
 		m_window->hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_app_name.c_str(), m_app_name.c_str(),
 			/*WS_OVERLAPPEDWINDOW*/dw_style, posX, posY, m_window->width, m_window->height, NULL, NULL, m_window->hInstance, NULL);
@@ -238,12 +238,10 @@ namespace client_fw
 		
 		//SetWindowLong(m_window->hWnd, GWL_STYLE, 0);
 
-#ifndef _DEBUG
-#ifdef __USE_CPU_TIME__
+#ifdef _DEBUG
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 #else
-		//ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif
+		ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);

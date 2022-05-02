@@ -35,9 +35,6 @@ namespace revive
 				Network::GetInst()->CreateWorker();
 
 				OpenLevel(CreateSPtr<LobbyLevel>());
-
-			/*	RegisterPressedEvent("open game play level", { {eKey::k2} },
-					[this]()->bool {  return true; });*/
 			}
 
 			return result;

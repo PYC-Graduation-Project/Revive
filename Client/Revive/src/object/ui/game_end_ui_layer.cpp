@@ -11,9 +11,8 @@
 
 namespace revive
 {
-	GameEndUILayer::GameEndUILayer(eGameResult game_result)
+	GameEndUILayer::GameEndUILayer()
 		: UserInterfaceLayer("game end ui layer")
-		, m_game_result(game_result)
 	{
 		m_end_game_image = CreateSPtr<ImageUI>("end game image", Vec2(400.0f, 400.0f));
 		m_to_lobby_button = CreateSPtr<ButtonUI>("to lobby button");
@@ -24,24 +23,47 @@ namespace revive
 		Vec2 window_size = Render::GetWindowSize();
 		bool ret = true;
 
-		if (m_game_result == eGameResult::kWin)
+		switch (m_game_state)
+		{
+		case eGameState::kWin:
 			m_end_game_image->SetTexture("Contents/ui/win_menu.dds");
-		else
+			m_lobby_button_enable_time = 3.0f;
+			break;
+		case eGameState::kDefeat:
 			m_end_game_image->SetTexture("Contents/ui/defeat_menu.dds");
+			m_lobby_button_enable_time = 3.0f;
+			break;
+		case eGameState::kRun:
+			m_end_game_image->SetTexture("Contents/ui/exit_game_menu.png");
+			m_lobby_button_enable_time = 0.0f;
+			break;
+		default:
+			break;
+		}
 
 		m_end_game_image->SetPosition(window_size * 0.5f);
 		ret &= RegisterUserInterface(m_end_game_image);
 
-		m_to_lobby_button->SetNormalTexture("Contents/ui/ok_normal.dds");
-		m_to_lobby_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
-		m_to_lobby_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
+		m_to_lobby_button->SetNormalTexture("Contents/ui/to_lobby_normal.dds");
+		m_to_lobby_button->SetHoveredTexture("Contents/ui/to_lobby_hovered.dds");
+		m_to_lobby_button->SetPressedTexture("Contents/ui/to_lobby_pressed.dds");
 		m_to_lobby_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
 		m_to_lobby_button->SetSize(Vec2(300.0f, 120.0f));
 		m_to_lobby_button->OnClicked([this]() {
 			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<LobbyLevel>(), nullptr);
 			});
-		m_to_lobby_button->SetVisible(false);
-		m_to_lobby_button->SetActivate(false);
+
+		switch (m_game_state)
+		{
+		case eGameState::kWin:
+		case eGameState::kDefeat:
+			m_to_lobby_button->SetVisible(false);
+			m_to_lobby_button->SetActivate(false);
+			break;
+		default:
+			break;
+		}
+
 		ret &= RegisterUserInterface(m_to_lobby_button);
 
 		return ret;

@@ -7,6 +7,7 @@
 #include <client/event/packetevent/packet_helper.h>
 #include <client/object/level/core/level_manager.h>
 #include <client/object/level/core/level_loader.h>
+#include <client/core/application.h>
 
 #include "revive_server/message/message_event_info.h"
 #include "object/ui/lobby_ui_layer.h"
@@ -39,6 +40,9 @@ namespace revive
 		m_matching_time_text = CreateSPtr<TextUI>("matching time text", Vec2(350.0f, 50.0f), L"¸ÅÄª ½Ã°£ : 0 : 0");
 		m_matching_success_image = CreateSPtr<ImageUI>("matching success iamge", Vec2(400.0f, 400.0f));
 		m_game_start_button = CreateSPtr<ButtonUI>("game start button");
+
+		m_close_app_button = CreateSPtr<ButtonUI>("close app button");
+		m_develop_mode_button = CreateSPtr<ButtonUI>("develop mode button");
 	}
 
 	bool LobbyUILayer::Initialize()
@@ -48,6 +52,7 @@ namespace revive
 		bool ret = GenerateMatchingUI(window_size);
 		ret &= GenerateSignInMenuUI(window_size);
 		ret &= GenerateMatchingMenuUI(window_size);
+		ret &= GenerateOptionUI(window_size);
 
 		return ret;
 	}
@@ -266,6 +271,35 @@ namespace revive
 		return ret;
 	}
 
+	bool LobbyUILayer::GenerateOptionUI(const Vec2& window_size)
+	{
+		bool ret = true;
+
+		m_close_app_button->SetNormalTexture("Contents/ui/close_normal.png");
+		m_close_app_button->SetHoveredTexture("Contents/ui/close_hovered.png");
+		m_close_app_button->SetPressedTexture("Contents/ui/close_pressed.png");
+		m_close_app_button->SetPosition(Vec2(60.0f, window_size.y) - Vec2(0.0f, 60.0f));
+		m_close_app_button->SetSize(Vec2(100.0f, 100.0f));
+		m_close_app_button->OnClicked([this]() {
+			Application::GetApplication()->SetAppState(eAppState::kDead);
+			});
+		ret &= RegisterUserInterface(m_close_app_button);
+
+		m_develop_mode_button->SetNormalTexture("Contents/ui/develop_normal.png");
+		m_develop_mode_button->SetHoveredTexture("Contents/ui/develop_hovered.png");
+		m_develop_mode_button->SetPressedTexture("Contents/ui/develop_pressed.png");
+		m_develop_mode_button->SetPosition(Vec2(60.0f, window_size.y) - Vec2(0.0f, 180));
+		m_develop_mode_button->SetSize(Vec2(100.0f, 100.0f));
+		m_develop_mode_button->SetActivate(false);
+		m_develop_mode_button->SetVisible(false);
+		m_develop_mode_button->OnClicked([this]() {
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
+			});
+		ret &= RegisterUserInterface(m_develop_mode_button);
+
+		return ret;
+	}
+
 
 	void LobbyUILayer::SetPopUpState(eLobbyPopupMenu state, bool is_pop_up)
 	{
@@ -357,5 +391,11 @@ namespace revive
 	{
 		EnablePopUpState(eLobbyPopupMenu::kGameStart);
 		m_is_wait_matching = false;
+	}
+
+	void LobbyUILayer::EnableDevelopMode()
+	{
+		m_develop_mode_button->SetActivate(true);
+		m_develop_mode_button->SetVisible(true);
 	}
 }

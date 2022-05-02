@@ -40,6 +40,7 @@ namespace revive
 		bool GenerateMatchingUI(const Vec2& window_size);
 		bool GenerateSignInMenuUI(const Vec2& window_size);
 		bool GenerateMatchingMenuUI(const Vec2& window_size);
+		bool GenerateOptionUI(const Vec2& window_size);
 
 	private:
 		SPtr<TextBoxUI> m_id_text_box;
@@ -65,6 +66,9 @@ namespace revive
 		SPtr<ImageUI> m_matching_success_image;
 		SPtr<ButtonUI> m_game_start_button;
 
+		SPtr<ButtonUI> m_close_app_button;
+		SPtr<ButtonUI> m_develop_mode_button;
+
 	private:
 		std::string m_id;
 		std::string m_pw;
@@ -83,6 +87,7 @@ namespace revive
 		void FailedLogin(eLoginFailState state);
 		void SucceededLogin();
 		void SucceededMatching();
+		void EnableDevelopMode();
 	};
 }
 

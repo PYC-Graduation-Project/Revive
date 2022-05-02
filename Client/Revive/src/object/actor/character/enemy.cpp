@@ -54,6 +54,7 @@ namespace revive
 		RegisterReceiveMessage(HashCode("move object"));
 
 		m_ui_layer->SetEnemy(std::static_pointer_cast<Enemy>(shared_from_this()));
+		m_widget_component->SetSize(Vec2(150.0f, 32.0f));
 		ret &= AttachComponent(m_widget_component);
 
 		return ret;

@@ -32,8 +32,8 @@ namespace client_fw
 		eInputMode mode = Input::GetInputMode();
 		if (mode != eInputMode::kInActive)
 		{
-			m_input_event_manager->ExecuteEvent();
 			m_ui_event_manager->ExecuteEvent();
+			m_input_event_manager->ExecuteEvent();
 		}
 		m_message_event_manager->ExecuteEvent();
 		m_input_manager->Update();

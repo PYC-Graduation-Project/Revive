@@ -5,6 +5,8 @@ namespace revive
 {
 	using namespace client_fw;
 
+	class GameEndUILayer;
+
 	class GamePlayLevel final : public Level
 	{
 	public:
@@ -32,5 +34,6 @@ namespace revive
 
 	private:
 		bool m_is_succeed_login = false;
+		SPtr<GameEndUILayer> m_game_end_ui_layer;
 	};
 }

@@ -51,7 +51,7 @@ namespace revive
 		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
 
-		m_widget_component->SetLocalPosition(Vec3(0.0f, 250.0f, 0.0f));
+		m_widget_component->SetLocalPosition(Vec3(0.0f, 400.0f, 0.0f));
 
 		return ret;
 	}

@@ -37,7 +37,7 @@ namespace client_fw
 				++ui;
 				break;
 			case eUILayerState::kDead:
-				(*ui)->Shutdown();
+				(*ui)->ShutdownUILayer();
 				ui = m_ui_layers.erase(ui);
 				break;
 			default:

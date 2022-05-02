@@ -19,10 +19,13 @@ namespace client_fw
 
 	void UserInterfaceLayer::ShutdownUILayer()
 	{
+		m_is_initialized = false;
+		m_num_of_visible_texture = 0;
 		Shutdown();
 
 		for (const auto& ui : m_user_interfaces)
 			ui->Shutdown();
+		m_user_interfaces.clear();
 	}
 
 	void UserInterfaceLayer::UpdateUILayer(float delta_time)

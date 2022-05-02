@@ -38,6 +38,7 @@ namespace revive
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
+		
 	}
 
 	bool GamePlayLevel::Initialize()
@@ -47,18 +48,39 @@ namespace revive
 		{
 			SpawnActor(actor);
 		}
-		
 
 		GenerateVisualActors();
 
-		//for (int i = 0; i < 1; ++i)
-		//{
-		//	auto skel = CreateSPtr<SkeletonKing>();
-		//	skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
-		//	SpawnActor(skel);
-		//}
+		/*for (int i = 0; i < 1; ++i)
+		{
+			auto skel = CreateSPtr<SkeletonKing>();
+			skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
+			SpawnActor(skel);
+			auto soldier = CreateSPtr<SkeletonSoldier>();
+			soldier->SetNetworkPosition(Vec3(2400.0f, 300.0f, 4000.0f + i * 100.0f));
+			SpawnActor(soldier);
+		}*/
 
 		Input::SetInputMode(eInputMode::kGameOnly);
+
+		RegisterPressedEvent("game menu", { { eKey::kEscape } },
+			[this]()->bool {
+				if (Input::GetInputMode() == eInputMode::kGameOnly)
+				{
+					m_game_end_ui_layer = CreateSPtr<GameEndUILayer>();
+					m_game_end_ui_layer->SetGameState(eGameState::kRun);
+					RegisterUILayer(m_game_end_ui_layer); 
+					Input::SetInputMode(eInputMode::kUIAndGame);
+					return true;
+				}
+				else if(Input::GetInputMode() == eInputMode::kUIAndGame)
+				{
+					m_game_end_ui_layer->SetUILayerState(eUILayerState::kDead);
+					Input::SetInputMode(eInputMode::kGameOnly);
+					return true;
+				}
+				return false;
+			});
 
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 
@@ -258,15 +280,17 @@ namespace revive
 		}
 		case HashCode("win"):
 		{
-			auto game_end_layer = CreateSPtr<GameEndUILayer>(eGameResult::kWin);
-			RegisterUILayer(game_end_layer);
+			m_game_end_ui_layer = CreateSPtr<GameEndUILayer>();
+			m_game_end_ui_layer->SetGameState(eGameState::kWin);
+			RegisterUILayer(m_game_end_ui_layer);
 			Input::SetInputMode(eInputMode::kUIOnly);
 			break;
 		}
 		case HashCode("defeat"):
 		{
-			auto game_end_layer = CreateSPtr<GameEndUILayer>(eGameResult::kDefeat);
-			RegisterUILayer(game_end_layer);
+			m_game_end_ui_layer = CreateSPtr<GameEndUILayer>();
+			m_game_end_ui_layer->SetGameState(eGameState::kDefeat);
+			RegisterUILayer(m_game_end_ui_layer);
 			Input::SetInputMode(eInputMode::kUIOnly);
 			break;
 		}

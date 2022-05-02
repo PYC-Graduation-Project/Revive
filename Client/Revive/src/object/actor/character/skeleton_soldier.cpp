@@ -35,7 +35,7 @@ namespace revive
 
 		m_hp = 10;
 		//SetPosition(Vec3{ 2400.0f,300.0f,3500.0f });
-		SetScale(0.5f);
+		SetScale(0.7f);
 
 		//Test¿ë
 		if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kR} },
@@ -44,7 +44,7 @@ namespace revive
 			, true, eInputOwnerType::kActor))
 			RegisterInputEvent(m_name + " Test");
 		
-		m_widget_component->SetLocalPosition(Vec3(0.0f, 150.0f, 0.0f));
+		m_widget_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
 
 		return ret;
 	}

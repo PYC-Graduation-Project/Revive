@@ -11,27 +11,32 @@ namespace revive
 {
 	using namespace client_fw;
 
-	enum class eGameResult
+	enum class eGameState
 	{
 		kWin,
-		kDefeat
+		kDefeat,
+		kRun
 	};
 
 	class GameEndUILayer : public UserInterfaceLayer
 	{
 	public:
-		GameEndUILayer(eGameResult game_result);
+		GameEndUILayer();
 		virtual ~GameEndUILayer() = default;
 
 		virtual bool Initialize() override;
 		virtual void Update(float delta_time) override;
 
 	private:
-		eGameResult m_game_result;
+		eGameState m_game_state;
 		SPtr<ImageUI> m_end_game_image;
 		SPtr<ButtonUI> m_to_lobby_button;
 
 		float m_lobby_button_enable_time = 3.0f;
+
+	public:
+		eGameState GetGameState() const { return m_game_state; }
+		void SetGameState(eGameState game_state) { m_game_state = game_state; }
 	};
 }
 

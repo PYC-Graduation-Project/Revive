@@ -56,7 +56,7 @@ namespace client_fw
 			{
 				for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
 				{
-					const Vec2& lt = ui->GetPosition();
+					const Vec2& lt = ui->GetPivotPosition();
 					if (ui->IsVisible() &&
 						((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
 					{
