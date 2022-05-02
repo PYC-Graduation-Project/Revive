@@ -66,7 +66,6 @@ namespace revive
 	void SkeletonKing::Shutdown()
 	{
 		Enemy::Shutdown();
-		m_weapon->SetActorState(eActorState::kDead);
 	}
 
 	bool SkeletonKing::SetCollisionComponent()

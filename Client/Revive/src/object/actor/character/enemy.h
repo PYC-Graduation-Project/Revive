@@ -15,6 +15,7 @@ namespace revive
 {
 	using namespace client_fw;
 
+	class Weapon;
 	class EnemyInfoUILayer;
 
 	class Enemy : public Actor
@@ -59,6 +60,7 @@ namespace revive
 
 		SPtr<SphereComponent> m_agro_sphere; 
 		SPtr<BoxComponent> m_hit_box;
+		SPtr<Weapon> m_weapon;
 
 		void FixYPosition();
 		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
