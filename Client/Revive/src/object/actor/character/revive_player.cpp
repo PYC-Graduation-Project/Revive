@@ -49,21 +49,21 @@ namespace revive
 		bool ret = m_skeletal_mesh_component->SetMesh(m_mesh_path);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
-		m_skeletal_mesh_component->SetLocalScale(0.01f);
-
+		m_skeletal_mesh_component->SetLocalScale(100.f);
+		
 		//공격2 전환 및 종료
-		m_skeletal_mesh_component->AddNotify("First Attack", "attack_left", 17,
+		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
 			[this]() {
-			SetAnimation("attack_right",false); 
+			SetAnimation("attack_second",false); 
 			m_is_fire = false;
 			 });
-		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_right", 17,
+		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_second", 17,
 			[this]() {m_is_attacking = false; m_is_fire = false;  });
 
 		//총알 발사(스폰) 타이밍
-		m_skeletal_mesh_component->AddNotify("First Fire", "attack_left", 9,
+		m_skeletal_mesh_component->AddNotify("First Fire", "attack_first", 9,
 			[this]() {	Attack(); /*LOG_INFO(m_is_attacking);*/ });
-		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_right", 10,
+		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_second", 10,
 			[this]() {  Attack(); /*LOG_INFO(m_is_attacking);*/ });
 
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,

@@ -446,8 +446,6 @@ namespace client_fw
 		index_info->CopyData(indices.data(), index_count);
 
 		BOrientedBox box = BOrientedBox(std::move(positions));
-		const auto& extents = box.GetExtents();
-		box.SetExtents(extents * 100);
 		s_mesh->SetOrientBox(box);
 	}
 

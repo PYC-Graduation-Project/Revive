@@ -19,7 +19,7 @@ namespace client_fw
 		Mat4 m_world;
 		
 	public:
-
+		//현재 아래 3변수는 사용하지않음
 		Vec3 m_scale;
 		Vec3 m_translation;
 		Vec3 m_rotation;
