@@ -54,10 +54,10 @@ namespace revive
 		/*for (int i = 0; i < 1; ++i)
 		{
 			auto skel = CreateSPtr<SkeletonKing>();
-			skel->SetNetworkPosition(Vec3(2400.0f, 300.0f, 3600.0f + i * 100.0f));
+			skel->SetNetworkPosition(Vec3(2300.0f, 300.0f, 3600.0f + i * 100.0f));
 			SpawnActor(skel);
 			auto soldier = CreateSPtr<SkeletonSoldier>();
-			soldier->SetNetworkPosition(Vec3(2400.0f, 300.0f, 4000.0f + i * 100.0f));
+			soldier->SetNetworkPosition(Vec3(2500.0f, 300.0f, 4000.0f + i * 100.0f));
 			SpawnActor(soldier);
 		}*/
 

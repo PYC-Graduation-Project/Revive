@@ -129,7 +129,7 @@ namespace client_fw
 				Render();
 #ifdef __USE_RENDER_CPU_TIME__
 				r_end = clock();
-				LOG_INFO("Render Cpu Time : {0}", float(r_end - r_start));
+				std::cout << "Render Cpu Time : " << float(r_end - r_start) << std::endl;
 #endif
 			}
 		}

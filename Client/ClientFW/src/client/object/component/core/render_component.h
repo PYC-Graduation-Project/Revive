@@ -24,6 +24,8 @@ namespace client_fw
 
 	public:
 		virtual void UpdateLevelOfDetail(const Vec3& eye) {}
+		virtual void UpdateLevelOfDetailForShadow(const Vec3& eye) {}
+		virtual void ResetLevelOfDetailForShadow() {}
 
 	protected:
 		virtual bool RegisterToRenderSystem();

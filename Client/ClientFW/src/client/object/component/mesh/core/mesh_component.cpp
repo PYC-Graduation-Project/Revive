@@ -48,6 +48,36 @@ namespace client_fw
 		}
 	}
 
+	void MeshComponent::UpdateLevelOfDetailForShadow(const Vec3& eye)
+	{
+		if (m_level_of_detail_for_shadow == m_mesh->GetLODCount())
+		{
+			float distance = vec3::Length(eye - GetWorldPosition());
+			float size = GetMaxExtent() / distance;
+
+			UINT lod = 0;
+			if (size > 0.275f)
+				lod = 0;
+			else if (size <= 0.275f && size > 0.0875f)
+				lod = 1;
+			else if (size <= 0.0875f && size > 0.0175f)
+				lod = 2;
+			else
+				lod = 3;
+
+			m_level_of_detail = min(lod, m_mesh->GetLODCount() - 1);
+		}
+		else
+		{
+			m_level_of_detail = m_level_of_detail_for_shadow;
+		}
+	}
+
+	void MeshComponent::ResetLevelOfDetailForShadow()
+	{
+		m_level_of_detail_for_shadow = m_mesh->GetLODCount();
+	}
+
 	void MeshComponent::UpdateOrientedBox()
 	{
 		m_oriented_box->Transform(m_mesh->GetOrientedBox(), GetWorldMatrix());
@@ -65,6 +95,12 @@ namespace client_fw
 	void MeshComponent::SetLevelOfDetail(UINT lod)
 	{
 		m_level_of_detail = min(lod, m_mesh->GetLODCount() - 1);
-		m_mesh->AddLODMeshCount(m_level_of_detail);
+		m_level_of_detail_for_shadow = min(m_level_of_detail_for_shadow, m_level_of_detail);
+	}
+
+	void MeshComponent::SetVisiblity(bool value)
+	{
+		RenderComponent::SetVisiblity(value);
+		m_mesh->SetVisible(value);
 	}
 }
