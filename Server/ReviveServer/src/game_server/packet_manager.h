@@ -78,6 +78,7 @@ private:
 
 	bool CheckPlayerBullet(int c_id, const Vector3& position, const Vector3& forward);
 	void CallStateMachine(int enemy_id, int room_id,const Vector3& base_pos);
+	bool CheckMoveOK(int enemy_id,int room_id);
 
 	//나중에 개발
 	void ProcessSignIn (int c_id ,unsigned char *p);

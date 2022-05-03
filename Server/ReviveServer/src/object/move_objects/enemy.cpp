@@ -35,7 +35,7 @@ void Enemy::DoMove(const Vector3& target_pos)
 	Vector3& nlook = m_look;
 	Vector3& curr_pos = m_pos;
 	m_prev_pos = m_pos;
-	nlook = Vector3{ target_pos - curr_pos };
+	nlook = target_pos;//Vector3{ target_pos - curr_pos };
 	Vector3 move_vec = nlook.Normalrize();
 	Vector3 npos = curr_pos + (move_vec * MAX_SPEED);
 	m_pos = npos;
