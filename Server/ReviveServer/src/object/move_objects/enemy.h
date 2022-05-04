@@ -32,10 +32,13 @@ public:
     //Vector3& GetPrevLookVec() { return m_prev_look; }
     //void SetPrevLookVec(const Vector3& val) { m_prev_look=val; }
     Vector3& GetPrevPos() { return m_prev_pos; }
+    Vector3& GetPrevTestPos() { return m_prev_test_pos; }
     BoxCollision& GetCollision() { return m_collision; }
     BoxCollision& GetPrevCollision() { return m_prev_collision; }
     void SetCollision(const BoxCollision& val) { m_collision = val; }
     void SetPrevCollision(const BoxCollision& val) { m_prev_collision = val; }
+    void SetPrevTestPos(const Vector3& val) { m_prev_test_pos = val; }
+
 
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
@@ -53,7 +56,7 @@ public:
     std::atomic_bool in_use;
     std::atomic_bool in_game=false;
     std::mutex lua_lock;
-    Vector3 m_target_pos{ 0.0f,0.0f,0.0f };
+    Vector3 m_prev_test_pos{ 0.0f,0.0f,0.0f };
     std::chrono::system_clock::time_point	m_move_time;
 private:
     std::vector<Vector3>m_load;

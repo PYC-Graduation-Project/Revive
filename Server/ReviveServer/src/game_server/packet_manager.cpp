@@ -334,12 +334,12 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				{
 					enemy->DoMove(move_vec);
 					if (true == CheckMoveOK(enemy_id, room_id))
-						nearlist.try_emplace(enemy->GetPos().Dist2d(target_pos)-enemy->GetPos().Dist2d(enemy->m_target_pos), move_vec);
+						nearlist.try_emplace(enemy->GetPos().Dist2d(target_pos)-enemy->GetPos().Dist2d(enemy->GetPrevTestPos()), move_vec);
 					enemy->SetToPrevPos();
 				}
 				if (nearlist.size() != 0)
 				{
-					enemy->m_target_pos = enemy->GetPrevPos();
+					enemy->SetPrevTestPos(enemy->GetPrevPos());
 					enemy->DoMove(nearlist.begin()->second);
 
 					//for (auto pl : room->GetObjList())
@@ -1183,6 +1183,7 @@ void PacketManager::StartGame(int room_id)
 			continue;
 		}
 		e = MoveObjManager::GetInst()->GetEnemy(obj_list[i]);
+		const Vector3&base_pos=m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
 		if (i<room->GetMaxUser() * SORDIER_PER_USER)
 		{
 			
@@ -1191,7 +1192,8 @@ void PacketManager::StartGame(int room_id)
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID(),base_pos);
 			e->SetCollision(BoxCollision(pos, SOLDIER_LOCAL_POS, SOLDIER_EXTENT, SOLDIER_SCALE));
 			e->SetPrevCollision(e->GetCollision());
-			e->m_target_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
+			e->SetPrevTestPos(Vector3{ base_pos.x,e->GetPos().y,e->GetPos().z });
+			
 		}
 		else
 		{
@@ -1200,7 +1202,7 @@ void PacketManager::StartGame(int room_id)
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID(),base_pos);
 			e->SetCollision(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE));
 			e->SetPrevCollision(e->GetCollision());
-			e->m_target_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
+			e->SetPrevTestPos(Vector3{ base_pos.x,e->GetPos().y,e->GetPos().z });
 		}
 	}
 
