@@ -3,6 +3,7 @@
 namespace client_fw
 {
 	class VisualOctree;
+	struct VisualTreeNode;
 	class CollisionOctree;
 	class SceneComponent;
 	class RenderComponent;
@@ -39,6 +40,7 @@ namespace client_fw
 		VisualOctreeManager& operator=(const VisualOctreeManager&) = delete;
 
 		void PrepareUpdate();
+		void ResetLevelOfDetailForShadow(const SPtr<VisualTreeNode>& node);
 
 		void RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
 		void UnregisterOctrees();

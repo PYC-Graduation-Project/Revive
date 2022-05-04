@@ -1,4 +1,5 @@
 #include <include/client_core.h>
+#include <client/object/level/core/level_manager.h>
 #include <client/object/component/core/scene_component.h>
 #include <client/object/component/util/simple_movement_component.h>
 #include <client/object/component/mesh/static_mesh_component.h>
@@ -15,7 +16,7 @@
 
 #include <client/object/component/light/spot_light_component.h>
 
-
+#include "object/level/sharedinfo/revive_level_shared_info.h"
 #include "object/actor/weapon/pistol.h"
 #include "object/actor/character/enemy.h"
 #include "object/actor/character/revive_player.h"
@@ -49,22 +50,21 @@ namespace revive
 		bool ret = m_skeletal_mesh_component->SetMesh(m_mesh_path);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
-		m_skeletal_mesh_component->SetLocalScale(0.01f);
-
+		m_skeletal_mesh_component->SetLocalScale(100.f);
+		
 		//공격2 전환 및 종료
-		m_skeletal_mesh_component->AddNotify("First Attack", "attack_left", 17,
+		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
 			[this]() {
-			SetAnimation("attack_right",false); 
-			SetAnimationSpeed(1.0f);
+			SetAnimation("attack_second",false); 
 			m_is_fire = false;
 			 });
-		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_right", 17,
-			[this]() {m_is_attacking = false; m_is_fire = false; /*LOG_INFO(m_is_attacking);*/ });
+		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_second", 17,
+			[this]() {m_is_attacking = false; m_is_fire = false;  });
 
 		//총알 발사(스폰) 타이밍
-		m_skeletal_mesh_component->AddNotify("First Fire", "attack_left", 9,
+		m_skeletal_mesh_component->AddNotify("First Fire", "attack_first", 9,
 			[this]() {	Attack(); /*LOG_INFO(m_is_attacking);*/ });
-		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_right", 10,
+		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_second", 10,
 			[this]() {  Attack(); /*LOG_INFO(m_is_attacking);*/ });
 
 		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
@@ -99,12 +99,31 @@ namespace revive
 
 		SetScale(0.5f);
 
-		m_spot_light_component->SetLightColor(Vec3(100000.0f, 100000.0f, 100000.0f));
-		m_spot_light_component->SetAttenuationRadius(2048.0f);
-		m_spot_light_component->SetShadowTextureSize(2048);
-		m_spot_light_component->SetConeOuterAngle(30.0f);
-		m_spot_light_component->SetLocalPosition(Vec3(0.0f, 150.0f, 60.0f));
-		ret &= AttachComponent(m_spot_light_component);
+		{
+			const auto& game_option = std::static_pointer_cast<ReviveLevelSharedInfo>(LevelManager::GetLevelManager().GetLevelSharedInfo())->GetGameOption();
+
+			m_spot_light_component->SetLightColor(Vec3(100000.0f, 100000.0f, 100000.0f));
+			m_spot_light_component->SetAttenuationRadius(2048.0f);
+			if (game_option->shadow_enable)
+			{
+				switch (game_option->shadow_quality)
+				{
+				case eShadowQuality::kLow: 	m_spot_light_component->SetShadowTextureSize(512); break;
+				case eShadowQuality::kMiddle: m_spot_light_component->SetShadowTextureSize(1024); break;
+				case eShadowQuality::kHigh: m_spot_light_component->SetShadowTextureSize(2048); break;
+				case eShadowQuality::kVeryHigh: m_spot_light_component->SetShadowTextureSize(4096); break;
+				default: break;
+				}
+			}
+			else
+			{
+				m_spot_light_component->DisableShadow();
+			}
+			m_spot_light_component->SetConeOuterAngle(30.0f);
+			m_spot_light_component->SetLocalPosition(Vec3(0.0f, 180.0f, 60.0f));
+			ret &= AttachComponent(m_spot_light_component);
+		}
+		
 		
 
 		return ret;
@@ -125,9 +144,6 @@ namespace revive
 	{
 		m_player_fsm->Update();
 
-		/*if(m_is_attacking)
-			SetRotation(FindLookAtRotation(m_attack_direction, vec3::ZERO));*/
-
 		PlayerInterpolation(delta_time);
 		
 		if (m_speed > 0)
@@ -137,6 +153,9 @@ namespace revive
 		m_speed = std::clamp(m_speed, 0.f, 300.f);
 		//LOG_INFO(" {0}  {1}", m_network_id, GetPosition());
 		m_previous_velocity = m_velocity;
+
+		if (m_is_attacking)
+			SetRotation(FindLookAtRotation(GetForward(), vec3::ZERO));
 
 	}
 
@@ -208,24 +227,6 @@ namespace revive
 
 	Quaternion DefaultPlayer::FindLookAtRotation(const Vec3& start, const Vec3& target)
 	{
-		//Vec3 old_player_forward = GetForward();
-
-		//if (vec3::Dot(old_player_forward, dest_direction) == -1)//현재보는 방향과 반대방향으로 회전 시 너무느리지않게 회전시키려면 필요한 부분
-		//	old_player_forward += Vec3{ 0.02f,0.0f,-0.02f };
-
-		//float rotate_speed = 70.0f * 0.016f; //회전속도 delta_time을곱해야하나 없으니까 0.016곱함
-
-		//Vec3 curr_player_forward = /*old_player_forward +*/ dest_direction;//* rotate_speed;
-		//curr_player_forward = vec3::Normalize(curr_player_forward);
-
-		//float angle = vec3::BetweenAngle(curr_player_forward, vec3::AXIS_Z); //0~PI만 반환함 (radian)
-
-		//if (vec3::Cross(curr_player_forward, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
-		//	angle = -angle;
-
-		//auto player_rot = quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f); //angle만큼 Y축 회전
-		//SetRotation(player_rot);
-
 		Vec3 direction = start - target;
 		direction.Normalize();
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
@@ -245,6 +246,11 @@ namespace revive
 	const float DefaultPlayer::GetVelocity() const
 	{
 		return m_character_movement_component->GetVelocity().Length();
+	}
+
+	void DefaultPlayer::GetAnimationSpeed() const
+	{
+		m_skeletal_mesh_component->GetAnimationSpeed();
 	}
 
 	void DefaultPlayer::SetAnimation(const std::string& animation_name, bool looping)
@@ -276,7 +282,6 @@ namespace revive
 			//카메라가 보는 방향으로 총을 쏴야한다(회전)
 			Vec3 direction = GetForward();
 			direction.y = 0;
-			m_attack_direction = direction;
 			SetRotation(FindLookAtRotation(direction, vec3::ZERO));
 
 			//총알 스폰
@@ -310,7 +315,7 @@ namespace revive
 	}
 
 
-	void DefaultPlayer::Hit(int damage, int nw_id)
+	void DefaultPlayer::Hit(float damage, int nw_id)
 	{
 		++m_hit_count;
 		m_is_hitting = true;
@@ -353,11 +358,10 @@ namespace revive
 		
 		SetPosition(Vec3{ 2400.0f,300.0f,3400.0f });
 		
-
 		SetUseControllerPitch(false);
 		SetUseControllerYaw(false);
 		SetUseControllerRoll(false);
-
+	
 		return ret;
 	}  
 
@@ -365,6 +369,7 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
+
 		if (m_is_attacking)
 		{
 			Vec3 direction = m_controller.lock()->GetForward();
@@ -421,8 +426,6 @@ namespace revive
 			if(m_is_dying == false)
 				if (m_is_attacking == false) {
 					ret = m_is_attacking = true;
-					
-					//m_attack_direction = direction;
 					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"),Vec3(0.f,0.f,0.f), Vec3(0.f, 0.f, 0.f)));
 				//공격추가
 				}
@@ -465,7 +468,7 @@ namespace revive
 				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
 				if (enemy != nullptr)
 				{
-						int enemy_hp = enemy->GetHP();
+						float enemy_hp = enemy->GetHP();
 						if (enemy_hp > 0)
 
 							enemy->Hit(0,m_network_id);
@@ -480,7 +483,7 @@ namespace revive
 	}
 
 
-	void RevivePlayer::Hit(int damage, int nw_id)
+	void RevivePlayer::Hit(float damage, int nw_id)
 
 	{
 		++m_hit_count;

@@ -17,7 +17,7 @@ namespace revive
 	{
 		const auto& player = m_player.lock();
 		float velocity = player->GetVelocity();
-		int hp = player->GetHP();
+		float hp = player->GetHP();
 		bool is_attacking = player->GetIsAttacking();
 		bool is_hitting = player->GetIsHitting();
 
@@ -43,7 +43,7 @@ namespace revive
 	{
 		const auto& player = m_player.lock();
 		float velocity = player->GetVelocity();
-		int hp = player->GetHP();
+		float hp = player->GetHP();
 		bool is_attacking = player->GetIsAttacking();
 		bool is_hitting = player->GetIsHitting();
 
@@ -73,15 +73,15 @@ namespace revive
 		const auto& player = m_player.lock();
 		//LOG_INFO(player->GetName() + "Attack State");
 		player->SetMeshPosition(Vec3{ 0,0,0 });
-		player->SetAnimation("attack_left", false);
-		player->SetAnimationSpeed(0.6f);
+		player->SetAnimation("attack_first", false);
+		player->SetAnimationSpeed(1.1f);
 		//player->Attack();
 	}
 
 	SPtr<PlayerState> AttackState::ChageState()
 	{
 		const auto& player = m_player.lock();
-		int hp = player->GetHP();
+		float hp = player->GetHP();
 		bool is_attacking = player->GetIsAttacking();
 		bool is_hitting = player->GetIsHitting();
 
@@ -106,7 +106,7 @@ namespace revive
 	SPtr<PlayerState> HitState::ChageState()
 	{
 		const auto& player = m_player.lock();
-		int hp = player->GetHP();
+		float hp = player->GetHP();
 		int hit_count = player->GetHitCount();
 		bool is_hitting = player->GetIsHitting();
 

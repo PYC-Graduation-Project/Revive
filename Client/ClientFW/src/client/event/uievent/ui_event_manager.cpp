@@ -24,16 +24,20 @@ namespace client_fw
 		for (auto event_iter = m_ui_events.rbegin(); event_iter != m_ui_events.rend(); ++event_iter)
 		{
 			const auto& event = *event_iter;
+			const auto& ui = event->GetOwnerUI();
 
-			if (event->GetOwnerUI() != nullptr)
+			if (ui != nullptr)
 			{
-				if (is_execute_hovered_event == false && event->GetOwnerUI()->IsHovered())
+				if (ui->IsActivate())
 				{
-					event->ExecuteHoveredEvent();
-					is_execute_hovered_event = true;
+					if (is_execute_hovered_event == false && ui->IsHovered())
+					{
+						event->ExecuteHoveredEvent();
+						is_execute_hovered_event = true;
+					}
+					else
+						event->ExecuteUnhoveredEvent();
 				}
-				else
-					event->ExecuteUnhoveredEvent();
 			}
 			else
 			{

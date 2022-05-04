@@ -1,6 +1,8 @@
 #pragma once
 #include <client/object/ui/core/user_interface_layer.h>
 
+//#define __USE_ENEMY_ATTACK_PACKET_DEBUG__
+
 namespace client_fw
 {
     class TextUI;

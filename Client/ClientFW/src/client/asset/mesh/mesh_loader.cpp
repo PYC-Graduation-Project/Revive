@@ -351,6 +351,8 @@ namespace client_fw
 	{
 		s_mesh->CreateDataForLodMesh(lod);
 		s_mesh->SetBoneData(mesh_data.at(0).bone_data);
+
+		std::vector<Vec3> positions;
 		UINT mesh_index = (m_mesh_count == 0) ? 0 : m_mesh_count - 1;
 
 		UINT vertex_count = 0;
@@ -392,6 +394,7 @@ namespace client_fw
 				vertices[index].SetNormal(data.normals[i]);
 				vertices[index].SetBoneWeight(data.bone_data->bone_weights[i]);
 				vertices[index].SetBoneIndex(data.bone_data->bone_indices[i]);
+				positions.emplace_back(std::move(data.positions[i]));
 			}
 
 
@@ -441,6 +444,9 @@ namespace client_fw
 			return ;
 		}
 		index_info->CopyData(indices.data(), index_count);
+
+		BOrientedBox box = BOrientedBox(std::move(positions));
+		s_mesh->SetOrientBox(box);
 	}
 
 

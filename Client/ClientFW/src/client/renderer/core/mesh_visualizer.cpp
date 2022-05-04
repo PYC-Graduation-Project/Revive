@@ -10,6 +10,20 @@
 
 namespace client_fw
 {
+	constexpr static auto render_execute_function =
+		[](const SPtr<RenderComponent>& render_comp, const Vec3& eye)
+	{
+		render_comp->SetVisiblity(true);
+		render_comp->UpdateLevelOfDetail(eye);
+	};
+
+	constexpr static auto shadow_execute_function =
+		[](const SPtr<RenderComponent>& render_comp, const Vec3& eye)
+	{
+		render_comp->SetVisiblity(true);
+		render_comp->UpdateLevelOfDetailForShadow(eye);
+	};
+
 	constexpr static auto trigger_function =
 		[](const SPtr<RenderComponent>& render_cmp)
 	{
@@ -44,26 +58,29 @@ namespace client_fw
 
 	void MeshVisualizer::UpdateVisibilityFromMovableRenderCamera(const SPtr<CameraComponent>& camera)
 	{
-		UpdateVisibilityForRender(camera->GetBoudingFrustum(), camera->GetCameraPosition(), trigger_function);
+		UpdateVisibilityForRender(camera->GetBoudingFrustum(), camera->GetCameraPosition(),
+			trigger_function, render_execute_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromMovableShadowCamera(const SPtr<CameraComponent>& camera)
 	{
-		UpdateVisibilityForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(), shadow_trigger_function);
+		UpdateVisibilityForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(), 
+			shadow_trigger_function, shadow_execute_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromMovableShadowSphere(const SPtr<CameraComponent>& camera, const Vec3& eye, float radius)
 	{
 		BSphere bounding_sphere = BSphere(eye, radius);
 
-		UpdateVisibilityForShadow(bounding_sphere, eye, shadow_trigger_function);
+		UpdateVisibilityForShadow(bounding_sphere, eye, shadow_trigger_function, shadow_execute_function);
 	}
 
 	void MeshVisualizer::UpdateVisibilityFromStaticShadowCamera(const SPtr<CameraComponent>& camera, bool update_static_render_comp)
 	{
 		if (update_static_render_comp)
 		{
-			UpdateVisibilityForStatic(camera->GetBoudingFrustum(), camera->GetCameraPosition(), static_shadow_trigger_function);
+			UpdateVisibilityForStatic(camera->GetBoudingFrustum(), camera->GetCameraPosition(),
+				static_shadow_trigger_function, render_execute_function);
 			AddDestructibleFromVisualTreeNodeToCamera(camera, camera->GetBoudingFrustum(), camera->GetCameraPosition(), 
 				add_destructible_shadow_trigger_function);
 		}
@@ -71,7 +88,8 @@ namespace client_fw
 		{
 			AddRegisteredDestructibleToCamera(camera, camera->GetBoudingFrustum(), add_destructible_shadow_trigger_function);
 			camera->UpdateDestructibleRenderComponentVisibility(trigger_function);
-			UpdateVisibilityMovableForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(), trigger_function);
+			UpdateVisibilityMovableForShadow(camera->GetBoudingFrustum(), camera->GetCameraPosition(),
+				trigger_function, shadow_execute_function);
 		}
 	}
 
@@ -82,7 +100,7 @@ namespace client_fw
 
 		if (update_static_render_comp)
 		{
-			UpdateVisibilityForStatic(bounding_sphere, eye, static_shadow_trigger_function);
+			UpdateVisibilityForStatic(bounding_sphere, eye, static_shadow_trigger_function, render_execute_function);
 			AddDestructibleFromVisualTreeNodeToCamera(camera, bounding_sphere, eye,
 				add_destructible_shadow_trigger_function);
 		}
@@ -90,7 +108,7 @@ namespace client_fw
 		{
 			AddRegisteredDestructibleToCamera(camera, bounding_sphere, add_destructible_shadow_trigger_function);
 			camera->UpdateDestructibleRenderComponentVisibility(trigger_function);
-			UpdateVisibilityMovableForShadow(bounding_sphere, eye, trigger_function);
+			UpdateVisibilityMovableForShadow(bounding_sphere, eye, trigger_function, shadow_execute_function);
 		}
 	}
 }

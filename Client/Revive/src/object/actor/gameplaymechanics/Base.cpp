@@ -23,7 +23,6 @@ namespace revive
 			ret &= AttachComponent(box_component);
 		}
 
-		m_hp = 5;
 
 		RegisterPressedEvent("HP down", { {eKey::kB} },
 			[this]()->bool {--m_hp; LOG_INFO(GetName() + "ÀÇ Ã¼·Â {0}", m_hp); return true; });

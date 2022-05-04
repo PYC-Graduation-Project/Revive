@@ -54,6 +54,23 @@ namespace client_fw
 	void VisualOctreeManager::PrepareUpdate()
 	{
 		m_registered_destructible_render_comps.clear();
+		for (const auto& render_comp : m_movable_render_comps_for_render)
+			render_comp->ResetLevelOfDetailForShadow();
+		for (const auto& visual_octree : m_visual_octrees)
+			ResetLevelOfDetailForShadow(visual_octree->GetRootNode());
+	}
+
+	void VisualOctreeManager::ResetLevelOfDetailForShadow(const SPtr<VisualTreeNode>& node)
+	{
+		if (node->child_nodes[0] == nullptr)
+		{
+			for (const auto& render_cmp : node->render_components)
+				render_cmp->ResetLevelOfDetailForShadow();
+			return;
+		}
+
+		for (UINT i = 0; i < 8; ++i)
+			ResetLevelOfDetailForShadow(node->child_nodes[i]);
 	}
 
 	void VisualOctreeManager::RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees)

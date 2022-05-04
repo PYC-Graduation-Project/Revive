@@ -27,6 +27,10 @@ namespace revive
 		float m_light_change_speed = 250.0f;
 
 		constexpr static float s_max_light_intensity = 500.0f;
+
+	public:
+		void DisableShadow() { m_spot_light_component->DisableShadow(); }
+		void SetShadowTextureSize(INT size) { m_spot_light_component->SetShadowTextureSize(size); }
 	};
 
 	class FenceTorch final : public StaticMeshActor
@@ -42,6 +46,10 @@ namespace revive
 	private:
 		bool m_use_shadow;
 		SPtr<PointLightComponent> m_point_light_component;
+
+	public:
+		void DisableShadow() { m_point_light_component->DisableShadow(); }
+		void SetShadowTextureSize(INT size) { m_point_light_component->SetShadowTextureSize(size); }
 	};
 }
 

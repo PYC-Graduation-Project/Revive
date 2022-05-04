@@ -70,33 +70,36 @@ void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
 {
 	sc_packet_login_fail* packet = reinterpret_cast<sc_packet_login_fail*>(p);
 	//cout << "로그인 실패" << endl;
+	eLoginFailType type;
 	switch (packet->reason)
 	{
 	case 1: {
-		LOG_INFO( "DBError");
+		type = eLoginFailType::kDBError;
 		break;
 	}
 	case 2: {
-		LOG_INFO("사용자 Full");
+		type = eLoginFailType::kUserFull;
 		break;
 	}
 	case 3: {
-		LOG_INFO("이미 접속중");
+		type = eLoginFailType::kAlreadyLogin;
 		break;
 	}
 	case 4: {
-		LOG_INFO("비번틀림" );
+		type = eLoginFailType::kInvalidPW;
 		break;
 	}
 	case 5: {
-		LOG_INFO("아이디없음");
+		type = eLoginFailType::kInvalidID;
 		break;
 	}
 	case 6: {
-		LOG_INFO("해당 아이디 존재");
+		type = eLoginFailType::kExistID;
 		break;
 	}
 	}
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::LoginFailMessageEventInfo>(HashCode("login fail"),type));
+
 }
 
 void RevivePacketManager::ProcessMatching(int c_id, unsigned char* p)

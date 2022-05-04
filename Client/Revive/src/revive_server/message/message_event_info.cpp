@@ -91,4 +91,9 @@ namespace revive
 	{
 	}
 	
+	LoginFailMessageEventInfo::LoginFailMessageEventInfo(UINT event_id, eLoginFailType login_fail_type)
+		:MessageEventInfo(event_id), m_login_fail_type(login_fail_type)
+	{
+	}
+
 }

@@ -44,17 +44,20 @@ namespace client_fw
 
 	void PlayerController::AddPitchInput(float value)
 	{
-		m_pitch_speed = math::ToRadian(value * m_pitch_speed_scale);
+		if (Input::GetInputMode() == eInputMode::kGameOnly)
+			m_pitch_speed = math::ToRadian(value * m_pitch_speed_scale);
 	}
 
 	void PlayerController::AddYawInput(float value)
 	{
-		m_yaw_speed = math::ToRadian(value * m_yaw_speed_scale);
+		if(Input::GetInputMode() == eInputMode::kGameOnly)
+			m_yaw_speed = math::ToRadian(value * m_yaw_speed_scale);
 	}
 
 	void PlayerController::AddRollInput(float value)
 	{
-		m_roll_speed = math::ToRadian(value * m_roll_speed_scale);
+		if (Input::GetInputMode() == eInputMode::kGameOnly)
+			m_roll_speed = math::ToRadian(value * m_roll_speed_scale);
 	}
 
 	void PlayerController::RegisterPressedEvent(const std::string& name, std::vector<EventKeyInfo>&& keys,

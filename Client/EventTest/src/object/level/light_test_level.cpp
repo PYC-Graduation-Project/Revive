@@ -253,7 +253,7 @@ namespace event_test
 		SpawnActor(billboard_tree);
 		billboard_tree->SetPosition(Vec3(300.0f, -200.0f, 2500.0f));
 
-		auto animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
+		/*auto animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
 		animator->SetPosition(Vec3(-2000.0f, 0.0f, 2000.0f));
 		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(-45.0f), 0.0f);
 		animator->SetScale(100.0f);
@@ -279,7 +279,7 @@ namespace event_test
 		animator->SetPosition(Vec3(0.0f, -700.0f, -2200.0f));
 		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		animator->SetScale(100.0f);
-		SpawnActor(animator);
+		SpawnActor(animator);*/
 	
 		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
 		SpawnActor(sky_cube);

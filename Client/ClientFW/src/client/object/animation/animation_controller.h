@@ -40,7 +40,7 @@ namespace client_fw
 		const float GetCurretPlayTime() const { return m_time_pos; }
 
 		void SetAnimationSpeed(float value) { m_animation_speed = value; }
-
+		const float GetAnimationSpeed() const { return m_animation_speed; }
 		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function);
 
 	private:

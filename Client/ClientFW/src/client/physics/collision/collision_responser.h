@@ -68,6 +68,8 @@ namespace client_fw
 				bounding.SetCenter(p_pos + velocity * time);
 				if (bounding.Intersects(other_bounding) == false)
 					new_pos = p_pos + velocity * time;
+				else
+					new_pos = p_pos;
 			}
 
 			return new_pos;

@@ -24,9 +24,6 @@ namespace revive
 		m_spot_light_component->SetLocalRotation(math::ToRadian(65.0f), math::ToRadian(-90.0f), 0.0f);
 		m_spot_light_component->SetAttenuationRadius(500.0f);
 		m_spot_light_component->SetConeOuterAngle(70.f);
-#ifdef _DEBUG
-		m_spot_light_component->DisableShadow();
-#endif
 		ret &= AttachComponent(m_spot_light_component);
 
 		return ret;

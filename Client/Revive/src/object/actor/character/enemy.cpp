@@ -12,6 +12,7 @@
 
 #include <client/object/component/render/widget_component.h>
 #include "object/ui/enemy_info_ui_layer.h"
+#include "object/actor/weapon/weapon.h"
 
 namespace revive
 {
@@ -49,17 +50,12 @@ namespace revive
 		//m_attack_sphere->SetCollisionInfo(true, false, "enemy attack", { "player hit","base"}, true);
 		
 		//Test
-		if (Input::RegisterAxisEvent(m_name +" move forward", { AxisEventKeyInfo{eKey::kUArrow, 1.0f}, AxisEventKeyInfo{eKey::kDArrow, -1.0f} },
-			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ 0.0f,0.0f, axis*100.0f }); return true; }, true, eInputOwnerType::kActor))
-			RegisterInputEvent(m_name + " move forward");
-
-		if (Input::RegisterAxisEvent(m_name + " move right", { AxisEventKeyInfo{eKey::kRArrow, 1.0f}, AxisEventKeyInfo{eKey::kLArrow, -1.0f} },
-			[this](float axis)->bool { auto& curr_position = GetPosition(); SetPosition(curr_position + Vec3{ axis * 100.0f,0.0f,0.0f  }); return true; }, true, eInputOwnerType::kActor))
-			RegisterInputEvent(m_name + " move right");
+		
 		RegisterReceiveMessage(HashCode("move object"));
 
-		ret &= AttachComponent(m_widget_component);
 		m_ui_layer->SetEnemy(std::static_pointer_cast<Enemy>(shared_from_this()));
+		m_widget_component->SetSize(Vec2(150.0f, 32.0f));
+		ret &= AttachComponent(m_widget_component);
 
 		return ret;
 	}
@@ -75,6 +71,7 @@ namespace revive
 		m_blocking_box = nullptr;
 		m_agro_sphere = nullptr;
 		m_hit_box = nullptr;
+		m_weapon = nullptr;
 	}
 
 	void Enemy::Update(float delta_time)
@@ -91,10 +88,16 @@ namespace revive
 
 		SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
 
-		if (m_disappear_time >= 1.0f)
+		if (m_disappear_time >= 0.1f)
+		{
+			m_is_disappearing = false;
+			if(m_weapon != nullptr)
+				m_weapon->SetActorState(eActorState::kDead);
 			SetActorState(eActorState::kDead);
+		}
 		if (m_is_disappearing)
 			m_disappear_time += delta_time; 
+
 	}
 
 	void Enemy::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
@@ -146,7 +149,7 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
 			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
-			m_target_position = msg->GetTargetPosition();
+			m_target_position = msg->GetTargetPosition() + Vec3{0.f,80.f,0.f};
 			Attack();
 
 			if (m_attack_packet_state_function != nullptr)
@@ -159,7 +162,7 @@ namespace revive
 			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
 			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
-			m_ui_layer->SetHPPercent(float(GetHP()) / float(GetMaxHP()));
+			m_ui_layer->SetHPPercent(GetHP() / GetMaxHP());
 			m_skeletal_mesh_component->SetAnimation("hit", false);
 			m_is_attacking = false;
 

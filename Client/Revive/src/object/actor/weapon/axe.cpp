@@ -28,7 +28,7 @@ namespace revive
 			const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 			if (player != nullptr)
 			{
-				int player_hp = player->GetHP();
+				float player_hp = player->GetHP();
 				if (player_hp > 0) //서버에 플레이어 체력 전송
 						player->Hit(0,player->GetNetworkID());
 			}
@@ -37,7 +37,7 @@ namespace revive
 				const auto& base = std::dynamic_pointer_cast<Base>(other_actor);
 				if (base != nullptr)
 				{
-					int base_hp = base->GetHP();
+					float base_hp = base->GetHP();
 					if (base_hp > 0) //서버에 기지 체력 전송
 						base->SetHP(base_hp);
 				}

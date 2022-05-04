@@ -15,6 +15,7 @@ namespace revive
 {
 	using namespace client_fw;
 
+	class Weapon;
 	class EnemyInfoUILayer;
 
 	class Enemy : public Actor
@@ -30,8 +31,8 @@ namespace revive
 		const int GetNetworkID()const { return m_network_id; }
 		void SetNetworkID(int val) { m_network_id = val; };
 	protected:
-		int m_hp = 1;
-		int m_max_hp = 1;
+		float m_hp = 1;
+		float m_max_hp = 1;
 
 		float m_disappear_time = 0.0f;
 
@@ -59,6 +60,7 @@ namespace revive
 
 		SPtr<SphereComponent> m_agro_sphere; 
 		SPtr<BoxComponent> m_hit_box;
+		SPtr<Weapon> m_weapon;
 
 		void FixYPosition();
 		Quaternion FindLookAtRotation(const Vec3& start, const Vec3& target);
@@ -69,10 +71,10 @@ namespace revive
 		std::string m_mesh_path;
 	
 	public:
-		const int GetHP() const { return m_hp; }
-		void SetHP(const int hp) { m_hp = hp; }
-		int GetMaxHP() const { return m_max_hp; }
-		void SetMaxHP(int hp) { m_max_hp = hp; }
+		const float GetHP() const { return m_hp; }
+		void SetHP(const float hp) { m_hp = hp; }
+		float GetMaxHP() const { return m_max_hp; }
+		void SetMaxHP(float max_hp) { m_max_hp = max_hp; }
 
 		void Hit(int damage = 1, int nw_id = 9999);
 

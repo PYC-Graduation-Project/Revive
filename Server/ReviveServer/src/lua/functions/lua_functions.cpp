@@ -57,8 +57,26 @@ int API_attack(lua_State* L)
 		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, mil.count());
 	else
 		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 1000);
+
 		PacketManager::g_timer_queue.push(move(t));
 	
+
+	/*if (attack_t >= en->GetAttackTime())
+	{
+		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 30);
+	}*/
+	/*else
+	{
+		en->lua_lock.lock();
+		lua_State* L = en->GetLua();
+		lua_getglobal(L, "state_machine");
+		lua_pushnumber(L, target_id);
+		int err = lua_pcall(L, 1, 0, 0);
+		if (err)
+			MoveObjManager::LuaErrorDisplay(L, err);
+		en->lua_lock.unlock();
+	}*/
+
 	return 0;
 }
 

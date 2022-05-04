@@ -15,14 +15,14 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	private:
-		int m_hp;
+		float m_hp = 100;
 		int m_network_id = -1;
 	public:
 		const int GetID() const { return m_network_id; }
-		void SetID(const int hp) { m_hp = hp; }
+		void SetID(const int id) { m_network_id = id; }
 
-		const int GetHP() const { return m_hp; }
-		void SetHP(const int hp) { m_hp = hp; }
+		const float GetHP() const { return m_hp; }
+		void SetHP(const float hp) { m_hp = hp; }
 	};
 
 }
