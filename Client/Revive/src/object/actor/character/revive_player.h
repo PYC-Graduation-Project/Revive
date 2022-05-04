@@ -45,6 +45,7 @@ namespace revive
 		bool m_is_hitting = false;
 		bool m_is_dying = false;
 		bool m_is_fire = false;
+		bool m_is_equipped = false;
 
 		Vec3 m_velocity;
 		Vec3 m_previous_velocity = vec3::ZERO;
@@ -70,9 +71,10 @@ namespace revive
 		const int GetHitCount() const { return m_hit_count; }
 		const float GetHP() const { return m_hp; }
 		const float GetMaxHP() const { return m_max_hp; }
-		const bool GetIsAttacking() const { return m_is_attacking; }
-		const bool GetIsHitting() const { return m_is_hitting; }
-		const bool GetIsDying() const { return m_is_dying; }
+		const bool IsAttacking() const { return m_is_attacking; }
+		const bool IsHitting() const { return m_is_hitting; }
+		const bool IsDying() const { return m_is_dying; }
+		const bool IsEquipped() const { return m_is_equipped; }
 		void GetAnimationSpeed() const;
 		const int GetNetworkID()const { return m_network_id; }
 		void SetIsDying(bool value) { m_is_dying = value; }
@@ -88,6 +90,9 @@ namespace revive
 		virtual void Attack();
 
 		virtual void Hit(float damage = 1, int nw_id = 9999);
+
+		virtual void Equip();
+		virtual void Unequip();
 
 	protected:
 		SPtr<SpotLightComponent> m_spot_light_component;

@@ -24,25 +24,28 @@ namespace revive
 		ret &= Enemy::Initialize();
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
+		m_skeletal_mesh_component->SetLocalScale(100.f);
+
 		m_skeletal_mesh_component->AddNotify("death end", "death", 109,
 			[this]() { m_is_disappearing = true; /*Destory되기 까지 Count를 시작한다*/ });
-		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
+		m_skeletal_mesh_component->AddNotify("hit end", "hit", 10,
 			[this]() { m_skeletal_mesh_component->SetAnimation("run"); /*히트 후에 재생할 애니메이션*/});
 		m_skeletal_mesh_component->AddNotify("fire", "attack", 12, [this]() { Fire();});
-		m_skeletal_mesh_component->AddNotify("attack end", "attack", 24,
-			[this]() { m_is_attacking = false; m_is_fire = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
+		m_skeletal_mesh_component->AddNotify("attack end", "attack", 20,
+			[this]() { 
+			m_is_attacking = false; m_is_fire = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
 		ret &= SetCollisionComponent();
 
 		m_hp = 10;
 		//SetPosition(Vec3{ 2400.0f,300.0f,3500.0f });
-		SetScale(0.7f);
+		SetScale(0.7f); 
 
 		//Test용
-		if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kR} },
+		/*if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kR} },
 			[this]()->bool { m_skeletal_mesh_component->SetAnimation(m_animation_name[m_animation_select_num++]);
 		if (m_animation_select_num >= m_animation_name.size()) m_animation_select_num = 0; return true; }
 			, true, eInputOwnerType::kActor))
-			RegisterInputEvent(m_name + " Test");
+			RegisterInputEvent(m_name + " Test");*/
 		
 		m_widget_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
 
@@ -142,7 +145,7 @@ namespace revive
 				if (player != nullptr)
 				{
 					m_target_position = other_actor->GetPosition() + Vec3{0.f,100.f,0.f};
-					if (player->GetIsDying() == false) Attack();
+					if (player->IsDying() == false) Attack();
 				}
 				else
 				{

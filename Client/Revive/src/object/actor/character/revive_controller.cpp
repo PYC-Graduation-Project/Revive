@@ -19,7 +19,7 @@ namespace revive
 		//이동 및 조작
 		RegisterAxisEvent("move forward", { AxisEventKeyInfo{eKey::kW, 1.0f}, AxisEventKeyInfo{eKey::kS, -1.0f} },
 			[this, player](float axis)->bool {
-			bool ret = player->GetIsDying();
+			bool ret = player->IsDying();
 			if (ret == false)
 			{
 				m_controlled_pawn->AddMovementInput(GetForward(), axis);
@@ -30,7 +30,7 @@ namespace revive
 
 		RegisterAxisEvent("move right", { AxisEventKeyInfo{eKey::kD, 1.0f}, AxisEventKeyInfo{eKey::kA, -1.0f} },
 			[this, player](float axis)->bool {
-			bool ret = player->GetIsDying();
+			bool ret = player->IsDying();
 			if (ret == false)
 			{
 				m_controlled_pawn->AddMovementInput(GetRight(), axis);
