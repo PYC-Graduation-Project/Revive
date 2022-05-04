@@ -22,6 +22,10 @@ namespace revive
 
 	private:
 		SPtr<SpotLightComponent> m_spot_light_component;
+
+	public:
+		void DisableShadow() { m_spot_light_component->DisableShadow(); }
+		void SetShadowTextureSize(INT size) { m_spot_light_component->SetShadowTextureSize(size); }
 	};
 
 }

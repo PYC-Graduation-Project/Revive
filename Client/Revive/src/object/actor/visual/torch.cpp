@@ -23,11 +23,7 @@ namespace revive
 		m_spot_light_component->SetLocalPosition(Vec3(-29.0f, 30.0f, 0.0f));
 		m_spot_light_component->SetLocalRotation(math::ToRadian(-90.0f), 0.0f, 0.0f);
 		m_spot_light_component->SetAttenuationRadius(350.0f);
-		m_spot_light_component->SetShadowTextureSize(256);
 		m_spot_light_component->SetConeOuterAngle(60.f);
-#ifdef _DEBUG
-		m_spot_light_component->DisableShadow();
-#endif
 		ret &= AttachComponent(m_spot_light_component);
 
 		UseUpdate();
@@ -74,13 +70,8 @@ namespace revive
 		m_point_light_component->SetLightColor(Vec3(255.0f, 32.f, 0.f) * 50.0f);
 		m_point_light_component->SetLocalPosition(Vec3(-80.0f, 120.0f, 0.0f));
 		m_point_light_component->SetAttenuationRadius(300.0f);
-		m_point_light_component->SetShadowTextureSize(400);
-#ifdef _DEBUG
-		m_point_light_component->DisableShadow();
-#else
 		if (m_use_shadow == false)
 			m_point_light_component->DisableShadow();
-#endif
 		ret &= AttachComponent(m_point_light_component);
 
 		return ret;

@@ -24,6 +24,12 @@ namespace client_fw
 	{
 	}
 
+	bool LevelManager::Initiallize(const SPtr<LevelSharedInfo>& level_shared_info)
+	{
+		m_level_shared_info = level_shared_info;
+		return true;
+	}
+
 	void LevelManager::Shutdown()
 	{
 		if (m_ready_level != nullptr)

@@ -50,7 +50,7 @@ namespace client_fw
 
 		// 초기화 과정이 아닌 Runtime에 호출을 하면 작동하지 않는다.
 		INT GetShadowTextureSize() const { return m_shadow_texture_size; }
-		void SetShadowTextureSize(INT extent) { m_shadow_texture_size = extent; }
+		void SetShadowTextureSize(INT extent) { if (extent <= 0) DisableShadow(); m_shadow_texture_size = extent; }
 
 	private:
 		virtual void UpdateShadowTextureSize() {}

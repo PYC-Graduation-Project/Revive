@@ -7,6 +7,7 @@
 #include "client/object/level/core/level_manager.h"
 #include "client/object/level/core/level_loader.h"
 #include "client/object/level/core/level.h"
+#include "client/object/level/sharedinfo/level_shared_info.h"
 #include "client/object/ui/core/user_interface_manager.h"
 #include "client/physics/core/physics_world.h"
 #include "client/renderer/core/renderer.h"
@@ -52,7 +53,7 @@ namespace client_fw
 	bool Application::Initialize()
 	{
 		bool result = InitializeWindow();
-
+		
 		if (result == false)
 		{
 			LOG_ERROR("Could not initialize window");
@@ -66,6 +67,8 @@ namespace client_fw
 			return false;
 		}
 		m_timer->OnFpsChanged([this](UINT fps) {ShowFpsToWindowTitle(fps); });
+
+		result = m_level_manager->Initiallize(CreateLevelSharedInfo());
 
 		result = m_physics_world->Initialize();
 		if (result == false)
@@ -201,6 +204,11 @@ namespace client_fw
 	void Application::CloseLevel()
 	{
 		m_level_manager->CloseLevel();
+	}
+
+	SPtr<LevelSharedInfo> Application::CreateLevelSharedInfo() const
+	{
+		return CreateSPtr<LevelSharedInfo>();
 	}
 
 	bool Application::InitializeWindow()

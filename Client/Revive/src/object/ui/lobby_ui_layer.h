@@ -1,6 +1,8 @@
 #pragma once
 #include <client/object/ui/core/user_interface_layer.h>
 
+#include "object/level/sharedinfo/revive_level_shared_info.h"
+
 namespace client_fw
 {
 	class ImageUI;
@@ -19,7 +21,8 @@ namespace revive
 	enum class eLobbyPopupMenu
 	{
 		kInvalidIDPW, kAlreadyLogin, kLoginSuccess,
-		kNotLogin, kMatching, kGameStart
+		kNotLogin, kMatching, kGameStart,
+		kOption
 	};
 
 	enum class eLoginFailState
@@ -66,8 +69,18 @@ namespace revive
 		SPtr<ImageUI> m_matching_success_image;
 		SPtr<ButtonUI> m_game_start_button;
 
+		SPtr<ButtonUI> m_option_button;
 		SPtr<ButtonUI> m_close_app_button;
 		SPtr<ButtonUI> m_develop_mode_button;
+
+		SPtr<ImageUI> m_option_menu_image;
+		SPtr<ButtonUI> m_close_option_menu_button;
+		SPtr<ButtonUI> m_shadow_enable_left_button;
+		SPtr<ButtonUI> m_shadow_enable_right_button;
+		SPtr<TextUI> m_shadow_enable_text;
+		SPtr<ButtonUI> m_shadow_quality_left_button;
+		SPtr<ButtonUI> m_shadow_quality_right_button;
+		SPtr<TextUI> m_shadow_quality_text;
 
 	private:
 		std::string m_id;
@@ -77,11 +90,15 @@ namespace revive
 
 		bool m_is_wait_matching = false;
 		float m_matching_time = 0.0f;
-		
+
+		SPtr<ReviveGameOption> m_game_option_state;
+
 	private:
 		void SetPopUpState(eLobbyPopupMenu state, bool value);
 		void EnablePopUpState(eLobbyPopupMenu state);
 		void DisablePopUpState(eLobbyPopupMenu state);
+		void SetShadowEnableText();
+		void SetShadowQualityText();
 
 	public:
 		void FailedLogin(eLoginFailState state);

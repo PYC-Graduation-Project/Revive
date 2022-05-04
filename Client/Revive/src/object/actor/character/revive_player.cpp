@@ -1,4 +1,5 @@
 #include <include/client_core.h>
+#include <client/object/level/core/level_manager.h>
 #include <client/object/component/core/scene_component.h>
 #include <client/object/component/util/simple_movement_component.h>
 #include <client/object/component/mesh/static_mesh_component.h>
@@ -15,7 +16,7 @@
 
 #include <client/object/component/light/spot_light_component.h>
 
-
+#include "object/level/sharedinfo/revive_level_shared_info.h"
 #include "object/actor/weapon/pistol.h"
 #include "object/actor/character/enemy.h"
 #include "object/actor/character/revive_player.h"
@@ -98,12 +99,31 @@ namespace revive
 
 		SetScale(0.5f);
 
-		m_spot_light_component->SetLightColor(Vec3(100000.0f, 100000.0f, 100000.0f));
-		m_spot_light_component->SetAttenuationRadius(2048.0f);
-		m_spot_light_component->SetShadowTextureSize(2048);
-		m_spot_light_component->SetConeOuterAngle(30.0f);
-		m_spot_light_component->SetLocalPosition(Vec3(0.0f, 150.0f, 60.0f));
-		ret &= AttachComponent(m_spot_light_component);
+		{
+			const auto& game_option = std::static_pointer_cast<ReviveLevelSharedInfo>(LevelManager::GetLevelManager().GetLevelSharedInfo())->GetGameOption();
+
+			m_spot_light_component->SetLightColor(Vec3(100000.0f, 100000.0f, 100000.0f));
+			m_spot_light_component->SetAttenuationRadius(2048.0f);
+			if (game_option->shadow_enable)
+			{
+				switch (game_option->shadow_quality)
+				{
+				case eShadowQuality::kLow: 	m_spot_light_component->SetShadowTextureSize(512); break;
+				case eShadowQuality::kMiddle: m_spot_light_component->SetShadowTextureSize(1024); break;
+				case eShadowQuality::kHigh: m_spot_light_component->SetShadowTextureSize(2048); break;
+				case eShadowQuality::kVeryHigh: m_spot_light_component->SetShadowTextureSize(4096); break;
+				default: break;
+				}
+			}
+			else
+			{
+				m_spot_light_component->DisableShadow();
+			}
+			m_spot_light_component->SetConeOuterAngle(30.0f);
+			m_spot_light_component->SetLocalPosition(Vec3(0.0f, 150.0f, 60.0f));
+			ret &= AttachComponent(m_spot_light_component);
+		}
+		
 		
 
 		return ret;

@@ -2,8 +2,10 @@
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
 
+#include <client/object/level/sharedinfo/level_shared_info.h>
 #include <client/asset/mesh/mesh_loader.h>
 
+#include "object/level/sharedinfo/revive_level_shared_info.h"
 #include "object/level/game_play_level.h"
 #include "object/level/lobby_level.h"
 
@@ -40,10 +42,16 @@ namespace revive
 			return result;
 		}
 
-		UPtr<MeshLoader> CreateMeshLoader() const override
+		virtual SPtr<LevelSharedInfo> CreateLevelSharedInfo() const override
+		{
+			return CreateSPtr<ReviveLevelSharedInfo>();
+		}
+
+		virtual UPtr<MeshLoader> CreateMeshLoader() const override
 		{
 			return CreateUPtr<RevLoader>();
 		}
+
 
 		void Shutdown() override
 		{
