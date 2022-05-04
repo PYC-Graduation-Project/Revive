@@ -120,7 +120,7 @@ namespace revive
 				m_spot_light_component->DisableShadow();
 			}
 			m_spot_light_component->SetConeOuterAngle(30.0f);
-			m_spot_light_component->SetLocalPosition(Vec3(0.0f, 150.0f, 60.0f));
+			m_spot_light_component->SetLocalPosition(Vec3(0.0f, 180.0f, 60.0f));
 			ret &= AttachComponent(m_spot_light_component);
 		}
 		
