@@ -264,7 +264,8 @@ namespace client_fw
 			if (m_directional_lights.size() + m_ready_directional_lights.size() < s_max_directional_light)
 			{
 				RegisterLightComponent(m_ready_directional_lights, light_comp);
-				--m_num_of_shadow_texture;
+				if (light_comp->IsUseShadow())
+					--m_num_of_shadow_texture;
 				//CameraManager::GetCameraManager();
 			}
 			else
