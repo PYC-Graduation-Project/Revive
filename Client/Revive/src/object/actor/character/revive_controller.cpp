@@ -43,16 +43,16 @@ namespace revive
 			[this](float axis)->bool {
 				IVec2 relative_pos = Input::GetRelativeMousePosition();
 				AddYawInput(axis * relative_pos.x);
-				//MinPItch();
 				return true;
 			});
 
-		RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
-			[this](float axis)->bool {
-				IVec2 relative_pos = Input::GetRelativeMousePosition();
-				AddPitchInput(axis * relative_pos.y);
-				return true;
-			});
+		//RegisterAxisEvent("look up", { AxisEventKeyInfo{eKey::kYMove, 1.0f} },
+		//	[this](float axis)->bool {
+		//		IVec2 relative_pos = Input::GetRelativeMousePosition();
+		//		AddPitchInput(axis * relative_pos.y);
+		//		//MinPItch();
+		//		return true;
+		//	});
 		
 		return ret;
 	}
