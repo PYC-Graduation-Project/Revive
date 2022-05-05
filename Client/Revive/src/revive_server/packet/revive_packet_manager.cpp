@@ -65,6 +65,7 @@ void RevivePacketManager::ProcessSignUp(int c_id, unsigned char* p)
 {
 	sc_packet_sign_up_ok* packet = reinterpret_cast<sc_packet_sign_up_ok*>(p);
 	cout << "회원가입 성공" << endl;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr < revive::SignUpMessageEventOkInfo>(HashCode("sign up")));
 }
 
 void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
