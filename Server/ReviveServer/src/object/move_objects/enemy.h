@@ -38,7 +38,7 @@ public:
     void SetCollision(const BoxCollision& val) { m_collision = val; }
     void SetPrevCollision(const BoxCollision& val) { m_prev_collision = val; }
     void SetPrevTestPos(const Vector3& val) { m_prev_test_pos = val; }
-
+    virtual void Reset()override;
 
     lua_State* GetLua() { return m_L; }
     const int GetTargetId()const { return target_id; }
@@ -59,7 +59,7 @@ public:
     Vector3 m_prev_test_pos{ 0.0f,0.0f,0.0f };
     std::chrono::system_clock::time_point	m_move_time;
 private:
-    std::vector<Vector3>m_load;
+    //std::vector<Vector3>m_load;
     std::chrono::system_clock::time_point	m_attack_time;
     std::chrono::system_clock::time_point	m_check_time;
     BoxCollision m_collision;

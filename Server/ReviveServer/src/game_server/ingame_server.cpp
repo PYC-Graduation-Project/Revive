@@ -27,10 +27,15 @@ bool InGameServer::OnRecv(int c_id, EXP_OVER* exp_over, DWORD num_bytes)
 
 void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 {
+	if (false == m_PacketManager->IsRoomInGame(exp_over->room_id))
+	{
+		delete exp_over;
+		return;
+	}
 	switch (exp_over->_comp_op)
 	{
 	case COMP_OP::OP_NPC_SPAWN: {
-		m_PacketManager->SpawnEnemy(exp_over->target_id);
+		m_PacketManager->SpawnEnemy(exp_over->room_id);
 		delete exp_over;
 		break;
 	}
@@ -56,6 +61,13 @@ void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 	}
 	case COMP_OP::OP_NPC_TIMER_SPAWN: {
 		m_PacketManager->SpawnEnemyByTime(c_id, exp_over->room_id);
+		delete exp_over;
+		break;
+	}
+	case COMP_OP::OP_BASE_ATTACK: {
+		m_PacketManager->BaseAttackByTime(exp_over->room_id, c_id);
+		delete exp_over;
+		break;
 	}
 	}
 }

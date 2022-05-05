@@ -2,7 +2,7 @@
 skull_king={
 	m_id= 99999,
 	m_fov=900,
-	m_atk_range=350,
+	m_atk_range=300,
 	m_position={x=0,y=0,z=0},
 	m_maxhp=0,
 	m_hp=0,

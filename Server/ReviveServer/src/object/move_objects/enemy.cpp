@@ -25,6 +25,22 @@ void Enemy::SetSpawnPoint(float x, float z)
 	m_prev_pos = pos;
 }
 
+void Enemy::Reset()
+{
+	target_id = -1;
+	lua_lock.lock();
+	lua_close(m_L);
+	lua_lock.unlock();
+	m_attack_time = std::chrono::system_clock::now();
+	m_check_time = std::chrono::system_clock::now();
+	m_move_time = std::chrono::system_clock::now();
+	in_use=false;
+	in_game = false;
+	m_is_active = false;
+	ZeroMemory(m_name, MAX_NAME_SIZE + 1);
+	m_prev_test_pos=Vector3{ 0.0f,0.0f,0.0f };
+}
+
 void Enemy::SetMoveTime(int val)
 {
 	m_attack_time = std::chrono::system_clock::now() + (1ms*val);

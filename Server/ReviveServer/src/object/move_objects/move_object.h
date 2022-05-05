@@ -19,7 +19,11 @@ public:
 	float GetHP()const { return m_hp; }
 	float GetMaxHP()const { return m_maxhp; }
 	
-
+	virtual void Reset()
+	{
+		m_is_active = false;
+		ZeroMemory(m_name, MAX_NAME_SIZE + 1);
+	}
 	
 	Vector4 GetRotation() { return m_rotation; }
 	int GetRoomID()const { return m_room_id; }

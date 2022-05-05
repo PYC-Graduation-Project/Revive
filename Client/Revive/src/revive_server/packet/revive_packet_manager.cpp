@@ -8,6 +8,7 @@
 #include"revive_server/message/message_event_info.h"
 using namespace std;
 using namespace client_fw;
+
 void RevivePacketManager::Init()
 {
 	m_obj_map = unordered_map<int, client_fw::SPtr<NetworkMoveObj>>();
@@ -162,7 +163,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	else if (target == m_obj_map.end()&&packet->target_id == -1)
 	{
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-		Vec3(2400.0f,300.0f,2850.0f)), packet->obj_id);
+		Vec3(2400.0f,400.0f,2850.0f)), packet->obj_id);
 	}
 	else
 		LOG_INFO("없는 객체 공격{0}",packet->obj_id);
@@ -210,15 +211,15 @@ void RevivePacketManager::ProcessGameWin(int c_id, unsigned char* p)
 {
 	sc_packet_win* packet = reinterpret_cast<sc_packet_win*>(p);
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("win")));
-
+	Reset();
 }
 
 void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
 {
 	sc_packet_defeat* packet = reinterpret_cast<sc_packet_defeat*>(p);
-	m_stop_recv = true;
+	//m_stop_recv = true;
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("defeat")));
-
+	Reset();
 }
 
 void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
@@ -231,4 +232,17 @@ void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
 	}
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::ObjectDeadEventInfo>(HashCode("dead")), packet->obj_id);
 	
+}
+
+void RevivePacketManager::Reset()
+{
+	for (auto& obj : m_obj_map)
+	{
+
+		PacketHelper::DisconnectActorFromServer(obj.first);
+		obj.second = nullptr;
+		
+	}
+	m_obj_map.clear();
+	m_prev_size = 0;
 }

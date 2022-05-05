@@ -29,7 +29,7 @@ public:
 	{
 		return m_map_objects;
 	}
-	const MapObj& GetMapObjectByType(OBJ_TYPE type)
+	MapObj& GetMapObjectByType(OBJ_TYPE type)
 	{
 		for (auto& obj : m_map_objects)
 		{

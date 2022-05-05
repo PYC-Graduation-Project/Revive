@@ -41,6 +41,7 @@ public:
     SOCKET& GetSock() { return m_socket; }
     void Init(SOCKET&);
     void ResetPlayer();
+    virtual void Reset()override;
     void SetIsReady(bool val) { m_is_ready = val; }
     bool GetIsReady() { return m_is_ready; }
     char* GetPassword() { return m_password; }

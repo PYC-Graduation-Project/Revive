@@ -28,6 +28,8 @@ public:
 	void DoEnemyMove(int room_id, int enemy_id);
 	void CountTime(int room_id);
 	void DoEnemyAttack(int enemy_id, int target_id, int room_id);
+	void BaseAttackByTime(int room_id,int enemy_id);
+
 
 	void SendMovePacket(int c_id, int mover);
 	void SendNPCAttackPacket(int c_id,int obj_id, int target_id);
@@ -52,6 +54,10 @@ public:
 
 	void End();
 	void Disconnect(int c_id);
+	bool IsRoomInGame(int room_id);
+	void EndGame(int room_id);
+
+
 
 	void CreateDBThread();
 	void DBThread();

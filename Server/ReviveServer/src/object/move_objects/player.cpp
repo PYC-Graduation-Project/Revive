@@ -17,7 +17,7 @@ void Player::DoRecv()
 
 void Player::DoSend(int num_bytes, void* mess)
 {
-	if (m_socket == INVALID_SOCKET) return;
+	//if (m_socket == INVALID_SOCKET) return;
 	EXP_OVER* ex_over = new EXP_OVER(COMP_OP::OP_SEND, num_bytes, mess);
 	//std::cout <<"send_size :"<< (int)(((char*)mess)[0]) << std::endl;
 	int ret = WSASend(m_socket, &ex_over->_wsa_buf, 1, 0, 0, &ex_over->_wsa_over, NULL);
@@ -46,8 +46,28 @@ void Player::ResetPlayer()
 	m_is_active = false;
 	is_matching = false;
 	ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
-	m_hp = 100.0f;//추후 밸런스 조정
+	m_hp = 20.0f;//추후 밸런스 조정
 	m_maxhp = m_hp;
 	m_mach_user_size = 0;
 	m_socket = INVALID_SOCKET;
+}
+
+void Player::Reset()
+{
+	m_is_active = false;
+	m_mach_user_size = 0;
+	m_last_move_time = 0;
+	m_room_id = -1;
+	m_hp = 20.0f;//추후 밸런스 조정
+	m_maxhp = m_hp;
+	m_is_ready = false;
+	is_matching = false;
+	ZeroMemory(m_name, MAX_NAME_SIZE + 1);
+	ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
+	m_prev_size = 0;
+	
+	state_lock.lock();
+	m_state = STATE::ST_ACCEPT;
+	state_lock.unlock();
+	DoRecv();
 }

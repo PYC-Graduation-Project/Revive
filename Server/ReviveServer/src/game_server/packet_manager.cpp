@@ -15,6 +15,7 @@
 #include"util/collision/collision_checker.h"
 #include"object/bullet.h"
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
+
 //#include"map_loader.h"
 const int ROUND_TIME = 10000;
 using namespace std;
@@ -334,7 +335,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				{
 					enemy->DoMove(move_vec);
 					if (true == CheckMoveOK(enemy_id, room_id))
-						nearlist.try_emplace(enemy->GetPos().Dist2d(target_pos)-enemy->GetPos().Dist2d(enemy->GetPrevTestPos()), move_vec);
+						nearlist.try_emplace(enemy->GetPos().Dist2d(target_pos)-((enemy->GetPos().Dist2d(enemy->GetPrevTestPos()) + 50.0f)), move_vec);
 					enemy->SetToPrevPos();
 				}
 				if (nearlist.size() != 0)
@@ -476,7 +477,7 @@ void PacketManager::CountTime(int room_id)
 		{
 			room->SetRound(room->GetRound() + 1);
 			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
-				room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30));
+				room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30));
 		}
 		
 	}
@@ -497,9 +498,11 @@ void PacketManager::CountTime(int room_id)
 				if (false == MoveObjManager::GetInst()->IsPlayer(p_id))continue;
 				SendGameWin(p_id);
 			}
+			EndGame(room_id);
+			return;
 		}
 	}
-	g_timer_queue.push(SetTimerEvent(room_id, room_id,
+	g_timer_queue.push(SetTimerEvent(room_id, room_id, room_id,
 		EVENT_TYPE::EVENT_TIME, 1000));
 }
 
@@ -514,21 +517,54 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 
 	if (target_id == -1)
 	{
-		room->m_base_hp_lock.lock();
-		base_hp = room->GetBaseHp()- enemy->GetDamge();
+		//room->m_base_hp_lock.lock();
+		//base_hp = room->GetBaseHp()- enemy->GetDamge();
 		//room->SetBaseHp(base_hp);
-		room->m_base_hp_lock.unlock();
+		//room->m_base_hp_lock.unlock();
+		Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetPos();
+		float dist = enemy->GetPos().Dist(base_pos);
+		int base_attack_t = (dist / 1500.0f)*1000;
+		g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_BASE_ATTACK,
+			base_attack_t));
 	}
 	for (int pl : room->GetObjList())
 	{
 		if (false==MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		if (target_id == -1)
-		{
+		//if (target_id == -1)
+		//{
 			SendNPCAttackPacket(pl, enemy_id, target_id);
-			SendBaseStatus(pl, room_id);
-		}
-		else
-			SendNPCAttackPacket(pl, enemy_id, target_id);
+			//SendBaseStatus(pl, room_id);
+		//}
+		//else
+			//SendNPCAttackPacket(pl, enemy_id, target_id);
+	}
+	//if (base_hp <= 0.0f)
+	//{
+	//	for (int pl : room->GetObjList())
+	//	{
+	//		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+	//		SendGameDefeat(pl);
+	//	}
+	//	EndGame(room_id);
+	//}
+	auto& attack_time = enemy->GetAttackTime();
+	attack_time = chrono::system_clock::now() + 1s;
+	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
+	CallStateMachine(enemy_id, room_id, base_pos);
+}
+
+void PacketManager::BaseAttackByTime(int room_id, int enemy_id)
+{
+	Enemy* enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
+	Room* room = m_room_manager->GetRoom(room_id);
+	room->m_base_hp_lock.lock();
+	float base_hp = room->GetBaseHp() - enemy->GetDamge();
+	room->SetBaseHp(base_hp);
+	room->m_base_hp_lock.unlock();
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		SendBaseStatus(pl, room_id);
 	}
 	if (base_hp <= 0.0f)
 	{
@@ -537,11 +573,8 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 			if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 			SendGameDefeat(pl);
 		}
+		EndGame(room_id);
 	}
-	auto& attack_time = enemy->GetAttackTime();
-	attack_time = chrono::system_clock::now() + 1s;
-	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
-	CallStateMachine(enemy_id, room_id, base_pos);
 }
 
 
@@ -772,6 +805,35 @@ void PacketManager::Disconnect(int c_id)
 	MoveObjManager::GetInst()->Disconnect(c_id);
 }
 
+bool PacketManager::IsRoomInGame(int room_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	room->m_state_lock.lock();
+	if (room->GetState() == ROOM_STATE::RT_INGAME)
+	{
+		room->m_state_lock.unlock();
+		return true;
+	}
+	room->m_state_lock.unlock();
+	return false;
+}
+
+void PacketManager::EndGame(int room_id)
+{
+	Room* room = m_room_manager->GetRoom(room_id);
+	room->m_state_lock.lock();
+	room->SetState( ROOM_STATE::RT_RESET);
+	room->m_state_lock.unlock();
+	for (auto obj_id : room->GetObjList())
+	{
+		MoveObjManager::GetInst()->GetMoveObj(obj_id)->Reset();
+	}
+	g_timer_queue.push(SetTimerEvent(room_id, room_id, room_id,
+		EVENT_TYPE::EVENT_REFRESH_ROOM, 60000));
+
+
+}
+
 
 
 bool PacketManager::CheckPlayerBullet(int c_id, const Vector3& position, const Vector3& forward)
@@ -992,6 +1054,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	Vector3 pos{ packet->x,packet->y,packet->z };
 
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
+
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
 	{
 	case 0://앞
@@ -1117,7 +1180,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	float hp;
 	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
-	//victim->SetHP(victim->GetHP() - attacker->GetDamge());
+	victim->SetHP(victim->GetHP() - attacker->GetDamge());
 	hp = victim->GetHP();
 	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();
@@ -1143,6 +1206,7 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 				if (false == MoveObjManager::GetInst()->IsPlayer(obj_id))continue;
 				SendGameDefeat(obj_id);
 			}
+			EndGame(victim->GetRoomID());
 		}
 	}
 
@@ -1231,7 +1295,7 @@ void PacketManager::StartGame(int room_id)
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 
 	//	room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30000));//30초다되면 넣어주는걸로 수정?
-	g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(),
+	g_timer_queue.push(SetTimerEvent(room->GetRoomID(), room->GetRoomID(), room->GetRoomID(),
 		EVENT_TYPE::EVENT_TIME, 1000));
 	
 }
@@ -1282,9 +1346,9 @@ void PacketManager::ProcessDBTask(db_task& dt)
 			
 			//접속꽉찬거는 accept 쪽에서 보내기주기
 			pl->state_lock.lock();
-			if (STATE::ST_INGAME != pl->GetState())
+			if (STATE::ST_FREE == pl->GetState()|| STATE::ST_ACCEPT == pl->GetState())
 			{
-				pl->SetState(STATE::ST_INGAME);
+				pl->SetState(STATE::ST_LOGIN);
 				pl->state_lock.unlock();
 			}
 			else
@@ -1325,9 +1389,10 @@ void PacketManager::JoinDBThread()
 
 void PacketManager::ProcessTimer(HANDLE hiocp)
 {
+	timer_event ev;
 	while (true) {
 		while (true) {
-			timer_event ev;
+			
 			if (!g_timer_queue.try_pop(ev))continue;
 			
 			auto start_t = chrono::system_clock::now();
@@ -1394,6 +1459,24 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		//방으로 처리하도록 바꾸기
 		ex_over->_comp_op = COMP_OP::OP_COUNT_TIME;
 		ex_over->room_id = ev.obj_id;
+		
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+		break;
+	}
+	case EVENT_TYPE::EVENT_REFRESH_ROOM: {
+		//방으로 처리하도록 바꾸기
+		delete ex_over;
+		Room* room = m_room_manager->GetRoom(ev.room_id);
+		room->ResetRoom();
+		room->m_state_lock.lock();
+		room->SetState(ROOM_STATE::RT_FREE);
+		room->m_state_lock.unlock();
+		break;
+	}
+	case EVENT_TYPE::EVENT_BASE_ATTACK: {
+		//방으로 처리하도록 바꾸기
+		ex_over->_comp_op = COMP_OP::OP_BASE_ATTACK;
+		ex_over->room_id = ev.room_id;
 		
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
