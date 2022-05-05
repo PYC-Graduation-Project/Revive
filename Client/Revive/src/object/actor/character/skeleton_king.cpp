@@ -29,9 +29,10 @@ namespace revive
 		ret &= Enemy::Initialize();
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.f), 0.f, 0.f);
+		m_skeletal_mesh_component->SetLocalScale(100.f);
 		m_skeletal_mesh_component->AddNotify("death end", "death", 82,
 			[this]() { m_is_disappearing = true;  });
-		m_skeletal_mesh_component->AddNotify("hit end", "hit", 14,
+		m_skeletal_mesh_component->AddNotify("hit end", "hit", 12,
 			[this]() { m_skeletal_mesh_component->SetAnimation("run");  });
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
 			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
@@ -41,11 +42,11 @@ namespace revive
 		m_weapon->SetScale(0.6f);
 		ret &= SetCollisionComponent();
 		
-		if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kT} },
+		/*if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kT} },
 			[this]()->bool { m_skeletal_mesh_component->SetAnimation(m_animation_name[m_animation_select_num++]);
 		if (m_animation_select_num >= m_animation_name.size()) m_animation_select_num = 0; return true; }
 			, true, eInputOwnerType::kActor))
-			RegisterInputEvent(m_name + " Test");
+			RegisterInputEvent(m_name + " Test");*/
 		
 		m_hp = 20;
 		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
@@ -102,7 +103,7 @@ namespace revive
 				const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 				if (player != nullptr)
 				{
-					if (player->GetIsDying() == false)
+					if (player->IsDying() == false)
 					{
 						SetRotation(FindLookAtRotation(GetPosition(), other_actor->GetPosition()));
 						Attack();

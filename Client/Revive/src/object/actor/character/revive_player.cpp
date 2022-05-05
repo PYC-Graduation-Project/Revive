@@ -52,6 +52,9 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(100.f);
 		
+		//죽었으니 장비 벗어
+		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() { Unequip(); });
+
 		//공격2 전환 및 종료
 		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
 			[this]() {
@@ -74,19 +77,7 @@ namespace revive
 		m_character_movement_component->SetMaxSpeed(100.f);
 		m_character_movement_component->UseOrientRotationToMovement(true);
 
-		std::array<std::string, 2> weapon_names = { "left", "right" };
-		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
-		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{-80.f,20.f,0.f} };
-		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{-40.f,190.f,0.f} };
-
-		for (int i = 0; i < 2; ++i)
-		{
-			m_weapon[i]->SetName(m_weapon[i]->GetName() + weapon_names[i]);
-			m_weapon[i]->SetAttachedActor(shared_from_this(), m_skeletal_mesh_component);
-			m_weapon[i]->SetSocketName(socket_names[i]);
-			m_weapon[i]->SetPositionOffset(pos_offset[i]);
-			m_weapon[i]->SetRotationOffset(rot_offset[i]);
-		}
+		Equip();
 
 		m_player_fsm->Initialize(SharedFromThis());
 
@@ -128,7 +119,7 @@ namespace revive
 
 		return ret;
 	}
-
+	
 	void DefaultPlayer::Shutdown()
 	{
 		m_character_movement_component = nullptr;
@@ -136,8 +127,7 @@ namespace revive
 		m_hit_box = nullptr;
 		m_player_fsm->Shutdown();
 		m_player_fsm = nullptr;
-		for (auto& weapon : m_weapon)
-			weapon = nullptr;
+		if (IsEquipped() == true) Unequip();
 	}
 
 	void DefaultPlayer::Update(float delta_time)
@@ -322,6 +312,31 @@ namespace revive
 		//m_hp -= damage;
 	}
 
+	void DefaultPlayer::Equip()
+	{
+		m_is_equipped = true;
+		std::array<std::string, 2> weapon_names = { "left", "right" };
+		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
+		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{ -80.f,20.f,0.f } };
+		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{ -40.f,190.f,0.f } };
+
+		for (int i = 0; i < 2; ++i)
+		{
+			m_weapon[i]->SetName(m_weapon[i]->GetName() + weapon_names[i]);
+			m_weapon[i]->SetAttachedActor(shared_from_this(), m_skeletal_mesh_component);
+			m_weapon[i]->SetSocketName(socket_names[i]);
+			m_weapon[i]->SetPositionOffset(pos_offset[i]);
+			m_weapon[i]->SetRotationOffset(rot_offset[i]);
+		}
+	}
+
+	void DefaultPlayer::Unequip()
+	{
+		m_is_equipped = false;
+		for (const auto& weapon : m_weapon)
+			weapon->SetActorState(eActorState::kDead);
+	}
+
 	RevivePlayer::RevivePlayer(const std::string& name)
 		: DefaultPlayer(name)
 	{
@@ -386,7 +401,6 @@ namespace revive
 		case HashCode("dead"):
 		{
 			PacketHelper::DisconnectActorFromServer(m_network_id);
-			m_is_dying = true;
 			break;
 		}
 		case HashCode("status change"):

@@ -10,7 +10,6 @@ namespace revive
 		
 		//LOG_INFO(player->GetName() + "Idle State");
 		player->SetAnimation("idle", true);
-		player->SetMeshPosition(Vec3{ 0,40,0 });
 	}
 
 	SPtr<PlayerState> IdleState::ChageState()
@@ -18,8 +17,8 @@ namespace revive
 		const auto& player = m_player.lock();
 		float velocity = player->GetVelocity();
 		float hp = player->GetHP();
-		bool is_attacking = player->GetIsAttacking();
-		bool is_hitting = player->GetIsHitting();
+		bool is_attacking = player->IsAttacking();
+		bool is_hitting = player->IsHitting();
 
 		if (hp == 0)
 			return CreateSPtr<DeadState>();
@@ -44,8 +43,8 @@ namespace revive
 		const auto& player = m_player.lock();
 		float velocity = player->GetVelocity();
 		float hp = player->GetHP();
-		bool is_attacking = player->GetIsAttacking();
-		bool is_hitting = player->GetIsHitting();
+		bool is_attacking = player->IsAttacking();
+		bool is_hitting = player->IsHitting();
 
 		if (hp == 0)
 			return CreateSPtr<DeadState>();
@@ -63,7 +62,6 @@ namespace revive
 		//LOG_INFO("Dead State");
 		const auto& player = m_player.lock();
 		player->SetIsDying(true);
-		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimation("death", false);
 	}
 
@@ -72,7 +70,6 @@ namespace revive
 	{
 		const auto& player = m_player.lock();
 		//LOG_INFO(player->GetName() + "Attack State");
-		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimation("attack_first", false);
 		player->SetAnimationSpeed(1.1f);
 		//player->Attack();
@@ -82,8 +79,8 @@ namespace revive
 	{
 		const auto& player = m_player.lock();
 		float hp = player->GetHP();
-		bool is_attacking = player->GetIsAttacking();
-		bool is_hitting = player->GetIsHitting();
+		bool is_attacking = player->IsAttacking();
+		bool is_hitting = player->IsHitting();
 
 		if (hp == 0)
 			return CreateSPtr<DeadState>();
@@ -108,7 +105,7 @@ namespace revive
 		const auto& player = m_player.lock();
 		float hp = player->GetHP();
 		int hit_count = player->GetHitCount();
-		bool is_hitting = player->GetIsHitting();
+		bool is_hitting = player->IsHitting();
 
 		if (hp == 0)
 			return CreateSPtr<DeadState>();
@@ -126,6 +123,7 @@ namespace revive
 	void HitState::Exit()
 	{
 		const auto& player = m_player.lock();
+		player->SetMeshPosition(Vec3{ 0,0,0 });
 		player->SetAnimationSpeed(1.0f);
 	}
 
