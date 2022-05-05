@@ -17,7 +17,7 @@ void Player::DoRecv()
 
 void Player::DoSend(int num_bytes, void* mess)
 {
-	//if (m_socket == INVALID_SOCKET) return;
+	if (m_socket == INVALID_SOCKET) return;
 	EXP_OVER* ex_over = new EXP_OVER(COMP_OP::OP_SEND, num_bytes, mess);
 	//std::cout <<"send_size :"<< (int)(((char*)mess)[0]) << std::endl;
 	int ret = WSASend(m_socket, &ex_over->_wsa_buf, 1, 0, 0, &ex_over->_wsa_over, NULL);

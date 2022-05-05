@@ -31,6 +31,7 @@ void Enemy::Reset()
 	lua_lock.lock();
 	lua_close(m_L);
 	lua_lock.unlock();
+	m_room_id = -1;
 	m_attack_time = std::chrono::system_clock::now();
 	m_check_time = std::chrono::system_clock::now();
 	m_move_time = std::chrono::system_clock::now();
