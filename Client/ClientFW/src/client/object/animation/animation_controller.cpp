@@ -4,6 +4,7 @@
 #include "client/asset/core/asset_store.h"
 #include "client/asset/mesh/mesh.h"
 #include "client/renderer/core/render.h"
+#include "client/object/component/mesh/skeletal_mesh_component.h"
 #include "client/object/animation/animation_controller.h"
 
 namespace client_fw 
@@ -29,6 +30,7 @@ namespace client_fw
             m_anim_seq->GetDefaultTime(m_start_time, m_end_time);
             m_time_pos = 0;
             m_prev_time_index = 0;
+            m_ready_anim_seq = nullptr;
         }
     }
 
@@ -53,19 +55,18 @@ namespace client_fw
 
             float time_pos = m_time_pos;
             int prev_index = m_prev_time_index;
+
             if (m_looping)
             {
 				time_pos += delta_time * m_animation_speed;
 				if (time_pos < m_start_time) time_pos = m_start_time;
-		
             }
             else
             {
                 time_pos += delta_time * m_animation_speed;
                 m_time_pos = time_pos;
+                if (m_time_pos >= m_end_time) m_owner.lock()->SetIsPlaying(false);
             }
-
-		
 
             //LOG_INFO(" {0} , {1} {2} {3}", m_prev_time_index, m_time_pos,time_pos, m_end_time);
             m_anim_seq->AnimToPlay(m_prev_time_index , time_pos);
@@ -91,7 +92,6 @@ namespace client_fw
 				m_prev_time_index = 0;
 			}
 			m_time_pos = time_pos;//애니메이션 콜백함수 사용시 쓸수도잇음,저장
-
 
             m_is_update_animation = false;
         }

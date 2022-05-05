@@ -7,6 +7,7 @@
 #include <client/object/actor/default_pawn.h>
 #include <client/object/actor/player_controller.h>
 #include <client/object/actor/static_mesh_actor.h>
+#include <client/object/component/mesh/skeletal_mesh_component.h>
 #include <client/util/octree/octree.h>
 #include "object/level/player_test_level.h"
 #include "object/actor/test_actor.h"
@@ -28,11 +29,32 @@ namespace anim_test
 		violet_idle->SetPosition(Vec3{ 10.0f, -35.0f, 1100.0f });
 		violet_idle->SetScale(50.f);
 		violet_idle->SetRotation(80.0f, 0.0f, 0.0f);*/
-		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Revive/Contents/violet.rev","attack_right");
+		auto ground = CreateSPtr<StaticMeshActor>(eMobilityState::kStatic,"../Revive/Contents/cliff_stone_01.obj");
+		SpawnActor(ground);
+		ground->SetPosition(Vec3{ 0.0f,-900.0f,1000.0f });
+		ground->SetScale(12000.f);
+
+		std::array<std::string, 7> animation_name = { "appear","attack", "death","hit","idle","run","Null" };
+		//std::array<std::string, 7> animation_name = { "attack_first","attack_second", "death","hit","idle","run","Null" };
+		auto skel_run = CreateSPtr<TestActor>(eMobilityState::kMovable, "../Revive/Contents/skeleton_king.rev","Null");
 		SpawnActor(skel_run);
-		skel_run->SetPosition(Vec3{ 0.0f, 0.0f, 1000.0f });
-		skel_run->SetScale(0.5f);
+		skel_run->SetPosition(Vec3{ 0.0f, 300.0f, 1000.0f });
+		skel_run->SetScale(100.f);
 		skel_run->SetRotation(80.0f, 0.0f, 0.0f);
+
+		RegisterPressedEvent("box view", { {eKey::kC} }, [this, skel_run]()->bool
+		{
+			LOG_INFO(skel_run->GetSkeletalMeshComponent()->GetOrientedBox()->GetExtents());
+			return true;
+		});
+		RegisterPressedEvent("animation view", { {eKey::kN} }, [this,skel_run,animation_name]()->bool 
+		{
+			LOG_INFO(animation_name[m_animation_set_index]);
+			skel_run->SetAnimation(animation_name[m_animation_set_index++]); 
+			if (m_animation_set_index >= 7)
+				m_animation_set_index = 0;
+			return true;
+		});
 		//skel_run->SetWeapon("../Contents/Cube.obj","mount0");
 		//skel_run->SetWeaponOffset(Vec3{50.f,-10.f,0.f});
 		

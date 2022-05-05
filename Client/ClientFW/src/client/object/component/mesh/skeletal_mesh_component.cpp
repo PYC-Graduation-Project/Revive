@@ -16,6 +16,7 @@ namespace client_fw
 	bool SkeletalMeshComponent::Initialize()
 	{
 		m_animation_controller->Initialize();
+		m_animation_controller->SetOwner(SharedFromThis());
 		return MeshComponent::Initialize();
 	}
 
@@ -65,6 +66,7 @@ namespace client_fw
 			SetIsPlaying(false);
 		else if (animation_name.compare("Null") != 0)
 		{
+			SetIsPlaying(true);
 			m_animation_controller->SetAnimationName(animation_name);
 			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
 			SetLooping(looping);
