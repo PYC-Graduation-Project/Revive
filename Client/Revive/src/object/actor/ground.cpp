@@ -14,7 +14,7 @@ namespace revive
 		bool ret = true;
 		for (auto& static_mesh_component : m_static_mesh_components)
 		{
-			static_mesh_component->SetCollisionInfo(true, true, "ground", { "player" },false);
+			static_mesh_component->SetCollisionInfo(true, true, "ground", { "player camera" },false);
 			ret &= AttachComponent(static_mesh_component);
 		}
 		return ret;
