@@ -25,8 +25,8 @@ const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;
 
-const float SKULL_HP = 10 * PLAYER_DAMAGE;
-const float SKULLKING_HP = 20 * PLAYER_DAMAGE;
+const float SKULL_HP = 5 * PLAYER_DAMAGE;
+const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 
 
 constexpr int NPC_ID_START = MAX_USER;

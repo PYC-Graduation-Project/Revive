@@ -46,7 +46,7 @@ void Player::ResetPlayer()
 	m_is_active = false;
 	is_matching = false;
 	ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
-	m_hp = 20.0f;//추후 밸런스 조정
+	m_hp = PLAYER_HP;//추후 밸런스 조정
 	m_maxhp = m_hp;
 	m_mach_user_size = 0;
 	m_socket = INVALID_SOCKET;
@@ -58,7 +58,7 @@ void Player::Reset()
 	m_mach_user_size = 0;
 	m_last_move_time = 0;
 	m_room_id = -1;
-	m_hp = 20.0f;//추후 밸런스 조정
+	m_hp = PLAYER_HP;//추후 밸런스 조정
 	m_maxhp = m_hp;
 	m_is_ready = false;
 	is_matching = false;

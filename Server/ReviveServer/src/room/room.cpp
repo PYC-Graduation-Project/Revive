@@ -39,7 +39,7 @@ void Room::ResetRoom()
 	max_user = 0;
 	max_npc = 0;
 	curr_round = 0;
-	m_base_hp = 30.0f;
+	m_base_hp = BASE_HP;
 	m_round_time = chrono::system_clock::now();
 	m_obj_list.clear();
 

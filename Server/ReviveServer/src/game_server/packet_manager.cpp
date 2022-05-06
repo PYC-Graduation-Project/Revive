@@ -17,7 +17,7 @@
 concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue = concurrency::concurrent_priority_queue<timer_event>();
 
 //#include"map_loader.h"
-const int ROUND_TIME = 10000;
+const int ROUND_TIME = 30000;
 using namespace std;
 PacketManager::PacketManager()
 {
@@ -132,6 +132,7 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 		cl->m_prev_size = remain_data;
 		memcpy(&exp_over->_net_buf, packet_start, remain_data);
 	}
+	if (remain_data == 0)cl->m_prev_size=0;
 	cl->DoRecv();
 }
 
@@ -226,7 +227,7 @@ void PacketManager::SpawnEnemy(int room_id)
 		//{
 		//	if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		//	SendObjInfo(pl, en);
-			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(2000*i)+500 ));
+			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(1500*i)));
 			++i;
 		//}
 		//g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
@@ -263,8 +264,8 @@ void PacketManager::SpawnEnemyByTime(int enemy_id, int room_id)
 	uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
 		static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
 	enemy = MoveObjManager::GetInst()->GetEnemy(enemy_id);
-	enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
-	enemy->GetCollision().UpdateCollision(enemy->GetPos());
+	enemy->SetSpawnPoint(spawn_area[spawn_idx].GetPosX(), spawn_area[spawn_idx].GetPosZ());
+	//enemy->GetCollision().UpdateCollision(enemy->GetPos());
 	for (auto pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
@@ -1087,6 +1088,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}*/
 
 	cl->SetPos(pos);
+	if (isnan(cl->GetPosX()) || isnan(cl->GetPosY()) || isnan(cl->GetPosZ()))cout << "nanÀÌ´Ù ÀÌ ½Î¹ß" << endl;
 	//std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	//std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 	//	<< packet->r_z<< ", w : " << packet->r_w << endl;
@@ -1267,7 +1269,7 @@ void PacketManager::StartGame(int room_id)
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
-				SKULLKING_HP, pos, PLAYER_DAMAGE, "Skull King");
+				SKULLKING_HP, pos, PLAYER_DAMAGE*2, "Skull King");
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID(),base_pos);
 			e->SetCollision(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE));
 			e->SetPrevCollision(e->GetCollision());

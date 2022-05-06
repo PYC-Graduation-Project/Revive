@@ -50,7 +50,7 @@ private:
 	std::vector<int>m_obj_list;
 	//std::array<Bullet*, MAX_BULLET>m_bullet_pool;
 	std::chrono::system_clock::time_point	m_round_time;
-	float m_base_hp = 10.0f;
+	float m_base_hp = BASE_HP;
 };
 
 

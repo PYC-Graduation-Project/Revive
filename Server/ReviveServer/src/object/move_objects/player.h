@@ -14,8 +14,9 @@ public:
         m_room_id = -1;
         m_damage = PLAYER_DAMAGE;
         ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
-        m_hp = 20.0f;//추후 밸런스 조정
+        m_hp = PLAYER_HP;//추후 밸런스 조정
         m_maxhp = m_hp;
+        
     }
    virtual ~Player()=default;
    std::mutex state_lock;
