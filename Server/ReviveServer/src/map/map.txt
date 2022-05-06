@@ -1,16 +1,16 @@
 Asset Exporting
 ActorName Base 3 1  2400 600 2850 
 BoxCollision Base Center 0 0 0 Extents 150 300 150 
-FilePath Contents/towerSquareTopRoofHigh.obj
-Position 150 300 150 
-Rotation 0 0 0 1 
-Scale 30 
 FilePath Contents/towerSquareMidWindows.obj
 Position 150 0 150 
 Rotation 0 0 0 1 
 Scale 30 
 FilePath Contents/towerSquareMid.obj
 Position 150 -300 150 
+Rotation 0 0 0 1 
+Scale 30 
+FilePath Contents/towerSquareTopRoofHigh.obj
+Position 150 300 175 
 Rotation 0 0 0 1 
 Scale 30 
 
@@ -316,8 +316,8 @@ Rotation -5.760116E-08 0.7071068 -5.760116E-08 -0.7071068
 Scale 5 
 
 ActorName Fence 0 2  2400 282.5 6600 
-BoxCollision Fence Center -250 50 -100 Extents 50 50 1900 
-BoxCollision Fence Center 250 50 -100 Extents 50 50 1900 
+BoxCollision Fence Center -300 50 -100 Extents 50 50 1900 
+BoxCollision Fence Center 300 50 -100 Extents 50 50 1900 
 
 ActorName Bridge 1 0  2400 300 6975 
 FilePath Contents/bridge_2.obj

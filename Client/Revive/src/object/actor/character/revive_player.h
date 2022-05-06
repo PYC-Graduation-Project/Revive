@@ -9,6 +9,7 @@ namespace client_fw
 	class BoxComponent;
 	class SphereComponent;
 	class RenderCameraComponent;
+	class SpringArmRenderCameraComponent;
 	class SimpleMovementComponent;
 	class CharacterMovementComponent;
 	class SpotLightComponent;
@@ -123,7 +124,7 @@ namespace revive
 
 		SPtr<CharacterMovementComponent> m_movement_component;
 		SPtr<SphereComponent> m_blocking_sphere;
-		SPtr<RenderCameraComponent> m_camera_component;
+		SPtr<SpringArmRenderCameraComponent> m_camera_component;
 
 		using Pawn::SetUseControllerPitch;
 		using Pawn::SetUseControllerYaw;
@@ -134,7 +135,6 @@ namespace revive
 	public:
 		void CollisionResponse(const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_component) {};
 
-		const SPtr<RenderCameraComponent>& GetCameraComponent() { return m_camera_component; }
 		//void SetIsAttacking(bool value) { m_is_attacking = value; }
 		//void SetIsHitting(bool value) { m_is_hitting = value; }
 		const float GetVelocity() const;

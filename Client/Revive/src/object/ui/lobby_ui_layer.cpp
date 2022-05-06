@@ -61,6 +61,11 @@ namespace revive
 			m_shadow_quality_right_button = CreateSPtr<ButtonUI>("shadow quality right button");
 			m_shadow_quality_text = CreateSPtr<TextUI>("shadow quality text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"°í");
 		}
+		
+		m_sign_up_succeed_image = CreateSPtr<ImageUI>("sign up image",Vec2(400.0f, 400.0f));
+		m_sign_up_succeed_ok_button = CreateSPtr<ButtonUI>("sign up ok button");
+		m_id_text = CreateSPtr<TextUI>("id text", Vec2(350.0f, 50.0f), L"ID");
+		m_pw_text = CreateSPtr<TextUI>("pw text", Vec2(350.0f, 50.0f), L"PW");
 	}
 
 	bool LobbyUILayer::Initialize()
@@ -73,6 +78,7 @@ namespace revive
 		ret &= GenerateSignInMenuUI(window_size);
 		ret &= GenerateMatchingMenuUI(window_size);
 		ret &= GenerateOptionUI(window_size);
+		ret &= GenrateSignUpUI(window_size);
 
 		return ret;
 	}
@@ -437,6 +443,44 @@ namespace revive
 		return ret;
 	}
 
+	bool LobbyUILayer::GenrateSignUpUI(const Vec2& window_size)
+	{
+		bool ret = true;
+		
+		m_sign_up_succeed_image->SetTexture("Contents/ui/sign_up_success_menu.dds");
+		m_sign_up_succeed_image->SetPosition(window_size * 0.5f);
+		ret &= RegisterUserInterface(m_sign_up_succeed_image);
+
+		m_sign_up_succeed_ok_button->SetNormalTexture("Contents/ui/ok_normal.dds");
+		m_sign_up_succeed_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
+		m_sign_up_succeed_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
+		m_sign_up_succeed_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.f));
+		m_sign_up_succeed_ok_button->SetSize(Vec2(300.f, 120.f));
+		m_sign_up_succeed_ok_button->OnClicked([this]() {
+			DisablePopUpState(eLobbyPopupMenu::kSignUpSuccess);
+		});
+		DisablePopUpState(eLobbyPopupMenu::kSignUpSuccess);
+		ret &= RegisterUserInterface(m_sign_up_succeed_ok_button);
+
+		m_id_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
+		m_id_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		m_id_text->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		m_id_text->SetFontSize(20);
+		m_id_text->SetPosition(window_size * 0.5f - Vec2(0.0f, 75.0f));
+		m_id_text->SetColor(Vec4(0.f, 0.f, 0.f, 1.f));
+		ret &= RegisterUserInterface(m_id_text);
+
+		m_pw_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
+		m_pw_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		m_pw_text->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+		m_pw_text->SetFontSize(20);
+		m_pw_text->SetPosition(window_size * 0.5f - Vec2(0.0f, 30.0f));
+		m_pw_text->SetColor(Vec4(0.f, 0.f, 0.f, 1.f));
+		ret &= RegisterUserInterface(m_pw_text);
+
+		return ret;
+	}
+
 
 	void LobbyUILayer::SetPopUpState(eLobbyPopupMenu state, bool is_pop_up)
 	{
@@ -507,6 +551,16 @@ namespace revive
 			m_shadow_quality_text->SetActivate(is_pop_up);
 			m_shadow_quality_text->SetVisible(is_pop_up);
 			break;
+		case eLobbyPopupMenu::kSignUpSuccess:
+			m_sign_up_succeed_ok_button->SetActivate(is_pop_up);
+			m_sign_up_succeed_ok_button->SetVisible(is_pop_up);
+			m_sign_up_succeed_image->SetActivate(is_pop_up);
+			m_sign_up_succeed_image->SetVisible(is_pop_up);
+			m_id_text->SetActivate(is_pop_up);
+			m_id_text->SetVisible(is_pop_up);
+			m_pw_text->SetActivate(is_pop_up);
+			m_pw_text->SetVisible(is_pop_up);
+			break;
 		default:
 			break;
 		}
@@ -567,6 +621,13 @@ namespace revive
 	{
 		EnablePopUpState(eLobbyPopupMenu::kGameStart);
 		m_is_wait_matching = false;
+	}
+
+	void LobbyUILayer::SucceededSignUp()
+	{
+		EnablePopUpState(eLobbyPopupMenu::kSignUpSuccess);
+		m_id_text->SetText(m_id);
+		m_pw_text->SetText(m_pw);
 	}
 
 	void LobbyUILayer::EnableDevelopMode()

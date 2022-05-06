@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "client/object/component/util/render_camera_component.h"
 #include "client/object/actor/core/actor.h"
+#include "client/physics/collision/collisioner/ray_collisioner.h"
 #include "client/renderer/core/render.h"
 
 namespace client_fw
@@ -54,5 +55,48 @@ namespace client_fw
 	SPtr<RenderCameraComponent> RenderCameraComponent::SharedFromThis()
 	{
 		return std::static_pointer_cast<RenderCameraComponent>(shared_from_this());
+	}
+
+	SpringArmRenderCameraComponent::SpringArmRenderCameraComponent(const std::string& name)
+		: RenderCameraComponent(name)
+	{
+		if (m_collisioner == nullptr)
+		{
+			m_oriented_box = CreateSPtr<BOrientedBox>();
+
+			auto collisioner = CreateUPtr<RayCollisioner>();
+			collisioner->SetOriginFunction([this]() 
+				{
+					return vec3::TransformCoord(m_spring_arm_target_position, GetOwner().lock()->GetWorldMatrix());
+				});
+			collisioner->SetDirectionFunction([this]()
+				{
+					return vec3::Normalize(GetCameraPosition() - vec3::TransformCoord(m_spring_arm_target_position, GetOwner().lock()->GetWorldMatrix()));
+				});
+			collisioner->SetDistanceFunction([this](float distance)
+				{
+					m_distance = min(distance, m_distance);
+				});
+			m_collisioner = std::move(collisioner);
+		}
+	}
+
+	bool SpringArmRenderCameraComponent::Initialize()
+	{
+		bool ret = RenderCameraComponent::Initialize();
+		return ret;
+	}
+
+	void SpringArmRenderCameraComponent::Update(float delta_time)
+	{
+		RenderCameraComponent::Update(delta_time);
+
+		m_distance = min(m_max_distance, m_distance + delta_time * m_spring_speed);
+		SetLocalPosition(m_spring_arm_target_position - GetLocalForward() * m_distance);
+	}
+
+	void SpringArmRenderCameraComponent::UpdateOrientedBox()
+	{
+		m_oriented_box->Transform(BOrientedBox(vec3::ZERO, Vec3(1.f, 1.f, 1.f)), GetWorldMatrix());
 	}
 }

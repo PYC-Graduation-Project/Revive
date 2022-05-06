@@ -96,4 +96,9 @@ namespace revive
 	{
 	}
 
+	SignUpMessageEventOkInfo::SignUpMessageEventOkInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
+
 }

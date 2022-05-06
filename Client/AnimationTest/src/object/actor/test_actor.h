@@ -25,6 +25,8 @@ namespace anim_test
 
 		void SetWeapon(const std::string& mesh_path,const std::string& socket_name);
 		void SetWeaponOffset(const Vec3& offset);
+
+		SPtr<SkeletalMeshComponent> GetSkeletalMeshComponent() const;
 	protected:
 		bool m_is_eqquiped = false;
 		std::string m_mesh_path;

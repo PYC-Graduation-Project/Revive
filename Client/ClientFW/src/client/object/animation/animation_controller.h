@@ -3,6 +3,7 @@
 
 namespace client_fw
 {
+	class SkeletalMeshComponent;
 	class AnimationSeqnece;
 	class Skeleton;
 
@@ -42,6 +43,9 @@ namespace client_fw
 		void SetAnimationSpeed(float value) { m_animation_speed = value; }
 		const float GetAnimationSpeed() const { return m_animation_speed; }
 		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function);
+		
+		void SetOwner(const SPtr<SkeletalMeshComponent>& owner) { m_owner = owner; }
+		SPtr<SkeletalMeshComponent> GetOwner() const { return m_owner.lock(); }
 
 	private:
 		std::string m_mesh_path;
@@ -62,6 +66,7 @@ namespace client_fw
 		UINT m_instance_index;
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		SPtr<AnimationSequence> m_ready_anim_seq = nullptr;
+		WPtr<SkeletalMeshComponent> m_owner;
 		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
 		std::vector<Mat4> m_bone_transform_data;

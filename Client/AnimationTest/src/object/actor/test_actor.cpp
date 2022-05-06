@@ -55,4 +55,8 @@ namespace anim_test
 		m_weapon_offset = offset;
 		
 	}
+	SPtr<SkeletalMeshComponent> TestActor::GetSkeletalMeshComponent() const
+	{
+		return std::static_pointer_cast<SkeletalMeshComponent>(m_skeletal_mesh_component);
+	}
 }

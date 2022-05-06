@@ -5,7 +5,7 @@
 
 void SendManager::SendPacket(const SOCKET& s_socket,int num_byte, void* packet)
 {
-	EXP_OVER* exp_over = new EXP_OVER(COMP_OP::OP_SEND, num_byte, packet);;
+	EXP_OVER* exp_over = new EXP_OVER(COMP_OP::OP_SEND, num_byte, packet);
 	int ret = WSASend(s_socket, &exp_over->_wsa_buf, 1, 0, 0, &exp_over->_wsa_over, NULL);
 	if (SOCKET_ERROR == ret) {
 		int error_num = WSAGetLastError();

@@ -40,6 +40,33 @@ namespace client_fw
 		SPtr<RenderCameraComponent> SharedFromThis();
 	};
 
+	class SpringArmRenderCameraComponent : public RenderCameraComponent
+	{
+	public:
+		SpringArmRenderCameraComponent(const std::string& name = "spring arm render camera component");
+		virtual ~SpringArmRenderCameraComponent() = default;
+
+		virtual bool Initialize() override;
+		virtual void Update(float delta_time) override;
+
+	protected:
+		virtual void UpdateOrientedBox() override;
+
+	private:
+		Vec3 m_spring_arm_target_position;
+		float m_max_distance = 400.0f;
+		float m_distance = 400.0f;
+		float m_spring_speed = 400.0f;
+
+	public:
+		const Vec3& GetSpringArmTargetPosition() const { return m_spring_arm_target_position; }
+		void SetSpringArmTargetPosition(const Vec3& position) { m_spring_arm_target_position = position; }
+		float GetMaxDistance() const { return m_max_distance; }
+		void SetMaxDistance(float distance) { m_max_distance = distance; }
+		float GetDistance() const { return m_distance; }
+		float GetSpringSpeed() const { return m_spring_speed; }
+		void SetSpringSpeed(float speed) { m_spring_speed = speed; }
+	};
 }
 
 
