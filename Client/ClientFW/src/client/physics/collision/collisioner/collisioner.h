@@ -11,7 +11,7 @@ namespace client_fw
 
 	enum class eMeshCollisionType
 	{
-		kStaticMesh, kBox, kSphere,
+		kStaticMesh, kBox, kSphere, kRay
 	};
 
 	class Collisioner

@@ -340,7 +340,7 @@ namespace revive
 	RevivePlayer::RevivePlayer(const std::string& name)
 		: DefaultPlayer(name)
 	{
-		m_camera_component = CreateSPtr<RenderCameraComponent>("Follow Camera");
+		m_camera_component = CreateSPtr<SpringArmRenderCameraComponent>("Follow Camera");
 		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
 		m_movement_component = CreateSPtr<CharacterMovementComponent>();
 	}
@@ -365,9 +365,13 @@ namespace revive
 		const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 		if (player_controller != nullptr)
 			player_controller->SetPlayerCamera(m_camera_component);
-		ret &= AttachComponent(m_camera_component);
+
 		m_camera_component->UseControllerRotation(true);
-		m_camera_component->SetLocalPosition(Vec3(0.0f, 200.0f, -500.0f));
+		m_camera_component->SetMaxDistance(500.0f);
+		m_camera_component->SetSpringSpeed(800.0f);
+		m_camera_component->SetSpringArmTargetPosition(Vec3(0.0f, 200.0f, 0.0f));
+		m_camera_component->SetCollisionInfo(true, false, "player", { "base", "wall" }, true);
+		ret &= AttachComponent(m_camera_component);
 
 		RegisterEvent();
 		

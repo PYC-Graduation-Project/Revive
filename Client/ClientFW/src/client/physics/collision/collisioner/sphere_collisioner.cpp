@@ -25,6 +25,8 @@ namespace client_fw
 			BSphere sphere2(other->GetWorldPosition(), other->GetOrientedBox()->GetExtents().x);
 			return sphere1.Intersects(sphere2);
 		}
+		case eMeshCollisionType::kRay:
+			return other->GetCollisioner()->CheckCollisionWithOtherComponent(GetOwner());
 		default:
 			break;
 		}
