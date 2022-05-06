@@ -88,7 +88,7 @@ namespace revive
 
 		SetPosition(GetPosition() + m_inter_velocity * delta_time * 2.0f);
 
-		if (m_disappear_time >= 1.0f)
+		if (m_disappear_time >= 0.1f)
 		{
 			m_is_disappearing = false;
 			if(m_weapon != nullptr)

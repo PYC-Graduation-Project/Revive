@@ -53,7 +53,10 @@ namespace revive
 		m_skeletal_mesh_component->SetLocalScale(100.f);
 		
 		//죽었으니 장비 벗어
-		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() { Unequip(); });
+		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() { 
+			Unequip(); 
+			m_skeletal_mesh_component->SetIsPlaying(false);
+		});
 
 		//공격2 전환 및 종료
 		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
@@ -370,7 +373,7 @@ namespace revive
 		m_camera_component->SetMaxDistance(500.0f);
 		m_camera_component->SetSpringSpeed(800.0f);
 		m_camera_component->SetSpringArmTargetPosition(Vec3(0.0f, 200.0f, 0.0f));
-		m_camera_component->SetCollisionInfo(true, false, "player", { "base", "wall" }, true);
+		m_camera_component->SetCollisionInfo(true, false, "player", { "ground","base", "wall"}, true);
 		ret &= AttachComponent(m_camera_component);
 
 		RegisterEvent();

@@ -65,7 +65,7 @@ namespace client_fw
             {
                 time_pos += delta_time * m_animation_speed;
                 m_time_pos = time_pos;
-                if (m_time_pos >= m_end_time) m_owner.lock()->SetIsPlaying(false);
+                //if (m_time_pos >= m_end_time) m_owner.lock()->SetIsPlaying(false);
             }
 
             //LOG_INFO(" {0} , {1} {2} {3}", m_prev_time_index, m_time_pos,time_pos, m_end_time);
