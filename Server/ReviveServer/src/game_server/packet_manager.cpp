@@ -1052,7 +1052,12 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(p);
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	Vector3 pos{ packet->x,packet->y,packet->z };
-
+	cl->state_lock.lock();
+	if (cl->GetState() != STATE::ST_INGAME)
+	{
+		cl->state_lock.unlock();
+		return;
+	}else cl->state_lock.unlock();
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 
 	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
@@ -1423,6 +1428,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	{
 		ex_over->_comp_op = COMP_OP::OP_NPC_SPAWN;
 		ex_over->target_id = ev.target_id;
+		ex_over->room_id = ev.room_id;
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
