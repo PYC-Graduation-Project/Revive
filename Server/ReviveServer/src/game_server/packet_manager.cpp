@@ -1137,7 +1137,6 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		for (auto id : match_list)
 		{
 			Player* player = MoveObjManager::GetInst()->GetPlayer(id);
-			player->SetRoomID(r_id);
 			player->is_matching = false;
 			player->state_lock.lock();
 			player->SetState(STATE::ST_INGAME);
@@ -1182,13 +1181,12 @@ void PacketManager::ProcessHit(int c_id, unsigned char* p)
 	cs_packet_hit* packet = reinterpret_cast<cs_packet_hit*>(p);
 	MoveObj* victim = MoveObjManager::GetInst()->GetMoveObj(packet->victim_id);
 	MoveObj*attacker= MoveObjManager::GetInst()->GetMoveObj(packet->attacker_id);
+	if (victim->GetRoomID() == -1 || attacker->GetRoomID() == -1)return;
 	Room* room = m_room_manager->GetRoom(attacker->GetRoomID());
 	float hp;
-	if (false == victim->GetIsActive())return;
 	victim->m_hp_lock.lock();
 	victim->SetHP(victim->GetHP() - attacker->GetDamge());
 	hp = victim->GetHP();
-	//player였으면 게임오버 추가
 	victim->m_hp_lock.unlock();
 	for (int obj_id : room->GetObjList())
 	{
@@ -1222,6 +1220,7 @@ void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 {
 	cs_packet_game_start* packet = reinterpret_cast<cs_packet_game_start*>(p);
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	if (player->GetRoomID() == -1)return;
 	player->SetIsReady(true);
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
 	for (auto pl : room->GetObjList())
@@ -1230,7 +1229,7 @@ void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 		if (false == MoveObjManager::GetInst()->GetPlayer(pl)->GetIsReady())return;
 	
 	}
-		StartGame(room->GetRoomID());
+	StartGame(room->GetRoomID());
 }
 
 
@@ -1438,11 +1437,6 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		ex_over->_comp_op = COMP_OP::OP_NPC_TIMER_SPAWN;
 		ex_over->target_id = ev.target_id;
 		ex_over->room_id = ev.room_id;
-		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
-		break;
-	}
-	case EVENT_TYPE::EVENT_PLAYER_MOVE: {
-		ex_over->_comp_op = COMP_OP::OP_PLAYER_MOVE;
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
