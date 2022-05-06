@@ -373,7 +373,7 @@ namespace revive
 		m_camera_component->SetMaxDistance(500.0f);
 		m_camera_component->SetSpringSpeed(800.0f);
 		m_camera_component->SetSpringArmTargetPosition(Vec3(0.0f, 200.0f, 0.0f));
-		m_camera_component->SetCollisionInfo(true, false, "player", { "ground","base", "wall"}, true);
+		m_camera_component->SetCollisionInfo(true, false, "player camera", { "ground","base", "wall"}, true);
 		ret &= AttachComponent(m_camera_component);
 
 		RegisterEvent();
