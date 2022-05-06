@@ -60,6 +60,11 @@ namespace revive
 			m_lobby_ui_layer->SucceededLogin();
 			break;
 		}
+		case HashCode("sign up"):
+		{
+			m_lobby_ui_layer->SucceededSignUp();
+			break;
+		}
 		case HashCode("login fail"):
 		{
 			auto msg = std::static_pointer_cast<LoginFailMessageEventInfo>(message);

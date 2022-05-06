@@ -22,7 +22,8 @@ namespace revive
 	{
 		kInvalidIDPW, kAlreadyLogin, kLoginSuccess,
 		kNotLogin, kMatching, kGameStart,
-		kOption
+		kOption, kSignUpSuccess
+
 	};
 
 	enum class eLoginFailState
@@ -44,6 +45,7 @@ namespace revive
 		bool GenerateSignInMenuUI(const Vec2& window_size);
 		bool GenerateMatchingMenuUI(const Vec2& window_size);
 		bool GenerateOptionUI(const Vec2& window_size);
+		bool GenrateSignUpUI(const Vec2& window_size);
 
 	private:
 		SPtr<TextBoxUI> m_id_text_box;
@@ -81,6 +83,10 @@ namespace revive
 		SPtr<ButtonUI> m_shadow_quality_left_button;
 		SPtr<ButtonUI> m_shadow_quality_right_button;
 		SPtr<TextUI> m_shadow_quality_text;
+		SPtr<ImageUI> m_sign_up_succeed_image;
+		SPtr<ButtonUI> m_sign_up_succeed_ok_button;
+		SPtr<TextUI> m_id_text;
+		SPtr<TextUI> m_pw_text;
 
 	private:
 		std::string m_id;
@@ -104,6 +110,7 @@ namespace revive
 		void FailedLogin(eLoginFailState state);
 		void SucceededLogin();
 		void SucceededMatching();
+		void SucceededSignUp();
 		void EnableDevelopMode();
 	};
 }

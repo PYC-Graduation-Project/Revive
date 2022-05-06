@@ -149,7 +149,7 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
 			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
-			m_target_position = msg->GetTargetPosition() + Vec3{0.f,80.f,0.f};
+			m_target_position = msg->GetTargetPosition();
 			Attack();
 
 			if (m_attack_packet_state_function != nullptr)

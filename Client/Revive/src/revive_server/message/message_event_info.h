@@ -64,6 +64,13 @@ namespace revive
         char* GetUserID() { return m_user_id; }
         char* GetUserPassword() { return m_user_pw; }
     };
+
+    class SignUpMessageEventOkInfo final :public MessageEventInfo
+    {
+    public:
+        SignUpMessageEventOkInfo(UINT event_id);
+    };
+
     class TestMessageEventInfo final :public MessageEventInfo
     {
     public:

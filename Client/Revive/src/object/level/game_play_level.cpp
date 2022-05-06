@@ -371,8 +371,9 @@ namespace revive
 	{
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f), 2)); //Castle
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4000.0f, Vec3(2400.0f, 0, 6600.0f), 2)); //Bridge + Spawn Area
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f, Vec3(2400.0f, 0.f, 2400.0f), 2)); //Castle
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(3600.0f, Vec3(2400.0f, 0.f, 6600.0f), 2)); //Bridge + Spawn Area
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(2400.0f, 0.f, 16800.0f), 0));
 		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f))); //Left Ground
 		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f))); //Right Ground
 		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f))); //Left Ground2
@@ -384,8 +385,9 @@ namespace revive
 	{
 
 		std::vector<SPtr<CollisionOctree>> collision_octrees;
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(4800.0f, Vec3(2400.0f, 0, 2400.0f),0));
-		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(3600.0f, Vec3(2400.0f, 0, 6600.0f),0));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(4800.0f, Vec3(2400.0f, 0.f, 2400.0f), 0));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(3600.0f, Vec3(2400.0f, 0.f, 6600.0f), 0));
+		collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(2400.0f, Vec3(2400.0f, 0.f, 9600.0f), 0));
 		//collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 12500.0f),0)); //가로는 2500만큼 감싸고(양옆) 세로는 1000만큼 감싸야하지만 정사각형이므로 2500만큼 감싼다.
 		return collision_octrees;
 	}

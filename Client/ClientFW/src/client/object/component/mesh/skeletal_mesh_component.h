@@ -41,6 +41,7 @@ namespace client_fw
 		const bool IsLooping() { return m_looping; }
 		void SetLooping(const bool looping) { m_looping = looping; }
 
+		const bool IsPlaying() { return m_is_playing; }
 		void SetIsPlaying(const bool is_playing) { m_is_playing = is_playing; }
 
 		const std::string& GetAnimationName() const { return m_animation_name; }
