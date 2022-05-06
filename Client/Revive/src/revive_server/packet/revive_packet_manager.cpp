@@ -47,7 +47,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	}
 	else
 	{
-		LOG_INFO("No Object");
+		LOG_INFO("No Object{0}", packet->id);
 	}
 	
 }
@@ -116,6 +116,7 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 	NetworkObj* obj = NULL;
 	Network::matching_end = true;
 	NW_OBJ_TYPE nw_type;
+	//string da = "ss";
 	packet->id == m_game_info.GetNetworkID() ? nw_type = NW_OBJ_TYPE::OT_MY_PLAYER : nw_type =(NW_OBJ_TYPE)packet->object_type;
 		auto res=m_obj_map.try_emplace(packet->id, CreateSPtr<NetworkMoveObj>(
 			packet->id,
@@ -238,11 +239,10 @@ void RevivePacketManager::Reset()
 {
 	for (auto& obj : m_obj_map)
 	{
-
-		PacketHelper::DisconnectActorFromServer(obj.first);
+		if(obj.second->GetIsActive()==true)
+			PacketHelper::DisconnectActorFromServer(obj.first);
 		obj.second = nullptr;
 		
 	}
 	m_obj_map.clear();
-	m_prev_size = 0;
 }

@@ -675,7 +675,7 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.type = SC_PACKET_OBJ_INFO;
 	packet.damage = obj->GetDamge();
 	packet.maxhp = obj->GetHP();
-	strcpy_s(packet.name,MAX_NAME_SIZE+1 ,obj->GetName());
+	strcpy_s(packet.name,MAX_NAME_SIZE+2 ,obj->GetName());
 	packet.object_type = static_cast<char>(obj->GetType());
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
@@ -1032,6 +1032,7 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(p);
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
 	if (player->GetRoomID() == -1)return;
+	
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
 	Vector3 position{ packet->x,packet->y,packet->z };
 	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
