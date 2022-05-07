@@ -159,9 +159,9 @@ namespace revive
 		if (floor(m_previous_velocity.Length() - m_velocity.Length()) == 0)
 			m_stop_time += delta_time;
 
-		if (m_stop_time >= 0.1f)
+		if (m_stop_time >= 0.5f)
 		{
-			m_stop_time -= 0.1f;
+			m_stop_time -= 0.5f;
 			m_velocity = vec3::ZERO;
 			m_previous_velocity = vec3::ZERO;
 		}
@@ -186,7 +186,6 @@ namespace revive
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 
 				//SetRotation(msg->GetObjRotation());
-
 
 				m_previous_pos = m_next_pos;
 				m_velocity = msg->GetObjPosition() - m_previous_pos;
@@ -228,12 +227,12 @@ namespace revive
 		Quaternion rot = quat::CreateQuaternionFromRollPitchYaw(0.f, angle, 0.f);
 		
 		if (isnan(rot.x) || isnan(rot.y) || isnan(rot.z) || isnan(rot.w))
+		{
+			LOG_WARN("Rotation value is Nan {0}", rot);
 			return GetRotation();
+		}
 		
 		return rot;
-		/*Vec3 rotate_player = Vec3{ 0.f,math::ToDegrees(angle),0.f };
-		return quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(rotate_player.x), math::ToRadian(rotate_player.y), math::ToRadian(rotate_player.z));*/
-
 	}
 
 	const float DefaultPlayer::GetVelocity() const
@@ -370,8 +369,9 @@ namespace revive
 			player_controller->SetPlayerCamera(m_camera_component);
 
 		m_camera_component->UseControllerRotation(true);
-		m_camera_component->SetMaxDistance(500.0f);
+		m_camera_component->SetMaxDistance(350.0f);
 		m_camera_component->SetSpringSpeed(800.0f);
+		m_camera_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
 		m_camera_component->SetSpringArmTargetPosition(Vec3(0.0f, 200.0f, 0.0f));
 		m_camera_component->SetCollisionInfo(true, false, "player camera", { "ground","base", "wall"}, true);
 		ret &= AttachComponent(m_camera_component);

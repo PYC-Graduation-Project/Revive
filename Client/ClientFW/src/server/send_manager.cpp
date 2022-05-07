@@ -10,7 +10,7 @@ void SendManager::SendPacket(const SOCKET& s_socket,int num_byte, void* packet)
 	if (SOCKET_ERROR == ret) {
 		int error_num = WSAGetLastError();
 		if (ERROR_IO_PENDING != error_num)
-			Network::error_display(error_num);
+			LOG_INFO("send 오류발생{0}",error_num);
 	}
 }
 
