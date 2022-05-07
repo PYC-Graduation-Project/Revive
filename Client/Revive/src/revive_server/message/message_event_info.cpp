@@ -43,12 +43,12 @@ namespace revive
 		: MessageEventInfo(event_id), m_pos(pos)
 	{
 	}
-	SendAttackEventInfo::SendAttackEventInfo(UINT event_id, const Vec3& start_pos, const Vec3& forward_vec)
-		: MessageEventInfo(event_id),m_start_pos(start_pos),m_forward_vec(forward_vec)
+	SendAttackEventInfo::SendAttackEventInfo(UINT event_id, const Vec3& forward_vec)
+		: MessageEventInfo(event_id),m_forward_vec(forward_vec)
 	{
 	}
-	RecvAttackEventInfo::RecvAttackEventInfo(UINT event_id)
-		: MessageEventInfo(event_id)
+	RecvAttackEventInfo::RecvAttackEventInfo(UINT event_id, const Vec3& forward_vec)
+		: MessageEventInfo(event_id),m_forward_vec(forward_vec)
 	{
 	}
 	MatchingMessageOKEventInfo::MatchingMessageOKEventInfo(UINT event_id)

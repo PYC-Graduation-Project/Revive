@@ -26,7 +26,7 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 	case HashCode("send attack"): {
 		auto msg = std::static_pointer_cast<revive::SendAttackEventInfo>(message);
 		LOG_INFO("send attack");
-		SendAttackPacket(s_socket,msg->GetStartPosition(),msg->GetForward());
+		SendAttackPacket(s_socket,msg->GetForward());
 		break;
 	}
 	case HashCode("send hit"): {
@@ -97,18 +97,15 @@ void ReviveSendManager::SendMovePacket(const SOCKET& s_socket, client_fw::Vec3& 
 	SendPacket(s_socket, sizeof(packet), &packet);
 }
 
-void ReviveSendManager::SendAttackPacket(const SOCKET& s_socket, const client_fw::Vec3& position, const client_fw::Vec3& forward)
+void ReviveSendManager::SendAttackPacket(const SOCKET& s_socket,const client_fw::Vec3& forward_vec)
 {
 	cs_packet_attack packet;
 	packet.size = sizeof(packet);
 	packet.type = CS_PACKET_ATTACK;
-	packet.x = position.x;
-	packet.y = position.y;
-	packet.z = position.z;
 
-	packet.f_x = forward.x;
-	packet.f_y = forward.y;
-	packet.f_z = forward.z;
+	packet.f_x =forward_vec.x;
+	packet.f_y =forward_vec.y;
+	packet.f_z =forward_vec.z;
 	SendPacket(s_socket, sizeof(packet), &packet);
 }
 

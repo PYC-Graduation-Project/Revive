@@ -126,18 +126,22 @@ namespace revive
     class SendAttackEventInfo final : public MessageEventInfo
     {
     public:
-        SendAttackEventInfo(UINT event_id,const Vec3&start_pos, const Vec3&forward_vec);
+        SendAttackEventInfo(UINT event_id, const Vec3&forward_vec);
     private:
-        Vec3 m_start_pos;
         Vec3 m_forward_vec;
     public:
-        const Vec3& GetStartPosition()const { return m_start_pos; }
+       
         const Vec3& GetForward()const { return m_forward_vec; }
     };
     class RecvAttackEventInfo final : public MessageEventInfo
     {
     public:
-        RecvAttackEventInfo(UINT event_id);
+        RecvAttackEventInfo(UINT event_id, const Vec3& forward_vec);
+    private:
+        Vec3 m_forward_vec;
+    public:
+
+        const Vec3& GetForward()const { return m_forward_vec; }
   
     };
     class MatchingMessageOKEventInfo final :public MessageEventInfo

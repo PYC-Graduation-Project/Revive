@@ -108,7 +108,6 @@ struct cs_packet_move {
 struct cs_packet_attack {
 	unsigned char size;
 	char	type;
-	float x, y, z;
 	float f_x, f_y, f_z;
 };
 
@@ -236,7 +235,7 @@ struct sc_packet_attack {
 	unsigned char size;
 	char type;
 	int	obj_id;
-	//float x, y, z;
+	float f_x, f_y, f_z;
 
 };
 struct sc_packet_base_status {

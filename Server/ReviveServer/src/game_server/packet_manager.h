@@ -42,7 +42,7 @@ public:
 	void SendObjInfo(int c_id, int obj_id);
 	void SendTime(int c_id,float round_time);
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
-	void SendAttackPacket(int c_id, int attacker);
+	void SendAttackPacket(int c_id, int attacker,const Vector3&forward_vec);
 	void SendBaseStatus(int c_id ,int room_id);
 	void SendStatusChange(int c_id, int obj_id, float hp);
 	void SendGameWin(int c_id);

@@ -614,12 +614,15 @@ void PacketManager::SendTestPacket(int c_id, int mover, float x, float y, float 
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
-void PacketManager::SendAttackPacket(int c_id, int attacker)
+void PacketManager::SendAttackPacket(int c_id, int attacker, const Vector3& forward_vec)
 {
 	sc_packet_attack packet;
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_ATTACK;
 	packet.obj_id = attacker;
+	packet.f_x = forward_vec.x;
+	packet.f_y = forward_vec.y;
+	packet.f_z = forward_vec.z;
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
@@ -940,15 +943,15 @@ void PacketManager::ProcessAttack(int c_id,unsigned char* p)
 	if (player->GetRoomID() == -1)return;
 	
 	Room* room = m_room_manager->GetRoom(player->GetRoomID());
-	Vector3 position{ packet->x,packet->y,packet->z };
-	Vector3 forward{ packet->f_x,packet->f_y,packet->f_z };
+	Vector3 forward_vec{ packet->f_x,packet->f_y,packet->f_z };
+	
 	//cout << position << endl;
 	//cout << forward << endl;
 	for (int pl : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
 		if (pl == c_id)continue;
-		SendAttackPacket(pl,c_id);
+		SendAttackPacket(pl,c_id, forward_vec);
 	}
 	
 	

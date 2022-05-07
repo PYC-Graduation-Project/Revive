@@ -28,6 +28,10 @@ const float FOV_RANGE = 900.0f;
 const float SKULL_HP = 5 * PLAYER_DAMAGE;
 const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 
+const float PLAYER_HP = 30.0f;
+const float BASE_HP = 50.0f;
+
+
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
@@ -104,7 +108,6 @@ struct cs_packet_move {
 struct cs_packet_attack {
 	unsigned char size;
 	char	type;
-	float x, y, z;
 	float f_x, f_y, f_z;
 };
 
@@ -232,7 +235,7 @@ struct sc_packet_attack {
 	unsigned char size;
 	char type;
 	int	obj_id;
-	//float x, y, z;
+	float f_x, f_y, f_z;
 
 };
 struct sc_packet_base_status {
