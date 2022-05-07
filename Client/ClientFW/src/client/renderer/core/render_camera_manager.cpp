@@ -180,12 +180,12 @@ namespace client_fw
 		if (m_ready_main_camera != nullptr)
 		{
 			m_ready_main_camera->UpdateViewport(0, 0, width, height);
-			m_ready_main_camera->SetNearZ(1.0f);
+			m_ready_main_camera->SetNearZ(20.0f);
 		}
 		else if (m_main_camera != nullptr)
 		{
 			m_main_camera->UpdateViewport(0, 0, width, height);
-			m_main_camera->SetNearZ(1.0f);
+			m_main_camera->SetNearZ(20.0f);
 		}
 	}
 

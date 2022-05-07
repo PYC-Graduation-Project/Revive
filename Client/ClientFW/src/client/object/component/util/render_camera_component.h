@@ -58,6 +58,7 @@ namespace client_fw
 		Vec3 m_spring_arm_target_position;
 		float m_max_distance = 400.0f;
 		float m_distance = 400.0f;
+		float m_offset = 0.0f;
 		float m_spring_speed = 400.0f;
 
 	public:

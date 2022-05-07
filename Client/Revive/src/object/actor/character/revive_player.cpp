@@ -23,6 +23,7 @@
 #include "object/actor/projectile/projectile.h"
 #include "object/actor/projectile/bullet.h"
 #include "object/statemachine/state_machine.h"
+
 #include "revive_server/message/message_event_info.h"
 
 namespace revive
@@ -266,6 +267,13 @@ namespace revive
 	void DefaultPlayer::SetAnimationSpeed(float speed)
 	{
 		m_skeletal_mesh_component->SetAnimationSpeed(speed);
+	}
+
+	void DefaultPlayer::SetHP(float hp)
+	{
+		m_hp = hp;
+		if (m_changed_hp_function != nullptr)
+			m_changed_hp_function(m_hp, m_max_hp);
 	}
 
 	void DefaultPlayer::SetNetworkPosition(const Vec3& pos)

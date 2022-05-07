@@ -247,7 +247,6 @@ namespace client_fw
 		const auto& ui_layer = widget_comp->GetUserInterfaceLayer();
 		if (ui_layer != nullptr)
 		{
-			UINT num_of_data = ui_layer->GetNumOfVisibleTexture();
 			if (widget_comp->GetWidgetSpaceType() == eWidgetSpaceType::kWorld)
 			{
 				widget_comp->SetRenderItemIndex(static_cast<UINT>(m_world_widget_components.size()));
@@ -267,7 +266,6 @@ namespace client_fw
 		if (ui_layer != nullptr)
 		{
 			UINT index = widget_comp->GetRenderItemIndex();
-			UINT num_of_data = ui_layer->GetNumOfVisibleTexture();
 
 			if (widget_comp->GetWidgetSpaceType() == eWidgetSpaceType::kWorld)
 			{

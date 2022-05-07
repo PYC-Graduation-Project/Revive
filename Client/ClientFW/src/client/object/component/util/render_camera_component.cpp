@@ -75,7 +75,7 @@ namespace client_fw
 				});
 			collisioner->SetDistanceFunction([this](float distance)
 				{
-					m_distance = min(distance - 25.f, m_distance);
+					m_distance = min(distance - 15.f, m_distance);
 				});
 			m_collisioner = std::move(collisioner);
 		}
@@ -91,7 +91,7 @@ namespace client_fw
 	{
 		RenderCameraComponent::Update(delta_time);
 
-		m_distance = min(m_max_distance, m_distance + delta_time * m_spring_speed);
+		m_offset = m_spring_speed * delta_time;
 	}
 
 	void SpringArmRenderCameraComponent::UpdateViewMatrix()
@@ -115,6 +115,10 @@ namespace client_fw
 		}
 
 		m_view_matrix = mat4::LookAt(m_camera_position, target, m_camera_up);
+
+		m_distance = min(m_max_distance, m_distance + m_offset);
+		m_offset = 0.0f;
+
 
 		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 	}

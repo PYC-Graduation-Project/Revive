@@ -13,14 +13,11 @@ namespace client_fw
 	{
 		bool ret = false;
 		ret = Initialize();
-		m_is_initialized = true;
 		return  ret;
 	}
 
 	void UserInterfaceLayer::ShutdownUILayer()
 	{
-		m_is_initialized = false;
-		m_num_of_visible_texture = 0;
 		Shutdown();
 
 		for (const auto& ui : m_user_interfaces)
@@ -37,24 +34,15 @@ namespace client_fw
 
 	bool UserInterfaceLayer::RegisterUserInterface(const SPtr<UserInterface>& ui)
 	{
-		if (m_is_initialized == false)
+		if (ui->Initialize())
 		{
-			if (ui->Initialize())
-			{
-				m_num_of_visible_texture += ui->GetNumOfVisibleTexture();
-				m_user_interfaces.push_back(ui);
-				return true;
-			}
-			else
-			{
-				LOG_ERROR("Could not initialize user interface : {0}", ui->GetName());
-				ui->Shutdown();
-				return false;
-			}
+			m_user_interfaces.push_back(ui);
+			return true;
 		}
 		else
 		{
-			LOG_WARN("Could not register user interface after initialization");
+			LOG_ERROR("Could not initialize user interface : {0}", ui->GetName());
+			ui->Shutdown();
 			return false;
 		}
 	}

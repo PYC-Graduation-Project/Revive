@@ -30,6 +30,7 @@
 #include "object/actor/healer.h"
 #include "object/ui/game_end_ui_layer.h"
 #include"server/network.h"
+#include "object/ui/player_info_ui_layer.h"
 
 std::string g_id;
 std::string g_pw;
@@ -39,7 +40,7 @@ namespace revive
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
-		
+		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
 	}
 
 	bool GamePlayLevel::Initialize()
@@ -82,6 +83,8 @@ namespace revive
 				}
 				return false;
 			});
+
+		RegisterUILayer(m_player_info_ui_layer);
 
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 
@@ -300,8 +303,11 @@ namespace revive
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
 				player->SetHP(obj->GetHp());
+				player->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				Network::matching_end = true;
+
+				m_player_info_ui_layer->SetOwnerPlayer(player);
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
@@ -312,8 +318,10 @@ namespace revive
 				player->SetNetworkPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
 				player->SetHP(obj->GetHp());
+				player->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
-				
+
+				m_player_info_ui_layer->RegisterOtherPlayer(player);
 				break;
 			}
 
