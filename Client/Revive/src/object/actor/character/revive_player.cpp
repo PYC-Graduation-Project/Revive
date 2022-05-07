@@ -118,8 +118,6 @@ namespace revive
 			ret &= AttachComponent(m_spot_light_component);
 		}
 		
-		
-
 		return ret;
 	}
 	
@@ -186,12 +184,20 @@ namespace revive
 				auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
 
 				//SetRotation(msg->GetObjRotation());
-
-				m_previous_pos = m_next_pos;
-				m_velocity = msg->GetObjPosition() - m_previous_pos;
-				m_next_pos = msg->GetObjPosition();
-				m_speed += m_velocity.Length();
-				m_stop_time = 0.f;
+				auto pos = msg->GetObjPosition();
+				if (pos.x > 0 && pos.y > 0 && pos.z > 0)
+				{
+					m_previous_pos = m_next_pos;
+					m_velocity = pos - m_previous_pos;
+					m_next_pos = pos;
+					m_speed += m_velocity.Length();
+					m_stop_time = 0.f;
+				}
+				else
+				{
+					LOG_WARN(pos);
+				}
+				
 				break;
 			}
 			case HashCode("player attack"):
@@ -391,6 +397,8 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
+		if (m_is_cheating)
+			m_is_attacking = true;
 
 		if (m_is_attacking)
 		{
@@ -415,6 +423,7 @@ namespace revive
 			auto msg = std::static_pointer_cast<StatusChangeEventInfo>(message);
 			//LOG_INFO("나 맞았어 HP는 {0}이야", msg->GetObjHp());
 			SetHP(msg->GetObjHp());
+
 			break;
 		}
 		}
