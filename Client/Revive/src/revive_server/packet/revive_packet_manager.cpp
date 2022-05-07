@@ -34,14 +34,19 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//cout<<<< "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	auto mover = m_obj_map.find(packet->id);
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
+	cout << "³ª À§Ä¡:"<<recv_pos << endl;
 	//cout << recv_pos << endl;
 	if (mover != m_obj_map.end())
 	{
 		if (mover->second->GetIsActive() == false)return;
+		if (isnan(packet->x) || isnan(packet->y) || isnan(packet->z))return;
 		auto end_t = std::chrono::system_clock::now();
+		
+
 		mover->second->SetPosition(move(recv_pos));
+
 		if (mover->second->m_move_time <= end_t) {
-			PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos), packet->id);
+			PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), mover->second->GetPosition()), packet->id);
 			mover->second->m_move_time = end_t + 50ms;
 		}
 	}
@@ -158,8 +163,10 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	auto target = m_obj_map.find(packet->target_id);
 	if (target != m_obj_map.end()) {
 		if (target->second->GetIsActive() == false)return;
+	
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);
+		
 
 	}
 	else if (target == m_obj_map.end()&&packet->target_id == -1)

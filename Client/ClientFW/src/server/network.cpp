@@ -94,14 +94,20 @@ void Network::Worker()
 			case COMP_OP::OP_SEND: {
 				if (num_byte != exp_over->_wsa_buf.len) {
 					closesocket(m_s_socket);
+					LOG_INFO("삑남");
+					delete exp_over;
 				}
-				delete exp_over;
+				else
+				{
+					LOG_INFO("send 완료");
+					delete exp_over;
+				}
 				break;
 			}
 			
 			}
 		}
-	
+		LOG_INFO("워커 쓰레드 종료");
 }
 
 
