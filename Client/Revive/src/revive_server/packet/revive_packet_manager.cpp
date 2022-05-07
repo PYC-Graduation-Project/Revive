@@ -34,7 +34,7 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	//cout<<<< "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	auto mover = m_obj_map.find(packet->id);
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
-	cout << "나 위치:"<<recv_pos << endl;
+	//cout << "나 위치:"<<recv_pos << endl;
 	//cout << recv_pos << endl;
 	if (mover != m_obj_map.end())
 	{
@@ -144,7 +144,7 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 	auto end_t = chrono::system_clock::now().time_since_epoch();
 	int t = end_t.count() - packet->send_time;
 	//cout << "네트워크 딜레이" << std::chrono::duration_cast<std::chrono::milliseconds>(end_t.count() - packet->send_time) << endl;
-	LOG_INFO("네트워크 딜레이:{0}",t);
+	//LOG_INFO("네트워크 딜레이:{0}",t);
 	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
 }
 
@@ -163,7 +163,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	auto target = m_obj_map.find(packet->target_id);
 	if (target != m_obj_map.end()) {
 		if (target->second->GetIsActive() == false)return;
-	
+		
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 			target->second->GetPosition()), packet->obj_id);//y값+80해서 보내주기
 		

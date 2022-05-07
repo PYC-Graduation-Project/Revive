@@ -7,37 +7,37 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 	{
 	case HashCode("send sign in"):{
 		auto msg = std::static_pointer_cast<revive::SignInMessageEventInfo>(message);
-		LOG_INFO("send sign in");
+		//LOG_INFO("send sign in");
 		SendSignInPacket(s_socket, msg->GetUserID(), msg->GetUserPassword());
 		break;
 	}
 	case HashCode("send sign up"): {
 		auto msg = std::static_pointer_cast<revive::SignUpMessageEventInfo>(message);
-		LOG_INFO("send sign up");
+		//LOG_INFO("send sign up");
 		SendSignUPPacket(s_socket, msg->GetUserID(), msg->GetUserPassword());
 		break;
 	}
 	case HashCode("send sign matching"): {
 		auto msg = std::static_pointer_cast<revive::MatchingMessageEventInfo>(message);
-		LOG_INFO("send sign matching");
+		//LOG_INFO("send sign matching");
 		SendMatchingPacket(s_socket, msg->GetUserNum());
 		break;
 	}
 	case HashCode("send attack"): {
 		auto msg = std::static_pointer_cast<revive::SendAttackEventInfo>(message);
-		LOG_INFO("send attack");
+		//LOG_INFO("send attack");
 		SendAttackPacket(s_socket,msg->GetForward());
 		break;
 	}
 	case HashCode("send hit"): {
 		auto msg = std::static_pointer_cast<revive::ObjectHitMessageEventInfo>(message);
-		LOG_INFO("send hit");
+		//LOG_INFO("send hit");
 		SendHitPacket(s_socket, msg->GetVictimID(), msg->GetAttackerID());
 		break;
 	}
 	case HashCode("game start"): {
 		auto msg = std::static_pointer_cast<revive::GameStartEventInfo>(message);
-		LOG_INFO("game start");
+		//LOG_INFO("game start");
 		SendGameStartPacket(s_socket);
 		break;
 	}

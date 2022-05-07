@@ -428,8 +428,11 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 		//room->SetBaseHp(base_hp);
 		//room->m_base_hp_lock.unlock();
 		Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetPos();
-		float dist = enemy->GetPos().Dist(base_pos);
-		int base_attack_t = (dist / 1500.0f)*1000;
+		int base_attack_t = 1000;
+		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL) {
+			float dist = enemy->GetPos().Dist(base_pos);
+			base_attack_t = (dist / 1500.0f) * 1000;
+		}
 		g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_BASE_ATTACK,
 			base_attack_t));
 	}
