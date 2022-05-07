@@ -302,6 +302,7 @@ namespace revive
 				auto player = std::dynamic_pointer_cast<RevivePlayer>(GetGameMode()->GetDefaultPawn());
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
+				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
@@ -317,6 +318,7 @@ namespace revive
 				SpawnActor(player);
 				player->SetNetworkPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
+				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());

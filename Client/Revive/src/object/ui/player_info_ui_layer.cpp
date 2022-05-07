@@ -70,14 +70,14 @@ namespace revive
 		float y_offset = 50.0f * m_other_players_info.size();
 
 		OtherPlayerUIInfo info;
-		info.id_text = CreateSPtr<TextUI>(id_text + " player id text", Vec2(50.0f, 20.f), std::to_wstring(id) + L" : ");
+		info.id_text = CreateSPtr<TextUI>(id_text + " player id text", Vec2(200.0f, 20.f), L"player - " + utf8_decode(player.lock()->GetPlayerName()));
 		info.id_text->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
-		info.id_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		info.id_text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_JUSTIFIED);
 		info.id_text->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		info.id_text->SetFontName(L"배달의민족 주아");
 		info.id_text->SetFontSize(16);
-		info.id_text->SetPosition(Vec2(0.f, 150.0f + y_offset));
-		info.id_text->SetPivot(Vec2(0.f, 0.f));
+		info.id_text->SetPosition(Vec2(50.f, 150.0f + y_offset));
+		info.id_text->SetPivot(Vec2(0.f, 1.f));
 		info.id_text->SetColor(Vec4(1.f, 1.f, 1.f));
 		RegisterUserInterface(info.id_text);
 

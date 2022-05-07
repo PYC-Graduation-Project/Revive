@@ -34,6 +34,7 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	protected:
+		std::string m_player_name = "revive";
 		float m_hp = 1;
 		float m_max_hp = 1;
 		int m_hit_count = 0;//맞는 도중 또 맞는 경우를 위해 만듬
@@ -70,6 +71,8 @@ namespace revive
 	public:
 		virtual const float GetVelocity() const;
 		const int GetHitCount() const { return m_hit_count; }
+		const std::string& GetPlayerName() const { return m_player_name; }
+		void SetPlayerName(const std::string& name) { m_player_name = name; }
 		const float GetHP() const { return m_hp; }
 		const float GetMaxHP() const { return m_max_hp; }
 		const bool IsAttacking() const { return m_is_attacking; }
