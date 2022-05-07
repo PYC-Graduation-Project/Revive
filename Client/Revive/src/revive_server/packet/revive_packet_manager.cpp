@@ -165,7 +165,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 		if (target->second->GetIsActive() == false)return;
 	
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-			target->second->GetPosition()), packet->obj_id);
+			target->second->GetPosition()), packet->obj_id);//y값+80해서 보내주기
 		
 
 	}

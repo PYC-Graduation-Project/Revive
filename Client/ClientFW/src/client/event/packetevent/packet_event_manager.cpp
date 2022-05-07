@@ -62,7 +62,7 @@ namespace client_fw
 		{
 			SPtr<MessageEventInfo>move_message;
 			const auto& pawn = current_level->GetGameMode()->GetDefaultPawn();
-			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix())
+			if (pawn != nullptr && pawn->IsUpdatedWorldMatrix()&&pawn->IsConnectedToServer())
 			{
 				if (true == Network::matching_end)
 				{

@@ -29,7 +29,7 @@
 #include "object/actor/visual/light_tree.h"
 #include "object/actor/healer.h"
 #include "object/ui/game_end_ui_layer.h"
-
+#include"server/network.h"
 
 std::string g_id;
 std::string g_pw;
@@ -301,7 +301,7 @@ namespace revive
 				player->SetNetworkID(obj->GetID());
 				player->SetHP(obj->GetHp());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
-
+				Network::matching_end = true;
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {

@@ -11,7 +11,7 @@
 #include "object/ui/lobby_ui_layer.h"
 
 #include "server/network_move_object.h"
-
+#include"server/network.h"
 //std::string g_id;
 //std::string g_pw;
 
@@ -27,7 +27,7 @@ namespace revive
 		RegisterUILayer(m_lobby_ui_layer);
 
 		Input::SetInputMode(eInputMode::kUIAndGame);
-
+		Network::matching_end = false;
 //#ifdef _DEBUG
 		RegisterPressedEvent("develop mode", { {eKey::kJ, {	eAdditionalKey::kControl, eAdditionalKey::kShift }} },
 			[this]()->bool { m_lobby_ui_layer->EnableDevelopMode(); return true; });
