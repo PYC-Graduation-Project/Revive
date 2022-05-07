@@ -11,7 +11,31 @@ namespace client_fw
 
 	void Controller::Update(float delta_time)
 	{
-		if (math::NearZero(m_yaw_speed) == false)
+		m_yaw += m_yaw_speed * delta_time;
+		m_pitch += m_pitch_speed * delta_time;
+		m_pitch = std::clamp(m_pitch, -m_max_pitch, m_max_pitch);
+		m_roll += m_roll_speed * delta_time;
+		m_roll = std::clamp(m_roll, -m_max_roll, m_max_roll);
+
+		Quaternion quat_yaw = quat::CreateQuaternionFromNormal(vec3::AXIS_Y, m_yaw);
+		Quaternion quat_pitch = quat::CreateQuaternionFromNormal(vec3::AXIS_X, m_pitch);
+		Quaternion quat_roll = quat::CreateQuaternionFromNormal(vec3::AXIS_Z, m_roll);
+
+		Quaternion new_rot, pawn_rot;
+		new_rot *= quat_pitch * quat_roll * quat_yaw;
+		SetRotation(new_rot);
+		if (m_controlled_pawn != nullptr)
+		{
+			Vec3 euler = quat::QuaternionToEuler(m_controlled_pawn->GetRotation());
+
+			pawn_rot *= (m_controlled_pawn->IsUseControllerPitch()) ? quat_pitch : quat::CreateQuaternionFromNormal(vec3::AXIS_X, euler.x);
+			pawn_rot *= (m_controlled_pawn->IsUseControllerRoll()) ? quat_roll : quat::CreateQuaternionFromNormal(vec3::AXIS_Z, euler.z);
+			pawn_rot *= (m_controlled_pawn->IsUseControllerYaw()) ? quat_yaw : quat::CreateQuaternionFromNormal(vec3::AXIS_Y, euler.y);
+
+			m_controlled_pawn->SetRotation(pawn_rot);
+		}
+
+		/*if (math::NearZero(m_yaw_speed) == false)
 		{
 			UpdateYaw(delta_time);
 		}
@@ -22,7 +46,7 @@ namespace client_fw
 		if (math::NearZero(m_roll_speed) == false)
 		{
 			UpdateRoll(delta_time);
-		}
+		}*/
 
 		m_pitch_speed = m_yaw_speed = m_roll_speed = 0.0f;
 	}

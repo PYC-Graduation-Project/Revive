@@ -370,8 +370,9 @@ namespace revive
 			player_controller->SetPlayerCamera(m_camera_component);
 
 		m_camera_component->UseControllerRotation(true);
-		m_camera_component->SetMaxDistance(500.0f);
+		m_camera_component->SetMaxDistance(350.0f);
 		m_camera_component->SetSpringSpeed(800.0f);
+		m_camera_component->SetLocalPosition(Vec3(0.0f, 200.0f, 0.0f));
 		m_camera_component->SetSpringArmTargetPosition(Vec3(0.0f, 200.0f, 0.0f));
 		m_camera_component->SetCollisionInfo(true, false, "player camera", { "ground","base", "wall"}, true);
 		ret &= AttachComponent(m_camera_component);

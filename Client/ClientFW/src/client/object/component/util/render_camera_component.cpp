@@ -67,15 +67,15 @@ namespace client_fw
 			auto collisioner = CreateUPtr<RayCollisioner>();
 			collisioner->SetOriginFunction([this]() 
 				{
-					return vec3::TransformCoord(m_spring_arm_target_position, GetOwner().lock()->GetWorldMatrix());
+					return GetWorldPosition();
 				});
 			collisioner->SetDirectionFunction([this]()
 				{
-					return vec3::Normalize(GetCameraPosition() - vec3::TransformCoord(m_spring_arm_target_position, GetOwner().lock()->GetWorldMatrix()));
+					return vec3::Normalize(GetCameraPosition() - GetWorldPosition());
 				});
 			collisioner->SetDistanceFunction([this](float distance)
 				{
-					m_distance = min(distance, m_distance);
+					m_distance = min(distance - 25.f, m_distance);
 				});
 			m_collisioner = std::move(collisioner);
 		}
@@ -92,11 +92,41 @@ namespace client_fw
 		RenderCameraComponent::Update(delta_time);
 
 		m_distance = min(m_max_distance, m_distance + delta_time * m_spring_speed);
-		SetLocalPosition(m_spring_arm_target_position - GetLocalForward() * m_distance);
+	}
+
+	void SpringArmRenderCameraComponent::UpdateViewMatrix()
+	{
+		Vec3 target, up;
+		if (m_owner_controller.expired() || (m_owner_controller.expired() == false && m_use_controller_rotation == false))
+		{
+			m_camera_forward = GetWorldForward();
+			m_camera_position = GetWorldPosition() - m_camera_forward * m_distance;
+			target = m_camera_position + m_camera_forward;
+			m_camera_up = GetWorldUp();
+			m_camera_right = GetWorldRight();
+		}
+		else
+		{
+			m_camera_forward = m_owner_controller.lock()->GetForward();
+			m_camera_position = GetWorldPosition() - m_camera_forward * m_distance;
+			target = GetWorldPosition();
+			m_camera_up = m_owner_controller.lock()->GetUp();
+			m_camera_right = m_owner_controller.lock()->GetRight();
+		}
+
+		m_view_matrix = mat4::LookAt(m_camera_position, target, m_camera_up);
+
+		m_inverse_view_matrix = mat4::Inverse(m_view_matrix);
 	}
 
 	void SpringArmRenderCameraComponent::UpdateOrientedBox()
 	{
-		m_oriented_box->Transform(BOrientedBox(vec3::ZERO, Vec3(1.f, 1.f, 1.f)), GetWorldMatrix());
+		m_oriented_box->Transform(BOrientedBox(vec3::ZERO, Vec3(10.f, 10.f, 10.f)), GetWorldMatrix());
+	}
+
+	void SpringArmRenderCameraComponent::SetMaxDistance(float distance)
+	{
+		m_max_distance = distance;
+		m_distance = min(m_distance, m_max_distance);
 	}
 }

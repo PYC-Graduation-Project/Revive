@@ -49,6 +49,8 @@ namespace client_fw
 		virtual bool Initialize() override;
 		virtual void Update(float delta_time) override;
 
+		virtual void UpdateViewMatrix() override;
+
 	protected:
 		virtual void UpdateOrientedBox() override;
 
@@ -62,7 +64,7 @@ namespace client_fw
 		const Vec3& GetSpringArmTargetPosition() const { return m_spring_arm_target_position; }
 		void SetSpringArmTargetPosition(const Vec3& position) { m_spring_arm_target_position = position; }
 		float GetMaxDistance() const { return m_max_distance; }
-		void SetMaxDistance(float distance) { m_max_distance = distance; }
+		void SetMaxDistance(float distance);
 		float GetDistance() const { return m_distance; }
 		float GetSpringSpeed() const { return m_spring_speed; }
 		void SetSpringSpeed(float speed) { m_spring_speed = speed; }
