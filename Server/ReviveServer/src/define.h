@@ -21,7 +21,7 @@ extern "C" {
 
 #pragma comment (lib, "lib/lua54.lib")
 
-const int BUFSIZE = 512;
+const int BUFSIZE = 2048;
 const float ATTACK_RANGE = 5000.0f;
 const float GROUND_HEIGHT = 350.0f;
 

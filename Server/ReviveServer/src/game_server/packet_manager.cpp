@@ -113,13 +113,13 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 
 	if (num_bytes == 0) {
 		MoveObjManager::GetInst()->Disconnect(c_id);
-		
+		cout << "이상한거 보내서 짤" << c_id<<endl;
 	}
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	int remain_data = num_bytes+ cl->m_prev_size;
 	unsigned char* packet_start = exp_over->_net_buf;
 	int packet_size = packet_start[0];
-
+	if (packet_size == 0)cout << "packet_size가 0" << cl->GetID();
 	while (packet_size <= remain_data) {
 		ProcessPacket(c_id, packet_start);
 		remain_data -= packet_size;
@@ -352,102 +352,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 				}
 			}
 		}
-				
-			
-		//}
-	
-	//여기서 부터 다시만들기
-	//if (false == m_map_manager->CheckInRange(enemy->GetCollision()))
-	//{
-	//	enemy->SetToPrevPos();
-	//	if (enemy->GetTargetId() == -1)
-	//		enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
-	//}
-	//else
-	//{
-	//	//이 부분도 가운데로 가도록
-	//	if (true == m_map_manager->CheckCollision(enemy->GetCollision()))
-	//	{
-	//		unique_ptr<Astar>astar = make_unique<Astar>();
-	//		 //astar_ret = true;
-	//		if (enemy->GetTargetId() != -1) {
-	//			bool astar_ret = astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(),
-	//				MoveObjManager::GetInst()->GetPlayer(enemy->GetTargetId())->GetPos(), enemy->GetCollision());
-	//			//astar_ret ? cout << "길찾기 성공" : cout << "길찾기 실패";
-	//			//cout << endl;
-	//		}
-	//		//cout << "콜리전은 OK" << endl;
-	//	}
-	//	else
-	//	{
-	//		Enemy* other_enemy = NULL;
-	//		for (auto& npc_id : room->GetObjList())
-	//		{
-	//			if (true == MoveObjManager::GetInst()->IsPlayer(npc_id))continue;
-	//			if (false == enemy->GetIsActive())continue;
-	//			if (enemy_id == npc_id)continue;
-	//			other_enemy = MoveObjManager::GetInst()->GetEnemy(npc_id);
-	//			if (true == CollisionChecker::CheckCollisions(enemy->GetCollision(), other_enemy->GetCollision()))
-	//			{
-	//				
-	//				enemy->SetToPrevPos();
-	//				
-	//				g_timer_queue.push(SetTimerEvent(enemy_id, enemy_id, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 50));
-	//				cout << "return 직전" << endl;
-	//				return;
-	//			}
-	//		}
-	//
-	//	}
-	//	
-	//}
-		//A*는 플레이어 쫓을때만 사용 이거는 중간으로 이동후 직진하도록 만듬
-		//unique_ptr<Astar>astar=make_unique<Astar>();
-		
-		//if (enemy->GetTargetId() == -1)
-		//{
-			//if (enemy->m_load.size() == 0)
-			//{
-			//	if (astar->SearchAllPath(m_map_manager->GetMapObjVec(), enemy->GetPos(),
-			//		Vector3(base.GetPos().x + base.GetExtent().x + 45.0f, 300.0f, base.GetPos().z + base.GetExtent().z + 45.0f)))
-			//	{
-			//		enemy->m_load.assign(astar->m_enemy_load.begin(), astar->m_enemy_load.end());
-			//		nlook = Vector3{ enemy->m_load.front() - curr_pos };
-			//		move_vec = nlook.Normalrize();
-			//		npos = curr_pos + (move_vec * MAX_SPEED);
-			//		enemy->SetPos(npos);
-			//		cout << "vector copy" << endl;
-			//	}
-			//	else
-			//	{
-			//		nlook = Vector3{ Vector3(base.GetPosX(),curr_pos.y,curr_pos.z) - curr_pos };
-			//		move_vec = nlook.Normalrize();
-			//		npos = curr_pos + (move_vec * MAX_SPEED);
-			//		enemy->SetPos(npos);
-			//	}
-			//}
-			//else
-			//{
-			//	if (enemy->m_load.front().x <= enemy->GetPosX() && enemy->m_load.front().z <= enemy->GetPosZ())
-			//	{
-			//		enemy->m_load.erase(enemy->m_load.begin());
-			//	}
-				//nlook = Vector3{ enemy->m_load.front() - curr_pos };
-				//move_vec = nlook.Normalrize();
-				//npos = curr_pos + (move_vec * MAX_SPEED);
-				//enemy->SetPos(npos);
-				//cout << "vector pop" << endl;
-			//}
-		
-		
-		
-	
-		//enemy->DoPrevMove(Vector3(base_pos.x, enemy->GetPrevPos().y, enemy->GetPrevPos().z));
-
-	
-	// a*로 찾은 경로중 방향전환점까지는 무조건 이동 그후는 버리기
-	//다음 위치 보내주기
-	
+					
 	
 
 	for (auto pl : room->GetObjList())

@@ -64,10 +64,8 @@ void Player::Reset()
 	is_matching = false;
 	ZeroMemory(m_name, MAX_NAME_SIZE + 1);
 	ZeroMemory(m_password, MAX_PASSWORD_SIZE + 1);
-	m_prev_size = 0;
-	
 	state_lock.lock();
 	m_state = STATE::ST_ACCEPT;
 	state_lock.unlock();
-	DoRecv();
+
 }
