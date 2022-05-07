@@ -99,7 +99,7 @@ void Network::Worker()
 				}
 				else
 				{
-					LOG_INFO("send 완료");
+					//LOG_INFO("send 완료");
 					delete exp_over;
 				}
 				break;

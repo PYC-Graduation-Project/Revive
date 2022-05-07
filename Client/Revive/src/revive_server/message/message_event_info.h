@@ -130,9 +130,9 @@ namespace revive
     private:
         Vec3 m_forward_vec;
     public:
-       
         const Vec3& GetForward()const { return m_forward_vec; }
     };
+
     class RecvAttackEventInfo final : public MessageEventInfo
     {
     public:
@@ -140,10 +140,9 @@ namespace revive
     private:
         Vec3 m_forward_vec;
     public:
-
         const Vec3& GetForward()const { return m_forward_vec; }
-  
     };
+
     class MatchingMessageOKEventInfo final :public MessageEventInfo
     {
     public:
