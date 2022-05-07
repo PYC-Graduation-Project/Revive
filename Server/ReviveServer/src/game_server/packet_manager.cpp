@@ -1170,7 +1170,7 @@ void PacketManager::StartGame(int room_id)
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
-				SKULL_HP, pos, PLAYER_DAMAGE,"Skull Soldier");
+				SKULL_HP, pos, SORDIER_DAMAGE,"Skull Soldier");
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_sordier.lua",e->GetID(),base_pos);
 			e->SetCollision(BoxCollision(pos, SOLDIER_LOCAL_POS, SOLDIER_EXTENT, SOLDIER_SCALE));
 			e->SetPrevCollision(e->GetCollision());
@@ -1180,7 +1180,7 @@ void PacketManager::StartGame(int room_id)
 		else
 		{
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULLKING, room->GetRoomID(), 
-				SKULLKING_HP, pos, PLAYER_DAMAGE*2, "Skull King");
+				SKULLKING_HP, pos,KING_DAMAGE, "Skull King");
 			MoveObjManager::GetInst()->InitLua("src/lua/sclipt/enemy_king.lua",e->GetID(),base_pos);
 			e->SetCollision(BoxCollision(pos, KING_LOCAL_POS, KING_EXTENT, KING_SCALE));
 			e->SetPrevCollision(e->GetCollision());

@@ -9,7 +9,7 @@ const int  WORLD_WIDTH = 10800;
 const int  MAX_NAME_SIZE = 20; // 아이디 최대 사이즈
 const int  MAX_PASSWORD_SIZE = 20;// 비밀 번호 최대 사이즈
 const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
-const int MAX_ROOM_SIZE = 25;//방 최대 사이즈
+const int  MAX_ROOM_SIZE = 25;//방 최대 사이즈
 
 
 constexpr int  MAX_USER = MAX_ROOM_SIZE * 3; //최대 동접 가능 인원
@@ -31,7 +31,8 @@ const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 const float PLAYER_HP = 30.0f;
 const float BASE_HP = 50.0f;
 
-
+const float KING_DAMAGE =2.0f;
+const float SORDIER_DAMAGE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
@@ -101,7 +102,7 @@ struct cs_packet_move {
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
-
+	
 
 };
 
@@ -254,13 +255,13 @@ struct sc_packet_dead {
 struct sc_packet_win {
 	unsigned char size;
 	char type;
-
+	
 
 };
 struct sc_packet_defeat {
 	unsigned char size;
 	char type;
-
+	
 
 };
 #pragma pack(pop)
