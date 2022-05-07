@@ -146,7 +146,8 @@ namespace revive
 		m_previous_velocity = m_velocity;
 
 		if (m_is_attacking)
-			SetRotation(FindLookAtRotation(GetForward(), vec3::ZERO));
+			//LOG_INFO("받음 {0}", m_attack_direction);
+			SetRotation(FindLookAtRotation(m_attack_direction, vec3::ZERO));
 
 	}
 
@@ -204,6 +205,7 @@ namespace revive
 			{
 				//LOG_INFO("공격 패킷 받음");
 				auto msg = std::static_pointer_cast<RecvAttackEventInfo>(message);
+				m_attack_direction = msg->GetForward();
 				m_is_attacking = true;
 				break;
 			}
@@ -226,7 +228,7 @@ namespace revive
 	Quaternion DefaultPlayer::FindLookAtRotation(const Vec3& start, const Vec3& target)
 	{
 		Vec3 direction = start - target;
-		direction.Normalize();
+		if(direction != vec3::ZERO) direction.Normalize();
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
@@ -456,7 +458,9 @@ namespace revive
 			if(m_is_dying == false)
 				if (m_is_attacking == false) {
 					ret = m_is_attacking = true;
-					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"),Vec3(0.f,0.f,0.f), Vec3(0.f, 0.f, 0.f)));
+					Vec3 direction = m_controller.lock()->GetForward();
+					direction.y = 0;
+					PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendAttackEventInfo>(HashCode("send attack"), direction));
 				//공격추가
 				}
 			return ret;

@@ -163,9 +163,11 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	auto target = m_obj_map.find(packet->target_id);
 	if (target != m_obj_map.end()) {
 		if (target->second->GetIsActive() == false)return;
-		
+
+		Vec3 attack_pos{ target->second->GetPosition().x,target->second->GetPosition().y + 80.0f,target->second->GetPosition().z };
+
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-			target->second->GetPosition()), packet->obj_id);//y값+80해서 보내주기
+			attack_pos), packet->obj_id);//y값+80해서 보내주기
 		
 
 	}
@@ -185,7 +187,8 @@ void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
 	if (attacker != m_obj_map.end())
 	{
 		if (attacker->second->GetIsActive() == false)return;
-		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack")), packet->obj_id);
+		Vec3 forward_vec{ packet->f_x,packet->f_y ,packet->f_z };
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack"),forward_vec), packet->obj_id);
 	}
 	else
 		LOG_INFO("None");
