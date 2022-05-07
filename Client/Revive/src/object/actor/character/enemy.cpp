@@ -107,24 +107,18 @@ namespace revive
 		{
 		case HashCode("move object"): {
 			auto msg = std::static_pointer_cast<MoveObjectMessageEventInfo>(message);
-			//옆으로걷기 -> 회전넣기 충돌 시 회전하면 클라가 터짐
-			auto rot = FindLookAtRotation(GetPosition(), msg->GetObjPosition());
-			if (false == isnan(rot.x) && false == isnan(rot.y) && false == isnan(rot.z) && false == isnan(rot.w))
+
+			if (GetPosition() != msg->GetObjPosition())
+			{
+				auto rot = FindLookAtRotation(GetPosition(), msg->GetObjPosition());
 				SetRotation(rot);
-			//msg->m_move_lock.lock();
-			//m_rotating_component->SetRotatingRate(Vec3(0.0f, 180.0f, 0.0f));
-			//SetPosition(Vec3(0.0f, 0.0f, 0.0f));
-			//SetPosition(msg->GetObjPosition());
+			}
 			
 			//진짜 다음좌표 보내는것
 			m_previous_pos = m_next_pos;
 			m_velocity = msg->GetObjPosition() - m_previous_pos;
 			m_next_pos = msg->GetObjPosition();
-			/*SetPosition(msg->GetObjPosition());*/
-			//std::cout << msg->GetObjPosition() << std::endl;
-			//Vec3 a{ msg->GetObjPosition() };
-			//LOG_INFO(a);
-			//msg->m_move_lock.unlock();
+		
 			break;
 		}
 		case HashCode("testmove"): {
@@ -148,7 +142,11 @@ namespace revive
 		case HashCode("npc attack"):
 		{
 			auto msg = std::static_pointer_cast<NpcAttackEventInfo>(message);
-			SetRotation(FindLookAtRotation(GetPosition(), msg->GetTargetPosition()));
+			if (GetPosition() != msg->GetTargetPosition())
+			{
+				auto rot = FindLookAtRotation(GetPosition(), msg->GetTargetPosition());
+				SetRotation(rot);
+			}
 			m_target_position = msg->GetTargetPosition();
 			Attack();
 
@@ -195,7 +193,15 @@ namespace revive
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;
 
-		return quat::CreateQuaternionFromRollPitchYaw(0.0f, angle, 0.0f);
+		Quaternion rot = quat::CreateQuaternionFromRollPitchYaw(0.f, angle, 0.f);
+
+		if (isnan(rot.x) || isnan(rot.y) || isnan(rot.z) || isnan(rot.w))
+		{
+			LOG_WARN("Rotation value is Nan {0}", rot);
+			return GetRotation();
+		}
+
+		return rot;
 	}
 
 	void Enemy::Attack()
