@@ -188,7 +188,7 @@ namespace revive
 	Quaternion Enemy::FindLookAtRotation(const Vec3& start, const Vec3& target)
 	{
 		Vec3 direction = start - target;
-		direction.Normalize();
+		if(direction != vec3::ZERO )direction.Normalize();
 		float angle = vec3::BetweenAngle(direction, vec3::AXIS_Z);
 		if (vec3::Cross(direction, vec3::AXIS_Z, true).y > 0.0f) //0~2PI값을 얻기위한 if문
 			angle = -angle;

@@ -30,7 +30,7 @@ namespace revive
 			{
 				float player_hp = player->GetHP();
 				if (player_hp > 0) //서버에 플레이어 체력 전송
-						player->Hit(0,player->GetNetworkID());
+						player->Hit(0,m_owner_network_id);
 			}
 			else
 			{

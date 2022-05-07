@@ -40,6 +40,7 @@ namespace revive
 		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
 		m_weapon->SetSocketName("mount0");
 		m_weapon->SetScale(0.6f);
+		m_weapon->SetOwnerNetworkID(m_network_id);
 		ret &= SetCollisionComponent();
 		
 		/*if (Input::RegisterPressedEvent(m_name + " Test", { {eKey::kT} },
