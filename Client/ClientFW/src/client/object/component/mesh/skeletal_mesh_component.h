@@ -25,8 +25,10 @@ namespace client_fw
 		SPtr<AnimationController> m_animation_controller;
 
 		std::string m_animation_name;
+
 		bool m_looping = true;
 		bool m_is_playing = true;
+		bool m_set_mesh = false;
 
 	public:
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;

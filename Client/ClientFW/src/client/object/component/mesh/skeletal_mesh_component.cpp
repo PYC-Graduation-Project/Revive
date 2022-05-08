@@ -46,8 +46,9 @@ namespace client_fw
 		if (m_mesh == nullptr)
 		{
 			LOG_ERROR("Could not cast Mesh[{0}] to SkeletalMesh", file_path);
-			return false;
+			return m_set_mesh;
 		}
+		else m_set_mesh = true;
 		m_animation_controller->SetMeshPath(file_path);
 
 		auto& skeletal_mesh = GetSkeletalMesh();
@@ -56,20 +57,23 @@ namespace client_fw
 		skeletal_mesh->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		m_animation_controller->CopyBoneTransformData();
 
-		return true;
+		return m_set_mesh;
 	}
 	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name,bool looping)
 	{
-		m_animation_name = animation_name;
-
-		if (animation_name.compare("Null") == 0)
-			SetIsPlaying(false);
-		else if (animation_name.compare("Null") != 0)
+		if (m_set_mesh == true)
 		{
-			SetIsPlaying(true);
-			m_animation_controller->SetAnimationName(animation_name);
-			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
-			SetLooping(looping);
+			m_animation_name = animation_name;
+
+			if (animation_name.compare("Null") == 0)
+				SetIsPlaying(false);
+			else if (animation_name.compare("Null") != 0)
+			{
+				SetIsPlaying(true);
+				m_animation_controller->SetAnimationName(animation_name);
+				m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
+				SetLooping(looping);
+			}
 		}
 	}
 
