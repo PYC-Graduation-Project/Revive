@@ -259,6 +259,7 @@ float4 PSPointLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.position = light_data.light_position;
         light.attenuation_radius = light_data.attenuation_radius;
         light.use_shadow = light_data.use_shadow > 0;
+        light.is_static_light = light_data.is_static_light > 0;
         
         color += CalcPointLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         
@@ -366,6 +367,7 @@ float4 PSSpotLight(DS_LOCAL_LIGHT_OUTPUT input) : SV_TARGET
         light.inner_angle = light_data.cone_inner_angle;
         light.outer_angle = light_data.cone_outer_angle;
         light.use_shadow = light_data.use_shadow > 0;
+        light.is_static_light = light_data.is_static_light > 0;
                         
         color += CalcSpotLight(g_buffer_data.position, material, light, light_data.shadow_texture_data_index);
         

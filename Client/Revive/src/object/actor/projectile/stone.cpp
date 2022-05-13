@@ -12,8 +12,8 @@ namespace revive
 	{
 		bool ret = Projectile::Initialize();
 		ret &= m_static_mesh_component->SetMesh("Contents/stone_smallH.obj");
-		ret &= AttachComponent(m_static_mesh_component);
 		m_static_mesh_component->SetLocalScale(30.f);
+		ret &= AttachComponent(m_static_mesh_component);
 
 		SetGravityScale(10.0f);
 		return ret;
@@ -23,7 +23,7 @@ namespace revive
 	{
 		Projectile::Update(delta_time);
 		Vec3 current_position = GetPosition();
-		if (current_position.y <= 300)current_position.y = 300.f + GetSphereRadius();
+		if (current_position.y <= 300 + GetSphereRadius())current_position.y = 300.f + GetSphereRadius();
 		SetPosition(current_position);
 		//LOG_INFO(m_static_mesh_component->GetScale());
 	}

@@ -3,10 +3,10 @@
 
 const float SOLDIER_SCALE = 0.5f;
 const float KING_SCALE = 0.6f;
-const Vector3 SOLDIER_LOCAL_POS{ 0.0f,90.0f,0.0f };
+const Vector3 SOLDIER_LOCAL_POS{ 0.0f,100.0f,0.0f };
 const Vector3 KING_LOCAL_POS{ 0.0f,200.0f,0.0f };
-const Vector3 SOLDIER_EXTENT{ 25.0f,90.0f,45.0f };
-const Vector3 KING_EXTENT{ 50.0f,200.0f,50.0f };
+const Vector3 SOLDIER_EXTENT{ 30.0f,100.0f,40.0f };
+const Vector3 KING_EXTENT{ 60.0f,200.0f,60.0f };
 
 
 
@@ -82,7 +82,7 @@ class SphereCollison
 {
 public:
 	SphereCollison() = default;
-	SphereCollison(const Vector3& player_position, const Vector3& local_position,const float scale, const Vector3& radius)
+	SphereCollison(const Vector3& player_position, const Vector3& local_position,const float scale, const float radius)
 		:Collisioner(player_position, local_position,scale)
 	{
 		m_radius = radius * scale;
@@ -93,8 +93,8 @@ public:
 		m_center_pos = new_position + m_local_pos;
 
 	};
-	Vector3& GetRadiusPos() { return m_radius; }
-	void SetRadiusPos(const Vector3& val) { m_radius = val; }
+	float GetRadius() { return m_radius; }
+	float SetRadius(const float val) { m_radius = val; }
 private:
-	Vector3 m_radius;
+	float m_radius;
 };

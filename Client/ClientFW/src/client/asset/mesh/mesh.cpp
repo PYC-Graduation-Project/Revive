@@ -29,7 +29,6 @@ namespace client_fw
 	{
 		if (lod == m_lod_count)
 		{
-			m_lod_mesh_counts.emplace_back(0);
 			m_vertex_infos.emplace_back(CreateSPtr<VertexInfo>());
 			m_index_infos.emplace_back(CreateSPtr<IndexInfo>());
 
@@ -40,11 +39,6 @@ namespace client_fw
 		}
 	}
 
-	void Mesh::ResetLOD()
-	{
-		std::fill(m_lod_mesh_counts.begin(), m_lod_mesh_counts.end(), 0);
-	}
-
 	void Mesh::AddMeshVertexInfo(UINT lod, MeshVertexInfo&& info)
 	{
 		if (lod < m_lod_count)
@@ -53,7 +47,7 @@ namespace client_fw
 
 	bool StaticMesh::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
 	{
-		LOG_INFO(GetPath());
+		LOG_INFO("{0} - LOD Count {1}", GetPath(), m_lod_count);
 
 		for (UINT i = 0; i < m_lod_count; ++i)
 		{

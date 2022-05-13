@@ -57,7 +57,7 @@ namespace client_fw
 								LOG_WARN("Could not find ui texture : {0}", ui->GetName());
 							else
 							{
-								Vec2 new_position = (ui->GetPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
+								Vec2 new_position = (ui->GetPivotPosition() + ui_texture->GetPosition()) * Vec2(1.0f, -1.0f) +
 									Vec2(window_size.x * -0.5f, window_size.y * 0.5f);
 								INT resource_index = -1;
 

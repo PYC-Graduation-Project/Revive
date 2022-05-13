@@ -24,11 +24,12 @@ public:
 	void BlockTileMap();
 	bool CheckCollision(BoxCollision& obj_collision);
 	bool CheckInRange(BoxCollision& collision);
+	bool CheckInRange(const Vector3& pos);
 	const std::vector<MapObj>& GetMapObjVec() const
 	{
 		return m_map_objects;
 	}
-	const MapObj& GetMapObjectByType(OBJ_TYPE type)
+	MapObj& GetMapObjectByType(OBJ_TYPE type)
 	{
 		for (auto& obj : m_map_objects)
 		{

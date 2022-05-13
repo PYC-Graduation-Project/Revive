@@ -9,7 +9,7 @@ const int  WORLD_WIDTH = 10800;
 const int  MAX_NAME_SIZE = 20; // 아이디 최대 사이즈
 const int  MAX_PASSWORD_SIZE = 20;// 비밀 번호 최대 사이즈
 const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
-const int MAX_ROOM_SIZE = 25;//방 최대 사이즈
+const int  MAX_ROOM_SIZE = 25;//방 최대 사이즈
 
 
 constexpr int  MAX_USER = MAX_ROOM_SIZE * 3; //최대 동접 가능 인원
@@ -25,9 +25,14 @@ const float MOVE_DISTANCE = 1.0f;//플레이어 이동 거리
 const float PLAYER_DAMAGE = 1.0f;
 const float FOV_RANGE = 900.0f;
 
-const float SKULL_HP = 10 * PLAYER_DAMAGE;
-const float SKULLKING_HP = 20 * PLAYER_DAMAGE;
+const float SKULL_HP = 5 * PLAYER_DAMAGE;
+const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 
+const float PLAYER_HP = 30.0f;
+const float BASE_HP = 50.0f;
+
+const float KING_DAMAGE =2.0f;
+const float SORDIER_DAMAGE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
@@ -41,7 +46,9 @@ const char CS_PACKET_MOVE = 3;
 const char CS_PACKET_ATTACK = 4;
 const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
-const char CS_PACKET_TEST = 7;
+const char CS_PACKET_HIT = 7;
+const char CS_PACKET_GAME_START = 8;
+
 
 const char SC_PACKET_SIGN_IN_OK = 1;
 const char SC_PACKET_SIGN_UP_OK = 2;
@@ -56,9 +63,11 @@ const char SC_PACKET_OBJ_INFO = 10;
 const char SC_PACKET_TIME = 11;
 const char SC_PACKET_TEST = 12;
 const char SC_PACKET_NPC_ATTACK = 13;
-
-
-
+const char SC_PACKET_ATTACK = 14;
+const char SC_PACKET_BASE_STATUS = 15;
+const char SC_PACKET_WIN = 16;
+const char SC_PACKET_DEFEAT = 17;
+const char SC_PACKET_DEAD = 18;
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;
@@ -93,13 +102,14 @@ struct cs_packet_move {
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
-	float r_x, r_y, r_z, r_w;
+	
 
 };
 
 struct cs_packet_attack {
 	unsigned char size;
 	char	type;
+	float f_x, f_y, f_z;
 };
 
 struct cs_packet_chat {
@@ -111,6 +121,20 @@ struct cs_packet_chat {
 struct cs_packet_teleport {
 	// 서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
 	// 더미 클라이언트에서 동접 테스트용으로 사용.
+	unsigned char size;
+	char	type;
+};
+
+struct cs_packet_hit {
+	// 서버에서 장애물이 없는 랜덤 좌표로 텔레포트 시킨다.
+	// 더미 클라이언트에서 동접 테스트용으로 사용.
+	unsigned char size;
+	char	type;
+	int victim_id;
+	int attacker_id;
+};
+
+struct cs_packet_game_start {
 	unsigned char size;
 	char	type;
 };
@@ -148,7 +172,6 @@ struct sc_packet_move {
 	char type;
 	int		id;
 	float x, y, z;
-	float r_x, r_y, r_z, r_w;
 };
 struct sc_packet_test {
 	unsigned char size;
@@ -207,6 +230,38 @@ struct sc_packet_time {//예전 login_ok처럼 player초기화 보내주기
 	char	type;
 	float time;
 	int send_time;//추후에 없애야될수도 있음
+
+};
+struct sc_packet_attack {
+	unsigned char size;
+	char type;
+	int	obj_id;
+	float f_x, f_y, f_z;
+
+};
+struct sc_packet_base_status {
+	unsigned char size;
+	char type;
+	int	room_id;
+	float hp;
+
+};
+struct sc_packet_dead {
+	unsigned char size;
+	char type;
+	int	obj_id;
+
+};
+struct sc_packet_win {
+	unsigned char size;
+	char type;
+	
+
+};
+struct sc_packet_defeat {
+	unsigned char size;
+	char type;
+	
 
 };
 #pragma pack(pop)

@@ -31,6 +31,7 @@ struct LightData
     float3 light_position;
     float cone_outer_angle;
     int use_shadow;
+    int is_static_light;
     uint shadow_texture_data_index;
 };
 

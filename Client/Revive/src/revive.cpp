@@ -2,20 +2,24 @@
 #include <include/client_fw.h>
 #include <client/core/entry_point.h>
 
+#include <client/object/level/sharedinfo/level_shared_info.h>
 #include <client/asset/mesh/mesh_loader.h>
+
+#include "object/level/sharedinfo/revive_level_shared_info.h"
 #include "object/level/game_play_level.h"
-#include"server/network.h"
-#include"revive_server/send/revive_send_manager.h"
-#include"revive_server/packet/revive_packet_manager.h"
-using namespace client_fw;
+#include "object/level/lobby_level.h"
 
-
-#include"server/send_manager.h"
-#include"server/packet_manager.h"
+#include "server/network.h"
+#include "revive_server/send/revive_send_manager.h"
+#include "revive_server/packet/revive_packet_manager.h"
+#include "server/send_manager.h"
+#include "server/packet_manager.h"
 
 namespace revive
 {
-	class Revive : public client_fw::Application
+	using namespace client_fw;
+
+	class Revive : public Application
 	{
 	public:
 		Revive() : Application(L"Revive")
@@ -29,32 +33,30 @@ namespace revive
 			
 			if (result)
 			{
-				LOG_INFO("Welcome to Revive Application");
 				Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
 				Network::GetInst()->CreateWorker();
 
-				RegisterPressedEvent("Clip Cursor", std::vector{ EventKeyInfo{eKey::kF3, {eAdditionalKey::kControl}} },
-					[]()->bool {Input::SetClipCursor(!Input::IsClipCursor()); return true;  });
-				RegisterPressedEvent("Hide Cursor", std::vector{ EventKeyInfo{eKey::kF2, {eAdditionalKey::kControl}} },
-					[]()->bool {Input::SetHideCursor(!Input::IsHideCursor()); return true;  });
-				RegisterPressedEvent("open render rect level", { {eKey::k1} },
-					[this]()->bool {OpenLevel(CreateSPtr<GamePlayLevel>());  return true; });
-
+				OpenLevel(CreateSPtr<LobbyLevel>());
 			}
 
 			return result;
 		}
 
-		UPtr<MeshLoader> CreateMeshLoader() const override
+		virtual SPtr<LevelSharedInfo> CreateLevelSharedInfo() const override
+		{
+			return CreateSPtr<ReviveLevelSharedInfo>();
+		}
+
+		virtual UPtr<MeshLoader> CreateMeshLoader() const override
 		{
 			return CreateUPtr<RevLoader>();
 		}
+
 
 		void Shutdown() override
 		{
 			Application::Shutdown();
 			//Network::DestroyInst();
-			LOG_INFO("Good Bye");
 		}
 
 		virtual ~Revive()

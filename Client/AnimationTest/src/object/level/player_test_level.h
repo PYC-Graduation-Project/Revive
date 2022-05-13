@@ -17,6 +17,7 @@ namespace anim_test
 		virtual void Update(float delta_time) override;
 
 	private:
+		int m_animation_set_index = 0;
 		SPtr<class DefaultPawn> m_player;
 		SPtr<class PlayerController> m_player_controller;
 	public:

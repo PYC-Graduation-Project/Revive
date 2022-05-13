@@ -13,5 +13,8 @@ namespace revive
 
 		virtual bool Initialize() override;
 		//virtual void Shutdown() override;
+
+	private:
+		void MinPItch();
 	};
 }

@@ -17,11 +17,14 @@ int RoomManager::GetEmptyRoom()
 {
 	for (auto r : m_rooms)
 	{
-		if (false == r->GetState())
+		r->m_state_lock.lock();
+		if (ROOM_STATE::RT_FREE == r->GetState())
 		{
-			r->SetState(true);
+			r->SetState(ROOM_STATE::RT_INGAME);
+			r->m_state_lock.unlock();
 			return r->GetRoomID();
 		}
+		r->m_state_lock.unlock();
 	}
 	std::cout << "빈방이 없습니다!" << std::endl;
 	return -1;

@@ -5,6 +5,9 @@ namespace revive
 {
 	using namespace client_fw;
 
+	class PlayerInfoUILayer;
+	class GameEndUILayer;
+
 	class GamePlayLevel final : public Level
 	{
 	public:
@@ -16,6 +19,10 @@ namespace revive
 
 		virtual void Update(float delta_time) override;
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
+
+	private:
+		void GenerateVisualActors();
+
 	private:
 		virtual UPtr<GameMode> CreateGameMode() const override;
 
@@ -26,5 +33,9 @@ namespace revive
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 
+	private:
+		bool m_is_succeed_login = false;
+		SPtr<PlayerInfoUILayer> m_player_info_ui_layer;
+		SPtr<GameEndUILayer> m_game_end_ui_layer;
 	};
 }

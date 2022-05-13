@@ -154,7 +154,7 @@ namespace event_test
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
 		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
 		SpawnActor(d_light);
-		d_light->DisableShadow();
+		//d_light->DisableShadow();
 
 		auto p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
@@ -176,7 +176,7 @@ namespace event_test
 		p_light->SetAttenuationRadius(1500.0f);
 		p_light->SetShadowTextureSize(2000);
 		SpawnActor(p_light);
-		p_light->SetShadowVisibility(false);
+		//p_light->SetShadowVisibility(false);
 
 		p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 400000.0f, 0.0f));
@@ -196,7 +196,7 @@ namespace event_test
 		s_light->SetAttenuationRadius(2000.0f);
 		s_light->SetConeOuterAngle(22.0f);
 		SpawnActor(s_light);
-		s_light->SetShadowVisibility(false);
+		//s_light->SetShadowVisibility(false);
 
 		s_light = CreateSPtr<SpotLight>();
 		s_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));

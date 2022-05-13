@@ -61,21 +61,29 @@ namespace client_fw
 		const auto& render_camera = m_render_camera_component.lock();
 		if (render_camera->GetProjectionMode() == eProjectionMode::kPerspective)
 		{
-			Mat4 rc_cascade_projection = mat4::Perspective(math::ToRadian(render_camera->GetFieldOfView()),
-				render_camera->GetAspectRatio(), render_camera->GetNearZ(), m_cascade_far_z * m_cascade_level_ratio[s_max_cascade_level - 1]);
+			float field_of_view = math::ToRadian(render_camera->GetFieldOfView());
+			float aspect_ratio = render_camera->GetAspectRatio();
+			float near_z = render_camera->GetNearZ();
+			float far_z = m_cascade_far_z * m_cascade_level_ratio[s_max_cascade_level - 1];
+
+
+			Mat4 rc_cascade_projection = mat4::Perspective(field_of_view, aspect_ratio, near_z, far_z);
 			BFrustum bf_projection = BFrustum(rc_cascade_projection);
 			bf_projection.Transform(render_camera->GetInverseViewMatrix());
 
 			// render camera cascade boudning sphere volume
-			m_cascade_bounding_sphere = BSphere(bf_projection);
-			float radius = m_cascade_bounding_sphere.GetRadius();
+			Vec3 sphere_center = render_camera->GetCameraPosition() + render_camera->GetCameraForward() * (near_z + 0.5f * (near_z + far_z));
 
+			m_cascade_bounding_sphere = BSphere(bf_projection);
+			m_cascade_bounding_sphere.SetCenter(sphere_center);
+			float radius = m_cascade_bounding_sphere.GetRadius();
+			
 			// get projectoin matrix from bounding sphere
 			m_projection_matrix = mat4::Ortho(radius, radius, -radius, radius);
 
 			m_bf_projection = BFrustum(m_projection_matrix);
-			m_bounding_frustum.Transform(m_bf_projection, m_inverse_view_matrix);
-
+			m_bounding_frustum.Transform(m_bf_projection, render_camera->GetInverseViewMatrix());
+			
 			//WorldToShadowSpace matrix for cascade
 			m_view_projection_matrix = m_view_matrix * m_projection_matrix;
 

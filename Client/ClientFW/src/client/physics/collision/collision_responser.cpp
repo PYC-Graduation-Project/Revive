@@ -55,6 +55,7 @@ namespace client_fw
 		}
 
 		owner->GetOwner().lock()->SetPosition(new_pos);
+		owner->GetOwner().lock()->UpdateWorldMatrix();
 	}
 
 	void CollisionResponser::BlockBetweenSphereAndBox(const SPtr<SceneComponent>& owner,
@@ -62,6 +63,7 @@ namespace client_fw
 	{
 		Vec3 new_pos = BlockTimeSlice(owner, sphere, box);
 		owner->GetOwner().lock()->SetPosition(new_pos);
+		owner->GetOwner().lock()->UpdateWorldMatrix();
 	}
 
 	void CollisionResponser::BlockBetweenBoxAndSphere(const SPtr<SceneComponent>& owner,
@@ -69,6 +71,7 @@ namespace client_fw
 	{
 		Vec3 new_pos = BlockTimeSlice(owner, box, sphere);
 		owner->GetOwner().lock()->SetPosition(new_pos);
+		owner->GetOwner().lock()->UpdateWorldMatrix();
 	}
 
 	void CollisionResponser::BlockBetweenSphereAndSphere(const SPtr<SceneComponent>& owner,
@@ -76,5 +79,6 @@ namespace client_fw
 	{
 		Vec3 new_pos = BlockTimeSlice(owner, sphere, other_sphere);
 		owner->GetOwner().lock()->SetPosition(new_pos);
+		owner->GetOwner().lock()->UpdateWorldMatrix();
 	}
 }

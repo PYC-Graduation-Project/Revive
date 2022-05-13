@@ -19,7 +19,7 @@ namespace revive
 	{
 		bool ret = true;
 
-		m_projectile_movement_component->SetInitialSpeed(1000.0f);
+		m_projectile_movement_component->SetInitialSpeed(1500.0f);
 		m_projectile_movement_component->SetProjectileGravityScale(0.0f);
 		ret &= AttachComponent(m_projectile_movement_component);
 		
@@ -64,6 +64,11 @@ namespace revive
 	void Projectile::SetCollisionInfo(bool is_collision, std::string&& collision_type, std::set<std::string>&& collisionable_types, bool genrate_collision_event)
 	{
 		m_sphere_component->SetCollisionInfo(is_collision, false, move(collision_type), move(collisionable_types), genrate_collision_event);
+	}
+
+	void Projectile::SetCollisionInfo(bool is_collision, bool is_blocking, bool genrate_collision_event)
+	{
+		m_sphere_component->SetCollisionInfo(is_collision, is_blocking, genrate_collision_event);
 	}
 
 	void Projectile::SetOnCollisionResponse(const std::function<void(const SPtr<SceneComponent>& comp, const SPtr<Actor>& other_actor, const SPtr<SceneComponent>& other_comp)>& function)

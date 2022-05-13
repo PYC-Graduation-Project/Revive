@@ -41,7 +41,7 @@ namespace client_fw
 
 	bool Pawn::AddControllerPitchInput(float value)
 	{
-		if (m_controller.expired() == false && Input::GetInputMode() == eInputMode::kGameOnly)
+		if (m_controller.expired() == false)
 		{
 			const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 			player_controller->AddPitchInput(value);
@@ -52,7 +52,7 @@ namespace client_fw
 
 	bool Pawn::AddControllerYawInput(float value)
 	{
-		if (m_controller.expired() == false && Input::GetInputMode() == eInputMode::kGameOnly)
+		if (m_controller.expired() == false)
 		{
 			const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 			player_controller->AddYawInput(value);
@@ -63,7 +63,7 @@ namespace client_fw
 
 	bool Pawn::AddControllerRollInput(float value)
 	{
-		if (m_controller.expired() == false && Input::GetInputMode() == eInputMode::kGameOnly)
+		if (m_controller.expired() == false)
 		{
 			const auto& player_controller = std::dynamic_pointer_cast<PlayerController>(m_controller.lock());
 			player_controller->AddRollInput(value);

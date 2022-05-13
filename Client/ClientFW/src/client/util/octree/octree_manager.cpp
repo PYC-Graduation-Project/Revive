@@ -16,6 +16,12 @@ namespace client_fw
 		m_collision_octree_manager = CreateUPtr<CollisionOctreeManager>();
 	}
 
+	void OctreeManager::PrepareUpdate()
+	{
+		if (m_visual_octree_manager != nullptr)
+			m_visual_octree_manager->PrepareUpdate();
+	}
+	
 	void OctreeManager::Update()
 	{
 		if (m_collision_octree_manager != nullptr)
@@ -45,6 +51,28 @@ namespace client_fw
 		s_instance = this;
 	}
 
+	void VisualOctreeManager::PrepareUpdate()
+	{
+		m_registered_destructible_render_comps.clear();
+		for (const auto& render_comp : m_movable_render_comps_for_render)
+			render_comp->ResetLevelOfDetailForShadow();
+		for (const auto& visual_octree : m_visual_octrees)
+			ResetLevelOfDetailForShadow(visual_octree->GetRootNode());
+	}
+
+	void VisualOctreeManager::ResetLevelOfDetailForShadow(const SPtr<VisualTreeNode>& node)
+	{
+		if (node->child_nodes[0] == nullptr)
+		{
+			for (const auto& render_cmp : node->render_components)
+				render_cmp->ResetLevelOfDetailForShadow();
+			return;
+		}
+
+		for (UINT i = 0; i < 8; ++i)
+			ResetLevelOfDetailForShadow(node->child_nodes[i]);
+	}
+
 	void VisualOctreeManager::RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees)
 	{
 		UnregisterOctrees();
@@ -63,7 +91,9 @@ namespace client_fw
 		for (const auto& octree : m_visual_octrees)
 			octree->Shutdown();
 		m_visual_octrees.clear();
-		m_movable_render_comps.clear();
+		m_registered_destructible_render_comps.clear();
+		m_movable_render_comps_for_render.clear();
+		m_movable_render_comps_for_shadow.clear();
 		m_is_active = false;
 	}
 
@@ -73,10 +103,15 @@ namespace client_fw
 		{
 			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				m_movable_render_comps.push_back(render_comp);
+				m_movable_render_comps_for_render.push_back(render_comp);
+				if (render_comp->GetRenderType() == eRenderType::kMesh)
+					m_movable_render_comps_for_shadow.push_back(render_comp);
 			}
 			else
 			{
+				if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kDestructible)
+					m_registered_destructible_render_comps.push_back(render_comp);
+
 				for (const auto& octree : m_visual_octrees)
 				{
 					const auto& root_node = octree->GetRootNode();
@@ -102,7 +137,9 @@ namespace client_fw
 
 			if (render_comp->GetOwner().lock()->GetMobilityState() == eMobilityState::kMovable)
 			{
-				UnregisterRenderComp(m_movable_render_comps);
+				UnregisterRenderComp(m_movable_render_comps_for_render);
+				if (render_comp->GetRenderType() == eRenderType::kMesh)
+					UnregisterRenderComp(m_movable_render_comps_for_shadow);
 			}
 			else
 			{

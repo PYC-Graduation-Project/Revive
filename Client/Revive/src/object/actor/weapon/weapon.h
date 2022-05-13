@@ -6,6 +6,7 @@ namespace client_fw
 	class StaticMeshComponent;
 	class SkeletalMeshComponent;
 	class BoxComponent;
+	struct CollisionInfo;
 }
 
 namespace revive
@@ -23,6 +24,8 @@ namespace revive
 		virtual void Shutdown() override;
 
 	protected:
+		int m_owner_network_id = 9999;
+
 		bool m_is_collision = false;
 
 		std::string m_mesh_path;
@@ -43,7 +46,13 @@ namespace revive
 		void SetRotationOffset(const Vec3& rotation_offset) { m_rotation_offset = rotation_offset; }
 		void SetAttachedActor(const SPtr<Actor> actor, const SPtr<SkeletalMeshComponent> skeletal_mesh_component);
 		void SetSocketName(const std::string& socket_name) { m_socket_name = socket_name; }
+		const bool GetIsCollision() const { return m_is_collision; }
 		void SetIsCollision(const bool value) { m_is_collision = value; }
+		void SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collision_event);
+		const CollisionInfo& GetCollisionInfo() const;
+
+		void SetOwnerNetworkID(int owner_nw_id) { m_owner_network_id = owner_nw_id; }
+		const int GetOwnerNetworkID() const { return m_owner_network_id; }
 		//void SetSocket(const Mat4& socket_matrix, const Mat4& actor_matrix);
 	};
 }

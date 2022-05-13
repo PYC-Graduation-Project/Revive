@@ -25,8 +25,10 @@ namespace client_fw
 		SPtr<AnimationController> m_animation_controller;
 
 		std::string m_animation_name;
+
 		bool m_looping = true;
 		bool m_is_playing = true;
+		bool m_set_mesh = false;
 
 	public:
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;
@@ -38,11 +40,16 @@ namespace client_fw
 		const Mat4 GetSocketWorldMatrix(const std::string& socket_name);
 		const Quaternion GetSocketWorldRotation(const std::string& socket_name);
 
+		const bool IsLooping() { return m_looping; }
 		void SetLooping(const bool looping) { m_looping = looping; }
 
+		const bool IsPlaying() { return m_is_playing; }
 		void SetIsPlaying(const bool is_playing) { m_is_playing = is_playing; }
 
+		const std::string& GetAnimationName() const { return m_animation_name; }
 		void SetAnimation(const std::string& animation_name, const bool looping = true);
+
+		const float GetAnimationSpeed() const { return m_animation_controller->GetAnimationSpeed(); }
 		void SetAnimationSpeed(float speed) { m_animation_controller->SetAnimationSpeed(speed); }
 
 		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function) { m_animation_controller->AddNotify(name,  animation_name, frame_index, function); }

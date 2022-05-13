@@ -52,39 +52,40 @@ namespace client_fw
 			info.num_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
 			info.start_index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
 
-			UINT mesh_count = 0;
-
-			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
-			{
-				mesh_count += mesh_data->mesh->GetLODMeshCount(lod);
-				info.num_of_lod_instance_data[lod] = mesh_data->mesh->GetLODMeshCount(lod);
-				info.start_index_of_lod_instance_data[lod] = mesh_count;
-			}
-
-			if (mesh_count == 0)
+			if (info.mesh->IsVisible() == false)
 				continue;
 
-			info.draw_start_index = mesh_start_index_for_camera;
-			mesh_start_index_for_camera += mesh_count;
-
-			std::vector<RSInstanceData> instance_data(mesh_count);
+			std::vector<std::vector<RSInstanceData>> instance_data(mesh_data->mesh->GetLODCount());
+			for (auto& data : instance_data)
+				data.reserve(m_meshes_instance_data[level_type].capacity());
 
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
 			{
 				if (mesh_comp->IsVisible())
 				{
 					UINT lod = mesh_comp->GetLevelOfDetail();
-
-					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() };
+					instance_data[lod].emplace_back(RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix() });
 
 					mesh_comp->SetVisiblity(false);
 				}
 			}
 
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_meshes_instance_data[level_type]));
+			UINT mesh_count = 0;
 
-			mesh_data->mesh->ResetLOD();
+			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
+			{
+				info.start_index_of_lod_instance_data[lod] = mesh_count;
+				mesh_count += static_cast<UINT>(instance_data[lod].size());
+				info.num_of_lod_instance_data[lod] = static_cast<UINT>(instance_data[lod].size());
+			}
+
+			info.draw_start_index = mesh_start_index_for_camera;
+			mesh_start_index_for_camera += mesh_count;
+
+			for (auto& data : instance_data)
+				std::move(data.begin(), data.end(), std::back_inserter(m_meshes_instance_data[level_type]));
+
+			mesh_data->mesh->SetVisible(false);
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 
@@ -238,24 +239,13 @@ namespace client_fw
 			info.num_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
 			info.start_index_of_lod_instance_data.resize(mesh_data->mesh->GetLODCount(), 0);
 
-			UINT mesh_count = 0;
-			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
-			{
-				mesh_count += mesh_data->mesh->GetLODMeshCount(lod);
-				info.num_of_lod_instance_data[lod] = mesh_data->mesh->GetLODMeshCount(lod);
-				info.start_index_of_lod_instance_data[lod] = mesh_count;
-			}
-
-			if (mesh_count == 0)
+			if (info.mesh->IsVisible() == false)
 				continue;
 
-			info.draw_start_index = mesh_start_index_for_camera;
-			mesh_start_index_for_camera += mesh_count;
-
+			std::vector<std::vector<RSInstanceData>> instance_data(mesh_data->mesh->GetLODCount());
+			std::vector<std::vector<RSSkeletalData>> skeletal_transform_data(mesh_data->mesh->GetLODCount());
 			UINT bone_count = mesh_data->mesh_comps[0]->GetSkeletalMesh()->GetBoneCount();
-			std::vector<RSInstanceData> instance_data(mesh_count);
-			std::vector<RSSkeletalData> skeletal_transform_data(bone_count*mesh_count);
-			UINT transform_start_index = bone_count * mesh_count;
+			UINT transform_start_index = 0;
 
 			for (const auto& mesh_comp : mesh_data->mesh_comps)
 			{
@@ -263,25 +253,38 @@ namespace client_fw
 				{
 					UINT lod = mesh_comp->GetLevelOfDetail();
 
-					transform_start_index -= bone_count;
-
-					auto bone_transform_data = mesh_comp->GetBoneTransformData();
+					const auto& bone_transform_data = mesh_comp->GetBoneTransformData();
 					for (UINT index = 0; index < bone_count; ++index)
-						skeletal_transform_data[transform_start_index + index].bone_transform = bone_transform_data[index];
+						skeletal_transform_data[lod].emplace_back(RSSkeletalData{ bone_transform_data[index] });
 
-					instance_data[--(info.start_index_of_lod_instance_data.at(lod))] =
-						RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),
-						transform_start_index + skeletal_transform_start_index };
+					instance_data[lod].emplace_back(RSInstanceData{ mesh_comp->GetWorldTransposeMatrix(), mesh_comp->GetWorldInverseMatrix(),
+						transform_start_index + skeletal_transform_start_index });
+
+					transform_start_index += bone_count;
 
 					mesh_comp->SetVisiblity(false);
 				}
 			}
+
+			UINT mesh_count = 0;
+
+			for (UINT lod = 0; lod < mesh_data->mesh->GetLODCount(); ++lod)
+			{
+				info.start_index_of_lod_instance_data[lod] = mesh_count;
+				mesh_count += static_cast<UINT>(instance_data[lod].size());
+				info.num_of_lod_instance_data[lod] = static_cast<UINT>(instance_data[lod].size());
+			}
+
+			info.draw_start_index = mesh_start_index_for_camera;
+			mesh_start_index_for_camera += mesh_count;
 			skeletal_transform_start_index += bone_count * mesh_count;
 
-			std::move(instance_data.begin(), instance_data.end(), std::back_inserter(m_skeletal_meshes_instance_data[level_type]));
-			std::move(skeletal_transform_data.begin(), skeletal_transform_data.end(), std::back_inserter(m_skeletal_transforms_data[level_type]));
+			for (auto& data : instance_data)
+				std::move(data.begin(), data.end(), std::back_inserter(m_skeletal_meshes_instance_data[level_type]));
+			for(auto& data : skeletal_transform_data)
+				std::move(data.begin(), data.end(), std::back_inserter(m_skeletal_transforms_data[level_type]));
 
-			mesh_data->mesh->ResetLOD();
+			mesh_data->mesh->SetVisible(false);
 			instance_info.mesh_draw_infos.emplace_back(std::move(info));
 		}
 

@@ -74,15 +74,15 @@ namespace event_test
     class MoveObjectMessageEventInfo final :public MessageEventInfo
     {
     public:
-        MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos,const Quaternion& rot);
+        MoveObjectMessageEventInfo(UINT event_id, const Vec3& pos);
        
     private:
         Vec3 m_pos;
         
-        Quaternion m_rot;
+        //Quaternion m_rot;
     public:
         const Vec3& GetObjPosition()const { return m_pos; }
-        const Quaternion& GetObjRotation()const { return m_rot; }
+       // const Quaternion& GetObjRotation()const { return m_rot; }
     };
     
     class MatchingMessageEventInfo final :public MessageEventInfo

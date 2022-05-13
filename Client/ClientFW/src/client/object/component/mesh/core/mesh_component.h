@@ -17,13 +17,16 @@ namespace client_fw
 		virtual void UpdateWorldMatrix() override;
 
 	protected:
-		virtual void UpdateLevelOfDetail(const Vec3& eye);
+		virtual void UpdateLevelOfDetail(const Vec3& eye) override;
+		virtual void UpdateLevelOfDetailForShadow(const Vec3& eye) override;
+		virtual void ResetLevelOfDetailForShadow() override;
 		virtual void UpdateOrientedBox() override;
 
 	protected:
 		SPtr<Mesh> m_mesh;
 		float m_max_extent = 0;
 		UINT m_level_of_detail = 0;
+		UINT m_level_of_detail_for_shadow = 0;
 
 	private:
 		Mat4 m_world_transpose_matrix;
@@ -36,8 +39,16 @@ namespace client_fw
 		bool IsUseLevelOfDetail() const;
 		UINT GetLevelOfDetail() const { return m_level_of_detail; }
 		void SetLevelOfDetail(UINT lod);
+		UINT GetLevelOfDetailForShadow() const { return m_level_of_detail_for_shadow; }
 		const Mat4& GetWorldTransposeMatrix() const { return m_world_transpose_matrix; }
 		const Mat4& GetWorldInverseMatrix() const { return m_world_inverse_matrix; }
+
+
+	public:
+		//
+		//  ↓ 사용자용 함수 X
+		//
+		virtual void SetVisiblity(bool value) override;
 	};
 }
 

@@ -4,11 +4,26 @@
 enum class NW_OBJ_TYPE
 {
     OT_NONE,
+    OT_MY_PLAYER,
     OT_BASE=3,
     OT_PLAYER,
     OT_NPC_SKULL,
     OT_NPC_SKULLKING
 };
+
+//DBError : DB에러
+//UserFull : 사용자 가득참
+//AlreadyLogin : 현재 접속중인 계정
+//InvalidPW : 비번이 틀림
+//InvalidID :  없는 아이디
+//ExistID : 이미 있는 아이디
+enum class eLoginFailType
+{
+    kDBError,kUserFull,
+    kAlreadyLogin,kInvalidPW,
+    kInvalidID,kExistID,
+};
+
 class NetworkMoveObj :
     public NetworkObj
 {
@@ -47,9 +62,12 @@ public:
     const NW_OBJ_TYPE GetType()const { return m_type; }
     const float GetDamage()const { return m_damage; }
     void SetDamage(float val) { m_damage = val; }
+    bool GetIsActive() { return m_is_active; }
+    void SetIsActive(bool val) { m_is_active = val; }
 private:
     float m_hp, m_max_hp;
     NW_OBJ_TYPE m_type;
+    bool m_is_active = true;
     float m_damage;
     //client_fw::Quaternion m_rotation;
 };

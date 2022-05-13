@@ -205,8 +205,8 @@ bool MapManager::CheckCollision(BoxCollision& obj_collision)
 	for (auto& map_obj : m_map_objects)
 	{
 		if (map_obj.GetIsBlocked() == false)continue;
-		if (CollisionChecker::CheckCollisions(obj_collision,
-			BoxCollision(map_obj.GetPos(), map_obj.GetExtent())))return true;
+		if (CollisionChecker::CheckCollisions(obj_collision,BoxCollision(map_obj.GetPos(), map_obj.GetExtent())
+			))return true;
 		
 	}
 	return false;
@@ -237,4 +237,18 @@ bool MapManager::CheckInRange(BoxCollision& collision)
 	}
 	
 	return check_set.all();
+}
+
+bool MapManager::CheckInRange(const Vector3& pos)
+{
+	for (auto& map_obj : m_map_objects)
+	{
+		if (OBJ_TYPE::OT_ACTIViTY_AREA != map_obj.GetType())continue;
+		if (CollisionChecker::CheckInRange(pos.x, pos.z,
+			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
+			return true;
+		}
+		
+	}
+	return false;
 }

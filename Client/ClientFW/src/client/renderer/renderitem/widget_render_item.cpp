@@ -56,7 +56,7 @@ namespace client_fw
 			{
 				for (const auto& ui : widget->GetUserInterfaceLayer()->GetUserInterfaces())
 				{
-					const Vec2& lt = ui->GetPosition();
+					const Vec2& lt = ui->GetPivotPosition();
 					if (ui->IsVisible() &&
 						((lt.x < 0) || (lt.y < 0) || (lt.x > widget_size.x) || (lt.y > widget_size.y)) == false)
 					{
@@ -120,7 +120,7 @@ namespace client_fw
 								LOG_WARN("Could not find ui texture : {0}", ui->GetName());
 							else
 							{
-								Vec3 new_position = position + right * lt.x + up * lt.y;
+								Vec3 new_position = position + right * lt.x - up * lt.y;
 
 								INT resource_index = -1;
 
@@ -247,7 +247,6 @@ namespace client_fw
 		const auto& ui_layer = widget_comp->GetUserInterfaceLayer();
 		if (ui_layer != nullptr)
 		{
-			UINT num_of_data = ui_layer->GetNumOfVisibleTexture();
 			if (widget_comp->GetWidgetSpaceType() == eWidgetSpaceType::kWorld)
 			{
 				widget_comp->SetRenderItemIndex(static_cast<UINT>(m_world_widget_components.size()));
@@ -267,7 +266,6 @@ namespace client_fw
 		if (ui_layer != nullptr)
 		{
 			UINT index = widget_comp->GetRenderItemIndex();
-			UINT num_of_data = ui_layer->GetNumOfVisibleTexture();
 
 			if (widget_comp->GetWidgetSpaceType() == eWidgetSpaceType::kWorld)
 			{

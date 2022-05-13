@@ -5,6 +5,7 @@
 #include<chrono>
 #include<concurrent_priority_queue.h>
 #include"util/state.h"
+#include"util/vec2.h"
 #include"util/vec3.h"
 #include"util/vec4.h"
 #include"protocol.h"
@@ -20,9 +21,9 @@ extern "C" {
 
 #pragma comment (lib, "lib/lua54.lib")
 
-const int BUFSIZE = 256;
-
-
+const int BUFSIZE = 2048;
+const float ATTACK_RANGE = 5000.0f;
+const float GROUND_HEIGHT = 350.0f;
 
 class EXP_OVER
 {
@@ -65,6 +66,18 @@ struct db_task {
 	DB_TASK_TYPE dt;
 	char user_id[MAX_NAME_SIZE];
 	char user_password[MAX_PASSWORD_SIZE];
+};
+
+struct BoxCollision2D
+{
+	BoxCollision2D(const Vector3& min_pos, const Vector3 max_pos)
+	{
+		p[0] = Vector2(min_pos.x,min_pos.z);
+		p[1] = Vector2(min_pos.x, max_pos.z);
+		p[2] = Vector2(max_pos.x, min_pos.z);
+		p[3] = Vector2(max_pos.x, max_pos.z);
+	}
+	Vector2 p[4];
 };
 
 constexpr unsigned int HashCode(const char* str)

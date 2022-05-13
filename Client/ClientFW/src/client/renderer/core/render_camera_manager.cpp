@@ -165,7 +165,7 @@ namespace client_fw
 						camera_resource_data->CopyData(static_cast<UINT>(m_render_cameras.size()), camera_data);
 					}
 
-					MeshVisualizer::UpdateVisibilityFromRenderCamera(camera);
+					MeshVisualizer::UpdateVisibilityFromMovableRenderCamera(camera);
 					update_shader_function_for_render_camera(device);
 				}
 			}
@@ -180,12 +180,12 @@ namespace client_fw
 		if (m_ready_main_camera != nullptr)
 		{
 			m_ready_main_camera->UpdateViewport(0, 0, width, height);
-			m_ready_main_camera->SetNearZ(10.0f);
+			m_ready_main_camera->SetNearZ(20.0f);
 		}
 		else if (m_main_camera != nullptr)
 		{
 			m_main_camera->UpdateViewport(0, 0, width, height);
-			m_main_camera->SetNearZ(10.0f);
+			m_main_camera->SetNearZ(20.0f);
 		}
 	}
 

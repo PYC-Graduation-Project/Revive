@@ -1,6 +1,7 @@
 #include <include/client_core.h>
 #include <client/object/component/mesh/static_mesh_component.h>
 #include <client/object/component/mesh/skeletal_mesh_component.h>
+#include <client/physics/collision/collisioner/collisioner.h>
 #include <client/object/component/render/box_component.h>
 #include <client/input/input.h>
 #include "object/actor/weapon/weapon.h"
@@ -21,20 +22,23 @@ namespace revive
 		ret &= AttachComponent(m_static_mesh_component);
 		//ret &= AttachComponent(m_box_component);
 		return ret;
+
 	}
 
 
 	void Weapon::Update(float delta_time)
 	{
-		//GetSocketMatrix(socket_world_matrix);
-		m_static_mesh_component->SetLocalPosition(m_position_offset);
-		Mat4 socket_world_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
-		SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });
-		SetRotation(
-			quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(m_rotation_offset.x), math::ToRadian(m_rotation_offset.y), math::ToRadian(m_rotation_offset.z))/*quat::CreateQuaternionFromAxis(vec3::AXIS_X,math::ToRadian(70.f))*///오프셋 값
-			* m_attached_skeletal_mesh_component.lock()->GetSocketWorldRotation(m_socket_name)
-		);
-		//SetRotation(q2);
+		if (m_attached_actor.expired() == false)
+		{
+			//GetSocketMatrix(socket_world_matrix);
+			m_static_mesh_component->SetLocalPosition(m_position_offset);
+			Mat4 socket_world_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
+			SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });
+			SetRotation(
+				quat::CreateQuaternionFromRollPitchYaw(math::ToRadian(m_rotation_offset.x), math::ToRadian(m_rotation_offset.y), math::ToRadian(m_rotation_offset.z))/*quat::CreateQuaternionFromAxis(vec3::AXIS_X,math::ToRadian(70.f))*///오프셋 값
+				* m_attached_skeletal_mesh_component.lock()->GetSocketWorldRotation(m_socket_name)
+			);
+		}
 	}
 
 	//void const Weapon::GetSocketMatrix(Mat4& out_matrix)
@@ -49,6 +53,16 @@ namespace revive
 	{
 		m_attached_actor = actor;
 		m_attached_skeletal_mesh_component = skeletal_mesh_component;
+	}
+
+	void Weapon::SetCollisionInfo(bool is_collision, bool is_blocking, bool generate_collision_event)
+	{
+		m_box_component->SetCollisionInfo(is_collision, is_blocking, generate_collision_event);
+	}
+
+	const CollisionInfo& Weapon::GetCollisionInfo() const
+	{
+		return m_box_component->GetCollisioner()->GetCollisionInfo();
 	}
 
 	void Weapon::Shutdown()

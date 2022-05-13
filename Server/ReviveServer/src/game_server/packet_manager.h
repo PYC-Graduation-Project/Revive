@@ -24,9 +24,12 @@ public:
 
 	void UpdateObjMove();
 	void SpawnEnemy(int room_id);
+	void SpawnEnemyByTime(int enemy_id,int room_id);
 	void DoEnemyMove(int room_id, int enemy_id);
 	void CountTime(int room_id);
 	void DoEnemyAttack(int enemy_id, int target_id, int room_id);
+	void BaseAttackByTime(int room_id,int enemy_id);
+
 
 	void SendMovePacket(int c_id, int mover);
 	void SendNPCAttackPacket(int c_id,int obj_id, int target_id);
@@ -39,9 +42,22 @@ public:
 	void SendObjInfo(int c_id, int obj_id);
 	void SendTime(int c_id,float round_time);
 	void SendTestPacket(int c_id, int obj_id, float x, float y, float z);
+	void SendAttackPacket(int c_id, int attacker,const Vector3&forward_vec);
+	void SendBaseStatus(int c_id ,int room_id);
+	void SendStatusChange(int c_id, int obj_id, float hp);
+	void SendGameWin(int c_id);
+	void SendGameDefeat(int c_id);
+	void SendDead(int c_id,int obj_id);
+
+
+
 
 	void End();
 	void Disconnect(int c_id);
+	bool IsRoomInGame(int room_id);
+	void EndGame(int room_id);
+
+
 
 	void CreateDBThread();
 	void DBThread();
@@ -66,8 +82,9 @@ private:
 	
 	std::thread db_thread;
 
-
-	
+	bool CheckPlayerBullet(int c_id, const Vector3& position, const Vector3& forward);
+	void CallStateMachine(int enemy_id, int room_id,const Vector3& base_pos);
+	bool CheckMoveOK(int enemy_id,int room_id);
 
 	//나중에 개발
 	void ProcessSignIn (int c_id ,unsigned char *p);
@@ -75,8 +92,8 @@ private:
 	void ProcessAttack(int c_id ,unsigned char* p);
 	void ProcessMove  (int c_id ,unsigned char* p);
 	void ProcessMatching(int c_id, unsigned char* p);
-	
-
+	void ProcessHit(int c_id, unsigned char* p);
+	void ProcessGameStart(int c_id, unsigned char* p);
 	void StartGame(int room_id);
 };
 

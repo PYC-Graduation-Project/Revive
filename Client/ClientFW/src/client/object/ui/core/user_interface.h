@@ -51,9 +51,12 @@ namespace client_fw
 
 	protected:
 		std::string m_name;
+		bool m_is_activate = true;
 		bool m_is_visible = true;
 		Vec2 m_position;
+		Vec2 m_pivot_position;
 		Vec2 m_size;
+		Vec2 m_pivot = Vec2(0.5f, 0.5f);
 
 	private:
 		std::vector<SPtr<UITexture>> m_visible_textures;
@@ -61,12 +64,17 @@ namespace client_fw
 	public:
 		const std::string& GetName() const { return m_name; }
 		void SetName(const std::string& name) { m_name = name; }
+		bool IsActivate() const { return m_is_activate; }
+		void SetActivate(bool value) { m_is_activate = value;}
 		bool IsVisible() const { return m_is_visible; }
 		void SetVisible(bool state) { m_is_visible = state; }
 		const Vec2& GetPosition() const { return m_position; }
-		virtual void SetPosition(const Vec2& position) { m_position = position; }
+		const Vec2& GetPivotPosition() const { return m_pivot_position; }
+		virtual void SetPosition(const Vec2& position);
 		const Vec2& GetSize() const { return m_size; }
-		virtual void SetSize(const Vec2& size) { m_size = size; }
+		virtual void SetSize(const Vec2& size);
+		const Vec2& GetPivot() const { return m_pivot; }
+		void SetPivot(const Vec2& pivot);
 
 		UINT GetNumOfVisibleTexture() const { return static_cast<UINT>(m_visible_textures.size()); }
 		const std::vector<SPtr<UITexture>> GetVisibleTextures() const { return m_visible_textures; }

@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-
+#include"server/network.h"
 #include"server/network_obj_manager.h"
 #include"server/network_move_object.h"
 #include "revive_packet_manager.h"
@@ -8,6 +8,7 @@
 #include"revive_server/message/message_event_info.h"
 using namespace std;
 using namespace client_fw;
+
 void RevivePacketManager::Init()
 {
 	m_obj_map = unordered_map<int, client_fw::SPtr<NetworkMoveObj>>();
@@ -20,41 +21,48 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_TIME, [this](int c_id, unsigned char* p) {ProcessTime(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_TEST, [this](int c_id, unsigned char* p) {ProcessTest(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_NPC_ATTACK, [this](int c_id, unsigned char* p) {ProcessNpcAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_BASE_STATUS, [this](int c_id, unsigned char* p) {ProcessBaseStatus(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_ATTACK, [this](int c_id, unsigned char* p) {ProcessAttack(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_STATUS_CHANGE, [this](int c_id, unsigned char* p) {ProcessStatusChange(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_WIN, [this](int c_id, unsigned char* p) {ProcessGameWin(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_DEFEAT, [this](int c_id, unsigned char* p) {ProcessGameDefeat(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_DEAD, [this](int c_id, unsigned char* p) {ProcessDead(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
 	sc_packet_move* packet = reinterpret_cast<sc_packet_move*>(p);
-	//cout << "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
+	//cout<<<< "Packetx :" << move_packet->x << ", y : " << move_packet->y << ", z : " << move_packet->z << endl;
 	auto mover = m_obj_map.find(packet->id);
 	Vec3 recv_pos{ packet->x,packet->y,packet->z };
-	Quaternion recv_rot{ packet->r_x,packet->r_y,packet->r_z,packet->r_w };
+	//cout << "나 위치:"<<recv_pos << endl;
+	//cout << recv_pos << endl;
 	if (mover != m_obj_map.end())
 	{
+		if (mover->second->GetIsActive() == false)return;
+		if (isnan(packet->x) || isnan(packet->y) || isnan(packet->z))return;
+		auto end_t = std::chrono::system_clock::now();
+		
+
 		mover->second->SetPosition(move(recv_pos));
-		mover->second->SetRotation(move(recv_rot));
+
+		if (mover->second->m_move_time <= end_t) {
+			PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), mover->second->GetPosition()), packet->id);
+			mover->second->m_move_time = end_t + 50ms;
+		}
 	}
 	else
 	{
-		LOG_INFO("No Object");
+		LOG_INFO("No Object{0}", packet->id);
 	}
-	//if (!mover) {
-	//	cout << "없는 객체입니다!" << endl;
-	//	return;
-	//}
-	//client_fw::Vec3 pos{ packet->x,packet->y ,packet->z };
-	//client_fw::Quaternion rot{ packet->r_x,packet->r_y ,packet->r_z ,packet->r_w };
-	//mover->SetPosition(pos);
-	//mover->SetRotation(rot);
-	//std::cout << recv_pos << std::endl;
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), recv_pos,recv_rot),packet->id);
+	
 }
 
 void RevivePacketManager::ProcessSignIn(int c_id, unsigned char* p)
 {
 	sc_packet_sign_in_ok* packet = reinterpret_cast<sc_packet_sign_in_ok*>(p);
-	m_id = packet->id;
+	m_game_info.SetNetworkID( packet->id);
 	LOG_INFO("로그인 성공" );
-
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::SignInMessageOkEventInfo>(HashCode("sign in")));
 
 }
 
@@ -62,66 +70,60 @@ void RevivePacketManager::ProcessSignUp(int c_id, unsigned char* p)
 {
 	sc_packet_sign_up_ok* packet = reinterpret_cast<sc_packet_sign_up_ok*>(p);
 	cout << "회원가입 성공" << endl;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr < revive::SignUpMessageEventOkInfo>(HashCode("sign up")));
 }
 
 void RevivePacketManager::ProcessLoginFali(int c_id, unsigned char* p)
 {
 	sc_packet_login_fail* packet = reinterpret_cast<sc_packet_login_fail*>(p);
 	//cout << "로그인 실패" << endl;
+	eLoginFailType type;
 	switch (packet->reason)
 	{
 	case 1: {
-		LOG_INFO( "DBError");
+		type = eLoginFailType::kDBError;
 		break;
 	}
 	case 2: {
-		LOG_INFO("사용자 Full");
+		type = eLoginFailType::kUserFull;
 		break;
 	}
 	case 3: {
-		LOG_INFO("이미 접속중");
+		type = eLoginFailType::kAlreadyLogin;
 		break;
 	}
 	case 4: {
-		LOG_INFO("비번틀림" );
+		type = eLoginFailType::kInvalidPW;
 		break;
 	}
 	case 5: {
-		LOG_INFO("아이디없음");
+		type = eLoginFailType::kInvalidID;
 		break;
 	}
 	case 6: {
-		LOG_INFO("해당 아이디 존재");
+		type = eLoginFailType::kExistID;
 		break;
 	}
 	}
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::LoginFailMessageEventInfo>(HashCode("login fail"),type));
+
 }
 
 void RevivePacketManager::ProcessMatching(int c_id, unsigned char* p)
 {
-	sc_packet_sign_up_ok* packet = reinterpret_cast<sc_packet_sign_up_ok*>(p);
+	sc_packet_matching* packet = reinterpret_cast<sc_packet_matching*>(p);
 	cout << "매칭성사" << endl;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::MatchingMessageOKEventInfo>(HashCode("match")));
 }
 
 void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 {
 	sc_packet_obj_info* packet = reinterpret_cast<sc_packet_obj_info*>(p);
 	NetworkObj* obj = NULL;
-	if (packet->object_type == static_cast<char>(NW_OBJ_TYPE::OT_BASE))//기지를 어떻게 처리할지 좀더 고민..
-	{
-		//obj = new NetworkObj(
-		//	packet->id,
-		//	packet->maxhp,
-		//	packet->name,
-		//	packet->x,
-		//	packet->y,
-		//	packet->z,
-		//	(NW_OBJ_TYPE)packet->object_type
-		//);
-		//NetworkObjManager::GetInst()->AddObj(packet->id, obj);
-	}
-	else
-	{
+	Network::matching_end = true;
+	NW_OBJ_TYPE nw_type;
+	//string da = "ss";
+	packet->id == m_game_info.GetNetworkID() ? nw_type = NW_OBJ_TYPE::OT_MY_PLAYER : nw_type =(NW_OBJ_TYPE)packet->object_type;
 		auto res=m_obj_map.try_emplace(packet->id, CreateSPtr<NetworkMoveObj>(
 			packet->id,
 			packet->maxhp,
@@ -129,10 +131,9 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 			packet->x,
 			packet->y,
 			packet->z,
-			(NW_OBJ_TYPE)packet->object_type,
+			nw_type,
 			packet->damage
 		));
-	}
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));
 }
 
@@ -140,7 +141,10 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 {
 	sc_packet_time* packet = reinterpret_cast<sc_packet_time*>(p);
 	//float d_ms = std::chrono::duration_cast<chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() - packet->send_time;
-	LOG_INFO(packet->time);
+	auto end_t = chrono::system_clock::now().time_since_epoch();
+	int t = end_t.count() - packet->send_time;
+	//cout << "네트워크 딜레이" << std::chrono::duration_cast<std::chrono::milliseconds>(end_t.count() - packet->send_time) << endl;
+	//LOG_INFO("네트워크 딜레이:{0}",t);
 	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
 }
 
@@ -158,9 +162,98 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 	sc_packet_npc_attack*packet= reinterpret_cast<sc_packet_npc_attack*>(p);
 	auto target = m_obj_map.find(packet->target_id);
 	if (target != m_obj_map.end()) {
+		if (target->second->GetIsActive() == false)return;
+
+		Vec3 attack_pos{ target->second->GetPosition().x,target->second->GetPosition().y + 80.0f,target->second->GetPosition().z };
+
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
-			target->second->GetPosition()), packet->obj_id);
+			attack_pos), packet->obj_id);//y값+80해서 보내주기
+		
+
+	}
+	else if (target == m_obj_map.end()&&packet->target_id == -1)
+	{
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
+		Vec3(2400.0f,500.0f,2850.0f)), packet->obj_id);
 	}
 	else
-		LOG_INFO("등록된 객체가 없습니다.");
+		LOG_INFO("없는 객체 공격{0}",packet->obj_id);
+}
+
+void RevivePacketManager::ProcessAttack(int c_id, unsigned char* p)
+{
+	sc_packet_attack* packet = reinterpret_cast<sc_packet_attack*>(p);
+	auto attacker = m_obj_map.find(packet->obj_id);
+	if (attacker != m_obj_map.end())
+	{
+		if (attacker->second->GetIsActive() == false)return;
+		Vec3 forward_vec{ packet->f_x,packet->f_y ,packet->f_z };
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::RecvAttackEventInfo>(HashCode("player attack"),forward_vec), packet->obj_id);
+	}
+	else
+		LOG_INFO("None");
+
+}
+
+void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
+{
+	sc_packet_base_status* packet = reinterpret_cast<sc_packet_base_status*>(p);
+	if (m_game_info.GetRoomID() == -1)
+		m_game_info.SetRoomID(packet->room_id);
+	m_game_info.SetBaseHp(packet->hp);
+	//LOG_INFO("BaseHP:{0}", packet->hp);
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp));
+}
+
+void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
+{
+	sc_packet_status_change*packet = reinterpret_cast<sc_packet_status_change*>(p);
+
+	auto obj = m_obj_map.find(packet->id);
+	if (obj != m_obj_map.end())
+	{
+		//LOG_INFO("{0}가 맞았다 hp:{1}",obj->second->GetName(),packet->hp);
+		if (obj->second->GetIsActive() == false)return;
+		obj->second->SetHP(packet->hp);
+		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::StatusChangeEventInfo>(HashCode("status change"), packet->hp), packet->id );
+	}
+}
+
+void RevivePacketManager::ProcessGameWin(int c_id, unsigned char* p)
+{
+	sc_packet_win* packet = reinterpret_cast<sc_packet_win*>(p);
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("win")));
+	Reset();
+}
+
+void RevivePacketManager::ProcessGameDefeat(int c_id, unsigned char* p)
+{
+	sc_packet_defeat* packet = reinterpret_cast<sc_packet_defeat*>(p);
+	//m_stop_recv = true;
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::GameWinEventInfo>(HashCode("defeat")));
+	Reset();
+}
+
+void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
+{
+	sc_packet_dead* packet = reinterpret_cast<sc_packet_dead*>(p);
+	auto obj = m_obj_map.find(packet->obj_id);
+	if (obj != m_obj_map.end())
+	{
+		obj->second->SetIsActive(false);
+	}
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::ObjectDeadEventInfo>(HashCode("dead")), packet->obj_id);
+	
+}
+
+void RevivePacketManager::Reset()
+{
+	for (auto& obj : m_obj_map)
+	{
+		if(obj.second->GetIsActive()==true)
+			PacketHelper::DisconnectActorFromServer(obj.first);
+		obj.second = nullptr;
+		
+	}
+	m_obj_map.clear();
 }

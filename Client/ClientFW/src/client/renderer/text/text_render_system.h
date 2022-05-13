@@ -1,6 +1,6 @@
 #pragma once
 
-//#define __USE_DWRITE__
+#define __USE_DWRITE__
 
 namespace client_fw
 {

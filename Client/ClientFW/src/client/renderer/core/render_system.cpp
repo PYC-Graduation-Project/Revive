@@ -38,6 +38,11 @@
 #include "client/object/component/light/core/local_light_component.h"
 #include "client/object/component/sky/sky_component.h"
 
+#include <stdio.h>
+#include <time.h>
+//#define __USE_RENDER_UPDATE_CPU_TIME__
+//#define __USE_RENDER_DRAW_CPU_TIME__
+
 namespace client_fw
 {
 	RenderSystem* Render::s_render_system = nullptr;
@@ -137,6 +142,10 @@ namespace client_fw
 
 	void RenderSystem::Update(ID3D12Device* device)
 	{
+#ifdef __USE_RENDER_UPDATE_CPU_TIME__
+		clock_t l_start, l_end;
+		l_start = clock();
+#endif
 		m_render_camera_manager->Update(device,
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kOpaque)->Update(device);
@@ -152,7 +161,7 @@ namespace client_fw
 			[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kShadowCube)->Update(device);
 			},
-			[this](ID3D12Device* device) {
+				[this](ID3D12Device* device) {
 				m_graphics_render_levels.at(eRenderLevelType::kShadowCascade)->Update(device);
 			});
 
@@ -165,6 +174,15 @@ namespace client_fw
 
 		for (const auto& [level_type, render_level] : m_graphics_render_levels)
 			render_level->UpdateFrameResource(device);
+
+#ifdef __USE_RENDER_UPDATE_CPU_TIME__
+		l_end = clock();
+#ifdef _DEBUG
+		LOG_INFO("Render Update Time : {0}", float(l_end - l_start));
+#else
+		std::cout << "Render Update Time " << float(l_end - l_start) << std::endl;
+#endif
+#endif
 	}
 
 
@@ -178,6 +196,11 @@ namespace client_fw
 		//지금 이 부분은 Shadow나 Compute가 생길 경우 많이 바뀔 부분이다.
 		//일단은 Opaque정도만 신경써서 코딩을 하였다.
 		//지금으로서는 능력 부족으로 정확한 예측은 커녕 50%의 예측도 불가능하다.
+
+#ifdef __USE_RENDER_DRAW_CPU_TIME__
+		clock_t l_start, l_end;
+		l_start = clock();
+#endif
 
 		m_graphics_super_root_signature->Draw(command_list);
 		m_render_asset_manager->Draw(command_list);
@@ -212,6 +235,15 @@ namespace client_fw
 				{
 				});
 		}
+
+#ifdef __USE_RENDER_DRAW_CPU_TIME__
+		l_end = clock();
+#ifdef _DEBUG
+		LOG_TRACE("Render Draw Time : {0}", float(l_end - l_start));
+#else
+		std::cout << "Render Draw Time " << float(l_end - l_start) << std::endl;
+#endif
+#endif
 	}
 
 	void RenderSystem::DrawMainCameraView(ID3D12GraphicsCommandList* command_list) const

@@ -49,10 +49,34 @@ int API_attack(lua_State* L)
 	int npc_id = (int)lua_tointeger(L, -2);
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
+	en->SetTargetId(target_id);
 	auto attack_t = chrono::system_clock::now();
-	if (attack_t < en->GetAttackTime())return 0;
-	timer_event t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 30);
-	PacketManager::g_timer_queue.push(move(t));
+	timer_event t;
+	chrono::milliseconds mil = chrono::duration_cast<chrono::milliseconds>(en->GetAttackTime() - attack_t);
+	if (attack_t <=en->GetAttackTime())
+		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, mil.count());
+	else
+		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 1000);
+
+		PacketManager::g_timer_queue.push(move(t));
+	
+
+	/*if (attack_t >= en->GetAttackTime())
+	{
+		t = PacketManager::SetTimerEvent(npc_id, target_id, en->GetRoomID(), EVENT_TYPE::EVENT_NPC_ATTACK, 30);
+	}*/
+	/*else
+	{
+		en->lua_lock.lock();
+		lua_State* L = en->GetLua();
+		lua_getglobal(L, "state_machine");
+		lua_pushnumber(L, target_id);
+		int err = lua_pcall(L, 1, 0, 0);
+		if (err)
+			MoveObjManager::LuaErrorDisplay(L, err);
+		en->lua_lock.unlock();
+	}*/
+
 	return 0;
 }
 
@@ -60,11 +84,11 @@ int API_move(lua_State* L)
 {
 	int target_id = (int)lua_tointeger(L, -1);
 	int npc_id = (int)lua_tointeger(L, -2);
-	//cout << "루아 npc_id" << npc_id << endl;
+	//cout << "루아 npc_id" << target_id << endl;
 	lua_pop(L, 3);
 	Enemy* en = MoveObjManager::GetInst()->GetEnemy(npc_id);
 	en->SetTargetId(target_id);
-	timer_event t=PacketManager::SetTimerEvent(en->GetID(), en->GetID(), en->GetRoomID(),EVENT_TYPE::EVENT_NPC_MOVE,30);
+	timer_event t=PacketManager::SetTimerEvent(en->GetID(), en->GetID(), en->GetRoomID(),EVENT_TYPE::EVENT_NPC_MOVE,50);
 	PacketManager::g_timer_queue.push(move(t));
 	return 0;
 }

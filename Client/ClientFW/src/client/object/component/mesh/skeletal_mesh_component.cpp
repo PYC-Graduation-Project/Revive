@@ -16,6 +16,7 @@ namespace client_fw
 	bool SkeletalMeshComponent::Initialize()
 	{
 		m_animation_controller->Initialize();
+		m_animation_controller->SetOwner(SharedFromThis());
 		return MeshComponent::Initialize();
 	}
 
@@ -45,8 +46,9 @@ namespace client_fw
 		if (m_mesh == nullptr)
 		{
 			LOG_ERROR("Could not cast Mesh[{0}] to SkeletalMesh", file_path);
-			return false;
+			return m_set_mesh;
 		}
+		else m_set_mesh = true;
 		m_animation_controller->SetMeshPath(file_path);
 
 		auto& skeletal_mesh = GetSkeletalMesh();
@@ -55,20 +57,23 @@ namespace client_fw
 		skeletal_mesh->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		m_animation_controller->CopyBoneTransformData();
 
-		return true;
+		return m_set_mesh;
 	}
 	void SkeletalMeshComponent::SetAnimation(const std::string& animation_name,bool looping)
 	{
-		m_animation_name = animation_name;
-
-		if (animation_name.compare("Null") == 0)
-			SetIsPlaying(false);
-		else if (animation_name.compare("Null") != 0)
+		if (m_set_mesh == true)
 		{
-			m_animation_controller->SetAnimationName(animation_name);
-			m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
-			if (looping == false) m_animation_controller->Initialize();
-			SetLooping(looping);
+			m_animation_name = animation_name;
+
+			if (animation_name.compare("Null") == 0)
+				SetIsPlaying(false);
+			else if (animation_name.compare("Null") != 0)
+			{
+				SetIsPlaying(true);
+				m_animation_controller->SetAnimationName(animation_name);
+				m_animation_controller->SetAnimation(GetSkeletalMesh()->GetSkeleton());
+				SetLooping(looping);
+			}
 		}
 	}
 
@@ -80,23 +85,17 @@ namespace client_fw
 
 	const Mat4 SkeletalMeshComponent::GetSocketWorldMatrix(const std::string& socket_name)
 	{
-		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
-		Mat4 mesh_matrix = mat4::CreateScale(GetScale());
-		mesh_matrix *= mat4::CreateRotationFromQuaternion(GetLocalRotation());
-		mesh_matrix *= mat4::CreateTranslation(GetLocalPosition());
-		//socket_matrix *= m_owner.lock()->GetWorldMatrix();
-		return socket_matrix * mesh_matrix * m_owner.lock()->GetWorldMatrix();
+		return socket_matrix * GetWorldMatrix();
 	}
 
 	const Quaternion SkeletalMeshComponent::GetSocketWorldRotation(const std::string& socket_name)
 	{
-		GetSkeletalMesh()->GetSkeleton()->UpdateToParent(mat4::IDENTITY);
 		Mat4 socket_matrix = GetSkeletalMesh()->GetSkeleton()->FindBone(socket_name)->GetWorld();
 		Quaternion socket_rotation;
 		XMStoreFloat4(&socket_rotation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&socket_matrix)));
 
-		return socket_rotation * GetLocalRotation() * m_owner.lock()->GetRotation();
+		return socket_rotation * GetWorldRotation();
 	}
 
 	SPtr<SkeletalMeshComponent> SkeletalMeshComponent::SharedFromThis()

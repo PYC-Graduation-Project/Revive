@@ -29,6 +29,14 @@ public:
 		a.z += b.z;
 
 	}
+	friend bool operator ==(const Vector3& a, const Vector3& b)
+	{
+		return (a.x == b.x && a.y == b.y && a.z == b.z);
+	}
+	friend bool operator !=(const Vector3& a, const Vector3& b)
+	{
+		return (a.x != b.x || a.y != b.y || a.z != b.z);
+	}
 	friend Vector3 operator *(Vector3& a, const float b)
 	{
 
@@ -56,10 +64,10 @@ public:
 #endif // 연산자 오버로딩
 	float VectorScale()
 	{
-		float temp_x = abs(x);
-		float temp_y = abs(y);
-		float temp_z = abs(z);
-		float scale = sqrt(pow(temp_x, 2) + pow(temp_y, 2) + pow(temp_z, 2));
+		float temp_x = x*x;
+		float temp_y = y*y;
+		float temp_z = z*z;
+		float scale = sqrt(temp_x + temp_y + temp_z);
 		
 		return scale;
 	}
@@ -68,5 +76,26 @@ public:
 		float scale = VectorScale();
 		Vector3 nor{ x / scale, y / scale, z / scale };
 		return nor;
+	}
+	float Dist(const Vector3& other)
+	{
+		float temp_x = (x - other.x) * (x - other.x);
+		float temp_y = (y - other.y) * (y - other.y);
+		float temp_z = (z - other.z) * (z - other.z);
+		return sqrt(temp_x + temp_y + temp_z);
+	}
+	float Dist2d(const Vector3& other)
+	{
+		float temp_x = (x - other.x) * (x - other.x);
+		float temp_z = (z - other.z) * (z - other.z);
+		return sqrt(temp_x +  temp_z);
+	}
+	float Dot(const Vector3& other)
+	{
+		return x * other.x + y * other.y + z * other.z;
+	}
+	Vector3 Cross(const Vector3& other)
+	{
+		return Vector3(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
 	}
 };

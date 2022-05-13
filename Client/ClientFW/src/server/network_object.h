@@ -9,7 +9,8 @@ public:
 	NetworkObj()=default;
 	NetworkObj(int id,  char* name, float x, float y, float z)
 		:m_id(id)
-	{
+	{	
+		m_move_time = std::chrono::system_clock::now();
 			m_name = std::string(name);
 			m_position =client_fw::Vec3(x, y, z);
 			m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
@@ -29,6 +30,7 @@ public:
 	
 	void SetName(const std::string& val) { m_name = val; }
 	
+	std::chrono::system_clock::time_point m_move_time;
 protected:
 	std::string m_name;
 	client_fw::Vec3 m_position;

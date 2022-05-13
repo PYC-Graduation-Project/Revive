@@ -19,6 +19,7 @@ namespace client_fw
 	class LevelManager;
 	class LevelLoader;
 	class Level;
+	class LevelSharedInfo;
 	class UserInterfaceManager;
 	class PhysicsWorld;
 
@@ -62,6 +63,9 @@ namespace client_fw
 		void OpenLevel(const SPtr<Level>& level);
 		void OpenLevel(const SPtr<Level>& level, UPtr<LevelLoader>&& level_loader);
 		void CloseLevel();
+
+	private:
+		virtual SPtr<LevelSharedInfo> CreateLevelSharedInfo() const;
 
 	protected:
 		static Application* s_instance;

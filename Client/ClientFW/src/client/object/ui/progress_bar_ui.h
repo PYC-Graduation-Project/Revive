@@ -19,6 +19,10 @@ namespace client_fw
 	public:
 		virtual void SetPosition(const Vec2& position) override;
 		virtual void SetSize(const Vec2& size) override;
+
+		const SPtr<UITexture> GetBackgroundTexture() const { return m_background_texture; }
+		const SPtr<UITexture> GetFillTexture() const { return m_fill_texture; }
+
 		void SetBackgroundTexture(const std::string& path);
 		void SetBackgroundTexture(const SPtr<Texture>& texture);
 		void SetFillTexture(const std::string& path);

@@ -60,9 +60,9 @@ void ReviveSendManager::SendMovePacket(const SOCKET& s_socket, client_fw::Vec3& 
 	packet.x = pos.x;
 	packet.y = pos.y;
 	packet.z = pos.z;
-	packet.r_x = rot.x;
-	packet.r_y = rot.y;
-	packet.r_z = rot.z;
-	packet.r_w = rot.w;
+	//packet.r_x = rot.x;
+	//packet.r_y = rot.y;
+	//packet.r_z = rot.z;
+	//packet.r_w = rot.w;
 	SendPacket(s_socket, sizeof(packet), &packet);
 }

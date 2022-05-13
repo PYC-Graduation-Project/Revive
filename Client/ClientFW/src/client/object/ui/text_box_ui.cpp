@@ -11,7 +11,7 @@
 namespace client_fw
 {
 	TextBoxUI::TextBoxUI(const std::string& name, const Vec2& size)
-		: TextUI(name, size, L"Çå ÃÂ¹ÙÄû", Vec4(0.0f, 0.0f, 0.0f, 1.0f), 2)
+		: TextUI(name, size, L"", Vec4(0.0f, 0.0f, 0.0f, 1.0f), 2)
 	{
 		m_background_texture = CreateSPtr<UITexture>(m_position, size, nullptr);
 	}
@@ -28,6 +28,7 @@ namespace client_fw
 					if (Input::IsKeyPressed(eKey::kLButton) && Input::IsConsumedKey(eKey::kLButton) == false)
 					{
 						Input::StartInputMethodEditor();
+						m_is_modifiable = true;
 						Input::OnChangeTextFromIME([this](wchar_t t) {
 							std::wstring text = GetTextInfo()->GetText();
 							if (t == ToUnderlying(eKey::kBackspace))
@@ -41,6 +42,7 @@ namespace client_fw
 								Input::OnChangeTextFromIME(nullptr);
 								if (m_committed_function != nullptr)
 									m_committed_function();
+								m_is_modifiable = false;
 							}
 							else
 							{
@@ -56,10 +58,14 @@ namespace client_fw
 				{
 					if (Input::IsKeyPressed(eKey::kLButton) && Input::IsConsumedKey(eKey::kLButton) == false)
 					{
-						Input::EndInputMethodEditor();
-						Input::OnChangeTextFromIME(nullptr);
-						if (m_committed_function != nullptr)
-							m_committed_function();
+						if (m_is_modifiable == true)
+						{
+							if (m_committed_function != nullptr)
+								m_committed_function();
+							m_is_modifiable = false;
+							Input::EndInputMethodEditor();
+							Input::OnChangeTextFromIME(nullptr);
+						}
 					}
 				}
 		));

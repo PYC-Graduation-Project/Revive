@@ -28,11 +28,9 @@ namespace client_fw
 		bool RegisterUserInterface(const SPtr<UserInterface>& ui);
 
 	private:
-		bool m_is_initialized = false;
 		std::string m_name;
 		eUILayerState m_layer_state;
 		std::vector<SPtr<UserInterface>> m_user_interfaces;
-		UINT m_num_of_visible_texture = 0;
 
 	public:
 		const std::string& GetName() const { return m_name; }
@@ -40,10 +38,6 @@ namespace client_fw
 		eUILayerState GetUILayerState() const { return m_layer_state; }
 		void SetUILayerState(eUILayerState state) { m_layer_state = state; }
 		const std::vector<SPtr<UserInterface>>& GetUserInterfaces() const { return m_user_interfaces; }
-
-		// Layer에서 그리는 Texture의 수
-		UINT GetNumOfVisibleTexture() const { return m_num_of_visible_texture; }
-
 	};
 }
 

@@ -17,7 +17,6 @@ namespace revive
 		virtual void Exit() {} //State 퇴장시 해줄 것
 
 		virtual SPtr<PlayerState> ChageState() { return nullptr; } //State를 전환한다. (Transition)
-
 	protected:
 		WPtr<DefaultPlayer> m_player;
 	};

@@ -19,13 +19,17 @@ public:
 	float GetHP()const { return m_hp; }
 	float GetMaxHP()const { return m_maxhp; }
 	
-
+	virtual void Reset()
+	{
+		m_is_active = false;
+		ZeroMemory(m_name, MAX_NAME_SIZE + 1);
+	}
 	
 	Vector4 GetRotation() { return m_rotation; }
 	int GetRoomID()const { return m_room_id; }
-	bool GetIsActive()const { return m_is_active.load(std::memory_order_acquire); }
 	char* GetName() { return m_name; }
 
+	bool GetIsActive()const { return m_is_active.load(std::memory_order_acquire); }
 	void SetIsActive(bool val) { m_is_active.store(val,std::memory_order_release); }
 	
 	void SetRotaion(const Vector4& val) { m_rotation = val; }
@@ -36,6 +40,7 @@ public:
 	void SetRoomID(int val) { m_room_id = val; }
 
 	void SetOriginPos(const Vector3& val) { m_origin_pos = val; }
+	std::mutex m_hp_lock;
 protected:
 	std::atomic_bool m_is_active = false; //죽어있는지 살아있는지
 	int m_room_id;

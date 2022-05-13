@@ -2,6 +2,7 @@
 #include <client/input/input.h>
 #include <client/object/actor/static_mesh_actor.h>
 #include <client/util/octree/octree.h>
+#include <client/object/actor/light.h>
 #include "object/level/player_test_level.h"
 
 namespace render_test
@@ -30,6 +31,17 @@ namespace render_test
 		police->SetPosition(Vec3{ -600.0f, 0.0f, 1000.0f });
 
 		police->SetScale(0.2f);*/
+
+		auto d_light = CreateSPtr<DirectionalLight>();
+		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
+		d_light->SetRotation(math::ToRadian(45.0f), math::ToRadian(90.0f), 0.0f);
+		SpawnActor(d_light);
+
+	/*	auto p_light = CreateSPtr<PointLight>(eMobilityState::kMovable, "Hello");
+		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
+		p_light->SetPosition(Vec3(-2000.0f, 400.0f, 2000.0f));
+		p_light->SetAttenuationRadius(2048.0f);
+		SpawnActor(p_light);*/
 
 		return true;
 	}

@@ -33,11 +33,10 @@ namespace client_fw
 		virtual void PreDraw(ID3D12GraphicsCommandList* command_list) const = 0;
 
 		virtual void CreateDataForLodMesh(UINT lod);
-		virtual void ResetLOD();
 
 	protected:
+		bool m_is_visible = false;
 		UINT m_lod_count = 0;
-		std::vector<UINT> m_lod_mesh_counts;
 
 		std::vector<SPtr<VertexInfo>> m_vertex_infos;
 		std::vector<SPtr<IndexInfo>> m_index_infos;
@@ -47,9 +46,9 @@ namespace client_fw
 		bool m_is_draw_index = false;
 
 	public:
+		bool IsVisible() const { return m_is_visible; }
+		void SetVisible(bool visible) { m_is_visible = visible; }
 		UINT GetLODCount() const { return m_lod_count; }
-		UINT GetLODMeshCount(UINT lod) const { return m_lod_mesh_counts.at(lod); }
-		void AddLODMeshCount(UINT lod) { ++m_lod_mesh_counts.at(lod); }
 		const SPtr<VertexInfo>& GetVertexInfo(UINT lod) const { return m_vertex_infos.at(lod); }
 		const SPtr<IndexInfo>& GetIndexInfo(UINT lod) const { return m_index_infos.at(lod); }
 		const BOrientedBox& GetOrientedBox() const { return m_oriented_box; }

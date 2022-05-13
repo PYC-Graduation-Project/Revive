@@ -3,6 +3,7 @@
 namespace client_fw
 {
 	class VisualOctree;
+	struct VisualTreeNode;
 	class CollisionOctree;
 	class SceneComponent;
 	class RenderComponent;
@@ -17,6 +18,7 @@ namespace client_fw
 		OctreeManager(const OctreeManager&) = delete;
 		OctreeManager& operator=(const OctreeManager&) = delete;
 
+		void PrepareUpdate();
 		void Update();
 
 		void RegisterVisualOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
@@ -37,6 +39,9 @@ namespace client_fw
 		VisualOctreeManager(const VisualOctreeManager&) = delete;
 		VisualOctreeManager& operator=(const VisualOctreeManager&) = delete;
 
+		void PrepareUpdate();
+		void ResetLevelOfDetailForShadow(const SPtr<VisualTreeNode>& node);
+
 		void RegisterOctrees(std::vector<SPtr<VisualOctree>>&& octrees);
 		void UnregisterOctrees();
 
@@ -47,12 +52,16 @@ namespace client_fw
 		static VisualOctreeManager* s_instance;
 		bool m_is_active = false;
 		std::vector<SPtr<VisualOctree>> m_visual_octrees;
-		std::vector<SPtr<RenderComponent>> m_movable_render_comps;
+		std::vector<SPtr<RenderComponent>> m_movable_render_comps_for_render;
+		std::vector<SPtr<RenderComponent>> m_movable_render_comps_for_shadow;
+		std::vector<SPtr<RenderComponent>> m_registered_destructible_render_comps;
 
 	public:
 		static VisualOctreeManager& GetOctreeManager() { return *s_instance; }
-		const std::vector<SPtr<VisualOctree>> GetVisualOctrees() const { return m_visual_octrees; }
-		const std::vector<SPtr<RenderComponent>> GetMovableRenderComps() const { return m_movable_render_comps; }
+		const std::vector<SPtr<VisualOctree>>& GetVisualOctrees() const { return m_visual_octrees; }
+		const std::vector<SPtr<RenderComponent>>& GetMovableRenderCompsForRender() const { return m_movable_render_comps_for_render; }
+		const std::vector<SPtr<RenderComponent>>& GetMovableRenderCompsForShadow() const { return m_movable_render_comps_for_shadow; }
+		const std::vector<SPtr<RenderComponent>>& GetRegisteredDestructibleRenderComps() const { return m_registered_destructible_render_comps; }
 	};
 
 	class CollisionChecker;
@@ -87,7 +96,7 @@ namespace client_fw
 
 	public:
 		static CollisionOctreeManager& GetOctreeManager() { return *s_instance; }
-		const std::vector<SPtr<CollisionOctree>> GetCollisionOctrees() const { return m_collision_octrees; }
+		const std::vector<SPtr<CollisionOctree>>& GetCollisionOctrees() const { return m_collision_octrees; }
 		void CheckCollsion(bool check) { m_checking_collision = check; }
 	};
 }

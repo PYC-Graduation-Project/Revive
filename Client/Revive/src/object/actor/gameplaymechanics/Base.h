@@ -12,12 +12,17 @@ namespace revive
 		virtual bool Initialize() override;
 		virtual void Update(float delta_time) override;
 		//virtual void Shutdown() override;
-	private:
-		int m_hp;
+		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
+	private:
+		float m_hp = 100;
+		int m_network_id = -1;
 	public:
-		const int GetHP() const { return m_hp; }
-		void SetHP(const int hp) { m_hp = hp; }
+		const int GetID() const { return m_network_id; }
+		void SetID(const int id) { m_network_id = id; }
+
+		const float GetHP() const { return m_hp; }
+		void SetHP(const float hp) { m_hp = hp; }
 	};
 
 }
