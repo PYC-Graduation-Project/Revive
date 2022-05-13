@@ -154,7 +154,7 @@ namespace event_test
 		d_light->SetLightColor(Vec3(1.0f, 1.0f, 1.0f));
 		d_light->SetRotation(math::ToRadian(45.0f), 0.0f, 0.0f);
 		SpawnActor(d_light);
-		d_light->DisableShadow();
+		//d_light->DisableShadow();
 
 		auto p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 0.0f, 0.0f));
@@ -176,7 +176,7 @@ namespace event_test
 		p_light->SetAttenuationRadius(1500.0f);
 		p_light->SetShadowTextureSize(2000);
 		SpawnActor(p_light);
-		p_light->SetShadowVisibility(false);
+		//p_light->SetShadowVisibility(false);
 
 		p_light = CreateSPtr<PointLight>();
 		p_light->SetLightColor(Vec3(400000.0f, 400000.0f, 0.0f));
@@ -196,7 +196,7 @@ namespace event_test
 		s_light->SetAttenuationRadius(2000.0f);
 		s_light->SetConeOuterAngle(22.0f);
 		SpawnActor(s_light);
-		s_light->SetShadowVisibility(false);
+		//s_light->SetShadowVisibility(false);
 
 		s_light = CreateSPtr<SpotLight>();
 		s_light->SetLightColor(Vec3(400000.0f, 0.0f, 400000.0f));
@@ -253,7 +253,7 @@ namespace event_test
 		SpawnActor(billboard_tree);
 		billboard_tree->SetPosition(Vec3(300.0f, -200.0f, 2500.0f));
 
-		/*auto animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
+		auto animator = CreateSPtr<Animator>("../Contents/Revive/skel.rev", "idle");
 		animator->SetPosition(Vec3(-2000.0f, 0.0f, 2000.0f));
 		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(-45.0f), 0.0f);
 		animator->SetScale(100.0f);
@@ -279,7 +279,7 @@ namespace event_test
 		animator->SetPosition(Vec3(0.0f, -700.0f, -2200.0f));
 		animator->SetRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		animator->SetScale(100.0f);
-		SpawnActor(animator);*/
+		SpawnActor(animator);
 	
 		auto sky_cube = CreateSPtr<SkyCube>("../Contents/snowcube1024.dds");
 		SpawnActor(sky_cube);
