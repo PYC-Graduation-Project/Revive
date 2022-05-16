@@ -23,6 +23,12 @@
 
 ***
 
+### 개발 환경
+* DirectX 12
+* IOCP 서버
+
+***
+
 ### 인게임 이미지
 ![image](https://user-images.githubusercontent.com/34498116/168530569-44921fdf-8991-45ff-a170-beb433034bb9.png)
 ![image](https://user-images.githubusercontent.com/34498116/168530851-b1d53620-0c09-4fa3-be47-25bb76cf7f52.png)
