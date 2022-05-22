@@ -158,6 +158,12 @@ void PacketManager::SpawnEnemy(int room_id)
 	int curr_round = room->GetRound();
 	int sordier_num = room->GetMaxUser() * ( curr_round + 1);
 	int king_num = room->GetMaxUser() * curr_round;
+	for (auto c_id : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(c_id))
+			continue;
+		SendWaveInfo(c_id, curr_round + 1, room->GetMaxUser() * (curr_round + 1), room->GetMaxUser() * (curr_round + 2));
+	}
 	Enemy* enemy = NULL;
 	unordered_set<int>enemy_list;
 	for (auto e_id : room->GetObjList())
@@ -379,8 +385,10 @@ void PacketManager::CountTime(int room_id)
 	if (end_time >= room->GetRoundTime())
 	{
 		room->SetRoundTime(ROUND_TIME);
+		
 		if (room->GetRound() < 3)
 		{
+			
 			room->SetRound(room->GetRound() + 1);
 			g_timer_queue.push(SetTimerEvent(room->GetRoomID(),
 				room->GetRoomID(), room->GetRoomID(), EVENT_TYPE::EVENT_NPC_SPAWN, 30));
@@ -667,6 +675,17 @@ void PacketManager::SendDead(int c_id, int obj_id)
 	packet.size = sizeof(packet);
 	packet.type = SC_PACKET_DEAD;
 	packet.obj_id = obj_id;
+	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
+}
+
+void PacketManager::SendWaveInfo(int c_id, int curr_round, int king_num, int sordier_num)
+{
+	sc_packet_wave_info packet;
+	packet.size = sizeof(packet);
+	packet.type = SC_PACKET_WAVE_INFO;
+	packet.curr_round = curr_round;
+	packet.king_num = king_num;
+	packet.sordier_num = sordier_num;
 	MoveObjManager::GetInst()->GetPlayer(c_id)->DoSend(sizeof(packet), &packet);
 }
 
@@ -1185,6 +1204,7 @@ void PacketManager::StartGame(int room_id)
 	
 	//주위객체 정보 보내주기는 event로 
 	//플레이어에게 플레이어 보내주기
+	int next_round = 1;
 	for (auto c_id : room->GetObjList())
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(c_id))
@@ -1202,7 +1222,10 @@ void PacketManager::StartGame(int room_id)
 			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
+		
+		SendWaveInfo(c_id, next_round, room->GetMaxUser() * next_round, room->GetMaxUser() * (next_round + 1));
 	}
+	
 	room->SetRoundTime(ROUND_TIME);
 	//몇 초후에 npc를 어디에 놓을지 정하고 이벤트로 넘기고 초기화 -> 회의 필요
 	//g_timer_queue.push( SetTimerEvent(room->GetRoomID(), 

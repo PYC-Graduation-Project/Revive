@@ -48,7 +48,8 @@ public:
 	void SendGameWin(int c_id);
 	void SendGameDefeat(int c_id);
 	void SendDead(int c_id,int obj_id);
-
+	void SendWaveInfo(int c_id,int curr_round, int king_num, int sordier_num);
+	
 
 
 
