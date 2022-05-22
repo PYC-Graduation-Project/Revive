@@ -423,10 +423,6 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 
 	if (target_id == -1)
 	{
-		//room->m_base_hp_lock.lock();
-		//base_hp = room->GetBaseHp()- enemy->GetDamge();
-		//room->SetBaseHp(base_hp);
-		//room->m_base_hp_lock.unlock();
 		Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetPos();
 		int base_attack_t = 1000;
 		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL) {
@@ -439,23 +435,11 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	for (int pl : room->GetObjList())
 	{
 		if (false==MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		//if (target_id == -1)
-		//{
+		
 			SendNPCAttackPacket(pl, enemy_id, target_id);
-			//SendBaseStatus(pl, room_id);
-		//}
-		//else
-			//SendNPCAttackPacket(pl, enemy_id, target_id);
+		
 	}
-	//if (base_hp <= 0.0f)
-	//{
-	//	for (int pl : room->GetObjList())
-	//	{
-	//		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-	//		SendGameDefeat(pl);
-	//	}
-	//	EndGame(room_id);
-	//}
+
 	auto& attack_time = enemy->GetAttackTime();
 	attack_time = chrono::system_clock::now() + 1s;
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
@@ -484,6 +468,14 @@ void PacketManager::BaseAttackByTime(int room_id, int enemy_id)
 		}
 		EndGame(room_id);
 	}
+}
+
+void PacketManager::ActivateHealEvent(int room_id, int player_id)
+{
+	Player* player = MoveObjManager::GetInst()->GetPlayer(player_id);
+	Room* room = m_room_manager->GetRoom(room_id);
+	
+	//if(m_map_manager->CheckInRange(player->GetPos()))
 }
 
 
@@ -866,7 +858,7 @@ void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& b
 			if (true == MoveObjManager::GetInst()->IsNear(pl, enemy_id))//이거는 시야범위안에 있는지 확인
 			{
 				player = MoveObjManager::GetInst()->GetPlayer(pl);
-				if (false == m_map_manager->CheckInRange(player->GetPos())) continue;
+				if (false == m_map_manager->CheckInRange(player->GetPos(),OBJ_TYPE::OT_ACTIViTY_AREA)) continue;
 				auto fail_obj = distance_map.try_emplace(MoveObjManager::GetInst()->ObjDistance(pl, enemy_id), pl);
 
 				//여기서 기지와 플레이어 거리 비교후
@@ -999,7 +991,9 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}*/
 
 	cl->SetPos(pos);
-	if (isnan(cl->GetPosX()) || isnan(cl->GetPosY()) || isnan(cl->GetPosZ()))cout << "nan이다 이 싸발" << endl;
+	if (isnan(cl->GetPosX()) || isnan(cl->GetPosY()) || isnan(cl->GetPosZ()))return;
+	//여기서 힐존 검사하기
+	
 	//std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	//std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 	//	<< packet->r_z<< ", w : " << packet->r_w << endl;

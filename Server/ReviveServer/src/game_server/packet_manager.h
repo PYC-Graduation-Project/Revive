@@ -29,7 +29,7 @@ public:
 	void CountTime(int room_id);
 	void DoEnemyAttack(int enemy_id, int target_id, int room_id);
 	void BaseAttackByTime(int room_id,int enemy_id);
-
+	void ActivateHealEvent(int room_id, int player_id);
 
 	void SendMovePacket(int c_id, int mover);
 	void SendNPCAttackPacket(int c_id,int obj_id, int target_id);
