@@ -56,10 +56,6 @@ namespace revive
 			case HashCode("ActorName"):
 			{
 				ss >> temp_string >> temp_uint >> temp_uint2;
-				if (temp_string == "ActivityArea")
-				{
-					int i = 0;
-				}
 				ss >> temp_vec.x >> temp_vec.y >> temp_vec.z;
 				actor_info_data.push_back({ temp_string ,temp_vec, temp_uint,temp_uint2 });
 
@@ -158,6 +154,7 @@ namespace revive
 			//박스 컴포넌트만 있는 애들
 			case HashCode("ActivityArea"):
 			case HashCode("SpawnArea"):
+			case HashCode("HealZone"):
 			{
 				if (actor_info.collision_count > 0)
 				{
@@ -168,6 +165,7 @@ namespace revive
 			}
 			break;
 			}
+			
 			actor_mesh_index += actor_info.mesh_count;
 			actor_collision_index += actor_info.collision_count;
 			actor->SetName(actor_info.name);
