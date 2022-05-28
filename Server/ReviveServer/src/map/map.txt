@@ -1,16 +1,20 @@
 Asset Exporting
+ActorName HealZone 0 2  2400 300 1350 
+BoxCollision HealZone Center 0 150 0 Extents 425 150 425 
+BoxCollision HealZone Center 0 200 25 Extents 125 200 150 
+
 ActorName Base 3 1  2400 600 2850 
 BoxCollision Base Center 0 0 0 Extents 150 300 150 
 FilePath Contents/towerSquareMidWindows.obj
 Position 150 0 150 
 Rotation 0 0 0 1 
 Scale 30 
-FilePath Contents/towerSquareMid.obj
-Position 150 -300 150 
-Rotation 0 0 0 1 
-Scale 30 
 FilePath Contents/towerSquareTopRoofHigh.obj
 Position 150 300 175 
+Rotation 0 0 0 1 
+Scale 30 
+FilePath Contents/towerSquareMid.obj
+Position 150 -300 150 
 Rotation 0 0 0 1 
 Scale 30 
 

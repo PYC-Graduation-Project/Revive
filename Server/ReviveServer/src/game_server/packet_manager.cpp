@@ -18,6 +18,7 @@ concurrency::concurrent_priority_queue<timer_event> PacketManager::g_timer_queue
 
 //#include"map_loader.h"
 const int ROUND_TIME = 30000;
+const int HEAL_TIME = 1000;
 using namespace std;
 PacketManager::PacketManager()
 {
@@ -482,8 +483,28 @@ void PacketManager::ActivateHealEvent(int room_id, int player_id)
 {
 	Player* player = MoveObjManager::GetInst()->GetPlayer(player_id);
 	Room* room = m_room_manager->GetRoom(room_id);
-	
-	//if(m_map_manager->CheckInRange(player->GetPos()))
+	player->m_hp_lock.lock();
+	player->SetHP(player->GetHP() + PLAYER_HP / 10);
+	if (player->GetHP() > player->GetMaxHP())
+		player->SetHP(player->GetMaxHP());
+	player->m_hp_lock.unlock();
+	player->SetIsHeal(false);
+	for (int pl : room->GetObjList())
+	{
+		if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
+		SendStatusChange(pl,player->GetID(), player->GetHP());
+	}
+	player->m_hp_lock.lock();
+	if (player->GetHP() < player->GetMaxHP()) {
+		player->m_hp_lock.unlock();
+		if (true == m_map_manager->CheckInRange(player->GetPos(), OBJ_TYPE::OT_HEAL_ZONE) && false == player->GetIsHeal())
+		{
+			player->SetIsHeal(true);
+			SetTimerEvent(player_id, player_id, room->GetRoomID(), EVENT_TYPE::EVENT_HEAL, HEAL_TIME);
+		}
+	}
+	else
+		player->m_hp_lock.unlock();
 }
 
 
@@ -984,35 +1005,22 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}else cl->state_lock.unlock();
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 
-	/*switch (packet->direction)//WORLD크기 정해지면 제한해주기
-	{
-	case 0://앞
-	{
-		
-		pos += look * MOVE_DISTANCE;
-		break;
-	}
-	case 1://뒤
-	{
-		pos += look * (MOVE_DISTANCE*-1);
-		break;
-	}
-	case 2://왼
-	{
-		pos += right * (MOVE_DISTANCE * -1);
-		break;
-	}
-	case 3://오
-	{
-		pos += right * MOVE_DISTANCE ;
-		break;
-	}
-	}*/
+	
 
 	cl->SetPos(pos);
 	if (isnan(cl->GetPosX()) || isnan(cl->GetPosY()) || isnan(cl->GetPosZ()))return;
 	//여기서 힐존 검사하기
-	
+	cl->m_hp_lock.lock();
+	if (cl->GetHP() < cl->GetMaxHP()) {
+		cl->m_hp_lock.unlock();
+		if (true==m_map_manager->CheckInRange(cl->GetPos(), OBJ_TYPE::OT_HEAL_ZONE)&& false==cl->GetIsHeal())
+		{
+			cl->SetIsHeal(true);
+			SetTimerEvent(c_id, c_id, room->GetRoomID(), EVENT_TYPE::EVENT_HEAL, HEAL_TIME);
+		}
+	}
+	else
+		cl->m_hp_lock.unlock();
 	//std::cout << "Packet x :" << pos.x << ", y : " << pos.y << ", z : " << pos.z << endl;
 	//std::cout << "Rotation x :" << packet->r_x << ", y : " << packet->r_y << ", z : " 
 	//	<< packet->r_z<< ", w : " << packet->r_w << endl;
@@ -1020,8 +1028,6 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	{
 		if (false == MoveObjManager::GetInst()->IsPlayer(other_pl))
 			continue;
-		//if (c_id == other_pl)
-		//	continue;
 		SendMovePacket(other_pl, c_id);
 	}
 	
@@ -1374,7 +1380,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		ex_over->_comp_op = COMP_OP::OP_NPC_MOVE;
 		ex_over->room_id = ev.room_id;
 		ex_over->target_id = ev.target_id;
-		
+
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
@@ -1382,7 +1388,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		ex_over->_comp_op = COMP_OP::OP_NPC_ATTACK;
 		ex_over->room_id = ev.room_id;
 		ex_over->target_id = ev.target_id;
-	
+
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
@@ -1390,7 +1396,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		//방으로 처리하도록 바꾸기
 		ex_over->_comp_op = COMP_OP::OP_COUNT_TIME;
 		ex_over->room_id = ev.obj_id;
-		
+
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
@@ -1408,13 +1414,19 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 		//방으로 처리하도록 바꾸기
 		ex_over->_comp_op = COMP_OP::OP_BASE_ATTACK;
 		ex_over->room_id = ev.room_id;
-		
+
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
+	case EVENT_TYPE::EVENT_HEAL: {
+		ex_over->_comp_op = COMP_OP::OP_HEAL;
+		ex_over->room_id = ev.room_id;
+		ex_over->target_id = ex_over->target_id;
+		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
+		break;
 	}
 
-	
+	}
 }
 void PacketManager::CreateDBThread()
 {

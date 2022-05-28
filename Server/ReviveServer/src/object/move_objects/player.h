@@ -29,6 +29,7 @@ private:
     int		m_last_move_time;
     STATE m_state;
     std::atomic_bool m_is_ready = false;
+    std::atomic_bool m_is_heal = false;
     char m_password[MAX_PASSWORD_SIZE + 1];
     short m_mach_user_size = 0;
 public:
@@ -45,6 +46,8 @@ public:
     virtual void Reset()override;
     void SetIsReady(bool val) { m_is_ready = val; }
     bool GetIsReady() { return m_is_ready; }
+    void SetIsHeal(bool val) { m_is_heal = val; }
+    bool GetIsHeal() { return m_is_heal; }
     char* GetPassword() { return m_password; }
     short GetMatchUserSize() { return m_mach_user_size; }
     void SetMatchUserSize(short val) { m_mach_user_size = val; }

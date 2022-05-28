@@ -117,6 +117,15 @@ void MapManager::LoadMap(const std::string& path)
 			}
 			break;
 		}
+		case HashCode("HealZone"):
+		{
+			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
+			{
+				Vector3 pos{ act_info.position + collision_centers[i] };
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false, OBJ_TYPE::OT_HEAL_ZONE);
+			}
+			break;
+		}
 		case HashCode("SpawnArea"):
 		{
 			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
