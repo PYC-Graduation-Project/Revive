@@ -98,6 +98,16 @@ namespace revive
     public:
         const SPtr<NetworkMoveObj>& GetNetworkObj()const { return m_network_object; }
     };
+    class WaveInfoMessageEventInfo final : public MessageEventInfo
+    {
+    public:
+        WaveInfoMessageEventInfo(UINT event_id, float wave_time);
+    private:
+        float m_wave_time;
+    public:
+        const float GetWaveTime() const { return m_wave_time; }
+
+    };
    
     class MoveObjectMessageEventInfo final :public MessageEventInfo
     {

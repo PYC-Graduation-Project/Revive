@@ -146,6 +146,7 @@ void RevivePacketManager::ProcessTime(int c_id, unsigned char* p)
 	//cout << "네트워크 딜레이" << std::chrono::duration_cast<std::chrono::milliseconds>(end_t.count() - packet->send_time) << endl;
 	//LOG_INFO("네트워크 딜레이:{0}",t);
 	//LOG_INFO( d_ms);//여기부분 일단 두자 네트워크 딜레이 측정
+	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::WaveInfoMessageEventInfo>(HashCode("wave info"), packet->time));
 }
 
 void RevivePacketManager::ProcessTest(int c_id, unsigned char* p)

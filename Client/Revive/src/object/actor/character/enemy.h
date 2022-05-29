@@ -85,8 +85,10 @@ namespace revive
 		SPtr<WidgetComponent> m_widget_component;
 		SPtr<EnemyInfoUILayer> m_ui_layer;
 		std::function<void(int id)> m_attack_packet_state_function;
+		std::function<void()> m_mob_count_decrement_function;
 
 	public:
 		void OnAttackPacketStateFunction(std::function<void(int id)> function) { m_attack_packet_state_function = function; }
+		void OnMobCountDecrementFunction(std::function<void()> function) { m_mob_count_decrement_function = function; }
 	};
 }

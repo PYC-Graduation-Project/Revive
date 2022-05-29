@@ -25,18 +25,6 @@ namespace revive
         WPtr<DefaultPlayer> other_player;
     };
 
-    struct WaveUIInfo
-    {
-        SPtr<ImageUI> wave_info_bg_image;
-        SPtr<ImageUI> wave_info_fg_image;
-        SPtr<ImageUI> wave_info_icon_image;
-        SPtr<TextUI> wave_info_text;
-        std::string bg_image_path;
-        std::string fg_image_path;
-        std::string icon_image_path;
-        std::function<void(float)> function;
-    };
-
     struct HPBarResourceInfo
     {
         std::string shape;
@@ -57,13 +45,7 @@ namespace revive
         bool GeneratePlayerUI(const Vec2& window_size);
 
     private:
-        int m_wave_count = 1;
-        int m_mob_count = 0;
-        float m_next_wave_time = 30.f;
 
-        std::vector<WaveUIInfo> m_wave_ui_info;
-
-        //SPtr<ProgressBarUI> m_hp_bar;
         std::array<SPtr<ImageUI>,3> m_hp_bar_bg;
         std::array<SPtr<ImageUI>,3> m_hp_bar_fg;
         SPtr<TextUI> m_hp_text;
@@ -71,15 +53,13 @@ namespace revive
         
         SPtr<ImageUI> m_crosshair_image;
 
-        
-        
-
     private:
         std::vector<OtherPlayerUIInfo> m_other_players_info;
 
     public:
         void SetOwnerPlayer(const WPtr<RevivePlayer>& player); 
         void RegisterOtherPlayer(const WPtr<DefaultPlayer>& player);
+
     };
 
 

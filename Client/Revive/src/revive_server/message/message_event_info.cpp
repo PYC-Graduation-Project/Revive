@@ -101,4 +101,9 @@ namespace revive
 	{
 	}
 
+	WaveInfoMessageEventInfo::WaveInfoMessageEventInfo(UINT event_id, float wave_time)
+		:MessageEventInfo(event_id), m_wave_time(wave_time)
+	{
+	}
+
 }

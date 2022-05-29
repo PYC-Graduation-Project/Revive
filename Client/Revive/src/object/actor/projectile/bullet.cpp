@@ -15,10 +15,12 @@ namespace revive
 		Projectile::Initialize();
 		SetInitialSpeed(5000.f);
 
-		bool ret = m_static_mesh_component->SetMesh("../Contents/sphere.obj");
+		bool ret = true;
+#ifdef _DEBUG
+		ret	&= m_static_mesh_component->SetMesh("../Contents/sphere.obj");
 		ret &= AttachComponent(m_static_mesh_component);
 		m_static_mesh_component->SetLocalScale(0.1f);
-
+#endif
 		return ret;
 	}
 

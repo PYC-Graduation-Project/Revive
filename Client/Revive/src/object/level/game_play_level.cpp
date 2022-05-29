@@ -31,6 +31,8 @@
 #include "object/ui/game_end_ui_layer.h"
 #include"server/network.h"
 #include "object/ui/player_info_ui_layer.h"
+#include "object/ui/game_info_ui_layer.h"
+#include "object/ui/util/debugging_ui_layer.h"
 
 std::string g_id;
 std::string g_pw;
@@ -41,6 +43,8 @@ namespace revive
 		: Level("game play level")
 	{
 		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
+		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
+		//m_debugging_ui_layer = CreateSPtr<DebuggingUILayer>();
 	}
 
 	bool GamePlayLevel::Initialize()
@@ -85,7 +89,8 @@ namespace revive
 			});
 
 		RegisterUILayer(m_player_info_ui_layer);
-
+		RegisterUILayer(m_game_info_ui_layer);
+		//RegisterUILayer(m_debugging_ui_layer);
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 
 		return true;
@@ -275,15 +280,6 @@ namespace revive
 	{
 		switch (message->GetEventID())
 		{
-		case HashCode("testspawn"):
-		{
-			//auto cube = CreateSPtr<RotatingCube>();
-			//SpawnActor(cube);
-			auto msg = std::static_pointer_cast<TestMessageEventInfo>(message);
-		    //cube->SetPosition(msg->GetPosition());
-			//PacketHelper::ConnectActorToServer(cube, msg->GetObjId());
-			break;
-		}
 		case HashCode("spawn object"):
 		{
 			auto msg = std::static_pointer_cast<ObjectInfoMessageEventInfo>(message);
@@ -298,7 +294,7 @@ namespace revive
 				break;
 			}
 			case NW_OBJ_TYPE::OT_MY_PLAYER: {
-				LOG_INFO("나 소환");
+				//LOG_INFO("나 소환");
 				auto player = std::dynamic_pointer_cast<RevivePlayer>(GetGameMode()->GetDefaultPawn());
 				player->SetPosition(obj->GetPosition());
 				player->SetNetworkID(obj->GetID());
@@ -312,7 +308,7 @@ namespace revive
 				break;
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
-				LOG_INFO("느그 소환");
+				//LOG_INFO("느그 소환");
 
 				auto player = CreateSPtr<DefaultPlayer>("other player");
 				SpawnActor(player);
@@ -334,6 +330,7 @@ namespace revive
 				skull->SetNetworkID(obj->GetID());
 				skull->SetHP(obj->GetHp());
 				skull->SetMaxHP(obj->GetMaxHp());
+				m_game_info_ui_layer->RegisterEnemy(skull);
 				PacketHelper::ConnectActorToServer(skull, msg->GetNetworkObj()->GetID());
 				break;
 			}
@@ -344,6 +341,7 @@ namespace revive
 				king->SetNetworkID(obj->GetID());
 				king->SetHP(obj->GetHp());
 				king->SetMaxHP(obj->GetMaxHp());
+				m_game_info_ui_layer->RegisterEnemy(king);
 				PacketHelper::ConnectActorToServer(king, msg->GetNetworkObj()->GetID());
 				break;
 			}
@@ -366,7 +364,13 @@ namespace revive
 			Input::SetInputMode(eInputMode::kUIOnly);
 			break;
 		}
+		case HashCode("wave info"):
+		{
+			auto msg = std::static_pointer_cast<WaveInfoMessageEventInfo>(message);
 			
+			m_game_info_ui_layer->SetWaveTime(msg->GetWaveTime());
+			break;
+		}
 		default:
 			break;
 		}
@@ -401,4 +405,10 @@ namespace revive
 		//collision_octrees.emplace_back(CreateSPtr<CollisionOctree>(5000.0f, Vec3(2500.0f, 0, 12500.0f),0)); //가로는 2500만큼 감싸고(양옆) 세로는 1000만큼 감싸야하지만 정사각형이므로 2500만큼 감싼다.
 		return collision_octrees;
 	}
+
+	void GamePlayLevel::LogInfoUI(const std::wstring& text)
+	{
+		m_debugging_ui_layer->LogInfoUI(text);
+	}
+
 }
