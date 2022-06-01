@@ -32,7 +32,7 @@
 #include"server/network.h"
 #include "object/ui/player_info_ui_layer.h"
 #include "object/ui/game_info_ui_layer.h"
-#include "object/ui/util/debugging_ui_layer.h"
+//#include "object/ui/util/debugging_ui_layer.h"
 
 std::string g_id;
 std::string g_pw;
@@ -406,9 +406,9 @@ namespace revive
 		return collision_octrees;
 	}
 
-	void GamePlayLevel::LogInfoUI(const std::wstring& text)
+	/*void GamePlayLevel::LogInfoUI(const std::wstring& text)
 	{
 		m_debugging_ui_layer->LogInfoUI(text);
-	}
+	}*/
 
 }

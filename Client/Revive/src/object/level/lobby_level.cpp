@@ -9,6 +9,8 @@
 #include "object/level/game_play_level.h"
 #include "object/level/lobby_level.h"
 #include "object/ui/lobby_ui_layer.h"
+#include "object/sound/core/sound_manager.h"
+#include "object/sound/sound.h"
 
 #include "server/network_move_object.h"
 #include"server/network.h"
@@ -23,6 +25,10 @@ namespace revive
 	}
 	bool LobbyLevel::Initialize()
 	{
+		m_sound_manager = CreateSPtr<SoundManager>();
+		m_sound_manager->Initialize();
+		m_sound_manager->LoadSound("Contents/Sound/1a.ogg");
+		m_sound_manager->GetSound(0)->SoundPlay(true);
 		m_lobby_ui_layer = CreateSPtr<LobbyUILayer>();
 		RegisterUILayer(m_lobby_ui_layer);
 
@@ -42,6 +48,7 @@ namespace revive
 
 	void LobbyLevel::Update(float delta_time)
 	{
+		m_sound_manager->Update();
 	}
 
 	void LobbyLevel::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)

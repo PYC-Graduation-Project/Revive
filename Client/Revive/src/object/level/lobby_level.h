@@ -6,8 +6,7 @@ namespace revive
 	using namespace client_fw;
 
 	class LobbyUILayer;
-
-
+	class SoundManager;
 
 	class LobbyLevel final : public Level
 	{
@@ -28,5 +27,7 @@ namespace revive
 
 	private:
 		SPtr<LobbyUILayer> m_lobby_ui_layer;
+
+		SPtr<SoundManager> m_sound_manager;
 	};
 }
