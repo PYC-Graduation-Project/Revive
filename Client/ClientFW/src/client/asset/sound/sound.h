@@ -7,7 +7,7 @@ namespace FMOD
 	class Sound;
 }
 
-namespace revive
+namespace client_fw
 {
 	class Sound
 	{
@@ -17,24 +17,31 @@ namespace revive
 		virtual ~Sound() = default;
 
 		virtual bool Initialize();
-		virtual void Update();
+		virtual void Update(float delta_time);
+		virtual void Shutdown();
 
 	private:
 
 		bool m_is_playing = false;
+
+		float m_volume = 1.f;
 
 		UINT m_size, m_pos, m_id;
 		std::string m_name;
 
 	public:
 
-		FMOD::System* m_system = nullptr; //WPTR
-		FMOD::Channel* m_channel = nullptr; //SPTR?
-		FMOD::Sound* m_sound = nullptr;//UPTR?
+		FMOD::System* m_system = nullptr; 
+		FMOD::Channel* m_channel = nullptr; 
+		FMOD::Sound* m_sound = nullptr;
 	
 	public:
 
-		void SoundPlay(bool loop);
-
+		void Play(bool loop);
+		void Stop();
+		void Pause();
+		void VolumeDown(float value);
+		void VolumeUp(float value);
+		void SetVolume(float value);
 	};
 }

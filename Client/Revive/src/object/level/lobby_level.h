@@ -27,7 +27,5 @@ namespace revive
 
 	private:
 		SPtr<LobbyUILayer> m_lobby_ui_layer;
-
-		SPtr<SoundManager> m_sound_manager;
 	};
 }
