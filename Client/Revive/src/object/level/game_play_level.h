@@ -43,6 +43,9 @@ namespace revive
 		SPtr<GameEndUILayer> m_game_end_ui_layer;
 		//SPtr<DebuggingUILayer> m_debugging_ui_layer;
 
+		std::vector<std::string>m_bgm_list = { "fortress","moon","underwater","zombie","book", };
+		UINT m_index = 0;
+
 	public:
 		//void LogInfoUI(const std::wstring& text);
 	};

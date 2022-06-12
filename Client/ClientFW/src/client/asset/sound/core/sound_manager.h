@@ -3,10 +3,16 @@
 namespace FMOD
 {
 	class System;
+	class Channel;
 }
 
 namespace client_fw
 {
+	enum class eSoundType
+	{
+		kBackGroundSound,
+		kEffectSound
+	};
 	//사운드 객체는 사운드파일과 1대1 대응, SoundManager 싱글톤 구현, Sound 클래스 구현
 	class Sound;
 
@@ -30,14 +36,29 @@ namespace client_fw
 		UINT m_index = 0;
 
 		FMOD::System* m_sound_system;
+		FMOD::Channel* m_bgm_channel;
+		FMOD::Channel* m_effect_channel;
 
-		std::map <UINT, SPtr<Sound>> m_sound_list;
+		std::map <std::string, SPtr<Sound>> m_sound_list;
+		
+		std::string m_current_sound_name;
+
+		bool m_is_playing = false;
+		float m_volume = 1.f;
+
 	public:
 
 		inline static SoundManager& GetSoundManager() { return *s_instance; }
 
-		SPtr<Sound> LoadSound(const std::string& path);
-		SPtr<Sound> GetSound(UINT index);
+		SPtr<Sound> LoadSound(const std::string& path, const std::string& name);
+		SPtr<Sound> GetSound(const std::string& name);
+
+		void Play(eSoundType sound_type, const std::string& name, bool loop = true);
+		void Stop(); //bgm만
+		void Pause(); //bgm만
+		void VolumeDown(float value);
+		void VolumeUp(float value);
+		void SetVolume(float value);
 	};
 
 }

@@ -62,7 +62,7 @@ namespace client_fw
 		s_instance = nullptr;
 	}
 
-	SPtr<Sound> SoundManager::LoadSound(const std::string& path)
+	SPtr<Sound> SoundManager::LoadSound(const std::string& path, const std::string& name)
 	{
 		FMOD_RESULT ret;
 
@@ -71,7 +71,7 @@ namespace client_fw
 		std::string parent_path = std::filesystem::path(path).parent_path().string();
 
 		//for(auto data: m_sound_list)
-		SPtr<Sound> sound = CreateSPtr<Sound>(m_sound_system, m_index, stem);
+		SPtr<Sound> sound = CreateSPtr<Sound>(m_sound_system, m_index, path);
 		ret = m_sound_system->createSound(path.c_str(), FMOD_DEFAULT, 0, &(sound->m_sound));
 		
 		if (ret != FMOD_OK)
@@ -80,16 +80,89 @@ namespace client_fw
 			return nullptr;
 		}
 
-		m_sound_list.insert({ m_index++, sound });
+		m_sound_list.insert({ name, sound });
 
 		return sound;
 	}
-	SPtr<Sound> SoundManager::GetSound(UINT index)
+	SPtr<Sound> SoundManager::GetSound(const std::string& name)
 	{
-		auto iter = m_sound_list.find(index);
+		auto iter = m_sound_list.find(name);
 		if (iter != m_sound_list.end())
 			return (*iter).second;
 
 		return nullptr;
+	}
+
+	void SoundManager::Play( eSoundType sound_type, const std::string& name, bool loop)
+	{
+		const auto sound = GetSound(name);
+		m_current_sound_name = name;
+		if (sound_type == eSoundType::kBackGroundSound)
+		{
+			if (m_bgm_channel != nullptr)
+				m_bgm_channel->isPlaying(&m_is_playing);
+			if (m_is_playing)
+				m_bgm_channel->stop();
+			FMOD_RESULT ret = m_sound_system->playSound(sound->m_sound, nullptr, false, &m_bgm_channel);
+			if (ret == FMOD_OK)
+			{
+				if (loop)
+					m_bgm_channel->setMode(FMOD_LOOP_NORMAL);
+				else
+					m_bgm_channel->setMode(FMOD_LOOP_OFF);
+			}
+		}
+		if (sound_type == eSoundType::kEffectSound)
+		{
+		
+			FMOD_RESULT ret = m_sound_system->playSound(sound->m_sound, nullptr, false, &m_effect_channel);
+			if (ret == FMOD_OK)
+			{
+				if (loop)
+					m_effect_channel->setMode(FMOD_LOOP_NORMAL);
+				else
+					m_effect_channel->setMode(FMOD_LOOP_OFF);
+			}
+		}
+		
+
+		
+		
+	}
+	void SoundManager::Stop()
+	{
+		if (m_bgm_channel != nullptr)
+		{
+			m_bgm_channel->stop();
+		}
+	}
+	void SoundManager::Pause()
+	{
+		m_bgm_channel->isPlaying(&m_is_playing);
+		if (m_is_playing)
+		{
+			bool is_paused;
+			m_bgm_channel->getPaused(&is_paused);
+			m_bgm_channel->setPaused(!is_paused);
+		}
+
+	}
+	void SoundManager::VolumeDown(float value)
+	{
+		m_volume -= value;
+		SetVolume(m_volume);
+	}
+	void SoundManager::VolumeUp(float value)
+	{
+		m_volume += value;
+		SetVolume(m_volume);
+	}
+	void SoundManager::SetVolume(float value)
+	{
+		if (m_bgm_channel != nullptr)
+		{
+			m_volume = std::clamp(value, 0.f, 1.0f);
+			m_bgm_channel->setVolume(m_volume);
+		}
 	}
 }

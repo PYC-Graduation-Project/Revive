@@ -11,6 +11,8 @@
 #include <client/event/messageevent/message_helper.h>
 #include <client/object/actor/sky_cube.h>
 #include <client/object/actor/light.h>
+#include <client/asset/sound/core/sound_manager.h>
+#include <client/asset/sound/sound.h>
 
 #include "object/level/game_play_level.h"
 #include "object/level/sharedinfo/revive_level_shared_info.h"
@@ -45,6 +47,7 @@ namespace revive
 		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
 		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
 		//m_debugging_ui_layer = CreateSPtr<DebuggingUILayer>();
+
 	}
 
 	bool GamePlayLevel::Initialize()
@@ -54,6 +57,9 @@ namespace revive
 		{
 			SpawnActor(actor);
 		}
+
+		//client_fw::SoundManager::GetSoundManager().GetSound(0)->Stop();
+		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"book");
 
 		GenerateVisualActors();
 
@@ -87,7 +93,14 @@ namespace revive
 				}
 				return false;
 			});
-
+		
+		RegisterPressedEvent("select music", { { eKey::kRArrow } },
+			[this]()->bool {
+				client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound, m_bgm_list[m_index++]);
+				if (m_index >= m_bgm_list.size())
+					m_index = 0;
+				return true;
+			});
 		RegisterUILayer(m_player_info_ui_layer);
 		RegisterUILayer(m_game_info_ui_layer);
 		//RegisterUILayer(m_debugging_ui_layer);

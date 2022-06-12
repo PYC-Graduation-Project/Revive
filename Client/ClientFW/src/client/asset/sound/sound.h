@@ -37,11 +37,5 @@ namespace client_fw
 	
 	public:
 
-		void Play(bool loop);
-		void Stop();
-		void Pause();
-		void VolumeDown(float value);
-		void VolumeUp(float value);
-		void SetVolume(float value);
 	};
 }
