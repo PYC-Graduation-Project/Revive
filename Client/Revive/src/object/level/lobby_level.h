@@ -6,7 +6,6 @@ namespace revive
 	using namespace client_fw;
 
 	class LobbyUILayer;
-	class SoundManager;
 
 	class LobbyLevel final : public Level
 	{

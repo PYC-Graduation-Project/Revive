@@ -13,6 +13,7 @@
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
 #include<client/event/packetevent/packet_helper.h>
+#include <client/asset/sound/core/sound_manager.h>
 
 #include <client/object/component/light/spot_light_component.h>
 
@@ -491,6 +492,8 @@ namespace revive
 		
 		if (m_is_fire == false)
 		{
+			client_fw::SoundManager::GetSoundManager().Play(eSoundType::kEffectSound, "fire",false);
+
 			Vec3 direction = m_controller.lock()->GetForward();
 			//direction.y = 0;
 

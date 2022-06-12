@@ -5,7 +5,6 @@
 #include <client/event/packetevent/packet_helper.h>
 #include <client/event/messageevent/message_helper.h>
 #include <client/asset/sound/core/sound_manager.h>
-#include <client/asset/sound/sound.h>
 
 #include "revive_server/message/message_event_info.h"
 #include "object/level/game_play_level.h"
@@ -22,13 +21,7 @@ namespace revive
 	LobbyLevel::LobbyLevel()
 		:Level("lobby level")
 	{
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/the_field_of_dreams.mp3","lobby sound");
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/pick/book-12824.mp3","book");
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/pick/fortress.ogg","fortress"); //라운드 준비 음악으론 ㄱㅊ을듯?
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/pick/moon.ogg","moon");
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/pick/underwater.ogg","underwater"); // 괜찮은듯 8비트음악 느낌만아니였으면 완벽할듯.. 아쉽
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/pick/ZombiesAreComing.ogg","zombie"); //ㄱㅊ은데?
-		client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/A_42P.wav","fire"); 
+		 
 	}
 	bool LobbyLevel::Initialize()
 	{
@@ -107,5 +100,6 @@ namespace revive
 			break;
 		}
 	}
+
 
 }

@@ -4,6 +4,8 @@
 
 #include <client/object/level/sharedinfo/level_shared_info.h>
 #include <client/asset/mesh/mesh_loader.h>
+#include <client/asset/sound/core/sound_manager.h>
+#include <client/asset/sound/sound.h>
 
 #include "object/level/sharedinfo/revive_level_shared_info.h"
 #include "object/level/game_play_level.h"
@@ -24,7 +26,6 @@ namespace revive
 	public:
 		Revive() : Application(L"Revive")
 		{
-
 		}
 
 		bool Initialize() override
@@ -35,6 +36,8 @@ namespace revive
 			{
 				Network::GetInst()->Init(CreateUPtr<RevivePacketManager>(), CreateUPtr<ReviveSendManager>());
 				Network::GetInst()->CreateWorker();
+
+				LoadSound();
 
 				OpenLevel(CreateSPtr<LobbyLevel>());
 			}
@@ -52,6 +55,16 @@ namespace revive
 			return CreateUPtr<RevLoader>();
 		}
 
+		void LoadSound() //프로그램 실행 시 한번만 호출
+		{
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/the_field_of_dreams.mp3", "lobby sound");
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/book-12824.mp3", "book");
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/fortress.ogg", "fortress"); //라운드 준비 음악으론 ㄱㅊ을듯?
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/moon.ogg", "moon");
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/underwater.ogg", "underwater"); // 괜찮은듯 8비트음악 느낌만아니였으면 완벽할듯.. 아쉽
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/ZombiesAreComing.ogg", "zombie"); //ㄱㅊ은데?
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/gun.wav", "fire");
+		}
 
 		void Shutdown() override
 		{

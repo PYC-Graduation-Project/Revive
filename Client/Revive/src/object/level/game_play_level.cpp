@@ -12,7 +12,6 @@
 #include <client/object/actor/sky_cube.h>
 #include <client/object/actor/light.h>
 #include <client/asset/sound/core/sound_manager.h>
-#include <client/asset/sound/sound.h>
 
 #include "object/level/game_play_level.h"
 #include "object/level/sharedinfo/revive_level_shared_info.h"
@@ -58,7 +57,6 @@ namespace revive
 			SpawnActor(actor);
 		}
 
-		//client_fw::SoundManager::GetSoundManager().GetSound(0)->Stop();
 		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"book");
 
 		GenerateVisualActors();

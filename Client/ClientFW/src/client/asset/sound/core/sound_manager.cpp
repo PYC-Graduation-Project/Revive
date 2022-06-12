@@ -70,17 +70,19 @@ namespace client_fw
 		std::string extension = std::filesystem::path(path).extension().string();
 		std::string parent_path = std::filesystem::path(path).parent_path().string();
 
-		//for(auto data: m_sound_list)
-		SPtr<Sound> sound = CreateSPtr<Sound>(m_sound_system, m_index, path);
-		ret = m_sound_system->createSound(path.c_str(), FMOD_DEFAULT, 0, &(sound->m_sound));
-		
-		if (ret != FMOD_OK)
+		auto sound = GetSound(name);
+		if (sound == nullptr)
 		{
-			LOG_WARN("Sound Load Fail {0}", path);
-			return nullptr;
+			sound = CreateSPtr<Sound>(m_sound_system, m_index, path);
+			ret = m_sound_system->createSound(path.c_str(), FMOD_DEFAULT, 0, &(sound->m_sound));
+			if (ret != FMOD_OK)
+			{
+				LOG_WARN("Sound Load Fail {0}", path);
+				return nullptr;
+			}
+			LOG_INFO("Sound Load {0}", path);
+			m_sound_list.insert({ name, sound });
 		}
-
-		m_sound_list.insert({ name, sound });
 
 		return sound;
 	}
