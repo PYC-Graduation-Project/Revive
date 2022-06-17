@@ -27,6 +27,7 @@ namespace client_fw
 		InputManager& operator=(const InputManager&) = delete;
 		
 		void Update();
+		void UpdateForNextFrame();
 
 	public:
 		bool IsKeyHoldDown(UINT key) const;
@@ -51,7 +52,8 @@ namespace client_fw
 
 	public:
 		void ChangeKeyState(UINT message, WPARAM key, LPARAM flags);
-		void ChangeMouseState(int button, WPARAM wParam, int x, int y);
+		void ChangeMouseKeyState(int button, WPARAM wParam, int x, int y);
+		void ChangeMouseMoveState(int button, WPARAM wParam, int x, int y);
 		void ChangeIMEText(WPARAM wParam, LPARAM lParam);
 
 	private:
