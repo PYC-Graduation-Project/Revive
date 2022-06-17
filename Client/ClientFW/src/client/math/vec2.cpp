@@ -114,8 +114,7 @@ namespace client_fw
 
 	Vec2 operator/(const Vec2& v, float scalar)
 	{
-		Vec2 ret(v);
-		ret /= scalar;
+		Vec2 ret(scalar / v.x, scalar / v.y);
 		return ret;
 	}
 
