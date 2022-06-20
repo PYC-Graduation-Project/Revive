@@ -79,15 +79,17 @@ namespace revive
 			float xoffset = 30.f + bg_image->GetSize().x;
 			bg_image->SetTexture(wave_ui_info.bg_image_path);
 			bg_image->SetPivot(Vec2{ 0.f,0.f });
-			bg_image->SetPosition(Vec2{ window_size.x - bg_image->GetSize().x - xoffset * offset_index--, 0.f });
+			Vec2 bg_position = Vec2{ window_size.x - bg_image->GetSize().x - xoffset * offset_index--, 0.f };
+			bg_image->SetPosition(bg_position);
 			ret &= RegisterUserInterface(bg_image);
 			float bg_sizey = bg_image->GetSize().y;
 			if (wave_ui_info.icon_image_path.empty() == false)
 			{
 				auto icon_image = wave_ui_info.wave_info_icon_image;
 				icon_image->SetTexture(wave_ui_info.icon_image_path);
-				icon_image->SetPivot(Vec2{ 0.f,0.f });
-				Vec2 icon_pos = bg_image->GetPosition() + (Vec2{ bg_sizey,bg_sizey } - icon_image->GetSize()) / 2.0f;
+				icon_image->SetPivot(Vec2{ 0.0f, 0.0f });
+				Vec2 icon_offset = (Vec2{ bg_sizey,bg_sizey } - icon_image->GetSize()) / Vec2(2.0f, 2.0f);
+				Vec2 icon_pos = bg_position + icon_offset;
 				icon_image->SetPosition(icon_pos);
 				ret &= RegisterUserInterface(icon_image);
 			}

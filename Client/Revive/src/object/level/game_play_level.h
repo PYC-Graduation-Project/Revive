@@ -40,7 +40,7 @@ namespace revive
 		SPtr<PlayerInfoUILayer> m_player_info_ui_layer;
 		SPtr<GameInfoUILayer> m_game_info_ui_layer;
 		SPtr<GameEndUILayer> m_game_end_ui_layer;
-		SPtr<DebuggingUILayer> m_debugging_ui_layer;
+		//SPtr<DebuggingUILayer> m_debugging_ui_layer;
 	public:
 		void LogInfoUI(const std::wstring& text);
 	};
