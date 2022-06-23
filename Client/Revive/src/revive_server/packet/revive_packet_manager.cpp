@@ -27,6 +27,7 @@ void RevivePacketManager::Init()
 	RegisterRecvFunction(SC_PACKET_WIN, [this](int c_id, unsigned char* p) {ProcessGameWin(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_DEFEAT, [this](int c_id, unsigned char* p) {ProcessGameDefeat(c_id, p); });
 	RegisterRecvFunction(SC_PACKET_DEAD, [this](int c_id, unsigned char* p) {ProcessDead(c_id, p); });
+	RegisterRecvFunction(SC_PACKET_WAVE_INFO, [this](int c_id, unsigned char* p) {ProcessWaveInfo(c_id, p); });
 }
 void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 {
@@ -244,6 +245,12 @@ void RevivePacketManager::ProcessDead(int c_id, unsigned char* p)
 	}
 	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::ObjectDeadEventInfo>(HashCode("dead")), packet->obj_id);
 	
+}
+
+void RevivePacketManager::ProcessWaveInfo(int c_id, unsigned char* p)
+{
+	sc_packet_wave_info* packet = reinterpret_cast<sc_packet_wave_info*>(p);
+	//다음웨이브정보 여기서 뽑아쓰면됨
 }
 
 void RevivePacketManager::Reset()
