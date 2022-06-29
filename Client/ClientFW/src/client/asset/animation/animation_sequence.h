@@ -30,7 +30,7 @@ namespace client_fw
 		float m_end_time;
 
 		int m_animated_bone_count;
-		float m_wieght;
+		float m_weight;
 
 		int m_prev_time_index = 0;//위치변경
 
@@ -51,7 +51,7 @@ namespace client_fw
 
 		void TrackToPlay(int& prev_time_index, float time_pos);
 		
-		void SetAnimatedTransform(int& prev_time_index, int bone_index,float time_pos, float weight);
+		void SetAnimatedTransform(int& prev_time_index, int bone_index,float time_pos);
 		std::vector<SPtr<Skeleton>>& GetAnimatedSkeleton() { return m_animated_skeleton; }
 
 	};
