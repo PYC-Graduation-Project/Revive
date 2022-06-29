@@ -163,6 +163,7 @@ namespace client_fw
 		m_physics_world->Update(delta_time);
 		m_user_interface_manager->Update(delta_time);
 		m_level_manager->UpdateWorldMatrix();
+		m_event_system->Update();
 		m_sound_manager->Update(delta_time);
 	}
 

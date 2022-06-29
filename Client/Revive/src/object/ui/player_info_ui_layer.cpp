@@ -53,7 +53,7 @@ namespace revive
 		{
 			m_hp_bar_bg[i]->SetTexture("Contents/ui/barHorizontal_white_" + rsc_info[i].shape);
 			m_hp_bar_bg[i]->SetPivot(Vec2(0.0f, 0.0f));
-			m_hp_bar_bg[i]->SetPosition(rsc_info[i].position - bar_offset / 2);
+			m_hp_bar_bg[i]->SetPosition(rsc_info[i].position - bar_offset / Vec2{2.f,2.f});
 			m_hp_bar_bg[i]->SetSize(rsc_info[i].size + bar_offset);
 			m_hp_bar_fg[i]->SetTexture("Contents/ui/barHorizontal_red_" + rsc_info[i].shape);
 			m_hp_bar_fg[i]->SetPivot(Vec2(0.0f, 0.0f));
@@ -138,10 +138,10 @@ namespace revive
 		Vec2 bar_bg_offset = Vec2{ 5.f,5.f};
 		for (int i = 0; i < 3; ++i)
 		{
-			info.hp_bar_bg[i] = CreateSPtr<ImageUI>(id_text + " player hp bar bg");
+			info.hp_bar_bg[i] = CreateSPtr<ImageUI>(id_text + "player hp bar bg");
 			info.hp_bar_bg[i]->SetTexture("Contents/ui/barHorizontal_white_" + rsc_info[i].shape);
 			info.hp_bar_bg[i]->SetPivot(Vec2(0.0f, 0.0f));
-			info.hp_bar_bg[i]->SetPosition(rsc_info[i].position - bar_bg_offset / 2);
+			info.hp_bar_bg[i]->SetPosition(rsc_info[i].position - bar_bg_offset / Vec2{ 2.f,2.f });
 			info.hp_bar_bg[i]->SetSize(rsc_info[i].size + bar_bg_offset);
 
 			info.hp_bar_fg[i] = CreateSPtr<ImageUI>(id_text + " player hp bar fg");

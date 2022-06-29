@@ -37,7 +37,6 @@ namespace revive
 
 	private:
 		bool m_is_succeed_login = false;
-
 		SPtr<PlayerInfoUILayer> m_player_info_ui_layer;
 		SPtr<GameInfoUILayer> m_game_info_ui_layer;
 		SPtr<GameEndUILayer> m_game_end_ui_layer;
