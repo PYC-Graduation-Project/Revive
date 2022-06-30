@@ -483,6 +483,7 @@ void PacketManager::ActivateHealEvent(int room_id, int player_id)
 {
 	Player* player = MoveObjManager::GetInst()->GetPlayer(player_id);
 	Room* room = m_room_manager->GetRoom(room_id);
+	
 	player->m_hp_lock.lock();
 	player->SetHP(player->GetHP() + PLAYER_HP / 10);
 	if (player->GetHP() > player->GetMaxHP())
@@ -500,7 +501,8 @@ void PacketManager::ActivateHealEvent(int room_id, int player_id)
 		if (true == m_map_manager->CheckInRange(player->GetPos(), OBJ_TYPE::OT_HEAL_ZONE) && false == player->GetIsHeal())
 		{
 			player->SetIsHeal(true);
-			SetTimerEvent(player_id, player_id, room->GetRoomID(), EVENT_TYPE::EVENT_HEAL, HEAL_TIME);
+			g_timer_queue.push(SetTimerEvent(player_id, player_id, room->GetRoomID(), 
+				EVENT_TYPE::EVENT_HEAL, HEAL_TIME));
 		}
 	}
 	else
@@ -1015,8 +1017,9 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 		cl->m_hp_lock.unlock();
 		if (true==m_map_manager->CheckInRange(cl->GetPos(), OBJ_TYPE::OT_HEAL_ZONE)&& false==cl->GetIsHeal())
 		{
+			cout << "힐존검사는 오케";
 			cl->SetIsHeal(true);
-			SetTimerEvent(c_id, c_id, room->GetRoomID(), EVENT_TYPE::EVENT_HEAL, HEAL_TIME);
+			g_timer_queue.push(SetTimerEvent(c_id, c_id, cl->GetRoomID(), EVENT_TYPE::EVENT_HEAL, HEAL_TIME));
 		}
 	}
 	else
@@ -1421,7 +1424,7 @@ void PacketManager::ProcessEvent(HANDLE hiocp,timer_event& ev)
 	case EVENT_TYPE::EVENT_HEAL: {
 		ex_over->_comp_op = COMP_OP::OP_HEAL;
 		ex_over->room_id = ev.room_id;
-		ex_over->target_id = ex_over->target_id;
+		ex_over->target_id = ev.target_id;
 		PostQueuedCompletionStatus(hiocp, 1, ev.obj_id, &ex_over->_wsa_over);
 		break;
 	}
