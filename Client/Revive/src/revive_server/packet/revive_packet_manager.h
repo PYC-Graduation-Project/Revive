@@ -27,6 +27,8 @@ public:
     void ProcessGameWin(int c_id, unsigned char* p);
     void ProcessGameDefeat(int c_id, unsigned char* p);
     void ProcessDead(int c_id, unsigned char* p);
+    void ProcessWaveInfo(int c_id, unsigned char* p);
+    
     void Reset();
 private:
     std::unordered_map<int, client_fw::SPtr<NetworkMoveObj>>m_obj_map;

@@ -31,7 +31,7 @@ const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 const float PLAYER_HP = 30.0f;
 const float BASE_HP = 50.0f;
 
-const float KING_DAMAGE =2.0f;
+const float KING_DAMAGE = 2.0f;
 const float SORDIER_DAMAGE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
@@ -68,6 +68,7 @@ const char SC_PACKET_BASE_STATUS = 15;
 const char SC_PACKET_WIN = 16;
 const char SC_PACKET_DEFEAT = 17;
 const char SC_PACKET_DEAD = 18;
+const char SC_PACKET_WAVE_INFO = 19;
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;
@@ -102,7 +103,7 @@ struct cs_packet_move {
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
-	
+
 
 };
 
@@ -160,6 +161,13 @@ struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
+};
+struct sc_packet_wave_info {
+	unsigned char size;
+	char type;
+	int curr_round;
+	int sordier_num;
+	int king_num;
 };
 struct sc_packet_npc_attack {
 	unsigned char size;
@@ -255,13 +263,13 @@ struct sc_packet_dead {
 struct sc_packet_win {
 	unsigned char size;
 	char type;
-	
+
 
 };
 struct sc_packet_defeat {
 	unsigned char size;
 	char type;
-	
+
 
 };
 #pragma pack(pop)

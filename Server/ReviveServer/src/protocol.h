@@ -68,6 +68,7 @@ const char SC_PACKET_BASE_STATUS = 15;
 const char SC_PACKET_WIN = 16;
 const char SC_PACKET_DEFEAT = 17;
 const char SC_PACKET_DEAD = 18;
+const char SC_PACKET_WAVE_INFO = 19;
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;
@@ -160,6 +161,13 @@ struct sc_packet_matching {//예전 login_ok처럼 player초기화 보내주기
 struct sc_packet_sign_up_ok {
 	unsigned char size;
 	char type;
+};
+struct sc_packet_wave_info {
+	unsigned char size;
+	char type;
+	int curr_round;
+	int sordier_num;
+	int king_num;
 };
 struct sc_packet_npc_attack {
 	unsigned char size;

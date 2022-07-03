@@ -117,6 +117,15 @@ void MapManager::LoadMap(const std::string& path)
 			}
 			break;
 		}
+		case HashCode("HealZone"):
+		{
+			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
+			{
+				Vector3 pos{ act_info.position + collision_centers[i] };
+				m_map_objects.emplace_back(i, pos, collision_extents[i], false, OBJ_TYPE::OT_HEAL_ZONE);
+			}
+			break;
+		}
 		case HashCode("SpawnArea"):
 		{
 			for (int i = col_index; i < col_index + act_info.collision_count; ++i)
@@ -239,11 +248,11 @@ bool MapManager::CheckInRange(BoxCollision& collision)
 	return check_set.all();
 }
 
-bool MapManager::CheckInRange(const Vector3& pos)
+bool MapManager::CheckInRange(const Vector3& pos,OBJ_TYPE map_type)
 {
 	for (auto& map_obj : m_map_objects)
 	{
-		if (OBJ_TYPE::OT_ACTIViTY_AREA != map_obj.GetType())continue;
+		if (map_type != map_obj.GetType())continue;
 		if (CollisionChecker::CheckInRange(pos.x, pos.z,
 			map_obj.GetMinPos(), map_obj.GetMaxPos())) {
 			return true;

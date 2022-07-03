@@ -64,6 +64,11 @@ void InGameServer::OnEvent(int c_id,EXP_OVER* exp_over)
 		delete exp_over;
 		break;
 	}
+	case COMP_OP::OP_HEAL: {
+		m_PacketManager->ActivateHealEvent(exp_over->room_id, c_id);
+		delete exp_over;
+		break;
+	}
 	}
 }
 

@@ -29,7 +29,7 @@ public:
 	void CountTime(int room_id);
 	void DoEnemyAttack(int enemy_id, int target_id, int room_id);
 	void BaseAttackByTime(int room_id,int enemy_id);
-
+	void ActivateHealEvent(int room_id, int player_id);
 
 	void SendMovePacket(int c_id, int mover);
 	void SendNPCAttackPacket(int c_id,int obj_id, int target_id);
@@ -48,7 +48,8 @@ public:
 	void SendGameWin(int c_id);
 	void SendGameDefeat(int c_id);
 	void SendDead(int c_id,int obj_id);
-
+	void SendWaveInfo(int c_id,int curr_round, int king_num, int sordier_num);
+	
 
 
 
