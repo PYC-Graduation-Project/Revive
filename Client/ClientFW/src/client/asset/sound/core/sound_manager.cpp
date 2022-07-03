@@ -86,6 +86,7 @@ namespace client_fw
 
 		return sound;
 	}
+
 	SPtr<Sound> SoundManager::GetSound(const std::string& name)
 	{
 		auto iter = m_sound_list.find(name);
@@ -99,8 +100,10 @@ namespace client_fw
 	{
 		const auto sound = GetSound(name);
 		m_current_sound_name = name;
+		
 		if (sound_type == eSoundType::kBackGroundSound)
 		{
+			
 			if (m_bgm_channel != nullptr)
 				m_bgm_channel->isPlaying(&m_is_playing);
 			if (m_is_playing)
@@ -112,6 +115,7 @@ namespace client_fw
 					m_bgm_channel->setMode(FMOD_LOOP_NORMAL);
 				else
 					m_bgm_channel->setMode(FMOD_LOOP_OFF);
+				SetVolume(m_bgm_volume,eSoundType::kBackGroundSound);
 			}
 		}
 		if (sound_type == eSoundType::kEffectSound)
@@ -124,13 +128,11 @@ namespace client_fw
 					m_effect_channel->setMode(FMOD_LOOP_NORMAL);
 				else
 					m_effect_channel->setMode(FMOD_LOOP_OFF);
+				SetVolume(m_effect_volume, eSoundType::kEffectSound);
 			}
 		}
-		
-
-		
-		
 	}
+
 	void SoundManager::Stop()
 	{
 		if (m_bgm_channel != nullptr)
@@ -149,22 +151,58 @@ namespace client_fw
 		}
 
 	}
-	void SoundManager::VolumeDown(float value)
+	void SoundManager::VolumeDown(float value, eSoundType sound_type)
 	{
-		m_volume -= value;
-		SetVolume(m_volume);
-	}
-	void SoundManager::VolumeUp(float value)
-	{
-		m_volume += value;
-		SetVolume(m_volume);
-	}
-	void SoundManager::SetVolume(float value)
-	{
-		if (m_bgm_channel != nullptr)
+		if (sound_type == eSoundType::kBackGroundSound)
 		{
-			m_volume = std::clamp(value, 0.f, 1.0f);
-			m_bgm_channel->setVolume(m_volume);
+			m_bgm_volume -= value;
+			SetVolume(m_bgm_volume, sound_type);
+		}
+		if (sound_type == eSoundType::kEffectSound)
+		{
+			m_effect_volume -= value;
+			SetVolume(m_effect_volume, sound_type);
+		}
+
+	}
+	void SoundManager::VolumeUp(float value, eSoundType sound_type)
+	{
+		if (sound_type == eSoundType::kBackGroundSound)
+		{
+			m_bgm_volume += value;
+			SetVolume(m_bgm_volume, sound_type);
+		}
+		if (sound_type == eSoundType::kEffectSound)
+		{
+			m_effect_volume += value;
+			SetVolume(m_effect_volume, sound_type);
+		}
+	}
+	const float SoundManager::GetVolume(eSoundType sound_type)
+	{
+		if (sound_type == eSoundType::kBackGroundSound)
+			return m_bgm_volume;
+		if (sound_type == eSoundType::kEffectSound)
+			return m_effect_volume;
+	}
+	void SoundManager::SetVolume(float value, eSoundType sound_type)
+	{
+		if (sound_type == eSoundType::kBackGroundSound)
+		{
+			if (m_bgm_channel != nullptr)
+			{
+				m_bgm_volume = std::clamp(value, 0.f, 1.0f);
+				m_bgm_channel->setVolume(m_bgm_volume);
+			}
+		}
+
+		if (sound_type == eSoundType::kEffectSound)
+		{
+			if (m_effect_channel != nullptr)
+			{
+				m_effect_volume = std::clamp(value, 0.f, 1.0f);
+				m_effect_channel->setVolume(m_effect_volume);
+			}
 		}
 	}
 }

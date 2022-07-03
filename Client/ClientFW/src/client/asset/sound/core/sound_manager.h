@@ -39,12 +39,12 @@ namespace client_fw
 		FMOD::Channel* m_bgm_channel;
 		FMOD::Channel* m_effect_channel;
 
-		std::map <std::string, SPtr<Sound>> m_sound_list;
-		
+		std::unordered_map <std::string, SPtr<Sound>> m_sound_list;
 		std::string m_current_sound_name;
 
 		bool m_is_playing = false;
-		float m_volume = 1.f;
+		float m_bgm_volume = 1.f;
+		float m_effect_volume = 1.f;
 
 	public:
 
@@ -56,9 +56,10 @@ namespace client_fw
 		void Play(eSoundType sound_type, const std::string& name, bool loop = true);
 		void Stop(); //bgm¸¸
 		void Pause(); //bgm¸¸
-		void VolumeDown(float value);
-		void VolumeUp(float value);
-		void SetVolume(float value);
+		void VolumeDown(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
+		void VolumeUp(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
+		const float GetVolume(eSoundType sound_type = eSoundType::kBackGroundSound);
+		void SetVolume(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
 	};
 
 }
