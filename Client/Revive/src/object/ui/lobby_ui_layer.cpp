@@ -7,6 +7,7 @@
 #include <client/event/packetevent/packet_helper.h>
 #include <client/object/level/core/level_manager.h>
 #include <client/object/level/core/level_loader.h>
+#include <client/asset/sound/core/sound_manager.h>
 #include <client/core/application.h>
 
 #include "revive_server/message/message_event_info.h"
@@ -60,6 +61,9 @@ namespace revive
 			m_shadow_quality_left_button = CreateSPtr<ButtonUI>("shadow quality left button");
 			m_shadow_quality_right_button = CreateSPtr<ButtonUI>("shadow quality right button");
 			m_shadow_quality_text = CreateSPtr<TextUI>("shadow quality text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"°í");
+			m_bgm_volume_text = CreateSPtr<TextUI>("bgm volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"100");
+			m_bgm_volume_left_button = CreateSPtr<ButtonUI>("bgm volume left button");
+			m_bgm_volume_right_button = CreateSPtr<ButtonUI>("bgm volume right button");
 		}
 		
 		m_sign_up_succeed_image = CreateSPtr<ImageUI>("sign up image",Vec2(400.0f, 400.0f));
@@ -435,7 +439,32 @@ namespace revive
 
 			SetOptionText(m_shadow_quality_text,
 				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.24f) + Vec2(-button_size, button_size));
+			
+		
+			SetLeftButton(m_bgm_volume_left_button,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.12f) + Vec2(-button_size, button_size),
+				[this]() {
+				if (SoundManager::GetSoundManager().GetVolume() > 0.f)
+				{
+					SoundManager::GetSoundManager().VolumeDown(0.1f);
+					SetBgmVolumeText();
+				}
+			});
 
+			SetRightButton(m_bgm_volume_right_button,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.12f) + Vec2(-button_size, button_size),
+				[this]() {
+				if (SoundManager::GetSoundManager().GetVolume() < 100.f)
+				{
+					SoundManager::GetSoundManager().VolumeUp(0.1f);
+					SetBgmVolumeText();
+				}
+			});
+
+			SetOptionText(m_bgm_volume_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.12f) + Vec2(-button_size, button_size));
+
+			SetBgmVolumeText();
 			SetShadowEnableText();
 			SetShadowQualityText();
 			DisablePopUpState(eLobbyPopupMenu::kOption);
@@ -550,6 +579,12 @@ namespace revive
 			m_shadow_quality_right_button->SetActivate(is_pop_up);
 			m_shadow_quality_text->SetActivate(is_pop_up);
 			m_shadow_quality_text->SetVisible(is_pop_up);
+			m_bgm_volume_left_button->SetActivate(is_pop_up);
+			m_bgm_volume_left_button->SetVisible(is_pop_up);
+			m_bgm_volume_right_button->SetActivate(is_pop_up);
+			m_bgm_volume_right_button->SetVisible(is_pop_up);
+			m_bgm_volume_text->SetActivate(is_pop_up);
+			m_bgm_volume_text->SetVisible(is_pop_up);
 			break;
 		case eLobbyPopupMenu::kSignUpSuccess:
 			m_sign_up_succeed_ok_button->SetActivate(is_pop_up);
@@ -594,6 +629,12 @@ namespace revive
 		case eShadowQuality::kVeryHigh: m_shadow_quality_text->SetText(L"ÃÖ°í"); 	break;
 		default: break;
 		}
+	}
+
+	void LobbyUILayer::SetBgmVolumeText()
+	{
+		float volume = SoundManager::GetSoundManager().GetVolume();
+		m_bgm_volume_text->SetText(std::to_wstring(static_cast<int>(round(volume * 100)) ));
 	}
 
 	void LobbyUILayer::FailedLogin(eLoginFailState state)

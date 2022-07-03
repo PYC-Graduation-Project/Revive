@@ -83,6 +83,10 @@ namespace revive
 		SPtr<ButtonUI> m_shadow_quality_left_button;
 		SPtr<ButtonUI> m_shadow_quality_right_button;
 		SPtr<TextUI> m_shadow_quality_text;
+		SPtr<TextUI> m_bgm_volume_text;
+		SPtr<ButtonUI> m_bgm_volume_left_button;
+		SPtr<ButtonUI> m_bgm_volume_right_button;
+
 		SPtr<ImageUI> m_sign_up_succeed_image;
 		SPtr<ButtonUI> m_sign_up_succeed_ok_button;
 		SPtr<TextUI> m_id_text;
@@ -105,6 +109,7 @@ namespace revive
 		void DisablePopUpState(eLobbyPopupMenu state);
 		void SetShadowEnableText();
 		void SetShadowQualityText();
+		void SetBgmVolumeText();
 
 	public:
 		void FailedLogin(eLoginFailState state);

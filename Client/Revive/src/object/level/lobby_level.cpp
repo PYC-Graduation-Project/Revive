@@ -35,11 +35,6 @@ namespace revive
 		RegisterPressedEvent("develop mode", { {eKey::kJ, {	eAdditionalKey::kControl, eAdditionalKey::kShift }} },
 			[this]()->bool { m_lobby_ui_layer->EnableDevelopMode(); return true; });
 //#endif
-		RegisterPressedEvent("volume up", { {eKey::kAdd} },
-			[this]()->bool {client_fw::SoundManager::GetSoundManager().VolumeUp(0.1f); return true; });
-
-		RegisterPressedEvent("volume down", { {eKey::kSubtract} },
-			[this]()->bool {client_fw::SoundManager::GetSoundManager().VolumeDown(0.1f); return true; });
 		
 		RegisterPressedEvent("music stop", { {eKey::kS} },
 			[this]()->bool {client_fw::SoundManager::GetSoundManager().Stop(); return true; });
