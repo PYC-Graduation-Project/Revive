@@ -252,6 +252,10 @@ void RevivePacketManager::ProcessWaveInfo(int c_id, unsigned char* p)
 {
 	sc_packet_wave_info* packet = reinterpret_cast<sc_packet_wave_info*>(p);
 	//다음웨이브정보 여기서 뽑아쓰면됨
+
+	PacketHelper::RegisterPacketEventToLevel(
+		CreateSPtr<revive::NextWaveInfoMessageEventInfo>
+		(HashCode("next wave info"), packet->curr_round,packet->sordier_num,packet->king_num));
 }
 
 void RevivePacketManager::Reset()

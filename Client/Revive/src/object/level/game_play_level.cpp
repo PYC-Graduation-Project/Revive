@@ -382,6 +382,13 @@ namespace revive
 			m_game_info_ui_layer->SetWaveTime(msg->GetWaveTime());
 			break;
 		}
+		case HashCode("next wave info"):
+		{
+			auto msg = std::static_pointer_cast<NextWaveInfoMessageEventInfo>(message);
+
+			m_game_info_ui_layer->SetNextWaveCount(msg->GetSoldierNum(), msg->GetKingNum());
+			break;
+		}
 		default:
 			break;
 		}

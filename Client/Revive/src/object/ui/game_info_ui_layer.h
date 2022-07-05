@@ -36,6 +36,7 @@ namespace revive
 
     private:
         bool GenerateGameInfoUI(const Vec2& window_size);
+        bool GenerateNextWaveInfoUI(const Vec2& window_size);
 
     private:
         int m_wave_count = 0;
@@ -43,8 +44,15 @@ namespace revive
         float m_next_wave_time = 30.f;
 
         std::vector<WaveUIInfo> m_wave_ui_info;
+
+        SPtr<ImageUI> m_next_wave_bg_image;
+        SPtr<TextUI> m_skeleton_king_count_text;
+        SPtr<TextUI> m_skeleton_soldier_count_text;
+
+
     public:
         void SetWaveTime(float time) { m_next_wave_time = time; }
+        void SetNextWaveCount(const int soldier_num, const int king_num);
         void RegisterEnemy(const WPtr<Enemy>& enemy);
     };
 }
