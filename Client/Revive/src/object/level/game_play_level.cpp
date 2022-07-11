@@ -33,7 +33,8 @@
 #include"server/network.h"
 #include "object/ui/player_info_ui_layer.h"
 #include "object/ui/game_info_ui_layer.h"
-//#include "object/ui/util/debugging_ui_layer.h"
+
+#include "object/effect/heal_effect.h"
 
 std::string g_id;
 std::string g_pw;
@@ -45,7 +46,6 @@ namespace revive
 	{
 		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
 		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
-		//m_debugging_ui_layer = CreateSPtr<DebuggingUILayer>();
 
 	}
 
@@ -101,7 +101,6 @@ namespace revive
 			});
 		RegisterUILayer(m_player_info_ui_layer);
 		RegisterUILayer(m_game_info_ui_layer);
-		//RegisterUILayer(m_debugging_ui_layer);
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 
 		return true;
@@ -273,9 +272,13 @@ namespace revive
 				scope->SetShadowTextureSize(shadow_size);
 		}
 
+		m_heal_effect = CreateSPtr<HealEffect>();
+
 		auto healer = CreateSPtr<Healer>();
 		healer->SetPosition(Vec3(2400.0f, 300.0f, 1350.0f));
+		healer->RegisterEffect(m_heal_effect);
 		SpawnActor(healer);
+
 	}
 
 	void GamePlayLevel::Shutdown()
@@ -285,6 +288,7 @@ namespace revive
 
 	void GamePlayLevel::Update(float delta_time)
 	{
+		m_heal_effect->Update(delta_time);
 	}
 
 	void GamePlayLevel::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)

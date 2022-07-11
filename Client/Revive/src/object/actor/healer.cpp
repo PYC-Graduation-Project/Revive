@@ -8,8 +8,8 @@
 
 #include "healer.h"
 //#include "object/level/game_play_level.h"
-//#include "object/ui/util/debugging_ui_layer.h"
 #include "object/actor/character/revive_player.h"
+#include "object/effect/heal_effect.h"
 
 #include "revive_server/message/message_event_info.h"
 
@@ -38,7 +38,6 @@ namespace revive
 			material->SetMetallic(1.0f);
 			material->SetRoughness(0.2f);
 		}
-
 		m_collision_box->SetExtents(Vec3{ 250.f,400.f,300.f } / 2);
 		m_collision_box->SetLocalPosition(Vec3{ 0.f,200.f,-25.f });
 		m_collision_box->SetCollisionInfo(true, true, "wall", { "player" ,"player camera" }, true);
@@ -51,21 +50,26 @@ namespace revive
 			const SPtr<SceneComponent>& other_component)
 		{
 			const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
-			if (player)
+			if (player) //플레이어가 들어오면
 			{
-				/*const auto& game_level = std::dynamic_pointer_cast<GamePlayLevel>(LevelManager::GetLevelManager().GetCurrentLevel());
-				game_level->LogInfoUI(L"우왕 힐존이다!");*/
-				//LOG_INFO("힐존에 플레이어가 들어와있네!");
-				if (player->GetHP() != player->GetMaxHP())
-				{
-				}
-				//쿨타임을 넣고 천천히 차게한다 || 매프레임 HP가 오르나 매우 작은 값을 올려서 서서히 차게한다.
+				auto heal_effect = m_heal_effect.lock();
+				heal_effect->SetCleanTime(0.f);
+
+				//이펙트 생성 매번 Spawn하는 방식
+				//만약 스폰방식이 성능에 안좋으면, 미리 스폰해놓고
+				//힐박스안에 들어오면 파티클을 움직이는 방식 시도해보기
+				heal_effect->CreateEffect();
+				
 			}
+			
 		});
+
+		m_heal_effect.lock()->RegisterBox(m_heal_box);
+		
 		ret &= AttachComponent(m_base_mesh);
 		ret &= AttachComponent(m_jewelry_mesh);
 		ret &= AttachComponent(m_collision_box);
-		//ret &= AttachComponent(m_heal_box);
+		ret &= AttachComponent(m_heal_box);
 		return ret;
 	}
 
@@ -75,6 +79,7 @@ namespace revive
 
 	void Healer::Update(float delta_time)
 	{
+		
 	}
 
 	void Healer::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
