@@ -27,6 +27,8 @@
 
 #include "revive_server/message/message_event_info.h"
 
+#include "object/effect/hit_particle.h"
+
 namespace revive
 {
 	DefaultPlayer::DefaultPlayer(const std::string& name)
@@ -299,6 +301,7 @@ namespace revive
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(GetForward());
 
+			
 			// 다른 플레이어는 충돌처리가 필요가없다.
 			//bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
 			//bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
@@ -523,9 +526,18 @@ namespace revive
 							enemy->Hit(0,m_network_id);
 
 							//LOG_INFO("충돌 부위 :" + other_component->GetName());
+						auto hit_particle = CreateSPtr<HitParticle>(eMobilityState::kDestructible,
+							"Contents/hit_sprite.dds", Vec2{ 100.f,100.f }, true);
+						auto PlayerDirection = vec3::Normalize(GetPosition() - bullet->GetPosition() );
+						hit_particle->SetPosition(bullet->GetPosition() + PlayerDirection * enemy->GetHitBox()->GetExtents().z);
+						hit_particle->SetAnimationSpeed(500.f);
+						hit_particle->SetFrameCount(3.f, 3.f);
+						SpawnActor(hit_particle);
+
 						bullet->SetActorState(eActorState::kDead);
 				}
 			});
+
 			SpawnActor(bullet);
 			m_is_fire = true;
 		}

@@ -17,4 +17,20 @@ namespace revive
 		m_billboard_component->SetFixUpVector(m_fix_up);
 		return AttachComponent(m_billboard_component);
 	}
+	void EffectActor::SetOffset(const Vec2& offset)
+	{
+		m_billboard_component->SetOffset(offset);
+	}
+	const Vec2& EffectActor::GetTilling() const
+	{
+		 return m_billboard_component->GetTilling();
+	}
+	void EffectActor::SetTilling(const Vec2& tilling)
+	{
+		m_billboard_component->SetTilling(tilling);
+	}
+	const Vec2& EffectActor::GetOffset() const
+	{
+		return m_billboard_component->GetOffset();
+	}
 }

@@ -80,6 +80,7 @@ namespace revive
 
 		void SetNetworkPosition(const Vec3& pos);
 
+		const SPtr<BoxComponent>& GetHitBox() { return m_hit_box; }
 
 	protected:
 		SPtr<WidgetComponent> m_widget_component;

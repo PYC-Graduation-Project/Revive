@@ -18,10 +18,16 @@ namespace revive
 
 		virtual bool Initialize() override;
 
-	private:
+	protected:
 		SPtr<TextureBillboardComponent>  m_billboard_component;
 		std::string m_path;
 		Vec2 m_size;
 		bool m_fix_up;
+
+	public:
+		const Vec2& GetOffset( )const;
+		void SetOffset(const Vec2& offset);
+		const Vec2& GetTilling() const;
+		void SetTilling(const Vec2& tilling);
 	};
 }
