@@ -125,7 +125,7 @@ namespace revive
 
 		auto bg_imaage_position = window_size * 0.5f;
 		bg_imaage_position.y = m_next_wave_bg_image->GetSize().y * 0.5f;
-		m_next_wave_bg_image->SetTexture("Contents/ui/next_wave_info.png");
+		m_next_wave_bg_image->SetTexture("Contents/ui/next_wave_info.dds");
 		m_next_wave_bg_image->SetPosition(bg_imaage_position);
 		ret &= RegisterUserInterface(m_next_wave_bg_image);
 
