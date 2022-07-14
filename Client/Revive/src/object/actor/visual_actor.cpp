@@ -1,28 +1,34 @@
 #include <include/client_core.h>
-#include "object/actor/wall.h"
+#include "object/actor/visual_actor.h"
 
 namespace revive
 {
-	Wall::Wall()
+	VisualActor::VisualActor()
 		:Actor(eMobilityState::kStatic)
 	{
 	}
-	Wall::Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components)
+	VisualActor::VisualActor(const SPtr<StaticMeshComponent>& static_mesh_component)
+		: Actor(eMobilityState::kStatic)
+	{
+		m_static_mesh_components.push_back(static_mesh_component);
+	}
+	VisualActor::VisualActor(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components)
+		: Actor(eMobilityState::kStatic)
 	{
 		m_static_mesh_components = static_mesh_components;
 		m_box_components = box_components;
 	}
-	Wall::Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components)
+	VisualActor::VisualActor(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components)
 		: Actor(eMobilityState::kStatic)
 	{
 		m_static_mesh_components = static_mesh_components;
 	}
-	Wall::Wall(const std::vector<SPtr<BoxComponent>>& box_components)
+	VisualActor::VisualActor(const std::vector<SPtr<BoxComponent>>& box_components)
 		: Actor(eMobilityState::kStatic)
 	{
 		m_box_components = box_components;
 	}
-	bool Wall::Initialize()
+	bool VisualActor::Initialize()
 	{
 		bool ret = true;
 		
@@ -37,7 +43,7 @@ namespace revive
 		
 		return true;
 	}
-	void Wall::Shutdown()
+	void VisualActor::Shutdown()
 	{
 		for (auto& static_mesh_component : m_static_mesh_components)
 		{
@@ -48,7 +54,7 @@ namespace revive
 			box_component = nullptr;
 		}
 	}
-	void Wall::Update(float delta_time)
+	void VisualActor::Update(float delta_time)
 	{
 		/*for (auto& component : m_box_components)
 		{

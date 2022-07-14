@@ -7,14 +7,15 @@ namespace revive
 {
 	using namespace client_fw;
 
-	class Wall : public Actor
+	class VisualActor : public Actor
 	{
 	public:
-		Wall();
-		Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components);
-		Wall(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components);
-		Wall(const std::vector<SPtr<BoxComponent>>& box_components);
-		virtual ~Wall() = default;
+		VisualActor();
+		VisualActor(const SPtr<StaticMeshComponent>& static_mesh_component);
+		VisualActor(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components);
+		VisualActor(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components);
+		VisualActor(const std::vector<SPtr<BoxComponent>>& box_components);
+		virtual ~VisualActor() = default;
 
 		virtual bool Initialize() override;
 		virtual void Shutdown() override;

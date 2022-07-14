@@ -7,7 +7,7 @@
 namespace revive
 {
 	Base::Base(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components)
-		:Wall(static_mesh_components,box_components)
+		:VisualActor(static_mesh_components,box_components)
 	{
 		m_mobility_state = eMobilityState::kDestructible;
 	}

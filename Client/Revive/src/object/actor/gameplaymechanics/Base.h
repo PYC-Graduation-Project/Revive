@@ -1,9 +1,9 @@
 #pragma once
-#include "object/actor/wall.h"
+#include "object/actor/visual_actor.h"
 
 namespace revive
 {
-	class Base :public Wall
+	class Base :public VisualActor
 	{
 	public:
 		Base(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components);
