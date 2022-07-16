@@ -1,5 +1,6 @@
 #pragma once
 #include <client/object/level/sharedinfo/level_shared_info.h>
+#include "object/map/map_loader.h"
 
 namespace revive
 {
@@ -28,9 +29,11 @@ namespace revive
 
     private:
         SPtr<ReviveGameOption> m_revive_game_option;
+        SPtr<MapLoader> m_map_loader;
 
     public:
         const SPtr<ReviveGameOption>& GetGameOption() const { return m_revive_game_option; }
+        const SPtr<MapLoader>& GetMapLoader() const { return m_map_loader; }
     };
 }
 

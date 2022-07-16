@@ -1,6 +1,5 @@
 #pragma once
 #include <client/object/level/core/level.h>
-#include "object/map/map_loader.h"
 namespace revive
 {
 	using namespace client_fw;
@@ -31,7 +30,7 @@ namespace revive
 
 		std::vector<SPtr<Actor>> m_actors;
 
-		MapLoader m_map_loader;
+		//MapLoader m_map_loader;
 	public:
 		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;

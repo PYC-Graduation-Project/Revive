@@ -64,7 +64,8 @@ namespace revive
 			
 		});
 
-		m_heal_effect.lock()->RegisterBox(m_heal_box);
+		if(m_heal_effect.expired() == false)
+			m_heal_effect.lock()->RegisterBox(m_heal_box);
 		
 		ret &= AttachComponent(m_base_mesh);
 		ret &= AttachComponent(m_jewelry_mesh);

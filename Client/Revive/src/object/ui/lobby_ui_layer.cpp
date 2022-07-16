@@ -23,12 +23,14 @@ namespace revive
 		Vec2 window_size = Render::GetWindowSize();
 		m_game_option_state = std::static_pointer_cast<ReviveLevelSharedInfo>(LevelManager::GetLevelManager().GetLevelSharedInfo())->GetGameOption();
 
-		m_id_text_box = CreateSPtr<TextBoxUI>("id text box", Vec2(200.0f, 50.0f));
-		m_pw_text_box = CreateSPtr<TextBoxUI>("pw text box", Vec2(200.0f, 50.0f));
+		m_title_image = CreateSPtr<ImageUI>("game title image", Vec2(525.f,150.f));
+		m_login_bg_image = CreateSPtr<ImageUI>("login background image", Vec2(550.f, 270.f));
+		m_id_text_box = CreateSPtr<TextBoxUI>("id text box", Vec2(420.0f, 40.0f));
+		m_pw_text_box = CreateSPtr<TextBoxUI>("pw text box", Vec2(420.0f, 40.0f));
 		m_sign_up_button = CreateSPtr<ButtonUI>("sign up button");
 		m_sign_in_button = CreateSPtr<ButtonUI>("sign in button");
 		m_matching_button = CreateSPtr<ButtonUI>("matching button");
-		m_num_of_user_text = CreateSPtr<TextUI>("num of user text", Vec2(300.0f, 50.0f), L"¸ÅÄª ÀÎ¿ø : " + std::to_wstring(m_num_of_user));
+		m_num_of_user_text = CreateSPtr<TextUI>("num of user text", Vec2(200.0f, 30.0f), L"¸ÅÄª ÀÎ¿ø : " + std::to_wstring(m_num_of_user));
 		m_user_change_button = CreateSPtr<ButtonUI>("user change button");
 
 		m_invalid_id_pw_image = CreateSPtr<ImageUI>("invalid id pw image", Vec2(400.0f, 400.0f));
@@ -100,12 +102,21 @@ namespace revive
 	bool LobbyUILayer::GenerateMatchingUI(const Vec2& window_size)
 	{
 		bool ret = true;
-		
+
+		m_title_image->SetTexture("Contents/ui/game_title_image.dds");
+		m_title_image->SetPosition(window_size * 0.5f + Vec2(0.0f, -350.0f));
+		ret &= RegisterUserInterface(m_title_image);
+
+		m_login_bg_image->SetTexture("Contents/ui/login_bg.dds");
+		m_login_bg_image->SetPosition(window_size * 0.5f + Vec2(0.0f, 210.0f));
+		ret &= RegisterUserInterface(m_login_bg_image);
+
 		m_id_text_box->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 		m_id_text_box->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		m_id_text_box->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		m_id_text_box->SetFontSize(20);
-		m_id_text_box->SetPosition(window_size * 0.5f - Vec2(0.0f, 160.0f));
+		m_id_text_box->SetFontSize(15);
+		m_id_text_box->SetPosition(window_size * 0.5f + Vec2(20.0f, 161.0f));
+		m_id_text_box->SetBackgroundTexture("Contents/ui/id_pw_text_box.dds");
 		m_id_text_box->OnCommitted([this]() {
 			m_id = m_id_text_box->GetText();
 			});
@@ -114,8 +125,9 @@ namespace revive
 		m_pw_text_box->SetFontWeight(DWRITE_FONT_WEIGHT_BOLD);
 		m_pw_text_box->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 		m_pw_text_box->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-		m_pw_text_box->SetFontSize(20);
-		m_pw_text_box->SetPosition(window_size * 0.5f - Vec2(0.0f, 100.0f));
+		m_pw_text_box->SetFontSize(15);
+		m_pw_text_box->SetPosition(window_size * 0.5f + Vec2(20.0f, 201.0f));
+		m_pw_text_box->SetBackgroundTexture("Contents/ui/id_pw_text_box.dds");
 		m_pw_text_box->OnCommitted([this]() {
 			m_pw = m_pw_text_box->GetText();
 			});
@@ -125,8 +137,8 @@ namespace revive
 		m_sign_up_button->SetNormalTexture("Contents/ui/sign_up_normal.dds");
 		m_sign_up_button->SetHoveredTexture("Contents/ui/sign_up_hovered.dds");
 		m_sign_up_button->SetPressedTexture("Contents/ui/sign_up_pressed.dds");
-		m_sign_up_button->SetPosition(window_size * 0.5f);
-		m_sign_up_button->SetSize(Vec2(300.0f, 120.0f));
+		m_sign_up_button->SetPosition(window_size * 0.5f + Vec2(160.0f, 270.0f));
+		m_sign_up_button->SetSize(Vec2(150.0f, 60.0f));
 		m_sign_up_button->OnClicked([this]() {
 			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignUpMessageEventInfo>(HashCode("send sign up"), m_id.data(), m_pw.data()));
 			});
@@ -135,8 +147,8 @@ namespace revive
 		m_sign_in_button->SetNormalTexture("Contents/ui/sign_in_normal.dds");
 		m_sign_in_button->SetHoveredTexture("Contents/ui/sign_in_hovered.dds");
 		m_sign_in_button->SetPressedTexture("Contents/ui/sign_in_pressed.dds");
-		m_sign_in_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 130.0f));
-		m_sign_in_button->SetSize(Vec2(300.0f, 120.0f));
+		m_sign_in_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 270.0f));
+		m_sign_in_button->SetSize(Vec2(150.0f, 60.0f));
 		m_sign_in_button->OnClicked([this]() {
 			PacketHelper::RegisterPacketEventToServer(CreateSPtr<SignInMessageEventInfo>(HashCode("send sign in"), m_id.data(), m_pw.data()));
 			});
@@ -146,8 +158,8 @@ namespace revive
 		m_matching_button->SetNormalTexture("Contents/ui/matching_normal.dds");
 		m_matching_button->SetHoveredTexture("Contents/ui/matching_hovered.dds");
 		m_matching_button->SetPressedTexture("Contents/ui/matching_pressed.dds");
-		m_matching_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 260.0f));
-		m_matching_button->SetSize(Vec2(300.0f, 120.0f));
+		m_matching_button->SetPosition(window_size * 0.5f + Vec2(-160.0f, 270.0f));
+		m_matching_button->SetSize(Vec2(150.0f, 60.0f));
 		m_matching_button->OnClicked([this]() {
 			if (m_succeeded_login)
 			{
@@ -167,15 +179,15 @@ namespace revive
 		m_num_of_user_text->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		m_num_of_user_text->SetFontName(L"¹è´ÞÀÇ¹ÎÁ· ÁÖ¾Æ");
 		//m_num_of_user_text->SetColor(Vec4(236.f, 76.f, 122.f, 255.0f) / 255.f);
-		m_num_of_user_text->SetFontSize(34);
-		m_num_of_user_text->SetPosition(window_size * 0.5f + Vec2(0.0f, 370.0f));
+		m_num_of_user_text->SetFontSize(24);
+		m_num_of_user_text->SetPosition(window_size * 0.5f + Vec2(0.0f, 380.0f));
 		ret &= RegisterUserInterface(m_num_of_user_text);
 
 		m_user_change_button->SetNormalTexture("Contents/ui/user_num_button.dds");
 		m_user_change_button->SetHoveredTexture("Contents/ui/user_num_button_hovered.dds");
 		m_user_change_button->SetPressedTexture("Contents/ui/user_num_button_pressed.dds");
-		m_user_change_button->SetPosition(window_size * 0.5f + Vec2(100.0f, 370.0f));
-		m_user_change_button->SetSize(Vec2(100.0f, 100.0f));
+		m_user_change_button->SetPosition(window_size * 0.5f + Vec2(80.0f, 380.0f));
+		m_user_change_button->SetSize(Vec2(50.0f, 50.0f));
 		m_user_change_button->OnClicked([this]() {
 			++m_num_of_user;
 			if (m_num_of_user == 4)
@@ -245,7 +257,7 @@ namespace revive
 		bool ret = true;
 
 		m_not_login_image->SetTexture("Contents/ui/log_in_before_matching_menu.dds");
-		m_not_login_image->SetPosition(window_size * 0.5f);
+		m_not_login_image->SetPosition(window_size * 0.5f );
 		ret &= RegisterUserInterface(m_not_login_image);
 
 		m_not_login_ok_button->SetNormalTexture("Contents/ui/ok_normal.dds");
@@ -311,7 +323,7 @@ namespace revive
 		m_close_app_button->SetHoveredTexture("Contents/ui/exit_hovered.dds");
 		m_close_app_button->SetPressedTexture("Contents/ui/exit_pressed.dds");
 		m_close_app_button->SetPosition(Vec2(window_size.x - 60.0f, window_size.y) - Vec2(0.0f, 60.0f));
-		m_close_app_button->SetSize(Vec2(100.0f, 100.0f));
+		m_close_app_button->SetSize(Vec2(70.0f, 70.0f));
 		m_close_app_button->OnClicked([this]() {
 			Application::GetApplication()->SetAppState(eAppState::kDead);
 			});
@@ -332,8 +344,8 @@ namespace revive
 		m_option_button->SetNormalTexture("Contents/ui/option_normal.dds");
 		m_option_button->SetHoveredTexture("Contents/ui/option_hovered.dds");
 		m_option_button->SetPressedTexture("Contents/ui/option_pressed.dds");
-		m_option_button->SetPosition(Vec2(window_size.x - 60.0f, window_size.y) - Vec2(0.0f, 170.0f));
-		m_option_button->SetSize(Vec2(100.0f, 100.0f));
+		m_option_button->SetPosition(Vec2(window_size.x - 60.0f, window_size.y) - Vec2(0.0f, 140.0f));
+		m_option_button->SetSize(Vec2(70.0f, 70.0f));
 		m_option_button->OnClicked([this]() {
 			EnablePopUpState(eLobbyPopupMenu::kOption);
 			});

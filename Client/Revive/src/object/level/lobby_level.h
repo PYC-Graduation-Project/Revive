@@ -24,7 +24,11 @@ namespace revive
 		std::string m_pw;
 		bool m_is_succeed_login = false;
 
+		void GenerateVisualActors();
 	private:
 		SPtr<LobbyUILayer> m_lobby_ui_layer;
+
+	public:
+		virtual std::vector<SPtr<VisualOctree>> CreateVisualOctrees() const override;
 	};
 }

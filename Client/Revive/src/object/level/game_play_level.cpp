@@ -51,7 +51,9 @@ namespace revive
 
 	bool GamePlayLevel::Initialize()
 	{
-		m_actors = m_map_loader.LoadMap("Contents/map.txt");
+		const auto& map_loader = std::static_pointer_cast<ReviveLevelSharedInfo>(LevelManager::GetLevelManager().GetLevelSharedInfo())->GetMapLoader();
+
+		m_actors = map_loader->LoadMap("Contents/map.txt");
 		for (auto& actor : m_actors)
 		{
 			SpawnActor(actor);

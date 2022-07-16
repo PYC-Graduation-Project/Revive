@@ -48,6 +48,8 @@ namespace revive
 		bool GenrateSignUpUI(const Vec2& window_size);
 
 	private:
+		SPtr<ImageUI> m_title_image;
+		SPtr<ImageUI> m_login_bg_image;
 		SPtr<TextBoxUI> m_id_text_box;
 		SPtr<TextBoxUI> m_pw_text_box;
 		SPtr<ButtonUI> m_sign_up_button;
