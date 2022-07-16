@@ -527,7 +527,7 @@ namespace revive
 
 							//LOG_INFO("충돌 부위 :" + other_component->GetName());
 						auto hit_particle = CreateSPtr<HitParticle>(eMobilityState::kDestructible,
-							"Contents/hit_sprite.dds", Vec2{ 100.f,100.f }, true);
+							"Contents/effect/hit_sprite.dds", Vec2{ 100.f,100.f }, true);
 						auto PlayerDirection = vec3::Normalize(GetPosition() - bullet->GetPosition() );
 						hit_particle->SetPosition(bullet->GetPosition() + PlayerDirection * enemy->GetHitBox()->GetExtents().z);
 						hit_particle->SetAnimationSpeed(500.f);

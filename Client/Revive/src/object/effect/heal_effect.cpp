@@ -58,7 +58,7 @@ namespace revive
 		while(m_heal_particles.size() <= MAX_PARTICLE)
 		{
 			auto heal_particle = CreateSPtr<HealParticle>(eMobilityState::kDestructible,
-				"Contents/heal_particle.dds", Vec2{ 30.f,30.f }, true);
+				"Contents/effect/heal_particle.dds", Vec2{ 30.f,30.f }, true);
 			ResetParticle(heal_particle);
 			SpawnActor(heal_particle);
 			m_heal_particles.push_back(heal_particle);
