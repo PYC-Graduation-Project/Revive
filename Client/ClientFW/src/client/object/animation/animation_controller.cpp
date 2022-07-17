@@ -110,12 +110,17 @@ namespace client_fw
     {
         if (m_cahce_skeleton.empty())
         {
+            UINT index = 0;
             for (auto& name : bone_data->bone_names)
             {
-                m_cahce_skeleton.emplace_back(skeleton->FindBone(name));
+                auto cache_skeleton = skeleton->FindBone(name);
+                m_cahce_skeleton.emplace_back(cache_skeleton);
+                //소켓 이름별 인덱싱작업은 처음 한번만 해주면 된다.
+                m_bone_socket_info.insert({ cache_skeleton->GetBoneName(),index });
+                index++;
             }
         }
-        m_bone_transform_data.resize(m_cahce_skeleton.size());
+        m_bone_transform_resource.resize(m_cahce_skeleton.size());
         m_bone_offset = bone_data->bone_offsets;
     }
 
@@ -127,13 +132,24 @@ namespace client_fw
         }
     }
 
+    const Mat4& AnimationController::FindTransformToSocketName(const std::string& socket_name)
+    {
+        if (m_bone_socket_info.find(socket_name) != m_bone_socket_info.cend())
+        {
+            auto index = m_bone_socket_info.at(socket_name);
+            return m_bone_transform_resource[index];
+        }
+        LOG_WARN("Does not exist socket name {0}", socket_name);
+        return mat4::IDENTITY;
+    }
+
     void AnimationController::CopyBoneTransformData()
     {
         for (UINT index = 0; index < m_cahce_skeleton.size(); ++index)
         {
-            Mat4 final_transform = m_bone_offset[index] * m_cahce_skeleton[index]->GetWorld();
+            Mat4 final_transform = m_bone_offset[index] * m_cahce_skeleton[index].lock()->GetWorld();
             final_transform.Transpose();
-            m_bone_transform_data[index] = final_transform;
+            m_bone_transform_resource[index] = final_transform;
         }
     }
     const std::string AnimationController::GetAnimationPath(const std::string& animation_name)
