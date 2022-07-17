@@ -30,7 +30,6 @@ namespace revive
 	{
 		if (m_attached_actor.expired() == false)
 		{
-			//GetSocketMatrix(socket_world_matrix);
 			m_static_mesh_component->SetLocalPosition(m_position_offset);
 			Mat4 socket_world_matrix = m_attached_skeletal_mesh_component.lock()->GetSocketWorldMatrix(m_socket_name);
 			SetPosition(Vec3{ socket_world_matrix._41,socket_world_matrix._42,socket_world_matrix._43 });

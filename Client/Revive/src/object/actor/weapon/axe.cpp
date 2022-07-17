@@ -10,7 +10,8 @@ namespace revive
 	Axe::Axe(const std::string name)
 		:Weapon("Contents/axe.obj",name)
 	{
-		m_rotation_offset.x = 70.f;
+		m_rotation_offset = Vec3(5.f,0.f,170.f);
+		m_position_offset = Vec3( -146.f,180.f,100.f );
 	}
 	bool Axe::Initialize()
 	{

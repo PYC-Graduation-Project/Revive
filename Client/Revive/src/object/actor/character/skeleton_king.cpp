@@ -34,11 +34,12 @@ namespace revive
 			[this]() { m_is_disappearing = true;  });
 		m_skeletal_mesh_component->AddNotify("hit end", "hit", 12,
 			[this]() { m_skeletal_mesh_component->SetAnimation("run");  });
+		//공격 후에 재생할 애니메이션
 		m_skeletal_mesh_component->AddNotify("attack end", "attack", 50,
-			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run"); /*공격 후에 재생할 애니메이션*/});
+			[this]() { m_is_attacking = false; m_skeletal_mesh_component->SetAnimation("run");});
 		
 		m_weapon->SetAttachedActor(shared_from_this(),m_skeletal_mesh_component);
-		m_weapon->SetSocketName("mount0");
+		m_weapon->SetSocketName("Bip001_L_Hand");
 		m_weapon->SetScale(0.6f);
 		m_weapon->SetOwnerNetworkID(m_network_id);
 		ret &= SetCollisionComponent();
@@ -50,7 +51,6 @@ namespace revive
 			RegisterInputEvent(m_name + " Test");*/
 		
 		m_hp = 20;
-		//mesh_rotate = Vec3{ -90.f,0.f,0.f };
 		SetScale(0.6f);
 
 		m_widget_component->SetLocalPosition(Vec3(0.0f, 400.0f, 0.0f));

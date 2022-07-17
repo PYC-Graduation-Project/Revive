@@ -24,6 +24,7 @@
 #include "object/actor/projectile/projectile.h"
 #include "object/actor/projectile/bullet.h"
 #include "object/statemachine/state_machine.h"
+#include "object/effect/hit_particle.h"
 
 #include "revive_server/message/message_event_info.h"
 
@@ -55,7 +56,7 @@ namespace revive
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(100.f);
-		
+
 		//Á×¾úÀ¸´Ï Àåºñ ¹þ¾î
 		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() { 
 			Unequip(); 
@@ -339,8 +340,8 @@ namespace revive
 		m_is_equipped = true;
 		std::array<std::string, 2> weapon_names = { "left", "right" };
 		std::array<std::string, 2> socket_names = { "Bip001_L_Hand", "Bip001_R_Hand" };
-		std::array<Vec3, 2> pos_offset = { Vec3{ -80.f, 10.f,0.f }, Vec3{ -80.f,20.f,0.f } };
-		std::array<Vec3, 2> rot_offset = { Vec3{ 90.f, 90.f,-90.f }, Vec3{ -40.f,190.f,0.f } };
+		std::array<Vec3, 2> pos_offset = { Vec3{ 95.f, 25.f,45.f }, Vec3{ 77.f,30.f,-80.f } };
+		std::array<Vec3, 2> rot_offset = { Vec3{ 0.f, -100.f,0.f }, Vec3{ 0.f,-87.f,0.f } };
 
 		for (int i = 0; i < 2; ++i)
 		{
@@ -350,6 +351,7 @@ namespace revive
 			m_weapon[i]->SetPositionOffset(pos_offset[i]);
 			m_weapon[i]->SetRotationOffset(rot_offset[i]);
 		}
+		
 	}
 
 	void DefaultPlayer::Unequip()
