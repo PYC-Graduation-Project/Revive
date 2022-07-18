@@ -10,7 +10,13 @@ enum class NW_OBJ_TYPE
     OT_NPC_SKULL,
     OT_NPC_SKULLKING
 };
-
+enum class COLOR_TYPE
+{
+    CT_NONE,
+    CT_1,
+    CT_2,
+    CT_3,
+};
 //DBError : DB에러
 //UserFull : 사용자 가득참
 //AlreadyLogin : 현재 접속중인 계정
@@ -30,7 +36,7 @@ class NetworkMoveObj :
 public:
     NetworkMoveObj();
     NetworkMoveObj(int id, float hp, char* name,
-        float x, float y, float z, NW_OBJ_TYPE type,float damage)
+        float x, float y, float z, NW_OBJ_TYPE type,float damage,COLOR_TYPE cl_type)
     {
         m_id = id;
         m_name = std::string(name);
@@ -60,6 +66,7 @@ public:
     const float GetHp()const { return m_hp; }
     const float GetMaxHp()const { return m_max_hp; }
     const NW_OBJ_TYPE GetType()const { return m_type; }
+    const COLOR_TYPE GetColorType()const { return m_color_type; }
     const float GetDamage()const { return m_damage; }
     void SetDamage(float val) { m_damage = val; }
     bool GetIsActive() { return m_is_active; }
@@ -67,6 +74,7 @@ public:
 private:
     float m_hp, m_max_hp;
     NW_OBJ_TYPE m_type;
+    COLOR_TYPE m_color_type=COLOR_TYPE::CT_NONE;
     bool m_is_active = true;
     float m_damage;
     //client_fw::Quaternion m_rotation;

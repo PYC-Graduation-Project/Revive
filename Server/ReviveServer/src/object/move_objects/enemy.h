@@ -14,6 +14,7 @@ public:
     Enemy(int i) :in_use(false),m_L(NULL){
         m_id = i;
         target_id = -1;
+        m_color_type = COLOR_TYPE::CT_NONE;
         m_attack_time = std::chrono::system_clock::now();
         m_check_time= std::chrono::system_clock::now();
         m_move_time= std::chrono::system_clock::now();

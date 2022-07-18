@@ -61,8 +61,13 @@ enum class OBJ_TYPE
 	OT_BULLET,
 	OT_HEAL_ZONE
 };
-
-
+enum class COLOR_TYPE
+{
+	CT_NONE,
+	CT_1,
+	CT_2,
+	CT_3,
+};
 enum class LOGINFAIL_TYPE {
 	OK,
 	DB_ERROR,

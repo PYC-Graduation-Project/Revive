@@ -11,6 +11,7 @@ bool Network::matching_end = false;
 bool Network::Init(client_fw::UPtr<PacketManager>&& packet_manager, client_fw::UPtr<SendManager>&& send_manager)
 {
 	m_id = 0;
+	m_move_time = chrono::system_clock::now();
 	m_packet_manager = move(packet_manager);
 	m_send_manager = move(send_manager);
 	m_packet_manager->Init();
@@ -36,7 +37,7 @@ bool Network::Connect()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET,"220.94.221.49", &server_addr.sin_addr);
+	inet_pton(AF_INET,"127.0.0.1", &server_addr.sin_addr);
 	int retval = WSAConnect(m_s_socket, reinterpret_cast<sockaddr*>(&server_addr),
 		sizeof(server_addr), NULL, NULL, NULL, NULL);
 	if (0 != retval) {
@@ -124,6 +125,10 @@ void Network::SendMessageToServer(const client_fw::SPtr<client_fw::MessageEventI
 
 void Network::SendMovePacket(const client_fw::Vec3& position, const client_fw::Quaternion& rotation)
 {
-	m_send_manager->SendMovePacket(m_s_socket,position, rotation); 
+	auto end_t = std::chrono::system_clock::now();
+	if (m_move_time <= end_t) {
+		m_send_manager->SendMovePacket(m_s_socket, position, rotation);
+		m_move_time = end_t + 50ms;
+	}
 }
 

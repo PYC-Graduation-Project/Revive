@@ -98,7 +98,7 @@ private:
 	std::thread worker;
 	client_fw::UPtr<PacketManager>m_packet_manager;
 	client_fw::UPtr<SendManager>m_send_manager;
-	
+	std::chrono::system_clock::time_point m_move_time;
 	int m_id;
 	int m_prev_size = 0;
 	bool m_iswork = true;
