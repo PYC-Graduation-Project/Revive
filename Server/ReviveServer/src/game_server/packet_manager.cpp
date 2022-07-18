@@ -523,7 +523,7 @@ void PacketManager::SendMovePacket(int c_id, int mover)
 	packet.x =p->GetPosX();
 	packet.y =p->GetPosY();
 	packet.z =p->GetPosZ();
-	
+	packet.move_time = p->m_last_move_time;
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
 	cl->DoSend(sizeof(packet), &packet);
 }
@@ -609,6 +609,7 @@ void PacketManager::SendObjInfo(int c_id, int obj_id)
 	packet.maxhp = obj->GetHP();
 	strcpy_s(packet.name,MAX_NAME_SIZE+2 ,obj->GetName());
 	packet.object_type = static_cast<char>(obj->GetType());
+	packet.color_type = static_cast<char>(obj->GetColorType());
 	packet.x = obj->GetPosX();
 	packet.y = obj->GetPosY();
 	packet.z = obj->GetPosZ();
@@ -1007,7 +1008,7 @@ void PacketManager::ProcessMove(int c_id,unsigned char* p)
 	}else cl->state_lock.unlock();
 	Room* room = m_room_manager->GetRoom(cl->GetRoomID());
 
-	
+	cl->m_last_move_time = packet->move_time;
 
 	cl->SetPos(pos);
 	if (isnan(cl->GetPosX()) || isnan(cl->GetPosY()) || isnan(cl->GetPosZ()))return;
@@ -1184,6 +1185,7 @@ void PacketManager::StartGame(int room_id)
 		{
 			pl = MoveObjManager::GetInst()->GetPlayer(obj_list[i]);
 			pl->SetPos(m_map_manager->PLAYER_SPAWN_POINT[i]);
+			pl->SetColorType(COLOR_TYPE(i + 1));
 			continue;
 		}
 		e = MoveObjManager::GetInst()->GetEnemy(obj_list[i]);
@@ -1220,7 +1222,7 @@ void PacketManager::StartGame(int room_id)
 			continue;
 	
 		pl = MoveObjManager::GetInst()->GetPlayer(c_id);
-		cout << "SendObj 이름:" << pl->GetName() << endl;
+		//cout << "SendObj 이름:" << pl->GetName() << endl;
 		SendObjInfo(c_id, c_id);//자기자신
 		for (auto other_id : room->GetObjList())
 		{
@@ -1228,7 +1230,7 @@ void PacketManager::StartGame(int room_id)
 				continue;
 			if (c_id == other_id)continue;
 			SendObjInfo(c_id, other_id);
-			cout << "안에 SendObj 이름:" << pl->GetName() << endl;
+			//cout << "안에 SendObj 이름:" << pl->GetName() << endl;
 		}
 		SendBaseStatus(c_id, room->GetRoomID());
 		
@@ -1299,7 +1301,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 				pl->state_lock.unlock();
 			strcpy_s(pl->GetName(),MAX_NAME_SIZE ,dt.user_id);
 			strcpy_s(pl->GetPassword(), MAX_NAME_SIZE, dt.user_password);
-			cout << "이름 : " << pl->GetName() << "비번 : " << pl->GetPassword();
+			//cout << "이름 : " << pl->GetName() << "비번 : " << pl->GetPassword();
 			//여기오면 성공패킷 보내주기
 			SendSignInOK(pl->GetID());
 		}
@@ -1316,6 +1318,7 @@ void PacketManager::ProcessDBTask(db_task& dt)
 		if (ret == LOGINFAIL_TYPE::NO_ID || ret == LOGINFAIL_TYPE::WRONG_PASSWORD)
 		{
 			m_db2->SaveData(dt.user_id, dt.user_password);
+			//cout << "들어옴" << endl;
 			SendSignUpOK(dt.obj_id);
 		}
 		else

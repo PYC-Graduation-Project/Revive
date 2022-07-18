@@ -9,7 +9,7 @@ const int  WORLD_WIDTH = 10800;
 const int  MAX_NAME_SIZE = 20; // 아이디 최대 사이즈
 const int  MAX_PASSWORD_SIZE = 20;// 비밀 번호 최대 사이즈
 const int  MAX_CHAT_SIZE = 100;// 채팅 최대 사이즈
-const int  MAX_ROOM_SIZE = 25;//방 최대 사이즈
+const int  MAX_ROOM_SIZE = 2500;//방 최대 사이즈
 
 
 constexpr int  MAX_USER = MAX_ROOM_SIZE * 3; //최대 동접 가능 인원
@@ -101,7 +101,7 @@ struct cs_packet_move {
 	unsigned char size;
 	char	type;
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
-	//int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
+	int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
 	
 
@@ -180,6 +180,7 @@ struct sc_packet_move {
 	char type;
 	int		id;
 	float x, y, z;
+	int move_time;
 };
 struct sc_packet_test {
 	unsigned char size;
@@ -196,6 +197,7 @@ struct sc_packet_obj_info {
 	float damage;
 	float x, y, z;
 	char object_type;
+	char color_type;
 	char name[MAX_NAME_SIZE + 2];
 };
 

@@ -41,15 +41,15 @@ void RevivePacketManager::ProcessMove(int c_id, unsigned char* p)
 	{
 		if (mover->second->GetIsActive() == false)return;
 		if (isnan(packet->x) || isnan(packet->y) || isnan(packet->z))return;
-		auto end_t = std::chrono::system_clock::now();
+		//auto end_t = std::chrono::system_clock::now();
 		
 
 		mover->second->SetPosition(move(recv_pos));
 
-		if (mover->second->m_move_time <= end_t) {
+	//	if (mover->second->m_move_time <= end_t) {
 			PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::MoveObjectMessageEventInfo>(HashCode("move object"), mover->second->GetPosition()), packet->id);
-			mover->second->m_move_time = end_t + 50ms;
-		}
+		//	mover->second->m_move_time = end_t + 50ms;
+	//	}
 	}
 	else
 	{
@@ -133,7 +133,8 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 			packet->y,
 			packet->z,
 			nw_type,
-			packet->damage
+			packet->damage,
+			(COLOR_TYPE)packet->color_type
 		));
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<revive::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));
 }

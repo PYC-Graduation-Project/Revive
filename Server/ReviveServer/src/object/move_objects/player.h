@@ -5,9 +5,10 @@ class Player :
     public MoveObj
 {
 public:
-    Player():m_last_move_time(0),
+    Player():
         m_prev_size(0), m_socket(INVALID_SOCKET)
     {
+        m_last_move_time=0 ;
         //데미지랑 hp초기화 추가해야함
         m_type = OBJ_TYPE::OT_PLAYER;
         m_state = STATE::ST_FREE;
@@ -22,11 +23,11 @@ public:
    std::mutex state_lock;
    int		m_prev_size;
    std::atomic_bool is_matching = false;
+    
 private:
     
     EXP_OVER m_recv_over;
     SOCKET  m_socket;
-    int		m_last_move_time;
     STATE m_state;
     std::atomic_bool m_is_ready = false;
     std::atomic_bool m_is_heal = false;
