@@ -318,6 +318,7 @@ namespace revive
 				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
+				player->SetMesh("Contents/gray.rev");
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				Network::matching_end = true;
 
@@ -334,6 +335,7 @@ namespace revive
 				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
+				player->SetMesh("Contents/yellow.rev");
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 
 				m_player_info_ui_layer->RegisterOtherPlayer(player);

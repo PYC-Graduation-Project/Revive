@@ -74,27 +74,30 @@ namespace revive
 		const std::string& GetPlayerName() const { return m_player_name; }
 		void SetPlayerName(const std::string& name) { m_player_name = name; }
 		const float GetHP() const { return m_hp; }
+		void SetHP(float hp);
 		const float GetMaxHP() const { return m_max_hp; }
+		void SetMaxHP(float max_hp) { m_max_hp = max_hp; }
+		void GetAnimationSpeed() const;
+		void SetAnimationSpeed(float speed);
+
 		const bool IsAttacking() const { return m_is_attacking; }
 		const bool IsHitting() const { return m_is_hitting; }
 		const bool IsDying() const { return m_is_dying; }
-		const bool IsEquipped() const { return m_is_equipped; }
-		void GetAnimationSpeed() const;
-		const int GetNetworkID()const { return m_network_id; }
 		void SetIsDying(bool value) { m_is_dying = value; }
-		void SetAnimation(const std::string& animation_name, bool looping);
+
+		bool SetMesh(const std::string& path);
 		void SetMeshPosition(const Vec3& pos);
-		void SetAnimationSpeed(float speed);
-		void SetNetworkID(int val) { m_network_id = val; };
-		void SetHP(float hp);
-		void SetMaxHP(float max_hp) { m_max_hp = max_hp; }
-		void SetNetworkPosition(const Vec3& pos);
+		void SetAnimation(const std::string& animation_name, bool looping);
 		void DecrementHitCount() { m_hit_count--; }
 
+		const int GetNetworkID()const { return m_network_id; }
+		void SetNetworkID(int val) { m_network_id = val; };
+		void SetNetworkPosition(const Vec3& pos);
+
+
 		virtual void Attack();
-
 		virtual void Hit(float damage = 1, int nw_id = 9999);
-
+		const bool IsEquipped() const { return m_is_equipped; }
 		virtual void Equip();
 		virtual void Unequip();
 

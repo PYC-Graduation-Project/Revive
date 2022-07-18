@@ -52,36 +52,7 @@ namespace revive
 
 	bool DefaultPlayer::Initialize()
 	{
-		bool ret = m_skeletal_mesh_component->SetMesh(m_mesh_path);
-		ret &= AttachComponent(m_skeletal_mesh_component);
-		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
-		m_skeletal_mesh_component->SetLocalScale(100.f);
-
-		//죽었으니 장비 벗어
-		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() { 
-			Unequip(); 
-			m_skeletal_mesh_component->SetIsPlaying(false);
-		});
-
-		//공격2 전환 및 종료
-		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
-			[this]() {
-			SetAnimation("attack_second",false); 
-			m_is_fire = false;
-			 });
-		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_second", 17,
-			[this]() {m_is_attacking = false; m_is_fire = false;  });
-
-		//총알 발사(스폰) 타이밍
-		m_skeletal_mesh_component->AddNotify("First Fire", "attack_first", 9,
-			[this]() {	Attack(); /*LOG_INFO(m_is_attacking);*/ });
-		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_second", 10,
-			[this]() {  Attack(); /*LOG_INFO(m_is_attacking);*/ });
-
-		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
-			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
-
-		ret &= AttachComponent(m_character_movement_component);
+		bool ret = AttachComponent(m_character_movement_component);
 		m_character_movement_component->SetMaxSpeed(100.f);
 		m_character_movement_component->UseOrientRotationToMovement(true);
 
@@ -285,6 +256,40 @@ namespace revive
 		m_previous_pos = pos;
 		m_next_pos = pos;
 		SetPosition(pos);
+	}
+
+	bool DefaultPlayer::SetMesh(const std::string& path)
+	{
+		bool ret = m_skeletal_mesh_component->SetMesh(path);
+		ret &= AttachComponent(m_skeletal_mesh_component);
+		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
+		m_skeletal_mesh_component->SetLocalScale(100.f);
+
+		//죽었으니 장비 벗어
+		m_skeletal_mesh_component->AddNotify("unequip", "death", 100, [this]() {
+			Unequip();
+			m_skeletal_mesh_component->SetIsPlaying(false);
+		});
+
+		//공격2 전환 및 종료
+		m_skeletal_mesh_component->AddNotify("First Attack", "attack_first", 17,
+			[this]() {
+			SetAnimation("attack_second", false);
+			m_is_fire = false;
+		});
+		m_skeletal_mesh_component->AddNotify("Second Attack End", "attack_second", 17,
+			[this]() {m_is_attacking = false; m_is_fire = false;  });
+
+		//총알 발사(스폰) 타이밍
+		m_skeletal_mesh_component->AddNotify("First Fire", "attack_first", 9,
+			[this]() {	Attack(); /*LOG_INFO(m_is_attacking);*/ });
+		m_skeletal_mesh_component->AddNotify("Second Fire", "attack_second", 10,
+			[this]() {  Attack(); /*LOG_INFO(m_is_attacking);*/ });
+
+		m_skeletal_mesh_component->AddNotify("Hit End", "hit", 8,
+			[this]() { m_is_hitting = false; /*LOG_INFO(m_is_attacking);*/ });
+
+		return ret;
 	}
 
 	void DefaultPlayer::Attack()
