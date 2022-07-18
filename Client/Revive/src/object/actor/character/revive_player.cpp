@@ -26,6 +26,7 @@
 #include "object/statemachine/state_machine.h"
 #include "object/effect/hit_particle.h"
 
+#include "server/network_move_object.h"
 #include "revive_server/message/message_event_info.h"
 
 #include "object/effect/hit_particle.h"
@@ -258,9 +259,22 @@ namespace revive
 		SetPosition(pos);
 	}
 
-	bool DefaultPlayer::SetMesh(const std::string& path)
+	bool DefaultPlayer::SetColor(COLOR_TYPE color_type)
 	{
-		bool ret = m_skeletal_mesh_component->SetMesh(path);
+		switch (color_type)
+		{
+		case  COLOR_TYPE::CT_1:
+			m_mesh_path = "Contents/violet.rev";
+			break;
+		case  COLOR_TYPE::CT_2:
+			m_mesh_path = "Contents/yellow.rev";
+			break;
+		case  COLOR_TYPE::CT_3:
+			m_mesh_path = "Contents/gray.rev";
+			break;
+		}
+
+		bool ret = m_skeletal_mesh_component->SetMesh(m_mesh_path);
 		ret &= AttachComponent(m_skeletal_mesh_component);
 		m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
 		m_skeletal_mesh_component->SetLocalScale(100.f);

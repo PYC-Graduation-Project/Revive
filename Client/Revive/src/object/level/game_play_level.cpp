@@ -318,7 +318,7 @@ namespace revive
 				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
-				player->SetMesh("Contents/gray.rev");
+				player->SetColor(obj->GetColorType());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 				Network::matching_end = true;
 
@@ -327,7 +327,6 @@ namespace revive
 			}
 			case NW_OBJ_TYPE::OT_PLAYER: {
 				//LOG_INFO("느그 소환");
-
 				auto player = CreateSPtr<DefaultPlayer>("other player");
 				SpawnActor(player);
 				player->SetNetworkPosition(obj->GetPosition());
@@ -335,7 +334,7 @@ namespace revive
 				player->SetPlayerName(obj->GetName());
 				player->SetHP(obj->GetHp());
 				player->SetMaxHP(obj->GetMaxHp());
-				player->SetMesh("Contents/yellow.rev");
+				player->SetColor(obj->GetColorType());
 				PacketHelper::ConnectActorToServer(player, msg->GetNetworkObj()->GetID());
 
 				m_player_info_ui_layer->RegisterOtherPlayer(player);

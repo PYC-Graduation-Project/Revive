@@ -46,6 +46,7 @@ public:
         m_type = type;
         m_damage = damage;
         m_rotation = client_fw::Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+        m_color_type = cl_type;
     }
     NetworkMoveObj(const NetworkMoveObj& other)
     {

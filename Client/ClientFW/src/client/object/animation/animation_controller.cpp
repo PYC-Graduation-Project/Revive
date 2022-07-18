@@ -134,12 +134,16 @@ namespace client_fw
 
     const Mat4& AnimationController::FindTransformToSocketName(const std::string& socket_name)
     {
-        if (m_bone_socket_info.find(socket_name) != m_bone_socket_info.cend())
+        if (m_cahce_skeleton.empty() == false)
         {
-            auto index = m_bone_socket_info.at(socket_name);
-            return m_bone_transform_resource[index];
+            if (m_bone_socket_info.find(socket_name) != m_bone_socket_info.cend())
+            {
+                auto index = m_bone_socket_info.at(socket_name);
+                    return m_bone_transform_resource[index];
+            }
+            LOG_WARN("Does not exist socket name {0}", socket_name);
         }
-        LOG_WARN("Does not exist socket name {0}", socket_name);
+        
         return mat4::IDENTITY;
     }
 

@@ -2,6 +2,8 @@
 #include <client/object/actor/pawn.h>
 #include <client/object/actor/default_pawn.h>
 
+enum class COLOR_TYPE;
+
 namespace client_fw
 {
 	class SceneComponent;
@@ -85,7 +87,7 @@ namespace revive
 		const bool IsDying() const { return m_is_dying; }
 		void SetIsDying(bool value) { m_is_dying = value; }
 
-		bool SetMesh(const std::string& path);
+		bool SetColor(COLOR_TYPE color_type);
 		void SetMeshPosition(const Vec3& pos);
 		void SetAnimation(const std::string& animation_name, bool looping);
 		void DecrementHitCount() { m_hit_count--; }
