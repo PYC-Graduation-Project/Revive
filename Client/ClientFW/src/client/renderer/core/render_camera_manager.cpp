@@ -45,6 +45,7 @@ namespace client_fw
 			m_main_camera != m_ready_main_camera)
 		{
 			m_main_camera = m_ready_main_camera;
+			m_main_camera->SetActive();
 			m_ready_main_camera = nullptr;
 		}
 

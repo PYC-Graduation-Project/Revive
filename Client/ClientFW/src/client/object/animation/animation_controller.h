@@ -23,7 +23,7 @@ namespace client_fw
 
 		bool Initialize();
 
-		const std::vector<Mat4>& GetBoneTransformData() { return m_bone_transform_data; }
+		const std::vector<Mat4>& GetBoneTransformData() { return m_bone_transform_resource; }
 		void CopyBoneTransformData();
 
 	public:
@@ -47,6 +47,8 @@ namespace client_fw
 		void SetOwner(const SPtr<SkeletalMeshComponent>& owner) { m_owner = owner; }
 		SPtr<SkeletalMeshComponent> GetOwner() const { return m_owner.lock(); }
 
+		const Mat4& FindTransformToSocketName(const std::string& socket_name);
+
 	private:
 		std::string m_mesh_path;
 		std::string m_animation_name;
@@ -67,9 +69,11 @@ namespace client_fw
 		SPtr<AnimationSequence> m_anim_seq = nullptr;
 		SPtr<AnimationSequence> m_ready_anim_seq = nullptr;
 		WPtr<SkeletalMeshComponent> m_owner;
-		std::vector<SPtr<Skeleton>> m_cahce_skeleton;
+		std::vector<WPtr<Skeleton>> m_cahce_skeleton;
 		std::vector<Mat4> m_bone_offset;
-		std::vector<Mat4> m_bone_transform_data;
+		std::vector<Mat4> m_bone_transform_resource;//셰이더로 전달하기위한 데이터
+		std::unordered_map<std::string, UINT> m_bone_socket_info; //최종 계산된 데이터를 뼈이름으로 찾기 위해 사용
+
 		
 		//Notify가 저장되는 곳
 		//원래는 AnimNotify라는 클래스를 따로만들어서 

@@ -171,6 +171,7 @@ namespace revive
 			PacketHelper::DisconnectActorFromServer(m_network_id);
 			m_skeletal_mesh_component->SetAnimation("death", false);
 			m_is_attacking = false;
+			m_mob_count_decrement_function();
 			break;
 		}
 		default:

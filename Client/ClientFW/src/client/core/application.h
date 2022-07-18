@@ -29,6 +29,8 @@ namespace client_fw
 	class TextureLoader;
 	class AnimationLoader;
 
+	class SoundManager;
+
 	class Application
 	{
 	public:
@@ -82,6 +84,7 @@ namespace client_fw
 		UPtr<PhysicsWorld> m_physics_world;
 		UPtr<Renderer> m_renderer;
 		UPtr<AssetManager> m_asset_manager;
+		UPtr<SoundManager> m_sound_manager;
 
 	public:
 		inline static Application* GetApplication() { return s_instance; }

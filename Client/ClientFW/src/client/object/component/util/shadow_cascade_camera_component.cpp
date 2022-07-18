@@ -114,8 +114,20 @@ namespace client_fw
 					render_camera->GetAspectRatio(), m_cascade_far_z * m_cascade_level_ratio[i - 1], m_cascade_far_z * m_cascade_level_ratio[i]);
 			}
 
+			Vec3 forward = render_camera->GetCameraForward();
+			Vec3 right = render_camera->GetCameraRight();
+			Vec3 up = render_camera->GetCameraUp();
+
+			Mat4 ret;
+			XMStoreFloat4x4(&ret, XMMatrixSet(right.x, right.y, right.z, 0.0f, up.x, up.y, up.z, 0.0f,
+				forward.x, forward.y, forward.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f));
+
 			BFrustum bf_projection = BFrustum(cascade_projection);
-			bf_projection.Transform(render_camera->GetInverseViewMatrix() * m_view_projection_matrix);
+			bf_projection.Transform(
+				mat4::CreateRotationFromDirection(render_camera->GetCameraForward(),
+					render_camera->GetCameraRight(), render_camera->GetCameraUp()) *
+				mat4::CreateTranslation(render_camera->GetCameraPosition()));
+			bf_projection.Transform(m_view_projection_matrix);
 
 			Vec3 max_pos = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 			Vec3 min_pos = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);

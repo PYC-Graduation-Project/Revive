@@ -16,7 +16,7 @@
 #include "client/asset/material/material_loader.h"
 #include "client/asset/texture/texture_loader.h"
 #include "client/asset/animation/animation_loader.h"
-
+#include "client/asset/sound/core/sound_manager.h"
 //#define __USE_RENDER_CPU_TIME__
 #ifdef __USE_RENDER_CPU_TIME__
 #include <stdio.h>
@@ -44,6 +44,7 @@ namespace client_fw
 		m_physics_world = CreateUPtr<PhysicsWorld>();
 		m_renderer = CreateUPtr<Renderer>(m_window);
 		m_asset_manager = CreateUPtr<AssetManager>();
+		m_sound_manager = CreateUPtr<SoundManager>();
 	}
 
 	Application::~Application()
@@ -84,6 +85,13 @@ namespace client_fw
 			return false;
 		}
 
+		result = m_sound_manager->Initialize();
+		if (result == false)
+		{
+			LOG_ERROR("Could not initialize sound manager");
+			return false;
+		}
+
 		InitializeAssetManager();
 
 		return true;
@@ -102,6 +110,7 @@ namespace client_fw
 		m_user_interface_manager->Shutdown();
 		m_physics_world->Shutdown();
 		m_renderer->Shutdown();
+		m_sound_manager->Shutdown();
 	}
 
 	void Application::Run()
@@ -154,6 +163,8 @@ namespace client_fw
 		m_physics_world->Update(delta_time);
 		m_user_interface_manager->Update(delta_time);
 		m_level_manager->UpdateWorldMatrix();
+		m_event_system->Update();
+		m_sound_manager->Update(delta_time);
 	}
 
 	void Application::Render()

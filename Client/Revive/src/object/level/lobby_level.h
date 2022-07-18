@@ -7,8 +7,6 @@ namespace revive
 
 	class LobbyUILayer;
 
-
-
 	class LobbyLevel final : public Level
 	{
 	public:

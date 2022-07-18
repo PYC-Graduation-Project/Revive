@@ -16,7 +16,7 @@ namespace client_fw
 	void AnimationTrack::InitialIze(int b_count,float weight )
 	{
 		m_animated_bone_count = b_count;
-		m_wieght = weight;
+		m_weight = weight;
 
 		m_animated_skeleton.resize(b_count);
 		m_anim_curves.resize(b_count);
@@ -26,7 +26,7 @@ namespace client_fw
 	{
 		for (int i = 0; i < m_animated_bone_count; ++i)
 		{
-			SetAnimatedTransform(prev_time_index,i, time_pos,m_wieght);
+			SetAnimatedTransform(prev_time_index,i, time_pos);
 		}
 	}
 
@@ -42,7 +42,7 @@ namespace client_fw
 		}
 	}
 
-	void  AnimationTrack::SetAnimatedTransform(int& prev_time_index, int bone_index, float time_pos, float weight)
+	void  AnimationTrack::SetAnimatedTransform(int& prev_time_index, int bone_index, float time_pos)
 	{
 		auto temp_bone = m_animated_skeleton.at(bone_index);
 		/*Vec3 scale = temp_bone->m_scale;
@@ -82,9 +82,9 @@ namespace client_fw
 		
 
 
-		lerp_trans *= weight;
-		lerp_rotate *= weight;
-		lerp_scale *= weight;
+		lerp_trans *= m_weight;
+		lerp_rotate *= m_weight;
+		lerp_scale *= m_weight;
 
 		Mat4 S = mat4::CreateScale(lerp_scale);
 		//Mat4 R = mat4::CreateRotationFromQuaternion(quat::CreateQuaternionFromRollPitchYaw(lerp_rotate.x , lerp_rotate.y , lerp_rotate.z));

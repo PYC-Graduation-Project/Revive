@@ -13,6 +13,7 @@
 #include <client/object/actor/core/actor.h>
 #include <client/input/input.h>
 #include<client/event/packetevent/packet_helper.h>
+#include <client/asset/sound/core/sound_manager.h>
 
 #include <client/object/component/light/spot_light_component.h>
 
@@ -373,7 +374,7 @@ namespace revive
 
 		ret &= AttachComponent(m_blocking_sphere);
 		m_blocking_sphere->SetLocalPosition(Vec3{ 0.0f,m_blocking_sphere->GetExtents().y,0.0f });
-		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "base","wall"}, true);
+		m_blocking_sphere->SetCollisionInfo(true, true, "player", { "base","wall","healer"}, true);
 		m_blocking_sphere->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component) {
 			FixYPosition();
@@ -488,14 +489,20 @@ namespace revive
 
 	void RevivePlayer::Attack()
 	{
+		
 		if (m_is_fire == false)
 		{
-			Vec3 direction = m_controller.lock()->GetForward();
-			direction.y = 0;
+			client_fw::SoundManager::GetSoundManager().Play(eSoundType::kEffectSound, "fire",false);
 
+			Vec3 direction = m_controller.lock()->GetForward();
+			//direction.y = 0;
+
+			//총알 위치 계산
+			Vec3 pos = GetPosition();
+			pos.y = 400.f;
 			//총알 스폰
 			const auto& bullet = CreateSPtr<Bullet>();
-			bullet->SetPosition(GetPosition() + Vec3{ 0.0f,50.0f,0.0f });
+			bullet->SetPosition(pos);
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
 			LOG_INFO("공격 패킷 보냄");	

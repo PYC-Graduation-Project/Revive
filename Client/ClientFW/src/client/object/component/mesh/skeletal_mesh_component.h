@@ -30,6 +30,7 @@ namespace client_fw
 		bool m_is_playing = true;
 		bool m_set_mesh = false;
 
+		void BoneTransformUpdate();
 	public:
 		SPtr<SkeletalMesh> GetSkeletalMesh() const;
 		virtual bool SetMesh(const std::string& file_path);
@@ -53,7 +54,9 @@ namespace client_fw
 		void SetAnimationSpeed(float speed) { m_animation_controller->SetAnimationSpeed(speed); }
 
 		void AddNotify(const std::string name, const std::string animation_name, int frame_index, const std::function<void()>& function) { m_animation_controller->AddNotify(name,  animation_name, frame_index, function); }
-	
+		
+		const std::string GetAnimationName() { return m_animation_name; }
+
 	protected:
 		SPtr<SkeletalMeshComponent> SharedFromThis();
 	};
