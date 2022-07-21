@@ -56,6 +56,12 @@ namespace revive
 			m_option_menu_image = CreateSPtr<ImageUI>("option menu image", Vec2(window_size.y - 50.0f, window_size.y - 50.0f));
 			Vec2 option_size = m_option_menu_image->GetSize();
 
+			m_option_graphic_button = CreateSPtr<ButtonUI>("graphic option menu button");
+			m_option_sound_button = CreateSPtr<ButtonUI>("sound option menu button");
+			m_graphic_option_shadow_enable_text = CreateSPtr<TextUI>("graphic option shadow enable text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"그림자 활성화");
+			m_graphic_option_shadow_quality_text = CreateSPtr<TextUI>("graphic option shadow quality text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"그림자 품질");
+			m_sound_option_bgm_volume_text = CreateSPtr<TextUI>("sound option bgm volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"배경음");
+			m_sound_option_effect_volume_text = CreateSPtr<TextUI>("sound option effect volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"효과음");
 			m_close_option_menu_button = CreateSPtr<ButtonUI>("close option menu button");
 			m_shadow_enable_left_button = CreateSPtr<ButtonUI>("shadow enable left button");
 			m_shadow_enable_right_button = CreateSPtr<ButtonUI>("shadow enable right button");
@@ -66,6 +72,9 @@ namespace revive
 			m_bgm_volume_text = CreateSPtr<TextUI>("bgm volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"100");
 			m_bgm_volume_left_button = CreateSPtr<ButtonUI>("bgm volume left button");
 			m_bgm_volume_right_button = CreateSPtr<ButtonUI>("bgm volume right button");
+			m_effect_volume_text = CreateSPtr<TextUI>("effect volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"100");
+			m_effect_volume_left_button = CreateSPtr<ButtonUI>("effect volume left button");
+			m_effect_volume_right_button = CreateSPtr<ButtonUI>("effect volume right button");
 		}
 		
 		m_sign_up_succeed_image = CreateSPtr<ImageUI>("sign up image",Vec2(400.0f, 400.0f));
@@ -348,6 +357,7 @@ namespace revive
 		m_option_button->SetSize(Vec2(70.0f, 70.0f));
 		m_option_button->OnClicked([this]() {
 			EnablePopUpState(eLobbyPopupMenu::kOption);
+			SetOptionState(eLobbyOptionState::kGraphic);
 			});
 		ret &= RegisterUserInterface(m_option_button);
 
@@ -355,10 +365,11 @@ namespace revive
 		m_option_menu_image->SetPosition(window_size * 0.5f);
 		ret &= RegisterUserInterface(m_option_menu_image);
 
+		
 		m_close_option_menu_button->SetNormalTexture("Contents/ui/close_normal.dds");
 		m_close_option_menu_button->SetHoveredTexture("Contents/ui/close_hovered.dds");
 		m_close_option_menu_button->SetPressedTexture("Contents/ui/close_pressed.dds");
-		float button_size = m_option_menu_image->GetSize().x / 12.0f;
+		float button_size = m_option_menu_image->GetSize().x / 15.0f;
 		m_close_option_menu_button->SetPosition(m_option_menu_image->GetPosition() +
 			m_option_menu_image->GetSize() * Vec2(0.5f, -0.5f) + Vec2(-button_size, button_size));
 		m_close_option_menu_button->SetSize(Vec2(button_size, button_size));
@@ -366,6 +377,28 @@ namespace revive
 			DisablePopUpState(eLobbyPopupMenu::kOption);
 			});
 		ret &= RegisterUserInterface(m_close_option_menu_button);
+		
+		m_option_graphic_button->SetNormalTexture("Contents/ui/graphic_normal.dds");
+		m_option_graphic_button->SetHoveredTexture("Contents/ui/graphic_hovered.dds");
+		m_option_graphic_button->SetPressedTexture("Contents/ui/graphic_pressed.dds");
+		m_option_graphic_button->SetPosition(m_option_menu_image->GetPosition() +
+			m_option_menu_image->GetSize() * Vec2(-0.16f, -0.40f) + Vec2(-248.f, 64.f)*0.7f);
+		m_option_graphic_button->SetSize(Vec2(248.f, 64.f)*0.7f);
+		m_option_graphic_button->OnClicked([this]() {
+			SetOptionState(eLobbyOptionState::kGraphic);
+		});
+		ret &= RegisterUserInterface(m_option_graphic_button);
+
+		m_option_sound_button->SetNormalTexture("Contents/ui/sound_normal.dds");
+		m_option_sound_button->SetHoveredTexture("Contents/ui/sound_hovered.dds");
+		m_option_sound_button->SetPressedTexture("Contents/ui/sound_pressed.dds");
+		m_option_sound_button->SetPosition(m_option_menu_image->GetPosition() +
+			m_option_menu_image->GetSize() * Vec2(0.05f, -0.40f) + Vec2(-248.f, 64.f) * 0.7f);
+		m_option_sound_button->SetSize(Vec2(248.f, 64.f) * 0.7f);
+		m_option_sound_button->OnClicked([this]() {
+			SetOptionState(eLobbyOptionState::kSound);
+		});
+		ret &= RegisterUserInterface(m_option_sound_button);
 
 		{
 			auto SetLeftButton = [this, button_size, &ret](const SPtr<ButtonUI>& left_button, 
@@ -399,32 +432,43 @@ namespace revive
 				text->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 				text->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 				text->SetFontName(L"배달의민족 주아");
-				text->SetColor(Vec4(236.f, 76.f, 122.f, 255.0f) / 255.f);
+				text->SetColor(Vec4(232.f, 137.f, 116.f, 255.0f) / 255.f);
 				text->SetFontSize(34);
 				text->SetPosition(position);
 				ret &= RegisterUserInterface(text);
 			};
 
+			SetOptionText(m_graphic_option_shadow_enable_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(-0.16f, -0.32f) + Vec2(-button_size, button_size));
+
+			SetOptionText(m_graphic_option_shadow_quality_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(-0.16f, -0.20f) + Vec2(-button_size, button_size));
+
+			SetOptionText(m_sound_option_bgm_volume_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(-0.16f, -0.32f) + Vec2(-button_size, button_size));
+			
+			SetOptionText(m_sound_option_effect_volume_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(-0.16f, -0.20f) + Vec2(-button_size, button_size));
 
 			SetLeftButton(m_shadow_enable_left_button, 
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.36f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.32f) + Vec2(-button_size, button_size),
 				[this]() {
 					m_game_option_state->shadow_enable = false;
 					SetShadowEnableText();
 				});
 
 			SetRightButton(m_shadow_enable_right_button,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.36f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.32f) + Vec2(-button_size, button_size),
 				[this]() {
 					m_game_option_state->shadow_enable = true;
 					SetShadowEnableText();
 				});
 
 			SetOptionText(m_shadow_enable_text,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.36f) + Vec2(-button_size, button_size));
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.32f) + Vec2(-button_size, button_size));
 
 			SetLeftButton(m_shadow_quality_left_button,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.24f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.20f) + Vec2(-button_size, button_size),
 				[this]() {
 					switch (m_game_option_state->shadow_quality)
 					{
@@ -437,7 +481,7 @@ namespace revive
 				});
 
 			SetRightButton(m_shadow_quality_right_button,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.24f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.20f) + Vec2(-button_size, button_size),
 				[this]() {
 					switch (m_game_option_state->shadow_quality)
 					{
@@ -450,33 +494,57 @@ namespace revive
 				});
 
 			SetOptionText(m_shadow_quality_text,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.24f) + Vec2(-button_size, button_size));
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.20f) + Vec2(-button_size, button_size));
 			
-		
 			SetLeftButton(m_bgm_volume_left_button,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.12f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.32f) + Vec2(-button_size, button_size),
 				[this]() {
 				if (SoundManager::GetSoundManager().GetVolume() > 0.f)
 				{
 					SoundManager::GetSoundManager().VolumeDown(0.1f);
-					SetBgmVolumeText();
+					SetBgmVolumeText(eSoundType::kBackGroundSound);
 				}
 			});
 
 			SetRightButton(m_bgm_volume_right_button,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.12f) + Vec2(-button_size, button_size),
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.32f) + Vec2(-button_size, button_size),
 				[this]() {
 				if (SoundManager::GetSoundManager().GetVolume() < 100.f)
 				{
 					SoundManager::GetSoundManager().VolumeUp(0.1f);
-					SetBgmVolumeText();
+					SetBgmVolumeText(eSoundType::kBackGroundSound);
 				}
 			});
 
 			SetOptionText(m_bgm_volume_text,
-				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.12f) + Vec2(-button_size, button_size));
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.32f) + Vec2(-button_size, button_size));
+			
+			SetLeftButton(m_effect_volume_left_button,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.12f, -0.20f) + Vec2(-button_size, button_size),
+				[this]() {
+				if (SoundManager::GetSoundManager().GetVolume(eSoundType::kEffectSound) > 0.f)
+				{
+					SoundManager::GetSoundManager().VolumeDown(0.1f, eSoundType::kEffectSound);
+					SetBgmVolumeText(eSoundType::kEffectSound);
+				}
+			});
 
-			SetBgmVolumeText();
+			SetRightButton(m_effect_volume_right_button,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.20f) + Vec2(-button_size, button_size),
+				[this]() {
+				if (SoundManager::GetSoundManager().GetVolume(eSoundType::kEffectSound) < 100.f)
+				{
+					SoundManager::GetSoundManager().VolumeUp(0.1f, eSoundType::kEffectSound);
+					SetBgmVolumeText(eSoundType::kEffectSound);
+				}
+			});
+			
+			SetOptionText(m_effect_volume_text,
+				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.3f, -0.20f) + Vec2(-button_size, button_size));
+			
+		
+			SetBgmVolumeText(eSoundType::kBackGroundSound);
+			SetBgmVolumeText(eSoundType::kEffectSound);
 			SetShadowEnableText();
 			SetShadowQualityText();
 			DisablePopUpState(eLobbyPopupMenu::kOption);
@@ -522,6 +590,59 @@ namespace revive
 		return ret;
 	}
 
+
+	void LobbyUILayer::SetOptionState(eLobbyOptionState state)
+	{
+		auto SetUIVisiblity = [](const SPtr<UserInterface>& ui, bool value)
+		{
+			ui->SetActivate(value);
+			ui->SetVisible(value);
+		};
+
+		switch (state)
+		{
+		case eLobbyOptionState::kGraphic:
+			m_option_graphic_button->SetNormalTexture("Contents/ui/graphic_hovered.dds");
+			m_option_sound_button->SetNormalTexture("Contents/ui/sound_normal.dds");
+			SetUIVisiblity(m_graphic_option_shadow_enable_text, true);
+			SetUIVisiblity(m_graphic_option_shadow_quality_text, true);
+			SetUIVisiblity(m_shadow_quality_text, true);
+			SetUIVisiblity(m_shadow_quality_left_button, true);
+			SetUIVisiblity(m_shadow_quality_right_button, true);
+			SetUIVisiblity(m_shadow_enable_text, true);
+			SetUIVisiblity(m_shadow_enable_left_button, true);
+			SetUIVisiblity(m_shadow_enable_right_button, true);
+			SetUIVisiblity(m_bgm_volume_left_button, false);
+			SetUIVisiblity(m_bgm_volume_right_button, false);
+			SetUIVisiblity(m_bgm_volume_text, false);
+			SetUIVisiblity(m_sound_option_bgm_volume_text, false);
+			SetUIVisiblity(m_sound_option_effect_volume_text, false);
+			SetUIVisiblity(m_effect_volume_text, false);
+			SetUIVisiblity(m_effect_volume_left_button, false);
+			SetUIVisiblity(m_effect_volume_right_button, false);
+			break;
+		case eLobbyOptionState::kSound:
+			m_option_sound_button->SetNormalTexture("Contents/ui/sound_hovered.dds");
+			m_option_graphic_button->SetNormalTexture("Contents/ui/graphic_normal.dds");
+			SetUIVisiblity(m_graphic_option_shadow_enable_text, false);
+			SetUIVisiblity(m_graphic_option_shadow_quality_text, false);
+			SetUIVisiblity(m_shadow_quality_text, false);
+			SetUIVisiblity(m_shadow_quality_left_button, false);
+			SetUIVisiblity(m_shadow_quality_right_button, false);
+			SetUIVisiblity(m_shadow_enable_text, false);
+			SetUIVisiblity(m_shadow_enable_left_button, false);
+			SetUIVisiblity(m_shadow_enable_right_button, false);
+			SetUIVisiblity(m_bgm_volume_left_button, true);
+			SetUIVisiblity(m_bgm_volume_right_button, true);
+			SetUIVisiblity(m_bgm_volume_text, true);
+			SetUIVisiblity(m_sound_option_bgm_volume_text, true);
+			SetUIVisiblity(m_sound_option_effect_volume_text, true);
+			SetUIVisiblity(m_effect_volume_text, true);
+			SetUIVisiblity(m_effect_volume_left_button, true);
+			SetUIVisiblity(m_effect_volume_right_button, true);
+			break;
+		}
+	}
 
 	void LobbyUILayer::SetPopUpState(eLobbyPopupMenu state, bool is_pop_up)
 	{
@@ -597,6 +718,24 @@ namespace revive
 			m_bgm_volume_right_button->SetVisible(is_pop_up);
 			m_bgm_volume_text->SetActivate(is_pop_up);
 			m_bgm_volume_text->SetVisible(is_pop_up);
+			m_option_graphic_button->SetActivate(is_pop_up);
+			m_option_graphic_button->SetVisible(is_pop_up);
+			m_option_sound_button->SetActivate(is_pop_up);
+			m_option_sound_button->SetVisible(is_pop_up);
+			m_graphic_option_shadow_enable_text->SetActivate(is_pop_up);
+			m_graphic_option_shadow_enable_text->SetVisible(is_pop_up);
+			m_graphic_option_shadow_quality_text->SetActivate(is_pop_up);
+			m_graphic_option_shadow_quality_text->SetVisible(is_pop_up);
+			m_sound_option_bgm_volume_text->SetActivate(is_pop_up);
+			m_sound_option_bgm_volume_text->SetVisible(is_pop_up);
+			m_sound_option_effect_volume_text->SetActivate(is_pop_up);
+			m_sound_option_effect_volume_text->SetVisible(is_pop_up);
+			m_effect_volume_text->SetActivate(is_pop_up);
+			m_effect_volume_text->SetVisible(is_pop_up);
+			m_effect_volume_left_button->SetActivate(is_pop_up);
+			m_effect_volume_left_button->SetVisible(is_pop_up);
+			m_effect_volume_right_button->SetActivate(is_pop_up);
+			m_effect_volume_right_button->SetVisible(is_pop_up);
 			break;
 		case eLobbyPopupMenu::kSignUpSuccess:
 			m_sign_up_succeed_ok_button->SetActivate(is_pop_up);
@@ -643,10 +782,14 @@ namespace revive
 		}
 	}
 
-	void LobbyUILayer::SetBgmVolumeText()
+	void LobbyUILayer::SetBgmVolumeText(eSoundType sound_type)
 	{
-		float volume = SoundManager::GetSoundManager().GetVolume();
-		m_bgm_volume_text->SetText(std::to_wstring(static_cast<int>(round(volume * 100)) ));
+		float volume = SoundManager::GetSoundManager().GetVolume(sound_type);
+
+		if(eSoundType::kBackGroundSound == sound_type)
+			m_bgm_volume_text->SetText(std::to_wstring(static_cast<int>(round(volume * 100)) ));
+		else if(eSoundType::kEffectSound == sound_type)
+			m_effect_volume_text->SetText(std::to_wstring(static_cast<int>(round(volume * 100))));
 	}
 
 	void LobbyUILayer::FailedLogin(eLoginFailState state)

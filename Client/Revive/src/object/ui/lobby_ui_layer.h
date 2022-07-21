@@ -31,6 +31,11 @@ namespace revive
 		kAlreadyLogin, kInvalidIDPW
 	};
 
+	enum class eLobbyOptionState
+	{
+		kGraphic, kSound
+	};
+
 	class LobbyUILayer : public UserInterfaceLayer
 	{
 	public:
@@ -78,6 +83,11 @@ namespace revive
 		SPtr<ButtonUI> m_develop_mode_button;
 
 		SPtr<ImageUI> m_option_menu_image;
+		SPtr<ButtonUI> m_option_graphic_button;
+		SPtr<ButtonUI> m_option_sound_button;
+		SPtr<TextUI> m_graphic_option_shadow_enable_text;
+		SPtr<TextUI> m_graphic_option_shadow_quality_text;
+		SPtr<TextUI> m_sound_option_effect_volume_text;
 		SPtr<ButtonUI> m_close_option_menu_button;
 		SPtr<ButtonUI> m_shadow_enable_left_button;
 		SPtr<ButtonUI> m_shadow_enable_right_button;
@@ -85,9 +95,13 @@ namespace revive
 		SPtr<ButtonUI> m_shadow_quality_left_button;
 		SPtr<ButtonUI> m_shadow_quality_right_button;
 		SPtr<TextUI> m_shadow_quality_text;
+		SPtr<TextUI> m_sound_option_bgm_volume_text;
 		SPtr<TextUI> m_bgm_volume_text;
 		SPtr<ButtonUI> m_bgm_volume_left_button;
 		SPtr<ButtonUI> m_bgm_volume_right_button;
+		SPtr<TextUI> m_effect_volume_text;
+		SPtr<ButtonUI> m_effect_volume_left_button;
+		SPtr<ButtonUI> m_effect_volume_right_button;
 
 		SPtr<ImageUI> m_sign_up_succeed_image;
 		SPtr<ButtonUI> m_sign_up_succeed_ok_button;
@@ -106,12 +120,13 @@ namespace revive
 		SPtr<ReviveGameOption> m_game_option_state;
 
 	private:
+		void SetOptionState(eLobbyOptionState state);
 		void SetPopUpState(eLobbyPopupMenu state, bool value);
 		void EnablePopUpState(eLobbyPopupMenu state);
 		void DisablePopUpState(eLobbyPopupMenu state);
 		void SetShadowEnableText();
 		void SetShadowQualityText();
-		void SetBgmVolumeText();
+		void SetBgmVolumeText(eSoundType sound_type);
 
 	public:
 		void FailedLogin(eLoginFailState state);
