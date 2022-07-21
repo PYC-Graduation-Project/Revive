@@ -74,6 +74,13 @@ namespace client_fw
 				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
+				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
+				for (const auto& [name, rw_texture] : camera->GetRWTextures())
+				{
+					rw_texture->SetTextureSize(size);
+					RenderResourceManager::GetRenderResourceManager().RegisterTexture(rw_texture);
+				}
+
 				m_wait_resource_render_cameras.push_back(camera);
 			}
 			m_ready_render_cameras.clear();
@@ -192,8 +199,7 @@ namespace client_fw
 
 	void RenderCameraManager::Draw(ID3D12GraphicsCommandList* command_list,
 		std::function<void(ID3D12GraphicsCommandList*)>&& before_deferred_function,
-		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function, 
-		std::function<void(ID3D12GraphicsCommandList*)>&& after_deferred_function)
+		std::function<void(ID3D12GraphicsCommandList*)>&& deferred_function)
 	{
 		const auto& camera_resource = FrameResourceManager::GetManager().GetCurrentFrameResource()->GetCameraFrameResource();
 

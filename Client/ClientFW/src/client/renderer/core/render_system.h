@@ -3,15 +3,22 @@
 namespace client_fw
 {
 	struct Window;
-	class GraphicsSuperRootSignature;
 	enum class eRenderLevelType;
+	enum class eKindOfRenderLevel;
+
+	class GraphicsSuperRootSignature;
 	class GraphicsRenderLevel;
 	class GraphicsShader;
+
+	class ComputeSuperRootSignature;
+	class ComputeRenderLevel;
+	class ComputeShader;
+
 	class RenderComponent;
 	class SkyComponent;
 	class CameraComponent;
 	class RenderCameraComponent;
-	enum class eKindOfRenderLevel;
+
 	class RenderResourceManager;
 	class RenderCameraManager;
 	class ShadowCameraManager;
@@ -83,6 +90,43 @@ namespace client_fw
 		void UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp);
 		void SetMainCamera(const SPtr<RenderCameraComponent>& camera_comp);
 
+	public:
+		template <class T>
+		bool RegisterComputeRenderLevel(eRenderLevelType level_type)
+		{
+			m_compute_render_levels[level_type] = CreateSPtr<T>(m_compute_super_root_signature);
+			return m_compute_render_levels[level_type]->Initialize(m_device);
+		}
+
+		template <class T>
+		bool RegisterComputeShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types, bool is_custom = false)
+		{
+			bool ret = true;
+			m_compute_shaders[shader_name] = CreateSPtr<T>(shader_name);
+
+			for (eRenderLevelType level_type : level_types)
+			{
+				if (m_compute_render_levels.find(level_type) != m_compute_render_levels.cend())
+				{
+					if (is_custom)
+						m_added_shaders.insert(shader_name);
+					m_compute_shaders[shader_name]->AddRegisteredRenderLevelType(level_type);
+					ret &= m_compute_render_levels[level_type]->RegisterComputeShader(m_device, m_compute_shaders[shader_name]);
+				}
+				else
+				{
+					LOG_WARN("Could not find {0} from render system", Render::ConvertRenderLevelType(level_type));
+					return false;
+				}
+			}
+
+			m_compute_shaders[shader_name]->Initialize(m_device);
+
+			return ret;
+		}
+
+		void UnregisterComputeShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types);
+
 	private:
 		WPtr<Window> m_window;
 		ID3D12Device* m_device;
@@ -90,6 +134,10 @@ namespace client_fw
 		SPtr<GraphicsSuperRootSignature> m_graphics_super_root_signature;
 		std::map<eRenderLevelType, SPtr<GraphicsRenderLevel>> m_graphics_render_levels;
 		std::map<std::string, SPtr<GraphicsShader>> m_graphics_shaders;
+
+		SPtr<ComputeSuperRootSignature> m_compute_super_root_signature;
+		std::map<eRenderLevelType, SPtr<ComputeRenderLevel>> m_compute_render_levels;
+		std::map<std::string, SPtr<ComputeShader>> m_compute_shaders;
 
 		std::set<std::string> m_added_shaders;
 
