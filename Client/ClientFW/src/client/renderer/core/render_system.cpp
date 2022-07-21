@@ -3,12 +3,14 @@
 #include "client/renderer/core/render.h"
 #include "client/renderer/core/render_system.h"
 #include "client/renderer/rootsignature/graphics_super_root_signature.h"
+#include "client/renderer/rootsignature/compute_super_root_signature.h"
 
 #include "client/renderer/renderlevel/opaque_render_level.h"
 #include "client/renderer/renderlevel/shadow_render_level.h"
 #include "client/renderer/renderlevel/deferred_render_level.h"
 #include "client/renderer/renderlevel/final_view_render_level.h"
 #include "client/renderer/renderlevel/ui_render_level.h"
+#include "client/renderer/renderlevel/post_process_render_level.h"
 
 #include "client/renderer/shader/opaque_mesh_shader.h"	
 #include "client/renderer/shader/box_shape_shader.h"
@@ -21,6 +23,7 @@
 #include "client/renderer/shader/sky_shader.h"
 #include "client/renderer/shader/light_shader.h"
 #include "client/renderer/shader/skeletal_mesh_shader.h"
+#include "client/renderer/shader/render_camera_post_processing_shader.h"
 
 #include "client/renderer/core/render_resource_manager.h"
 #include "client/renderer/core/render_camera_manager.h"
@@ -52,6 +55,7 @@ namespace client_fw
 	{
 		Render::s_render_system = this;
 		m_graphics_super_root_signature = CreateSPtr<GraphicsSuperRootSignature>();
+		m_compute_super_root_signature = CreateSPtr<ComputeSuperRootSignature>();
 
 		m_render_asset_manager = CreateUPtr<RenderResourceManager>();
 		m_render_camera_manager = CreateUPtr<RenderCameraManager>();
@@ -68,6 +72,7 @@ namespace client_fw
 		m_device = device;
 
 		bool ret = m_graphics_super_root_signature->Initialize(device, command_list);
+		ret &= m_compute_super_root_signature->Initialize(device, command_list);
 
 		ret &= RegisterGraphicsRenderLevel<OpaqueRenderLevel>(eRenderLevelType::kOpaque);
 		ret &= RegisterGraphicsRenderLevel<ShadowRenderLevel>(eRenderLevelType::kShadow);
@@ -122,6 +127,9 @@ namespace client_fw
 		ret &= RegisterGraphicsShader<MainCameraUIShader>("main camera ui", { eRenderLevelType::kFinalView });
 		ret &= RegisterGraphicsShader<UIShader>("ui", { eRenderLevelType::kUI });
 
+		ret &= RegisterComputeRenderLevel<PostProcessRenderLevel>(eRenderLevelType::kPostProcess);
+		ret &= RegisterComputeShader<RenderCameraPostProcessingShader>("render camera post processing", { eRenderLevelType::kPostProcess });
+
 		ret &= m_render_asset_manager->Initialize(device);
 
 		return ret;
@@ -129,10 +137,15 @@ namespace client_fw
 
 	void RenderSystem::Shutdown()
 	{
+		for (const auto& [type, render_level] : m_compute_render_levels)
+			render_level->Shutdown();
+		for (const auto& [name, shader] : m_compute_shaders)
+			shader->Shutdown();
 		for (const auto& [type, render_level] : m_graphics_render_levels)
 			render_level->Shutdown();
 		for (const auto& [name, shader] : m_graphics_shaders)
 			shader->Shutdown();
+		m_compute_super_root_signature->Shutdown();
 		m_graphics_super_root_signature->Shutdown();
 		m_render_asset_manager->Shutdown();
 		m_light_manager->Shutdown();
@@ -171,8 +184,12 @@ namespace client_fw
 		}
 		m_graphics_render_levels.at(eRenderLevelType::kUI)->Update(device);
 
+		m_compute_render_levels.at(eRenderLevelType::kPostProcess)->Update(device);
 
 		for (const auto& [level_type, render_level] : m_graphics_render_levels)
+			render_level->UpdateFrameResource(device);
+
+		for (const auto& [level_type, render_level] : m_compute_render_levels)
 			render_level->UpdateFrameResource(device);
 
 #ifdef __USE_RENDER_UPDATE_CPU_TIME__
@@ -203,6 +220,8 @@ namespace client_fw
 #endif
 
 		m_graphics_super_root_signature->Draw(command_list);
+		m_compute_super_root_signature->Draw(command_list);
+
 		m_render_asset_manager->Draw(command_list);
 		m_light_manager->Draw(command_list);
 
@@ -230,10 +249,9 @@ namespace client_fw
 				[this](ID3D12GraphicsCommandList* command_list)
 				{
 					m_graphics_render_levels.at(eRenderLevelType::kDeferred)->Draw(command_list);
-				},
-				[this](ID3D12GraphicsCommandList* command_list)
-				{
 				});
+
+			m_compute_render_levels.at(eRenderLevelType::kPostProcess)->Draw(command_list);
 		}
 
 #ifdef __USE_RENDER_DRAW_CPU_TIME__
@@ -402,7 +420,10 @@ namespace client_fw
 	bool RenderSystem::RegisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
 		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+		{
+			m_compute_render_levels[eRenderLevelType::kPostProcess]->RegisterCameraComponent(camera_comp);
 			return m_render_camera_manager->RegisterCameraComponent(camera_comp);
+		}
 		else
 			return m_shadow_camera_manager->RegisterCameraComponent(camera_comp);
 	}
@@ -410,7 +431,10 @@ namespace client_fw
 	void RenderSystem::UnregisterCameraComponent(const SPtr<CameraComponent>& camera_comp)
 	{
 		if (camera_comp->GetCameraUsage() == eCameraUsage::kBasic)
+		{
+			m_compute_render_levels[eRenderLevelType::kPostProcess]->UnregisterCameraComponent(camera_comp);
 			m_render_camera_manager->UnregisterCameraComponent(camera_comp);
+		}
 		else
 			m_shadow_camera_manager->UnregisterCameraComponent(camera_comp);
 	}
@@ -420,5 +444,21 @@ namespace client_fw
 		const auto& window = m_window.lock();
 		m_render_camera_manager->SetMainCamera(camera_comp);
 		m_render_camera_manager->UpdateMainCameraViewport(window->width, window->height);
+	}
+
+	void RenderSystem::UnregisterComputeShader(const std::string& shader_name, std::vector<eRenderLevelType>&& level_types)
+	{
+		for (eRenderLevelType level_type : level_types)
+		{
+			if (m_added_shaders.find(shader_name) != m_added_shaders.cend() &&
+				m_compute_render_levels.find(level_type) != m_compute_render_levels.cend())
+			{
+				auto& shader = m_compute_shaders[shader_name];
+				m_added_shaders.erase(shader_name);
+				m_compute_render_levels[level_type]->UnregisterComputeShader(shader);
+				shader->Shutdown();
+				m_compute_shaders.erase(shader_name);
+			}
+		}
 	}
 }

@@ -66,7 +66,13 @@ namespace client_fw
 	bool RenderTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list,
 		const std::vector<DXGI_FORMAT>& gbuffer_rtv_formats)
 	{
+		m_gbuffer_textures.clear();
+		m_gbuffer_rtv_cpu_handles.clear();
+		m_gbuffer_gpu_handle.clear();
+
 		m_num_of_gbuffer_texture = static_cast<UINT>(gbuffer_rtv_formats.size());
+		m_gbuffer_gpu_handle.resize(m_num_of_gbuffer_texture);
+
 
 		if (CreateDescriptorHeaps(device, command_list) == false)
 		{
@@ -246,6 +252,32 @@ namespace client_fw
 			LOG_WARN("Out of range of texture GBuffer Index");
 	}
 
+	RWTexture::RWTexture(UINT down_scale)
+		: Texture(eTextureType::kRW)
+		, m_down_scale(down_scale)
+	{
+	}
+
+	RWTexture::~RWTexture()
+	{
+	}
+
+	bool RWTexture::Initialize(ID3D12Device* device, ID3D12GraphicsCommandList* command_list)
+	{
+		m_texture_resource = TextureCreator::Create2DTexture(device, DXGI_FORMAT_R8G8B8A8_UNORM, m_texture_size, 1, 1,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, nullptr);
+		D3DUtil::SetObjectName(m_texture_resource.Get(), "rw texture");
+
+		return true;
+	}
+
+	void RWTexture::PreDraw(ID3D12GraphicsCommandList* command_list)
+	{
+	}
+
+	void RWTexture::PostDraw(ID3D12GraphicsCommandList* command_list)
+	{
+	}
 
 	ShadowTexture::ShadowTexture(eTextureType type, const IVec2& size)
 		: Texture(type)
