@@ -220,7 +220,7 @@ namespace revive
 		m_invalid_id_pw_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
 		m_invalid_id_pw_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
 		m_invalid_id_pw_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_invalid_id_pw_ok_button->SetSize(Vec2(300.0f, 120.0f));
+		m_invalid_id_pw_ok_button->SetSize(Vec2(248.0f, 68.0f));
 		m_invalid_id_pw_ok_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kInvalidIDPW);
 			});
@@ -235,7 +235,7 @@ namespace revive
 		m_already_logged_in_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
 		m_already_logged_in_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
 		m_already_logged_in_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_already_logged_in_ok_button->SetSize(Vec2(300.0f, 120.0f));
+		m_already_logged_in_ok_button->SetSize(Vec2(248.0f, 68.0f));
 		m_already_logged_in_ok_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kAlreadyLogin);
 			});
@@ -250,7 +250,7 @@ namespace revive
 		m_login_succeed_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
 		m_login_succeed_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
 		m_login_succeed_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_login_succeed_ok_button->SetSize(Vec2(300.0f, 120.0f));
+		m_login_succeed_ok_button->SetSize(Vec2(248.0f, 68.0f));
 		m_login_succeed_ok_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kLoginSuccess);
 			});
@@ -273,7 +273,7 @@ namespace revive
 		m_not_login_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
 		m_not_login_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
 		m_not_login_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_not_login_ok_button->SetSize(Vec2(300.0f, 120.0f));
+		m_not_login_ok_button->SetSize(Vec2(248.0f, 68.0f));
 		m_not_login_ok_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kNotLogin);
 			});
@@ -296,7 +296,7 @@ namespace revive
 		m_matching_cancel_button->SetHoveredTexture("Contents/ui/cancel_hovered.dds");
 		m_matching_cancel_button->SetPressedTexture("Contents/ui/cancel_pressed.dds");
 		m_matching_cancel_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_matching_cancel_button->SetSize(Vec2(300.0f, 120.0f));
+		m_matching_cancel_button->SetSize(Vec2(248.0f, 64.0f));
 		m_matching_cancel_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kMatching);
 			m_is_wait_matching = false;
@@ -313,7 +313,7 @@ namespace revive
 		m_game_start_button->SetHoveredTexture("Contents/ui/game_start_hovered.dds");
 		m_game_start_button->SetPressedTexture("Contents/ui/game_start_pressed.dds");
 		m_game_start_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_game_start_button->SetSize(Vec2(300.0f, 120.0f));
+		m_game_start_button->SetSize(Vec2(248.0f, 64.0f)); 
 		m_game_start_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kGameStart);
 			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
@@ -564,7 +564,7 @@ namespace revive
 		m_sign_up_succeed_ok_button->SetHoveredTexture("Contents/ui/ok_hovered.dds");
 		m_sign_up_succeed_ok_button->SetPressedTexture("Contents/ui/ok_pressed.dds");
 		m_sign_up_succeed_ok_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.f));
-		m_sign_up_succeed_ok_button->SetSize(Vec2(300.f, 120.f));
+		m_sign_up_succeed_ok_button->SetSize(Vec2(248.0f, 68.0f));
 		m_sign_up_succeed_ok_button->OnClicked([this]() {
 			DisablePopUpState(eLobbyPopupMenu::kSignUpSuccess);
 		});

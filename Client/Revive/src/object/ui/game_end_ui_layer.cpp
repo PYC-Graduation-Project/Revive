@@ -34,7 +34,7 @@ namespace revive
 			m_lobby_button_enable_time = 3.0f;
 			break;
 		case eGameState::kRun:
-			m_end_game_image->SetTexture("Contents/ui/exit_game_menu.png");
+			m_end_game_image->SetTexture("Contents/ui/exit_game_menu.dds");
 			m_lobby_button_enable_time = 0.0f;
 			break;
 		default:
@@ -48,7 +48,7 @@ namespace revive
 		m_to_lobby_button->SetHoveredTexture("Contents/ui/to_lobby_hovered.dds");
 		m_to_lobby_button->SetPressedTexture("Contents/ui/to_lobby_pressed.dds");
 		m_to_lobby_button->SetPosition(window_size * 0.5f + Vec2(0.0f, 120.0f));
-		m_to_lobby_button->SetSize(Vec2(300.0f, 120.0f));
+		m_to_lobby_button->SetSize(Vec2(248.0f, 68.0f));
 		m_to_lobby_button->OnClicked([this]() {
 			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<LobbyLevel>(), nullptr);
 			});
