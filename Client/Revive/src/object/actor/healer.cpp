@@ -45,13 +45,14 @@ namespace revive
 		//아래 내용은 서버에서 처리한다.
 		m_heal_box->SetExtents(Vec3{ 850.f,300.f,850.f } / 2);
 		m_heal_box->SetLocalPosition(Vec3{ 0.f,150.f,0.f });
-		m_heal_box->SetCollisionInfo(true, false, "healer", { "player" },true);
+		m_heal_box->SetCollisionInfo(true, false, "healer", { "player" ,"player hit"}, true);
 		m_heal_box->OnCollisionResponse([this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 			const SPtr<SceneComponent>& other_component)
 		{
 			const auto& player = std::dynamic_pointer_cast<DefaultPlayer>(other_actor);
 			if (player) //플레이어가 들어오면
 			{
+				LOG_INFO("dd");
 				auto heal_effect = m_heal_effect.lock();
 				heal_effect->SetCleanTime(0.f);
 

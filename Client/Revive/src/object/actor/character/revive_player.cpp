@@ -65,7 +65,7 @@ namespace revive
 		m_hit_box->SetExtents(Vec3{ 40.f,80.f,40.f });
 		m_hit_box->SetLocalPosition(Vec3{ 0.0f,80.f,0.f });
 		m_hit_box->SetName("hit box");
-		m_hit_box->SetCollisionInfo(true, false, "player hit", { "stone","axe", "enemy agro"}, false);
+		m_hit_box->SetCollisionInfo(true, false, "player hit", { "healer","stone","axe", "enemy agro"}, false);
 		ret &= AttachComponent(m_hit_box);
 
 		SetScale(0.5f);
@@ -323,22 +323,27 @@ namespace revive
 
 			
 			// 다른 플레이어는 충돌처리가 필요가없다.
-			//bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
-			//bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
-			//	const SPtr<SceneComponent>& other_component)
-			//{
-			//	bullet->SetCollisionInfo(false, false, false);
-			//	LOG_INFO(component->GetName() + " " + other_actor->GetName() + " " + other_component->GetName());
-			//	//const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
-			//	//if (enemy != nullptr)
-			//	//{
-			//	//		int enemy_hp = enemy->GetHP();
-			//	//		if (enemy_hp > 0)
-			//	//			//enemy->Hit(0,m_network_id);
-			//	//}
-			//	LOG_INFO("충돌 부위 :" + other_component->GetName());
-			//	bullet->SetActorState(eActorState::kDead);
-			//});
+			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
+			bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+				const SPtr<SceneComponent>& other_component)
+			{
+				bullet->SetCollisionInfo(false, false, false);
+				const auto& enemy = std::dynamic_pointer_cast<Enemy>(other_actor);
+				if (enemy != nullptr)
+				{
+						//int enemy_hp = enemy->GetHP();
+						//if (enemy_hp > 0)
+						//	//enemy->Hit(0,m_network_id);
+					auto hit_particle = CreateSPtr<HitParticle>(eMobilityState::kDestructible,
+						"Contents/effect/hit_sprite.dds", Vec2{ 100.f,100.f }, true);
+					auto PlayerDirection = vec3::Normalize(GetPosition() - bullet->GetPosition());
+					hit_particle->SetPosition(bullet->GetPosition() + PlayerDirection * enemy->GetHitBox()->GetExtents().z);
+					hit_particle->SetAnimationSpeed(500.f);
+					hit_particle->SetFrameCount(3.f, 3.f);
+					SpawnActor(hit_particle);
+				}
+				bullet->SetActorState(eActorState::kDead);
+			});
 
 			SpawnActor(bullet);
 			m_is_fire = true;

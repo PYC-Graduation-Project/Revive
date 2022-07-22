@@ -43,8 +43,8 @@ namespace client_fw
 		std::string m_current_sound_name;
 
 		bool m_is_playing = false;
-		float m_bgm_volume = 1.f;
-		float m_effect_volume = 1.f;
+		float m_bgm_volume = 0.5f;
+		float m_effect_volume = 0.5f;
 
 	public:
 

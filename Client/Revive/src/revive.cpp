@@ -58,10 +58,7 @@ namespace revive
 		void LoadSound() //프로그램 실행 시 한번만 호출
 		{
 			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/the_field_of_dreams.mp3", "lobby sound");
-			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/book-12824.mp3", "book");
-			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/fortress.ogg", "fortress"); //라운드 준비 음악으론 ㄱㅊ을듯?
-			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/moon.ogg", "moon");
-			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/underwater.ogg", "underwater"); // 괜찮은듯 8비트음악 느낌만아니였으면 완벽할듯.. 아쉽
+			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/moon.ogg", "ingame sound");
 			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/ZombiesAreComing.ogg", "zombie"); //ㄱㅊ은데?
 			client_fw::SoundManager::GetSoundManager().LoadSound("Contents/Sound/gun.wav", "fire");
 		}

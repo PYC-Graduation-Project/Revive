@@ -59,7 +59,7 @@ namespace revive
 			SpawnActor(actor);
 		}
 
-		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"book");
+		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"ingame sound");
 
 		GenerateVisualActors();
 
@@ -94,13 +94,13 @@ namespace revive
 				return false;
 			});
 		
-		RegisterPressedEvent("select music", { { eKey::kRArrow } },
+		/*RegisterPressedEvent("select music", { { eKey::kRArrow } },
 			[this]()->bool {
 				client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound, m_bgm_list[m_index++]);
 				if (m_index >= m_bgm_list.size())
 					m_index = 0;
 				return true;
-			});
+			});*/
 		RegisterUILayer(m_player_info_ui_layer);
 		RegisterUILayer(m_game_info_ui_layer);
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
@@ -413,10 +413,10 @@ namespace revive
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f, Vec3(2400.0f, 0.f, 2400.0f), 2)); //Castle
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(3600.0f, Vec3(2400.0f, 0.f, 6600.0f), 2)); //Bridge + Spawn Area
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(2400.0f, 0.f, 16800.0f), 0));
-		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f))); //Left Ground
-		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f))); //Right Ground
-		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f))); //Left Ground2
-		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f))); //Right Ground2
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f),0)); //Left Ground
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f),0)); //Right Ground
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f),0)); //Left Ground2
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f),0)); //Right Ground2
 		return visual_octrees;
 	}
 
