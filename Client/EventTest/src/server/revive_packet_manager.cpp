@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 
+#include"server/network.h"
 #include"server/network_obj_manager.h"
 #include"server/network_move_object.h"
 #include "revive_packet_manager.h"
@@ -129,7 +130,8 @@ void RevivePacketManager::ProcessObjInfo(int c_id, unsigned char* p)
 			packet->y,
 			packet->z,
 			(NW_OBJ_TYPE)packet->object_type,
-			packet->damage
+			packet->damage,
+			static_cast<COLOR_TYPE>(packet->color_type)
 		));
 	}
 	PacketHelper::RegisterPacketEventToLevel(CreateSPtr<event_test::ObjectInfoMessageEventInfo>(HashCode("spawn object"), m_obj_map[packet->id]));

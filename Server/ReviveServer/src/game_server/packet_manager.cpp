@@ -167,6 +167,8 @@ void PacketManager::SpawnEnemy(int room_id)
 	}
 	Enemy* enemy = NULL;
 	unordered_set<int>enemy_list;
+	int king_cnt{ 0 };
+	int sor_cnt { 0 };
 	for (auto e_id : room->GetObjList())
 	{
 		if (enemy_list.size() == static_cast<INT64>(sordier_num) + king_num)
@@ -177,18 +179,20 @@ void PacketManager::SpawnEnemy(int room_id)
 		
 		if (true == enemy->in_game)
 			continue;
-		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && enemy_list.size() < sordier_num)
+		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULL && sor_cnt < sordier_num)
 		{
 			enemy->in_game = true;
 			enemy->SetIsActive(true);
-			
 			enemy_list.insert(e_id);
+			sor_cnt++;
+	
 			
 		}
-		else if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING) {
+		if (enemy->GetType() == OBJ_TYPE::OT_NPC_SKULLKING&&king_cnt<king_num) {
 			enemy->in_game = true;
 			enemy->SetIsActive(true);
 			enemy_list.insert(e_id);
+			king_cnt++;
 		}
 	
 	}
@@ -200,53 +204,50 @@ void PacketManager::SpawnEnemy(int room_id)
 	//	cout << "현재 적 id" << id << " ";
 	//}
 	//cout << endl;
-	if (enemy_list.size() < static_cast<INT64>(sordier_num) + king_num)
+	if (enemy_list.size() < static_cast<INT64>(sordier_num) + king_num) {
 		cout << "적 객체가 모자랍니다" << endl;
+		//cout << "처음 사이즈:" << room->GetObjList().size() - room->GetMaxUser()<<endl;
+		//cout << "필요사이즈:" << static_cast<INT64>(sordier_num) + king_num << "현재 사이즈:" << enemy_list.size() << endl;
+		//cout << "round:" << curr_round<<endl;
+		//cout << "sordier_num:" << sordier_num << endl;
+		//cout << "king num:" << king_num<<endl;
+		//king_cnt = 0;
+		//sor_cnt = 0;
+		//for (auto iter = enemy_list.begin(); iter != enemy_list.end(); ++iter)
+		//{
+		//	if (OBJ_TYPE::OT_NPC_SKULLKING == MoveObjManager::GetInst()->GetEnemy(*iter)->GetType())king_cnt++;
+		//	else sor_cnt++;
+		//}
+		//cout << "실제 sordier_num:" << sor_cnt<<' ';
+		//cout << "실제 king_num:" << king_cnt;
+		//king_cnt = 0;
+		//sor_cnt = 0;
+		//for (auto aa : room->GetObjList())
+		//{
+		//	if (true == MoveObjManager::GetInst()->IsPlayer(aa))
+		//		continue;
+		//	if (MoveObjManager::GetInst()->GetEnemy(aa)->GetType() == OBJ_TYPE::OT_NPC_SKULLKING )king_cnt++;
+		//	else if(MoveObjManager::GetInst()->GetEnemy(aa)->GetType() == OBJ_TYPE::OT_NPC_SKULL )sor_cnt++;
+		//}
+		//cout << "원래 sordier_num:" << sor_cnt<<' ';
+		//cout << "원래 king_num:" << king_cnt;
+	}
 	vector<MapObj>spawn_area;
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<int> random_point(0, 1);
 	spawn_area.reserve(10);
-	//for (auto a : m_map_manager->GetMapObjVec())
-	//{
-	//	if (OBJ_TYPE::OT_SPAWN_AREA != a.GetType())continue;
-	//	spawn_area.push_back(a);
-	//}
-	
-	//for (auto& en : enemy_list)
-	//{
-	//	int spawn_idx = random_point(gen);
-	//	uniform_int_distribution<int> random_pos_x(static_cast<int>(spawn_area[spawn_idx].GetPosX() - spawn_area[spawn_idx].GetExtent().x),
-	//		static_cast<int>(spawn_area[spawn_idx].GetPosX() + spawn_area[spawn_idx].GetExtent().x));
-	//
-	//	uniform_int_distribution<int> random_pos_z(static_cast<int>(spawn_area[spawn_idx].GetPosZ() - spawn_area[spawn_idx].GetExtent().z),
-	//		static_cast<int>(spawn_area[spawn_idx].GetPosZ() + spawn_area[spawn_idx].GetExtent().z));
-	//	enemy = MoveObjManager::GetInst()->GetEnemy(en);
-	//	enemy->SetSpawnPoint(random_pos_x(gen), random_pos_z(gen));
-	//	enemy->GetCollision().UpdateCollision(enemy->GetPos());
-	//}
+
 	
 	int i = 0;
 	for (auto &en : enemy_list)
 	{
 
-		//for (auto pl : room->GetObjList())
-		//{
-		//	if (false == MoveObjManager::GetInst()->IsPlayer(pl))continue;
-		//	SendObjInfo(pl, en);
 			g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_TIMER_SPAWN,(1500*i)));
 			++i;
-		//}
-		//g_timer_queue.push(SetTimerEvent(en, en, room_id, EVENT_TYPE::EVENT_NPC_MOVE, 30+en*100));
+
 	}
 		
-		
-		//enemy->SetMoveTime(300);
-		
-	
-	
-	//cout << "round" << curr_round << "Wave Start" << endl;
-	//여기서 한번더 타이머 이벤트 넣어주기
 }
 
 void PacketManager::SpawnEnemyByTime(int enemy_id, int room_id)
@@ -1042,7 +1043,9 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 	cs_packet_matching* packet = reinterpret_cast<cs_packet_matching*>(p);
 	Player*pl=MoveObjManager::GetInst()->GetPlayer(c_id);
 	pl->SetMatchUserSize(packet->user_num);
-	pl->is_matching = true;
+
+	pl->is_matching = !pl->is_matching;
+	if (pl->is_matching == false)return;
 	Player* other_pl = NULL;
 	vector<int>match_list;
 	//유저 검사 해서 매칭해주는 함수 구현-> 일단 코딩하고 함수화 하자
@@ -1064,44 +1067,61 @@ void PacketManager::ProcessMatching(int c_id, unsigned char* p)
 		int r_id = m_room_manager->GetEmptyRoom();
 		if (-1 == r_id)//빈방 검사
 		{
+			cout << "방부족!!!!" << endl;
 			//방없다고 패킷보내주기
 			return;
 		}
 		
-		Room *room=m_room_manager->GetRoom(r_id);
-		room->Init(pl->GetMatchUserSize());
-		for (auto id : match_list)
-		{
-			Player* player = MoveObjManager::GetInst()->GetPlayer(id);
-			player->is_matching = false;
-			player->state_lock.lock();
-			player->SetState(STATE::ST_INGAME);
-			player->SetRoomID(r_id);
-			player->SetIsActive(true);
-			player->state_lock.unlock();
-			//room->EnterRoom(id);//방에 아이디 넘겨주기
-			//cout << id << endl;
-			SendMatchingOK(id);
-		}
-		
-		room->Init(pl->GetMatchUserSize());
-		//빈 npc 검사
+		//빈 npc 검사 
 		Enemy* e = NULL;
 		for (int i = NPC_ID_START; i <= NPC_ID_END; ++i)
 		{
-			if (match_list.size()-pl->GetMatchUserSize() == room->GetMaxEnemy())
+			if (match_list.size() - pl->GetMatchUserSize() == pl->GetMatchUserSize() * NPC_PER_USER)
 				break;
-	
-			e=MoveObjManager::GetInst()->GetEnemy(i);
-			
-			if (false==e->in_use)
+
+			e = MoveObjManager::GetInst()->GetEnemy(i);
+
+			if (false == e->in_use)
 			{
 				e->in_use = true;
 				e->SetRoomID(r_id);
 				match_list.push_back(e->GetID());
 			}
-			
+
 		}
+		if (match_list.size() - pl->GetMatchUserSize() < pl->GetMatchUserSize() * NPC_PER_USER)
+		{
+			for (auto mat_id : match_list)
+			{
+				if (true == MoveObjManager::GetInst()->IsPlayer(mat_id))
+				{
+					//SendLoginFailPacket(pl->GetSock(), 2);
+					continue;
+				}
+				MoveObjManager::GetInst()->GetEnemy(mat_id)->in_use=false;
+
+			}
+			return;
+		}
+		Room *room=m_room_manager->GetRoom(r_id);
+		room->Init(pl->GetMatchUserSize());
+		for (auto id : match_list)
+		{
+			if (false==MoveObjManager::GetInst()->IsPlayer(id))break;
+			Player* player = MoveObjManager::GetInst()->GetPlayer(id);
+			player->is_matching = false;
+			player->state_lock.lock();
+			player->SetState(STATE::ST_INGAME);
+			player->state_lock.unlock();
+			player->SetRoomID(r_id);
+			player->SetIsActive(true);
+			//room->EnterRoom(id);//방에 아이디 넘겨주기
+			//cout << id << endl;
+			SendMatchingOK(id);
+		}
+		
+		
+		
 		//npc아이디 넣어주기
 		for (auto obj_id : match_list)
 			room->EnterRoom(obj_id);
@@ -1190,7 +1210,7 @@ void PacketManager::StartGame(int room_id)
 		}
 		e = MoveObjManager::GetInst()->GetEnemy(obj_list[i]);
 		const Vector3&base_pos=m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
-		if (i<room->GetMaxUser() * SORDIER_PER_USER)
+		if (i<(room->GetMaxUser() * SORDIER_PER_USER)+room->GetMaxUser())
 		{
 			
 			e->InitEnemy(OBJ_TYPE::OT_NPC_SKULL, room->GetRoomID(), 
