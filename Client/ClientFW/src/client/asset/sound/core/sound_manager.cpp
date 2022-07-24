@@ -151,31 +151,31 @@ namespace client_fw
 		}
 
 	}
-	void SoundManager::VolumeDown(float value, eSoundType sound_type)
+	void SoundManager::VolumeDown(float value, bool apply, eSoundType sound_type)
 	{
 		if (sound_type == eSoundType::kBackGroundSound)
 		{
 			m_bgm_volume -= value;
-			SetVolume(m_bgm_volume, sound_type);
+			if (apply)SetVolume(m_bgm_volume, sound_type);
 		}
 		if (sound_type == eSoundType::kEffectSound)
 		{
 			m_effect_volume -= value;
-			SetVolume(m_effect_volume, sound_type);
+			if (apply)SetVolume(m_effect_volume, sound_type);
 		}
 
 	}
-	void SoundManager::VolumeUp(float value, eSoundType sound_type)
+	void SoundManager::VolumeUp(float value, bool apply, eSoundType sound_type)
 	{
 		if (sound_type == eSoundType::kBackGroundSound)
 		{
 			m_bgm_volume += value;
-			SetVolume(m_bgm_volume, sound_type);
+			if (apply)SetVolume(m_bgm_volume, sound_type);
 		}
 		if (sound_type == eSoundType::kEffectSound)
 		{
 			m_effect_volume += value;
-			SetVolume(m_effect_volume, sound_type);
+			if (apply)SetVolume(m_effect_volume, sound_type);
 		}
 	}
 	const float SoundManager::GetVolume(eSoundType sound_type)

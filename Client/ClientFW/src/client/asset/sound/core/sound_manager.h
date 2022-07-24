@@ -44,7 +44,7 @@ namespace client_fw
 
 		bool m_is_playing = false;
 		float m_bgm_volume = 0.5f;
-		float m_effect_volume = 0.5f;
+		float m_effect_volume = 0.3f;
 
 	public:
 
@@ -56,8 +56,8 @@ namespace client_fw
 		void Play(eSoundType sound_type, const std::string& name, bool loop = true);
 		void Stop(); //bgm¸¸
 		void Pause(); //bgm¸¸
-		void VolumeDown(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
-		void VolumeUp(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
+		void VolumeDown(float value, bool apply = true, eSoundType sound_type = eSoundType::kBackGroundSound);
+		void VolumeUp(float value, bool apply = true, eSoundType sound_type = eSoundType::kBackGroundSound);
 		const float GetVolume(eSoundType sound_type = eSoundType::kBackGroundSound);
 		void SetVolume(float value, eSoundType sound_type = eSoundType::kBackGroundSound);
 	};

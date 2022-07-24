@@ -509,7 +509,7 @@ namespace revive
 			SetRightButton(m_bgm_volume_right_button,
 				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.32f) + Vec2(-button_size, button_size),
 				[this]() {
-				if (SoundManager::GetSoundManager().GetVolume() < 100.f)
+				if (SoundManager::GetSoundManager().GetVolume() < 1.f)
 				{
 					SoundManager::GetSoundManager().VolumeUp(0.1f);
 					SetBgmVolumeText(eSoundType::kBackGroundSound);
@@ -524,7 +524,8 @@ namespace revive
 				[this]() {
 				if (SoundManager::GetSoundManager().GetVolume(eSoundType::kEffectSound) > 0.f)
 				{
-					SoundManager::GetSoundManager().VolumeDown(0.1f, eSoundType::kEffectSound);
+					SoundManager::GetSoundManager().VolumeDown(0.1f,false, eSoundType::kEffectSound);
+					SoundManager::GetSoundManager().Play(eSoundType::kEffectSound,"fire",false);
 					SetBgmVolumeText(eSoundType::kEffectSound);
 				}
 			});
@@ -532,9 +533,10 @@ namespace revive
 			SetRightButton(m_effect_volume_right_button,
 				m_option_menu_image->GetPosition() + m_option_menu_image->GetSize() * Vec2(0.5f, -0.20f) + Vec2(-button_size, button_size),
 				[this]() {
-				if (SoundManager::GetSoundManager().GetVolume(eSoundType::kEffectSound) < 100.f)
+				if (SoundManager::GetSoundManager().GetVolume(eSoundType::kEffectSound) < 1.f)
 				{
-					SoundManager::GetSoundManager().VolumeUp(0.1f, eSoundType::kEffectSound);
+					SoundManager::GetSoundManager().VolumeUp(0.1f,false, eSoundType::kEffectSound);
+					SoundManager::GetSoundManager().Play(eSoundType::kEffectSound, "fire", false);
 					SetBgmVolumeText(eSoundType::kEffectSound);
 				}
 			});

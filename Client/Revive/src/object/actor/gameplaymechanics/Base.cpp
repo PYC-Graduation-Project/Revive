@@ -49,8 +49,8 @@ namespace revive
 
 	void Base::Update(float delta_time)
 	{
-		if (m_hp <= 0)
-			SetActorState(eActorState::kDead);
+		/*if (m_hp <= 0)
+			SetActorState(eActorState::kDead);*/
 	}
 	void Base::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
@@ -58,10 +58,14 @@ namespace revive
 		{
 		case HashCode("base hp change"):
 		{
-			auto msg = std::static_pointer_cast<BaseHpChangeEventInfo>(message);
-			m_hp = msg->GetBaseHp();
-			if (m_changed_hp_function != nullptr)
-				m_changed_hp_function(m_hp, m_max_hp);
+			if (m_hp > 0)
+			{
+				auto msg = std::static_pointer_cast<BaseHpChangeEventInfo>(message);
+				m_hp = msg->GetBaseHp();
+				if (m_changed_hp_function != nullptr)
+					m_changed_hp_function(m_hp, m_max_hp);
+			}
+			
 			break;
 		}
 
