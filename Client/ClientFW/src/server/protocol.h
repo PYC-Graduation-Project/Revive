@@ -31,7 +31,7 @@ const float SKULLKING_HP = 10 * PLAYER_DAMAGE;
 const float PLAYER_HP = 30.0f;
 const float BASE_HP = 50.0f;
 
-const float KING_DAMAGE =2.0f;
+const float KING_DAMAGE = 2.0f;
 const float SORDIER_DAMAGE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
@@ -103,7 +103,7 @@ struct cs_packet_move {
 	//char	direction;			// 0 : 앞,  1: 뒤, 2:왼, 3:오
 	int		move_time; //디버그 용 -> 보낸시간 -받은시간 = 통신하는 시간
 	float x, y, z;
-	
+
 
 };
 
@@ -265,13 +265,13 @@ struct sc_packet_dead {
 struct sc_packet_win {
 	unsigned char size;
 	char type;
-	
+
 
 };
 struct sc_packet_defeat {
 	unsigned char size;
 	char type;
-	
+
 
 };
 #pragma pack(pop)

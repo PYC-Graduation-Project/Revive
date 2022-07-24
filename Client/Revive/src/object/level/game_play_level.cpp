@@ -21,6 +21,7 @@
 #include "object/actor/character/skeleton_King.h"
 #include "object/actor/character/skeleton_soldier.h"
 #include "object/actor/character/revive_player.h"
+#include "object/actor/gameplaymechanics/base.h"
 
 #include "revive_server/message/message_event_info.h"
 #include "server/network_move_object.h"
@@ -281,6 +282,11 @@ namespace revive
 		healer->RegisterEffect(m_heal_effect);
 		SpawnActor(healer);
 
+		auto base = CreateSPtr<Base>();
+		SpawnActor(base);
+		m_game_info_ui_layer->RegisterBase(base);
+		PacketHelper::ConnectActorToServer(base, BASE_ID);
+
 	}
 
 	void GamePlayLevel::Shutdown()
@@ -308,6 +314,11 @@ namespace revive
 			switch ((NW_OBJ_TYPE)obj->GetType())
 			{
 			case NW_OBJ_TYPE::OT_BASE: {
+				
+				/*base->SetID(obj->GetID());
+				base->SetHP(obj->GetHp());
+				base->SetMaxHP(obj->GetMaxHp());*/
+				//PacketHelper::ConnectActorToServer(base, msg->GetNetworkObj()->GetID());
 				break;
 			}
 			case NW_OBJ_TYPE::OT_MY_PLAYER: {

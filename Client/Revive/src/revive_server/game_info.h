@@ -14,6 +14,6 @@ public:
 private:
 	int m_room_id=-1;
 	int m_network_id=-1;
-	float m_base_hp{ 100.0f };
+	float m_base_hp{ BASE_HP };
 
 };

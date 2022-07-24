@@ -20,6 +20,7 @@
 #include "object/actor/visual/light_tree.h"
 #include "object/actor/healer.h"
 #include "object/actor/character/camera_actor.h"
+#include "object/actor/gameplaymechanics/Base.h"
 
 #include "server/network_move_object.h"
 #include"server/network.h"
@@ -285,11 +286,13 @@ namespace revive
 			else
 				scope->SetShadowTextureSize(shadow_size);
 		}
-
-
+		
 		auto healer = CreateSPtr<Healer>();
 		healer->SetPosition(Vec3(2400.0f, 300.0f, 1350.0f));
 		SpawnActor(healer);
+
+		auto base = CreateSPtr<Base>();
+		SpawnActor(base);
 	}
 
 	std::vector<SPtr<VisualOctree>> LobbyLevel::CreateVisualOctrees() const

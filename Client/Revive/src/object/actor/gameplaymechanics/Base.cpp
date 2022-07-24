@@ -6,6 +6,21 @@
 
 namespace revive
 {
+	Base::Base()
+		:VisualActor()
+	{
+		m_mobility_state = eMobilityState::kDestructible;
+		auto static_mesh_component = CreateSPtr<StaticMeshComponent>();
+		static_mesh_component->SetMesh("Contents/towerSquare.obj");
+		static_mesh_component->SetLocalPosition(Vec3(0.f, -300.f, -20.f));
+		static_mesh_component->SetLocalScale(30.f);
+		m_static_mesh_components.push_back(static_mesh_component);
+		auto box_component = CreateSPtr<BoxComponent>();
+		box_component->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+		box_component->SetExtents(Vec3(150.f, 300.f, 150.f));
+		m_box_components.push_back(box_component);
+		SetPosition(Vec3(2400.f, 600.f, 2850.f));
+	}
 	Base::Base(const std::vector<SPtr<StaticMeshComponent>>& static_mesh_components, const std::vector<SPtr<BoxComponent>>& box_components)
 		:VisualActor(static_mesh_components,box_components)
 	{
@@ -28,7 +43,7 @@ namespace revive
 			[this]()->bool {--m_hp; LOG_INFO(GetName() + "ÀÇ Ã¼·Â {0}", m_hp); return true; });
 
 		UseUpdate();
-
+		m_max_hp = BASE_HP;
 		return ret;
 	}
 
@@ -45,6 +60,8 @@ namespace revive
 		{
 			auto msg = std::static_pointer_cast<BaseHpChangeEventInfo>(message);
 			m_hp = msg->GetBaseHp();
+			if (m_changed_hp_function != nullptr)
+				m_changed_hp_function(m_hp, m_max_hp);
 			break;
 		}
 
