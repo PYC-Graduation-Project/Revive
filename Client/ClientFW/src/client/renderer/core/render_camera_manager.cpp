@@ -74,7 +74,7 @@ namespace client_fw
 				camera->SetRenderTexture(CreateSPtr<RenderTexture>(size));
 				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 
-				RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
+				//RenderResourceManager::GetRenderResourceManager().RegisterTexture(camera->GetRenderTexture());
 				for (const auto& [name, rw_texture] : camera->GetRWTextures())
 				{
 					rw_texture->SetTextureSize(size);
