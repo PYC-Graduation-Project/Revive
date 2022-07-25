@@ -41,7 +41,7 @@ namespace revive
 
     private:
 
-        bool m_is_visible_next_wave_info = true;
+        bool m_is_visible_next_wave_info = false;
 
         int m_wave_count = 0;
         int m_mob_count = 0;
