@@ -45,8 +45,7 @@ namespace revive
 	GamePlayLevel::GamePlayLevel()
 		: Level("game play level")
 	{
-		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
-		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
+		
 
 	}
 
@@ -61,6 +60,9 @@ namespace revive
 		}
 
 		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"ingame sound");
+
+		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
+		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
 
 		GenerateVisualActors();
 

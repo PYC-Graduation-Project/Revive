@@ -47,11 +47,20 @@ namespace revive
 		info.function = [info, this](float delta_time) {
 			//m_next_wave_time -= delta_time;
 			/*m_next_wave_time = std::clamp(m_next_wave_time, 0.f, 30.f);*/
+			if (m_wave_count < 3 && m_wave_count >= 0)
+			{
+				float visible_time = m_next_wave_time - 10.f;
+				if (visible_time < 1.f && visible_time > 0.f)
+				{
+					LOG_TRACE(m_next_wave_time);
+					if(m_is_visible_next_wave_info == false)
+						SetVisibleNextWaveInfo(true);
+				}
+			}
 			if (m_wave_count < 3 && m_next_wave_time <= 0.f)
 			{
 				m_wave_count++;
 				m_next_wave_time = 30.f;
-				SetVisibleNextWaveInfo(true);
 			}
 			info.wave_info_text->SetText(std::to_wstring(static_cast<INT>(m_next_wave_time)));
 		};
@@ -66,6 +75,8 @@ namespace revive
 			bar = CreateSPtr<ImageUI>("base hp bar background image");
 		for (auto& bar : m_base_hp_bar_fg_image)
 			bar = CreateSPtr<ImageUI>("base hp bar foreground image");
+		SetVisibleNextWaveInfo(false);
+
 	}
 
 	bool GameInfoUILayer::Initialize()
@@ -87,7 +98,7 @@ namespace revive
 		if (m_is_visible_next_wave_info)
 		{
 			m_next_wave_info_visible_time += delta_time;
-			if (m_next_wave_info_visible_time > 5.f)
+			if (m_next_wave_info_visible_time > 10.f)
 			{
 				m_next_wave_info_visible_time = 0.f;
 				SetVisibleNextWaveInfo(false);
@@ -180,7 +191,7 @@ namespace revive
 		bool ret = true;
 
 		auto bg_imaage_position = window_size * 0.5f;
-		bg_imaage_position.y -= m_next_wave_bg_image->GetSize().y * 1.5;
+		bg_imaage_position.y -= m_next_wave_bg_image->GetSize().y * 1.5f;
 		m_next_wave_bg_image->SetTexture("Contents/ui/next_wave_info.dds");
 		m_next_wave_bg_image->SetPosition(bg_imaage_position);
 		ret &= RegisterUserInterface(m_next_wave_bg_image);
@@ -204,7 +215,7 @@ namespace revive
 		SetNextWaveText(m_skeleton_soldier_count_text,
 			m_next_wave_bg_image->GetPosition() - bg_img_size * 0.5f + Vec2{ bg_img_size.x * 0.8f ,bg_img_size.y * 0.65f });
 
-		SetVisibleNextWaveInfo(true);
+		
 
 		return ret;
 	}
@@ -218,7 +229,6 @@ namespace revive
 
 	void GameInfoUILayer::SetVisibleNextWaveInfo(bool value)
 	{
-		m_is_visible_next_wave_info = value;
 		if (value)
 		{
 			m_next_wave_bg_image->SetVisible(true);
@@ -231,6 +241,7 @@ namespace revive
 			m_skeleton_king_count_text->SetVisible(false);
 			m_skeleton_soldier_count_text->SetVisible(false);
 		}
+		m_is_visible_next_wave_info = value;
 	}
 
 	void GameInfoUILayer::RegisterEnemy(const WPtr<Enemy>& enemy)
