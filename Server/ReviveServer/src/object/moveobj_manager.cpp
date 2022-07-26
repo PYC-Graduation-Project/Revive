@@ -45,7 +45,8 @@ void MoveObjManager::InitLua(const char* script_name, int obj_id,const Vector3& 
 	lua_pushnumber(L, base_pos.x);
 	lua_pushnumber(L, base_pos.y);
 	lua_pushnumber(L, base_pos.z);
-	error = lua_pcall(L, 9, 0, 0);
+	lua_pushnumber(L, BASE_ID);
+	error = lua_pcall(L, 10, 0, 0);
 	if (error)
 		MoveObjManager::LuaErrorDisplay(L, error);
 	RegisterAPI(L);
