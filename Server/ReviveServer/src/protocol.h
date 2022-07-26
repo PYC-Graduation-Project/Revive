@@ -1,7 +1,7 @@
 #pragma once
 
 const short SERVER_PORT = 9000;
-const int BASE_ID = -1;
+
 //cm기준, 타일 : 36 x 16
 const int  WORLD_HEIGHT = 4800;// 전체맵 크기는 아님
 const int  WORLD_WIDTH = 10800;
@@ -36,7 +36,7 @@ const float SORDIER_DAMAGE = 1.0f;
 
 constexpr int NPC_ID_START = MAX_USER;
 constexpr int NPC_ID_END = MAX_USER + MAX_NPC - 1;
-
+constexpr int BASE_ID = NPC_ID_END+2;
 
 
 

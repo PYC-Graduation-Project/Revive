@@ -113,7 +113,7 @@ void PacketManager::ProcessRecv(int c_id , EXP_OVER*exp_over, DWORD num_bytes)
 {
 
 	if (num_bytes == 0) {
-		MoveObjManager::GetInst()->Disconnect(c_id);
+		Disconnect(c_id);
 		cout << "이상한거 보내서 짤" << c_id<<endl;
 	}
 	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
@@ -159,11 +159,13 @@ void PacketManager::SpawnEnemy(int room_id)
 	int curr_round = room->GetRound();
 	int sordier_num = room->GetMaxUser() * ( curr_round + 1);
 	int king_num = room->GetMaxUser() * curr_round;
-	for (auto c_id : room->GetObjList())
-	{
-		if (false == MoveObjManager::GetInst()->IsPlayer(c_id))
-			continue;
-		SendWaveInfo(c_id, curr_round + 1, room->GetMaxUser() * (curr_round + 1), room->GetMaxUser() * (curr_round + 2));
+	if (curr_round < 3) {
+		for (auto c_id : room->GetObjList())
+		{
+			if (false == MoveObjManager::GetInst()->IsPlayer(c_id))
+				continue;
+			SendWaveInfo(c_id, curr_round + 1, room->GetMaxUser() * (curr_round + 1), room->GetMaxUser() * (curr_round + 2));
+		}
 	}
 	Enemy* enemy = NULL;
 	unordered_set<int>enemy_list;
@@ -750,6 +752,23 @@ void PacketManager::End()
 void PacketManager::Disconnect(int c_id)
 {
 	MoveObjManager::GetInst()->Disconnect(c_id);
+	Player* cl = MoveObjManager::GetInst()->GetPlayer(c_id);
+	
+	lock_guard<mutex>state_guard(cl->state_lock);
+	if (cl->GetRoomID() == -1)
+		cl->SetState(STATE::ST_FREE);
+	/*else if (cl->GetState() == STATE::ST_INGAME)
+	{
+		
+		cl->SetPos(Vector3{ 2450,300,1350 });
+		for (auto other_id : m_room_manager->GetRoom(cl->GetRoomID())->GetObjList())
+		{
+			if (other_id == c_id)continue;
+			if (false == MoveObjManager::GetInst()->IsPlayer(other_id))continue;
+			SendMovePacket(other_id, c_id);
+		}
+	}*/
+	
 }
 
 bool PacketManager::IsRoomInGame(int room_id)

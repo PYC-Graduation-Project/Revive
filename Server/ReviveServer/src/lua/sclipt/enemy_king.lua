@@ -69,7 +69,7 @@ end
 
 --state 1:idle, 2:move, 3: attack, 4:hit, 5:dead 
 --table써서 switch문 만들기
-function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z)
+function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z,b_id)
 	skull_king.m_id = id;
 	skull_king.m_position.x = x;
 	skull_king.m_position.y = y;
@@ -82,6 +82,7 @@ function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z)
 	base_pos.x=b_x;
 	base_pos.y=b_y;
 	base_pos.z=b_z;
+	base_id=b_id;
 end
 
 --API로 플레이어, 기지거리 확인하기

@@ -205,7 +205,7 @@ void RevivePacketManager::ProcessBaseStatus(int c_id, unsigned char* p)
 		m_game_info.SetRoomID(packet->room_id);
 	m_game_info.SetBaseHp(packet->hp);
 	LOG_INFO("BaseHP:{0}", packet->hp);
-	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), packet->hp),BASE_ID);
+	PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::BaseHpChangeEventInfo>(HashCode("base hp change"), m_game_info.GetBaseHp()),BASE_ID);
 }
 
 void RevivePacketManager::ProcessStatusChange(int c_id, unsigned char* p)
