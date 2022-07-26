@@ -27,7 +27,7 @@ void Enemy::SetSpawnPoint(float x, float z)
 
 void Enemy::Reset()
 {
-	target_id = -1;
+	target_id = BASE_ID;
 	lua_lock.lock();
 	lua_close(m_L);
 	lua_lock.unlock();

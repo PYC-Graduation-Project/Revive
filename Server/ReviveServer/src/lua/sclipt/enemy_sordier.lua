@@ -16,7 +16,7 @@ now_x=0;
 now_z=0;
 
 enemy_state={}
---¸®ÅÏ°ªÀ» ÁÙÁö °áÁ¤ÇÏ±â
+--ï¿½ï¿½ï¿½Ï°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 enemy_state["move"]=function (target_id)
 	local t_id=target_id;
 	
@@ -38,7 +38,7 @@ enemy_state["move"]=function (target_id)
 	
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range  then
 		skull_sordier.m_curr_state="attack"
-		API_attack(skull_sordier.m_id,t_id);--¸¸µé¾î ÁÖ±â
+		API_attack(skull_sordier.m_id,t_id);--ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 	else
 		API_move(skull_sordier.m_id,t_id);
 	end
@@ -61,16 +61,16 @@ enemy_state["attack"]=function (target_id)
 	now_z=API_get_z(skull_sordier.m_id);
 	if math.sqrt((math.abs(pl_x-now_x)^2)+(math.abs(pl_z-now_z)^2))<=skull_sordier.m_atk_range then
 		skull_sordier.m_curr_state="attack"
-		API_attack(skull_sordier.m_id,t_id);--¸¸µé¾îÁÖ±â
+		API_attack(skull_sordier.m_id,t_id);--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½
 	else
 		skull_sordier.m_curr_state="move"
-		API_move(skull_sordier.m_id,t_id);--¸¸µé¾î ÁÖ±â
+		API_move(skull_sordier.m_id,t_id);--ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 	end
 end
 
 --state 1:idle, 2:move, 3: attack, 4:hit, 5:dead 
---table½á¼­ switch¹® ¸¸µé±â
-function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z)
+--tableï¿½á¼­ switchï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z,b_id)
 	skull_sordier.m_id = id;
 	skull_sordier.m_position.x = x;
 	skull_sordier.m_position.y = y;
@@ -81,12 +81,13 @@ function initializEnemy(id, x, y, z, hp, damege,b_x,b_y,b_z)
 	base_pos.x=b_x;
 	base_pos.y=b_y;
 	base_pos.z=b_z;
-	
+	base_id=b_id;
+	skull_sordier.m_target_id=b_id;
 end
 
---API·Î ÇÃ·¹ÀÌ¾î, ±âÁö°Å¸® È®ÀÎÇÏ±â
---°¡Àå °¡±î¿î id ¹ÝÈ¯
---target_id¼³Á¤ ÇÏ´Â APIÈ£Ãâ
+--APIï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½Å¸ï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½
+--ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ id ï¿½ï¿½È¯
+--target_idï¿½ï¿½ï¿½ï¿½ ï¿½Ï´ï¿½ APIÈ£ï¿½ï¿½
 function event_agro_fallow( player )
    player_x = API_get_x(player);
    player_y = API_get_y(player);

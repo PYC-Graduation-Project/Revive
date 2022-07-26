@@ -174,7 +174,7 @@ void RevivePacketManager::ProcessNpcAttack(int c_id, unsigned char* p)
 		
 
 	}
-	else if (target == m_obj_map.end()&&packet->target_id == -1)
+	else if (target == m_obj_map.end()&&packet->target_id == BASE_ID)
 	{
 		PacketHelper::RegisterPacketEventToActor(CreateSPtr<revive::NpcAttackEventInfo>(HashCode("npc attack"),
 		Vec3(2400.0f,500.0f,2850.0f)), packet->obj_id);

@@ -295,7 +295,7 @@ void PacketManager::DoEnemyMove(int room_id, int enemy_id)
 	//Vector3& nlook = enemy->GetLookVec();
 	Vector3 target_pos;
 	const Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetGroundPos();
-	if (enemy->GetTargetId() == -1)//-1기지 아이디
+	if (enemy->GetTargetId() == BASE_ID)//-1기지 아이디
 	{
 		target_pos = base_pos;
 		
@@ -431,7 +431,7 @@ void PacketManager::DoEnemyAttack(int enemy_id, int target_id, int room_id)
 	float base_hp=99999.f;
 	if (false == enemy->GetIsActive())return;
 
-	if (target_id == -1)
+	if (target_id == BASE_ID)
 	{
 		Vector3 base_pos = m_map_manager->GetMapObjectByType(OBJ_TYPE::OT_BASE).GetPos();
 		int base_attack_t = 1000;
@@ -889,7 +889,7 @@ void PacketManager::CallStateMachine(int enemy_id, int room_id, const Vector3& b
 	map<float, int>distance_map;
 
 	float base_dist = sqrt(pow(abs(base_pos.x - enemy->GetPos().x), 2) + pow(abs(base_pos.z - enemy->GetPos().z), 2));
-	distance_map.try_emplace(base_dist, -1);
+	distance_map.try_emplace(base_dist,BASE_ID);
 	Player* player = NULL;
 	auto check_end_time = std::chrono::system_clock::now();
 	auto& check_time = enemy->GetCheckTime();
