@@ -1,6 +1,8 @@
 #include <include/client_core.h>
 #include <client/input/input.h>
 #include <client/object/component/render/box_component.h>
+#include <client/event/packetevent/packet_helper.h>
+
 #include "revive_server/message/message_event_info.h"
 #include "object/actor/gameplaymechanics/base.h"
 
@@ -52,6 +54,10 @@ namespace revive
 		/*if (m_hp <= 0)
 			SetActorState(eActorState::kDead);*/
 	}
+	void Base::Shutdown()
+	{
+		m_changed_hp_function = nullptr;
+	}
 	void Base::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
 		switch (message->GetEventID())
@@ -61,7 +67,12 @@ namespace revive
 			if (m_hp > 0)
 			{
 				auto msg = std::static_pointer_cast<BaseHpChangeEventInfo>(message);
-				m_hp = msg->GetBaseHp();
+				float hp = msg->GetBaseHp();
+				if (hp < 0) hp = 0;
+
+				if (hp == 0)
+					PacketHelper::DisconnectActorFromServer(BASE_ID);
+				m_hp = hp;
 				if (m_changed_hp_function != nullptr)
 					m_changed_hp_function(m_hp, m_max_hp);
 			}

@@ -255,16 +255,21 @@ namespace revive
 
 	void revive::GameInfoUILayer::RegisterBase(const WPtr<Base>& base)
 	{
-		base.lock()->OnChangeHPFunction([this](float hp, float max_hp)
+		if (base.expired() == false)
 		{
-			if (hp >= 0)
+			base.lock()->OnChangeHPFunction([this](float hp, float max_hp)
 			{
-				float size = 400 * hp / max_hp;
+				if (hp >= 0)
+				{
+					float size = 400 * hp / max_hp;
 
-				m_base_hp_bar_fg_image[0]->SetSize(Vec2{ std::clamp(size - 0.f, 0.f, 6.f),32.f });
-				m_base_hp_bar_fg_image[1]->SetSize(Vec2{ std::clamp(size - 388.f, 0.f, 6.f),32.f });
-				m_base_hp_bar_fg_image[2]->SetSize(Vec2{ std::clamp(size - 6.f, 0.f, 388.f),32.f });
-			}
-		});
+					if (m_base_hp_bar_fg_image[0] == nullptr)
+						LOG_WARN("Base NullPtr");
+					m_base_hp_bar_fg_image[0]->SetSize(Vec2{ std::clamp(size - 0.f, 0.f, 6.f),32.f });
+					m_base_hp_bar_fg_image[1]->SetSize(Vec2{ std::clamp(size - 388.f, 0.f, 6.f),32.f });
+					m_base_hp_bar_fg_image[2]->SetSize(Vec2{ std::clamp(size - 6.f, 0.f, 388.f),32.f });
+				}
+			});
+		}
 	}
 }

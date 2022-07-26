@@ -51,6 +51,11 @@ namespace revive
 
 	bool GamePlayLevel::Initialize()
 	{
+		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
+		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
+		RegisterUILayer(m_player_info_ui_layer);
+		RegisterUILayer(m_game_info_ui_layer);
+
 		const auto& map_loader = std::static_pointer_cast<ReviveLevelSharedInfo>(LevelManager::GetLevelManager().GetLevelSharedInfo())->GetMapLoader();
 
 		m_actors = map_loader->LoadMap("Contents/map.txt");
@@ -60,9 +65,6 @@ namespace revive
 		}
 
 		client_fw::SoundManager::GetSoundManager().Play(eSoundType::kBackGroundSound,"ingame sound");
-
-		m_player_info_ui_layer = CreateSPtr<PlayerInfoUILayer>();
-		m_game_info_ui_layer = CreateSPtr<GameInfoUILayer>();
 
 		GenerateVisualActors();
 
@@ -104,8 +106,7 @@ namespace revive
 					m_index = 0;
 				return true;
 			});*/
-		RegisterUILayer(m_player_info_ui_layer);
-		RegisterUILayer(m_game_info_ui_layer);
+		
 		PacketHelper::RegisterPacketEventToServer(CreateSPtr<GameStartEventInfo>(HashCode("game start")));
 
 		return true;
@@ -288,7 +289,6 @@ namespace revive
 		SpawnActor(base);
 		m_game_info_ui_layer->RegisterBase(base);
 		PacketHelper::ConnectActorToServer(base, BASE_ID);
-
 	}
 
 	void GamePlayLevel::Shutdown()
