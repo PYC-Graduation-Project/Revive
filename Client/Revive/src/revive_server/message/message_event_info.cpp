@@ -111,4 +111,9 @@ namespace revive
 	{
 	}
 
+	SendDamageCheatEventInfo::SendDamageCheatEventInfo(UINT event_id)
+		:MessageEventInfo(event_id)
+	{
+	}
+
 }

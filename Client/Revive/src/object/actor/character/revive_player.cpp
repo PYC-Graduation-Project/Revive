@@ -439,8 +439,6 @@ namespace revive
 	{
 		//DefaultPlayer::Update(delta_time);
 		m_player_fsm->Update();
-		if (m_is_cheating)
-			m_is_attacking = true;
 
 		if (m_is_attacking)
 		{
@@ -487,11 +485,6 @@ namespace revive
 		//맞는 도중 다시 또 맞을 수 있다.
 		RegisterPressedEvent("Hit", { {eKey::kP} },
 			[this]()->bool { ++m_hit_count; m_is_hitting = true; DecrementHP();  return true; });
-		RegisterPressedEvent("Cheat Mode", { {eKey::kC} },
-			[this]()->bool {  m_is_cheating = !m_is_cheating; 
-		if (m_is_cheating)LOG_INFO("Cheat Mode On"); 
-		else LOG_INFO("Cheat Mode Off");
-		return true; });
 
 		//공격
 		RegisterPressedEvent("attack", { {eKey::kLButton} },
@@ -508,6 +501,30 @@ namespace revive
 			return ret;
 		});
 		
+		RegisterPressedEvent("hp cheat", { {eKey::kH,{eAdditionalKey::kControl, eAdditionalKey::kShift}} },
+			[this]()->bool { 
+			m_is_hp_cheating = !m_is_hp_cheating; 
+			if (m_is_hp_cheating)LOG_TRACE("Hp Cheat On");
+			else LOG_TRACE("Hp Cheat Off");
+			return true;
+		});
+
+		RegisterPressedEvent("damage cheat", { {eKey::kD,{eAdditionalKey::kControl, eAdditionalKey::kShift}} },
+			[this]()->bool {
+			if (m_is_attacking == false)
+			{
+				m_is_damage_cheating = !m_is_damage_cheating;
+				PacketHelper::RegisterPacketEventToServer(CreateSPtr<SendDamageCheatEventInfo>(HashCode("send damage cheat")));
+				if (m_is_damage_cheating)LOG_TRACE("Damage Cheat On");
+				else LOG_TRACE("Damage Cheat Off");
+				return true;
+			}
+			else
+			{
+				LOG_INFO("Damage Cheat fail , Use this cheat when is not attacking");
+				return false;
+			}
+		});
 	}
 
 	const float RevivePlayer::GetVelocity() const
@@ -538,7 +555,6 @@ namespace revive
 			bullet->SetPosition(pos);
 			bullet->SetBlockingSphereRadius(10.f);
 			bullet->SetVelocity(direction);//컨트롤러의 방향으로 총알을 발사한다.
-			LOG_INFO("공격 패킷 보냄");	
 			bullet->SetCollisionInfo(true, "bullet", { "enemy hit" }, true);
 			bullet->SetOnCollisionResponse([bullet,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 
@@ -579,12 +595,16 @@ namespace revive
 	{
 		++m_hit_count;
 		m_is_hitting = true;
-		if (m_is_cheating == false)m_hp -= damage;
+		if (m_is_hp_cheating == false)
+		{
+			m_hp -= damage;
+			PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id, nw_id));
+
+		}
 		else --m_hit_count;
 
 		//LOG_INFO(nw_id);
 
-		PacketHelper::RegisterPacketEventToServer(CreateSPtr<ObjectHitMessageEventInfo>(HashCode("send hit"), m_network_id,nw_id));
 	}
 
 	//void RevivePlayer::MinPitch()

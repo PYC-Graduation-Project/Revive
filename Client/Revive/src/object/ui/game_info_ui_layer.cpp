@@ -52,7 +52,6 @@ namespace revive
 				float visible_time = m_next_wave_time - 10.f;
 				if (visible_time < 1.f && visible_time > 0.f)
 				{
-					LOG_TRACE(m_next_wave_time);
 					if(m_is_visible_next_wave_info == false)
 						SetVisibleNextWaveInfo(true);
 				}

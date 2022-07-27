@@ -48,6 +48,7 @@ const char CS_PACKET_CHAT = 5;
 const char CS_PACKET_MATCHING = 6;
 const char CS_PACKET_HIT = 7;
 const char CS_PACKET_GAME_START = 8;
+const char CS_PACKET_DAMAGE_CHEAT = 9;
 
 
 const char SC_PACKET_SIGN_IN_OK = 1;
@@ -69,6 +70,7 @@ const char SC_PACKET_WIN = 16;
 const char SC_PACKET_DEFEAT = 17;
 const char SC_PACKET_DEAD = 18;
 const char SC_PACKET_WAVE_INFO = 19;
+
 #pragma pack (push, 1)
 struct cs_packet_sign_in {
 	unsigned char size;
@@ -140,7 +142,10 @@ struct cs_packet_game_start {
 	char	type;
 };
 
-
+struct cs_packet_damage_cheat {
+	unsigned char size;
+	char type;
+};
 
 
 struct sc_packet_sign_in_ok {
@@ -274,4 +279,5 @@ struct sc_packet_defeat {
 
 
 };
+
 #pragma pack(pop)

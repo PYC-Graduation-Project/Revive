@@ -125,7 +125,7 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	private:
-		bool m_is_cheating = false;
+		bool m_is_hp_cheating = false;
 
 		void AddMovementInput(const Vec3& direction, float scale) override;
 		

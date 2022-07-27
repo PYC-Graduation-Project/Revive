@@ -169,6 +169,13 @@ namespace revive
         const Vec3& GetForward()const { return m_forward_vec; }
     };
 
+    class SendDamageCheatEventInfo final :public MessageEventInfo
+    {
+    public:
+        SendDamageCheatEventInfo(UINT event_id);
+    private:
+    };
+
     class MatchingMessageOKEventInfo final :public MessageEventInfo
     {
     public:

@@ -45,7 +45,6 @@ namespace revive
 			[this]()->bool {--m_hp; LOG_INFO(GetName() + "ÀÇ Ã¼·Â {0}", m_hp); return true; });
 
 		UseUpdate();
-		m_max_hp = BASE_HP;
 		return ret;
 	}
 

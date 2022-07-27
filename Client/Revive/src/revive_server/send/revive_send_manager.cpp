@@ -41,6 +41,11 @@ void ReviveSendManager::ProcessSend(const SOCKET& s_socket, const client_fw::SPt
 		SendGameStartPacket(s_socket);
 		break;
 	}
+	case HashCode("send damage cheat"): {
+		auto msg = std::static_pointer_cast<revive::SendDamageCheatEventInfo>(message);
+		SendDamageCheatPacket(s_socket);
+		break;
+	}
 	}
 }
 
@@ -124,5 +129,13 @@ void ReviveSendManager::SendGameStartPacket(const SOCKET& s_socket)
 	cs_packet_game_start packet;
 	packet.size = sizeof(packet);
 	packet.type = CS_PACKET_GAME_START;
+	SendPacket(s_socket, sizeof(packet), &packet);
+}
+
+void ReviveSendManager::SendDamageCheatPacket(const SOCKET& s_socket)
+{
+	cs_packet_damage_cheat packet;
+	packet.size = sizeof(packet);
+	packet.type = CS_PACKET_DAMAGE_CHEAT;
 	SendPacket(s_socket, sizeof(packet), &packet);
 }

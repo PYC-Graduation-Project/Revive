@@ -287,6 +287,8 @@ namespace revive
 
 		auto base = CreateSPtr<Base>();
 		SpawnActor(base);
+		base->SetHP(BASE_ID);
+		base->SetMaxHP(BASE_ID);
 		m_game_info_ui_layer->RegisterBase(base);
 		PacketHelper::ConnectActorToServer(base, BASE_ID);
 	}
