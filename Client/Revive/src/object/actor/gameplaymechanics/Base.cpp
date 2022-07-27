@@ -56,6 +56,9 @@ namespace revive
 	void Base::Shutdown()
 	{
 		m_changed_hp_function = nullptr;
+		if(IsConnectedToServer())
+			PacketHelper::DisconnectActorFromServer(BASE_ID);
+
 	}
 	void Base::ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message)
 	{
