@@ -64,7 +64,7 @@ namespace revive
 			Vec3 direction = vec3::Normalize(m_target_position - stone->GetPosition());//플레이어 위치조정 필요
 			stone->SetVelocity(direction);
 			stone->SetCollisionInfo(true, "stone", { "player hit","base"}, true);
-			stone->SetOnCollisionResponse([stone](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
+			stone->SetOnCollisionResponse([stone,this](const SPtr<SceneComponent>& component, const SPtr<Actor>& other_actor,
 				const SPtr<SceneComponent>& other_component)
 			{
 				//이게 피격
@@ -77,7 +77,7 @@ namespace revive
 					if (player_hp > 0)
 					{
 							//플레이어 피격했다고 서버에 알리기
-							player->Hit(0,player->GetNetworkID());		
+							player->Hit(0,m_network_id);		
 					}
 				}
 				else
