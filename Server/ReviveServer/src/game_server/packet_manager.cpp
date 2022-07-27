@@ -80,6 +80,12 @@ void PacketManager::ProcessPacket(int c_id, unsigned char* p)
 	case CS_PACKET_GAME_START: {
 		ProcessGameStart(c_id, p);
 		break;
+		
+	}
+	case CS_PACKET_DAMAGE_CHEAT: {
+		ProcessDamageCheat(c_id, p);
+		break;
+		
 	}
 	}
 }
@@ -1185,6 +1191,12 @@ void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 	
 	}
 	StartGame(room->GetRoomID());
+}
+
+void PacketManager::ProcessDamageCheat(int c_id, unsigned char* p)
+{
+	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
+	player->SetDamge(100.0f);
 }
 
 

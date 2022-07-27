@@ -95,6 +95,7 @@ private:
 	void ProcessMatching(int c_id, unsigned char* p);
 	void ProcessHit(int c_id, unsigned char* p);
 	void ProcessGameStart(int c_id, unsigned char* p);
+	void ProcessDamageCheat(int c_id, unsigned char* p);
 	void StartGame(int room_id);
 };
 
