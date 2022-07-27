@@ -59,6 +59,7 @@ void Player::Reset()
 	m_room_id = -1;
 	m_hp = PLAYER_HP;//추후 밸런스 조정
 	m_maxhp = m_hp;
+	m_damage = PLAYER_DAMAGE;
 	m_is_ready = false;
 	is_matching = false;
 	ZeroMemory(m_name, MAX_NAME_SIZE + 1);

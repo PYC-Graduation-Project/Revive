@@ -1196,7 +1196,10 @@ void PacketManager::ProcessGameStart(int c_id, unsigned char* p)
 void PacketManager::ProcessDamageCheat(int c_id, unsigned char* p)
 {
 	Player* player = MoveObjManager::GetInst()->GetPlayer(c_id);
-	player->SetDamge(100.0f);
+	if(player->GetDamge()==PLAYER_DAMAGE)
+		player->SetDamge(100.0f);
+	else
+		player->SetDamge(PLAYER_DAMAGE);
 }
 
 
