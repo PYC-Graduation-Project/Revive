@@ -29,6 +29,7 @@
 #include "object/actor/visual/torch.h"
 #include "object/actor/visual/scope_light.h"
 #include "object/actor/visual/light_tree.h"
+#include "object/actor/visual/fire_fly.h"
 #include "object/actor/healer.h"
 #include "object/ui/game_end_ui_layer.h"
 #include"server/network.h"
@@ -36,6 +37,8 @@
 #include "object/ui/game_info_ui_layer.h"
 
 #include "object/effect/heal_effect.h"
+
+#include <random>
 
 std::string g_id;
 std::string g_pw;
@@ -291,6 +294,63 @@ namespace revive
 		base->SetMaxHP(BASE_HP);
 		m_game_info_ui_layer->RegisterBase(base);
 		PacketHelper::ConnectActorToServer(base, BASE_ID);
+
+		std::random_device rd;
+		std::mt19937 gen_engine(rd());
+		std::uniform_real_distribution<float> x_random;
+		std::uniform_real_distribution<float> y_random;
+		std::uniform_real_distribution<float> z_random;
+		std::uniform_int_distribution<int> color_random(0, 2);
+
+		auto CreateFireFly = [this, &gen_engine, &x_random, &y_random, &z_random, &color_random](float scale)
+		{
+			auto fire_fly = CreateSPtr<FireFly>();
+			fire_fly->SetPosition(Vec3(x_random(gen_engine), y_random(gen_engine), z_random(gen_engine)));
+			fire_fly->SetScale(scale);
+			switch (color_random(gen_engine))
+			{
+			case 0: fire_fly->SetLightColor(Vec3(1.f, 0.f, 0.f)); break;
+			case 1: fire_fly->SetLightColor(Vec3(0.f, 1.f, 0.f)); break;
+			case 2: fire_fly->SetLightColor(Vec3(0.f, 0.f, 1.f)); break;
+			default: break;
+			}
+			SpawnActor(fire_fly);
+		};
+
+		//왼쪽 해자 지역
+		x_random = std::uniform_real_distribution<float>(-5500.f, 2000.f);
+		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
+		z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
+		for (int i = 0; i < 1000; ++i)
+			CreateFireFly(0.15f);
+
+		//왼쪽 해자 뒤쪽 지역
+		x_random = std::uniform_real_distribution<float>(-5500.f, 0.f);
+		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
+		z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
+		for (int i = 0; i < 500; ++i)
+			CreateFireFly(0.30f);
+
+		//오른쪽 해자 지역
+		x_random = std::uniform_real_distribution<float>(2800.f, 10300.f);
+		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
+		z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
+		for (int i = 0; i < 1000; ++i)
+			CreateFireFly(0.15f);
+
+		//오른쪽 해자 뒤쪽 지역
+		x_random = std::uniform_real_distribution<float>(4800.f, 10300.f);
+		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
+		z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
+		for (int i = 0; i < 500; ++i)
+			CreateFireFly(0.30f);
+
+		//기지 위쪽 지역
+		x_random = std::uniform_real_distribution<float>(800.f, 4000.f);
+		y_random = std::uniform_real_distribution<float>(350.f, 500.f);
+		z_random = std::uniform_real_distribution<float>(800.f, 4000.f);
+		for (int i = 0; i < 500; ++i)
+			CreateFireFly(0.05f);
 	}
 
 	void GamePlayLevel::Shutdown()
@@ -426,12 +486,16 @@ namespace revive
 		std::vector<SPtr<VisualOctree>> visual_octrees;
 		//박스의 HalfWidth, 중심좌표
 		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(4800.0f, Vec3(2400.0f, 0.f, 2400.0f), 2)); //Castle
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(3600.0f, Vec3(2400.0f, 0.f, 6600.0f), 2)); //Bridge + Spawn Area
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(2400.0f, 0.f, 16800.0f), 0));
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,12000.0f),0)); //Left Ground
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,12000.0f),0)); //Right Ground
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(-13800.0f,0,1200.0f),0)); //Left Ground2
-		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f,Vec3(18600.0f,0,1200.0f),0)); //Right Ground2
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(2400.0f, 0.f, 13200.0f), 2));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(-14400.0f, 0.f, 13200.0f), 2));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(19200.0f, 0.f, 13200.0f), 2));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(-8400.0f, 0.f, -3600.0f), 2));
+		visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(13200.0f, 0.f, -3600.0f), 2));
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(2400.0f, 0.f, 16800.0f), 2));
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(-13800.0f, 0, 12000.0f), 2)); //Left Ground
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(18600.0f, 0, 12000.0f), 2)); //Right Ground
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(-13800.0f, 0, 1200.0f), 2)); //Left Ground2
+		//visual_octrees.emplace_back(CreateSPtr<VisualOctree>(16800.0f, Vec3(18600.0f, 0, 1200.0f), 2)); //Right Ground2
 		return visual_octrees;
 	}
 

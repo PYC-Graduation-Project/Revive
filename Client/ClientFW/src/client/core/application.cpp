@@ -17,7 +17,7 @@
 #include "client/asset/texture/texture_loader.h"
 #include "client/asset/animation/animation_loader.h"
 #include "client/asset/sound/core/sound_manager.h"
-//#define __USE_RENDER_CPU_TIME__
+#define __USE_RENDER_CPU_TIME__
 #ifdef __USE_RENDER_CPU_TIME__
 #include <stdio.h>
 #include <time.h>
@@ -260,7 +260,11 @@ namespace client_fw
 #ifdef _DEBUG
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 #else
+#ifdef __USE_RENDER_CPU_TIME__
+		ShowWindow(GetConsoleWindow(), SW_SHOW);
+#else
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif // __USE_RENDER_CPU_TIME__
 #endif 
 		ShowWindow(m_window->hWnd, SW_SHOW);
 		SetForegroundWindow(m_window->hWnd);
