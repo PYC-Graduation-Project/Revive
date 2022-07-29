@@ -105,9 +105,11 @@ namespace client_fw
 		{
 			
 			if (m_bgm_channel != nullptr)
+			{
 				m_bgm_channel->isPlaying(&m_is_playing);
-			if (m_is_playing)
+				if (m_is_playing)
 				m_bgm_channel->stop();
+			}
 			FMOD_RESULT ret = m_sound_system->playSound(sound->m_sound, nullptr, false, &m_bgm_channel);
 			if (ret == FMOD_OK)
 			{

@@ -35,9 +35,9 @@ namespace client_fw
 
 		UINT m_index = 0;
 
-		FMOD::System* m_sound_system;
-		FMOD::Channel* m_bgm_channel;
-		FMOD::Channel* m_effect_channel;
+		FMOD::System* m_sound_system = nullptr;
+		FMOD::Channel* m_bgm_channel = nullptr;
+		FMOD::Channel* m_effect_channel = nullptr;
 
 		std::unordered_map <std::string, SPtr<Sound>> m_sound_list;
 		std::string m_current_sound_name;
