@@ -116,7 +116,7 @@ namespace revive
 	class RevivePlayer : public DefaultPlayer
 	{
 	public:
-		RevivePlayer(const std::string& name = "Player");
+		RevivePlayer(bool is_develop_mode, const std::string& name = "Player");
 		virtual ~RevivePlayer() = default;
 
 		virtual bool Initialize() override;
@@ -125,6 +125,7 @@ namespace revive
 		virtual void ExecuteMessageFromServer(const SPtr<MessageEventInfo>& message) override;
 
 	private:
+		bool m_is_develop_mode = false;
 		bool m_is_hp_cheating = false;
 		bool m_is_damage_cheating = false;
 

@@ -38,6 +38,7 @@ namespace client_fw
 		bool m_visibility = false;	
 		bool m_hidden_in_game = false;
 		bool m_is_register_render_system = true;
+		bool m_use_shadow = true;
 		UINT m_render_item_index = 0;
 		std::string m_draw_shader_name;
 		std::vector<WPtr<VisualTreeNode>> m_visual_tree_node;
@@ -56,6 +57,8 @@ namespace client_fw
 		void SetHiddenInGame(bool value) { m_hidden_in_game = value; }
 
 		void SetDrawShaderName(const std::string& shader_name) { m_draw_shader_name = shader_name; }
+		bool IsUseShadow() const { return m_use_shadow; }
+		void SetUseShadow(bool use) { m_use_shadow = use; }
 
 	public:
 	//

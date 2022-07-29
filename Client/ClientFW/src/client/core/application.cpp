@@ -17,7 +17,7 @@
 #include "client/asset/texture/texture_loader.h"
 #include "client/asset/animation/animation_loader.h"
 #include "client/asset/sound/core/sound_manager.h"
-#define __USE_RENDER_CPU_TIME__
+//#define __USE_RENDER_CPU_TIME__
 #ifdef __USE_RENDER_CPU_TIME__
 #include <stdio.h>
 #include <time.h>

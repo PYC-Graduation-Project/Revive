@@ -387,8 +387,9 @@ namespace revive
 			weapon->SetActorState(eActorState::kDead);
 	}
 
-	RevivePlayer::RevivePlayer(const std::string& name)
+	RevivePlayer::RevivePlayer(bool is_develop_mode, const std::string& name)
 		: DefaultPlayer(name)
+		, m_is_develop_mode(is_develop_mode)
 	{
 		m_camera_component = CreateSPtr<SpringArmRenderCameraComponent>("Follow Camera");
 		m_blocking_sphere = CreateSPtr<SphereComponent>(40.0f,"Player Blocking Collision");
@@ -398,6 +399,14 @@ namespace revive
 	bool RevivePlayer::Initialize()
 	{
 		bool ret = DefaultPlayer::Initialize();
+
+		if (m_is_develop_mode)
+		{
+			ret = m_skeletal_mesh_component->SetMesh("Contents/yellow.rev");
+			ret &= AttachComponent(m_skeletal_mesh_component);
+			m_skeletal_mesh_component->SetLocalRotation(math::ToRadian(-90.0f), math::ToRadian(180.0f), 0.0f);
+			m_skeletal_mesh_component->SetLocalScale(100.f);
+		}
 
 		ret &= AttachComponent(m_movement_component);
 		m_movement_component->SetMaxSpeed(300.f);// 타일 크기 300 * 0.75(tile/s)  = 225 (근데 너무느리다)

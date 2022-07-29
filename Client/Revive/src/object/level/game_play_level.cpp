@@ -45,8 +45,9 @@ std::string g_pw;
 
 namespace revive
 {
-	GamePlayLevel::GamePlayLevel()
+	GamePlayLevel::GamePlayLevel(bool is_develop_mode)
 		: Level("game play level")
+		, m_is_develop_mode(is_develop_mode)
 	{
 		
 
@@ -317,40 +318,43 @@ namespace revive
 			SpawnActor(fire_fly);
 		};
 
-		//왼쪽 해자 지역
-		x_random = std::uniform_real_distribution<float>(-5500.f, 2000.f);
-		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
-		z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
-		for (int i = 0; i < 1000; ++i)
-			CreateFireFly(0.15f);
+		if (game_option->shadow_enable && game_option->shadow_quality == eShadowQuality::kVeryHigh)
+		{
+			//왼쪽 해자 지역
+			x_random = std::uniform_real_distribution<float>(-5500.f, 2000.f);
+			y_random = std::uniform_real_distribution<float>(0.0f, 300.f);
+			z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
+			for (int i = 0; i < 2500; ++i)
+				CreateFireFly(0.15f);
 
-		//왼쪽 해자 뒤쪽 지역
-		x_random = std::uniform_real_distribution<float>(-5500.f, 0.f);
-		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
-		z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
-		for (int i = 0; i < 500; ++i)
-			CreateFireFly(0.30f);
+			//왼쪽 해자 뒤쪽 지역
+			x_random = std::uniform_real_distribution<float>(-5500.f, 0.f);
+			y_random = std::uniform_real_distribution<float>(0.0f, 300.f);
+			z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
+			for (int i = 0; i < 1250; ++i)
+				CreateFireFly(0.30f);
 
-		//오른쪽 해자 지역
-		x_random = std::uniform_real_distribution<float>(2800.f, 10300.f);
-		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
-		z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
-		for (int i = 0; i < 1000; ++i)
-			CreateFireFly(0.15f);
+			//오른쪽 해자 지역
+			x_random = std::uniform_real_distribution<float>(2800.f, 10300.f);
+			y_random = std::uniform_real_distribution<float>(0.0f, 300.f);
+			z_random = std::uniform_real_distribution<float>(5000.f, 8000.f);
+			for (int i = 0; i < 2500; ++i)
+				CreateFireFly(0.15f);
 
-		//오른쪽 해자 뒤쪽 지역
-		x_random = std::uniform_real_distribution<float>(4800.f, 10300.f);
-		y_random = std::uniform_real_distribution<float>(0.0f, 200.f);
-		z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
-		for (int i = 0; i < 500; ++i)
-			CreateFireFly(0.30f);
+			//오른쪽 해자 뒤쪽 지역
+			x_random = std::uniform_real_distribution<float>(4800.f, 10300.f);
+			y_random = std::uniform_real_distribution<float>(0.0f, 300.f);
+			z_random = std::uniform_real_distribution<float>(0.f, 5000.f);
+			for (int i = 0; i < 1250; ++i)
+				CreateFireFly(0.30f);
 
-		//기지 위쪽 지역
-		x_random = std::uniform_real_distribution<float>(800.f, 4000.f);
-		y_random = std::uniform_real_distribution<float>(350.f, 500.f);
-		z_random = std::uniform_real_distribution<float>(800.f, 4000.f);
-		for (int i = 0; i < 500; ++i)
-			CreateFireFly(0.05f);
+			//기지 위쪽 지역
+			x_random = std::uniform_real_distribution<float>(800.f, 4000.f);
+			y_random = std::uniform_real_distribution<float>(320.f, 500.f);
+			z_random = std::uniform_real_distribution<float>(800.f, 4000.f);
+			for (int i = 0; i < 500; ++i)
+				CreateFireFly(0.075f);
+		}
 	}
 
 	void GamePlayLevel::Shutdown()
@@ -478,7 +482,7 @@ namespace revive
 
 	UPtr<GameMode> GamePlayLevel::CreateGameMode() const
 	{
-		return CreateUPtr<ReviveGameMode>();
+		return CreateUPtr<ReviveGameMode>(m_is_develop_mode);
 	}
 	
 	std::vector<SPtr<VisualOctree>> GamePlayLevel::CreateVisualOctrees() const

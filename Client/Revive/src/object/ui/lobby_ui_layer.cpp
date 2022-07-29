@@ -59,7 +59,7 @@ namespace revive
 			m_option_graphic_button = CreateSPtr<ButtonUI>("graphic option menu button");
 			m_option_sound_button = CreateSPtr<ButtonUI>("sound option menu button");
 			m_graphic_option_shadow_enable_text = CreateSPtr<TextUI>("graphic option shadow enable text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"그림자 활성화");
-			m_graphic_option_shadow_quality_text = CreateSPtr<TextUI>("graphic option shadow quality text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"그림자 품질");
+			m_graphic_option_shadow_quality_text = CreateSPtr<TextUI>("graphic option shadow quality text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"조명 / 그림자 품질");
 			m_sound_option_bgm_volume_text = CreateSPtr<TextUI>("sound option bgm volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"배경음");
 			m_sound_option_effect_volume_text = CreateSPtr<TextUI>("sound option effect volume text", Vec2(option_size.x * 0.3f, option_size.x / 12.0f), L"효과음");
 			m_close_option_menu_button = CreateSPtr<ButtonUI>("close option menu button");
@@ -346,7 +346,7 @@ namespace revive
 		m_develop_mode_button->SetActivate(false);
 		m_develop_mode_button->SetVisible(false);
 		m_develop_mode_button->OnClicked([this]() {
-			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(), nullptr);
+			LevelManager::GetLevelManager().OpenLevel(CreateSPtr<GamePlayLevel>(true), nullptr);
 			});
 		ret &= RegisterUserInterface(m_develop_mode_button);
 

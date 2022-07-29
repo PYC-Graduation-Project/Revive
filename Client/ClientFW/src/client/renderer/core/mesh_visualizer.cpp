@@ -35,14 +35,15 @@ namespace client_fw
 	{
 		//Mesh를 제외하면 그림자를 생성하지 않는다.
 		return
-			(render_cmp->GetRenderType() == eRenderType::kMesh)
+			(render_cmp->GetRenderType() == eRenderType::kMesh &&
+				render_cmp->IsUseShadow())
 			&& (render_cmp->IsVisible() == false && render_cmp->IsHiddenInGame() == false);
 	};
 
 	constexpr static auto add_destructible_shadow_trigger_function =
 		[](const SPtr<RenderComponent>& render_cmp)
 	{
-		return (render_cmp->GetRenderType() == eRenderType::kMesh) &&
+		return (render_cmp->GetRenderType() == eRenderType::kMesh && render_cmp->IsUseShadow()) &&
 			(render_cmp->GetOwner().lock()->GetMobilityState() == eMobilityState::kDestructible);
 	};
 
@@ -51,7 +52,7 @@ namespace client_fw
 	{
 		//Mesh를 제외하면 그림자를 생성하지 않는다.
 		return
-			(render_cmp->GetRenderType() == eRenderType::kMesh)
+			(render_cmp->GetRenderType() == eRenderType::kMesh && render_cmp->IsUseShadow())
 			&& (render_cmp->IsVisible() == false) &&
 			(render_cmp->GetOwner().lock()->GetMobilityState() == eMobilityState::kStatic);
 	};

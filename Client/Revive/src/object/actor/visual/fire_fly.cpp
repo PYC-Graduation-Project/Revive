@@ -18,7 +18,9 @@ namespace revive
 	{
 		bool ret = StaticMeshActor::Initialize();
 		
-		m_point_light_component->SetAttenuationRadius(20.0f * GetScale().x);
+		m_static_mesh_component->SetUseShadow(false);
+
+		m_point_light_component->SetAttenuationRadius(100.0f * GetScale().x);
 		m_point_light_component->DisableShadow();
 		ret &= AttachComponent(m_point_light_component);
 

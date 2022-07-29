@@ -10,7 +10,7 @@ namespace revive
 	class ReviveGameMode : public GameMode
 	{
 	public:
-		ReviveGameMode();
+		ReviveGameMode(bool is_develop_mode);
 		virtual ~ReviveGameMode() = default;
 
 		virtual bool Initialize(const SPtr<Level>& level) override;

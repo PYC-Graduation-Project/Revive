@@ -7,9 +7,9 @@
 
 namespace revive
 {
-	ReviveGameMode::ReviveGameMode()
+	ReviveGameMode::ReviveGameMode(bool is_develop_mode)
 	{
-		m_default_pawn = CreateSPtr<RevivePlayer>();
+		m_default_pawn = CreateSPtr<RevivePlayer>(is_develop_mode);
 		m_player_controller = CreateSPtr<ReviveController>();
 	}
 	bool ReviveGameMode::Initialize(const SPtr<Level>& level)

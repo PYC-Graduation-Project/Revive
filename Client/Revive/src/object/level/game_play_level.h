@@ -13,7 +13,7 @@ namespace revive
 	class GamePlayLevel final : public Level
 	{
 	public:
-		GamePlayLevel();
+		GamePlayLevel(bool is_develop_mode = false);
 		virtual ~GamePlayLevel() = default;
 
 		virtual bool Initialize() override;
@@ -36,6 +36,7 @@ namespace revive
 		virtual std::vector<SPtr<CollisionOctree>> CreateCollisionOctrees() const override;
 
 	private:
+		bool m_is_develop_mode = false;
 		bool m_is_succeed_login = false;
 		SPtr<PlayerInfoUILayer> m_player_info_ui_layer;
 		SPtr<GameInfoUILayer> m_game_info_ui_layer;
