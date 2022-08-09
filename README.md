@@ -5,8 +5,8 @@
 
 ### 팀원
 [최준혁](https://github.com/Mari-Jun) - 클라이언트
-* 클라이언트 프레임워크 구현
-* 렌더링 엔진 구현
+* 클라이언트 프레임워크 구현 (Actor Component 형태의 프레임워크, Asset Manager)
+* 렌더링 엔진 구현 (DirectX12를 이용한 렌더링 엔진, Octree, LOD, Post Processing)
 * 물리(충돌) 구현
 * 서버와 통신 클라이언트 구조 설계 및 구현
 * Revive 게임 Visual
@@ -19,6 +19,7 @@
 
 [박해성](https://github.com/gws1017) - 클라이언트
 * 애니메이션 구현
+* 사운드 구현
 * Revive 게임 클라이언트 로직 처리
 
 ***
@@ -30,7 +31,11 @@
 ***
 
 ### 인게임 이미지
-![image](https://user-images.githubusercontent.com/34498116/168530569-44921fdf-8991-45ff-a170-beb433034bb9.png)
-![image](https://user-images.githubusercontent.com/34498116/168530851-b1d53620-0c09-4fa3-be47-25bb76cf7f52.png)
-![image](https://user-images.githubusercontent.com/34498116/168530985-f7696167-7b01-4080-b3da-970cf586ecfe.png)
+![image](https://user-images.githubusercontent.com/34498116/183625957-f3d069c6-801e-4d65-beab-49cb1667e24e.png)
+![image](https://user-images.githubusercontent.com/34498116/183626309-07417aec-d9a9-4cce-9a78-0d89e0887e7b.png)
+![image](https://user-images.githubusercontent.com/34498116/183626383-3d23870b-b411-4941-81e1-10ad6291309b.png)
+![image](https://user-images.githubusercontent.com/34498116/183626435-1798358a-f61c-49a9-85da-5d36bbf12d1a.png)
+
+
+
 
