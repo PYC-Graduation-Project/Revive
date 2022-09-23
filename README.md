@@ -10,7 +10,6 @@
 * 물리(충돌) 구현
 * 서버와 통신 클라이언트 구조 설계 및 구현
 * Revive 게임 Visual
-* 구현 내용의 세부 사항은 [링크](https://github.com/Mari-Jun/DX12_Framework)를 통해서 확인할 수 있습니다.
 
 [양원석](https://github.com/undugy) - 서버
 * 게임 서버 구현
