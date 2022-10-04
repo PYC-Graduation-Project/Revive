@@ -6,7 +6,7 @@
 ### 팀원
 [최준혁](https://github.com/Mari-Jun) - 클라이언트
 * 클라이언트 프레임워크 구현 (Actor Component 형태의 프레임워크, Asset Manager)
-* 렌더링 엔진 구현 (DirectX12를 이용한 렌더링 엔진, Octree, LOD, Post Processing)
+* 렌더링 프레임워크 구현 (DirectX12를 이용한 렌더링 엔진, Octree, LOD, Post Processing)
 * 물리(충돌) 구현
 * 서버와 통신 클라이언트 구조 설계 및 구현
 * Revive 게임 Visual
